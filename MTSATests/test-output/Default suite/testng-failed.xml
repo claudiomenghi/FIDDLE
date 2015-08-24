@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [Default suite]">
+  <test name="Default test(failed)">
+    <classes>
+      <class name="controller.UpdatingControllersTests">
+        <methods>
+          <include name="environmentTest" invocation-numbers="0 1 2 3 4 5 6 7 8"/>
+          <include name="graphGenerator_producesCorrectGraph" invocation-numbers="0"/>
+          <include name="checkUpdatingFormula" invocation-numbers="0 1 2 3 4 5 6 7"/>
+        </methods>
+      </class> <!-- controller.UpdatingControllersTests -->
+    </classes>
+  </test> <!-- Default test(failed) -->
+</suite> <!-- Failed suite [Default suite] -->

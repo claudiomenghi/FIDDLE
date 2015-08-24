@@ -1,0 +1,30 @@
+range X = 0..4
+range Y = 0..4
+
+GANTRY =  (go[x:X] -> end -> GANTRY).
+
+HEAD   =  (go[y:Y] -> end    -> HEAD).
+
+||AGANTRY = GANTRY.
+
+||AHEAD = HEAD.
+
+||CRANE = (  GANTRY/{move[x:X][Y]/go[x]} 
+          || HEAD  /{move[X][y:Y]/go[y]}
+          ).
+
+animation 
+  GANTRY_ANIM  = "xml/fmc.xml" target AGANTRY
+    actions {go[x:X]/gantry.go[x]}
+    controls {end/gantry.end, go[x:X]/x[x]}
+
+animation 
+  HEAD_ANIM  = "xml/fmc.xml" target AHEAD
+  actions  {go[y:Y]/head.go[y]}
+  controls {end/head.end, go[y:Y]/y[y]}
+
+animation 
+  CRANE_ANIM  = "xml/fmc.xml" target CRANE
+   compose    { GANTRY_ANIM/{move[x:X][Y]/go[x]}
+              || HEAD_ANIM  /{move[X][y:Y]/go[y]}
+              }

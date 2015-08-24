@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Sealed: true
+Class-Path: framework.jar
+Main-Class: ic.doc.ltsa.frontend.HPWindow
+

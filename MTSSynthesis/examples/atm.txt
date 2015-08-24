@@ -1,0 +1,4 @@
+{pwd|verify|verifying|wait|ok,pwd|verify|wait|verifying|ok}
+{reqCash|getBalance|cash}
+{pwd,verify,ok,reqCash,getBalance,cash,wait,verifying}
+

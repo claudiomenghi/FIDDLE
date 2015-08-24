@@ -1,0 +1,74 @@
+<project name="ltsa-miketest" default="run-tests" basedir=".">
+    <description>Run Mike's batch tests for LTSA</description>
+    
+	<property name="src" location="src"/>
+	<property name="build" location="bin"/>
+	<property name="dist"  location="lib"/>
+	<property name="dest_dir"  location="dist"/>
+	
+	<path id="run.classpath">
+		<pathelement location="${dist}/LTL2Buchi.jar"/>
+		<pathelement location="${dist}/ltsa.jar"/>
+	</path>
+	
+    <target name="build-ltsa">
+    	<ant antfile="build.xml"/>
+    </target>
+    
+	<target name="run-tests">
+		<antcall target="interface-test"/>
+		<antcall target="vanilla-test"/>
+	</target>
+	
+    <target name="interface-test">
+    	<!-- Run the interface learning with debug output -->
+    	<antcall target="run">
+    		<param name="class" value="lstar.interfaces.InterfaceLearningUI"/>
+    		<param name="input-file" value=
+				"examples/SceneAnimations/InputOutput/ARD-Current-elegant.lts"/>
+    		<param name="other-args" value="learning"/>
+			<param name="output-file" value="interface-test.out"/>
+			<param name="memory-size" value="1g"/>
+			<param name="show-debug" value="true"/>
+			<param name="show-control-flow" value="true"/>
+			<param name="show-warning" value="true"/>
+			<param name="show-error" value="true"/>
+    	</antcall>
+    </target>
+    <target name="vanilla-test">
+    	<!-- Run the vanilla learning without debug output, but 2gb memory -->
+    	<antcall target="run">
+    		<param name="class" value="lstar.ltsa.SETCompositionalLearningUI"/>
+    		<param name="input-file" value=
+				"examples/SceneAnimations/InputOutput/ARD-Current-elegant.lts"/>
+			<param name="output-file" value="vanilla-test.out"/>
+    		<param name="other-args" value="ModuleOne"/>
+			<param name="memory-size" value="2g"/>
+			<param name="show-debug" value="false"/>
+			<param name="show-control-flow" value="false"/>
+			<param name="show-warning" value="true"/>
+			<param name="show-error" value="true"/>
+    	</antcall>
+    </target>
+    
+    <target name="run" depends="build-ltsa">
+		<java classname="${class}" 
+			classpathref="run.classpath" 
+			fork="true" failonerror="true" maxmemory="${memory-size}"
+			output="${output-file}">
+					
+			<assertions enableSystemAssertions="true">
+				<enable/>
+			</assertions>
+			
+			<!-- Keys for controlling the output verbosity. -->
+			<sysproperty key="warning" value="${show-warning}"/>
+			<sysproperty key="error" value="${show-error}"/>
+			<sysproperty key="debug" value="${show-debug}"/>
+			<sysproperty key="control-flow" value="${show-control-flow}"/>
+			
+			<arg value="${input-file}"/>
+			<arg line="${other-args}"/>
+		</java>
+    </target>
+</project>

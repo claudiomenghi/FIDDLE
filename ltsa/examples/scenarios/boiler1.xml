@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+  <hmsc>
+    <bmsc name="init" x="50" y="30" />
+    <bmsc name="Initialise" x="50" y="130" />
+    <bmsc name="Register" x="170" y="230" />
+    <bmsc name="Analysis" x="170" y="330" />
+    <bmsc name="Terminate" x="50" y="230" />
+    <transition>
+      <from>init</from>
+      <to>Initialise</to>
+    </transition>
+    <transition>
+      <from>Initialise</from>
+      <to>Register</to>
+    </transition>
+    <transition>
+      <from>Register</from>
+      <to>Analysis</to>
+    </transition>
+    <transition>
+      <from>Register</from>
+      <to>Terminate</to>
+    </transition>
+    <transition>
+      <from>Terminate</from>
+      <to>Initialise</to>
+    </transition>
+    <transition>
+      <from>Analysis</from>
+      <to>Register</to>
+    </transition>
+    <transition>
+      <from>Register</from>
+      <to>Register</to>
+    </transition>
+  </hmsc>
+  <bmsc name="init" />
+  <bmsc name="Initialise">
+    <instance name="Sensor">
+      <input timeindex="2">
+        <name>start</name>
+        <from>Control</from>
+      </input>
+    </instance>
+    <instance name="Database" />
+    <instance name="Control">
+      <output timeindex="2">
+        <name>start</name>
+        <to>Sensor</to>
+      </output>
+    </instance>
+    <instance name="Actuator" />
+  </bmsc>
+  <bmsc name="Register">
+    <instance name="Sensor">
+      <output timeindex="1">
+        <name>pressure</name>
+        <to>Database</to>
+      </output>
+    </instance>
+    <instance name="Database">
+      <input timeindex="1">
+        <name>pressure</name>
+        <from>Sensor</from>
+      </input>
+    </instance>
+    <instance name="Control" />
+    <instance name="Actuator" />
+  </bmsc>
+  <bmsc name="Analysis">
+    <instance name="Sensor" />
+    <instance name="Database">
+      <input timeindex="1">
+        <name>query</name>
+        <from>Control</from>
+      </input>
+      <output timeindex="2">
+        <name>data</name>
+        <to>Control</to>
+      </output>
+    </instance>
+    <instance name="Control">
+      <output timeindex="1">
+        <name>query</name>
+        <to>Database</to>
+      </output>
+      <input timeindex="2">
+        <name>data</name>
+        <from>Database</from>
+      </input>
+      <output timeindex="3">
+        <name>command</name>
+        <to>Actuator</to>
+      </output>
+    </instance>
+    <instance name="Actuator">
+      <input timeindex="3">
+        <name>command</name>
+        <from>Control</from>
+      </input>
+    </instance>
+  </bmsc>
+  <bmsc name="Terminate">
+    <instance name="Sensor">
+      <input timeindex="2">
+        <name>stop</name>
+        <from>Control</from>
+      </input>
+    </instance>
+    <instance name="Database" />
+    <instance name="Control">
+      <output timeindex="2">
+        <name>stop</name>
+        <to>Sensor</to>
+      </output>
+    </instance>
+    <instance name="Actuator" />
+  </bmsc>
+</specification>
+

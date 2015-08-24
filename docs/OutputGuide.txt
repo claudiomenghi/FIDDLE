@@ -1,0 +1,102 @@
+Synthesis from triggered scenarios
+----------------------------------
+
+The output will look like this:
+
+"Synthesising from triggered scenario:" 
+<NAME>
+<SCENARIO_TYPE>
+"Fluents:" 
+<FLUENTS>
+"Prechart:" <CHART>
+"Prechart linearisations:[" CHART_LINEARISATIONS "]"
+"Mainchart:" <CHART>
+"Mainchart linearisations:[" CHART_LINEARISATIONS "]"
+"Alphabet:" <SYMBOLS> 
+"Fluent Alphabet:" <SYMBOLS>
+
+NAME is the scenario name in the editor. FLUENTS are the fluents involved in the scenario.
+<CHART> is similar to the chart defined in the editor window but every location is prefixed 
+with its order number
+UNIQUE_LOCATION is the location prefixed with the order of that location in the chart.
+
+Examples:
+
+When synthesising from this universal scenario
+uTS U_Sc_P1 = {
+	instances {Controller Pump Clock}
+	condition Phi_1 = (AtHighWater && !MethanePresent && !PumpOn)
+	prechart {
+		Phi_1[Controller Pump]
+	}
+	mainchart {
+		Controller -> switchOn -> Pump
+	}
+	restricts {
+		Clock -> tick -> Clock
+	}
+}
+
+We get this output: 
+
+--- MTSA OUTPUT INIT ---
+
+Synthesising from triggered scenario: 
+U_Sc_P1
+Universal Triggered Scenario
+Fluents: 
+[AtHighWater = <[highWater] , [medWater, lowWater] > initially false, MethanePresent = <[methAppears] , [methLeaves] > initially false, PumpOn = <[switchOn] , [switchOff] > initially false]
+Prechart: [<0,Phi_1[Controller, Pump]>]
+Prechart's linearisations: [[Phi_1[Controller, Pump]]]
+Mainchart: [<0,Controller -> switchOn -> Pump>]
+Mainchart's linearisations: [[Controller -> switchOn -> Pump]]
+Alphabet: [tick, switchOn]
+Fluent's Alphabet: [highWater, medWater, methLeaves, methAppears, switchOn, switchOff, lowWater]
+
+--- MTSA OUTPUT END ---
+
+U_Sc_P1 is the name of the scenario. The output will tell whether it's a universal or existential scenario.
+The fluents are the ones involved in the scenario and are listed just like in the editor window.
+The charts (prechart and mainchart) must be in the same order as in the editor window. Each
+location is prefixed by the ordering number. The chart's linearisations are also listed for
+debugging. The alphabet only list the messages. The Fluent's alphabet list the alphabet of the
+involved fluents (initiating and terminating actions).
+
+When synthesising from this existential scenario 
+
+eTS ESC_1 = {
+	instances {Controller Pump WaterSensor}
+	condition Phi_1 = (AtHighWater && !PumpOn && !MethanePresent)
+	prechart {
+		Phi_1[Controller Pump WaterSensor]
+	}
+	mainchart {
+		Controller -> switchOn -> Pump
+		WaterSensor -> medWater -> Controller
+		WaterSensor -> lowWater -> Controller
+		Controller -> switchOff -> Pump
+	}
+}
+
+We get this output:
+
+--- MTSA OUTPUT INIT ---
+
+Synthesising from triggered scenario: 
+ESC_1
+Existential Triggered Scenario
+Fluents: 
+[AtHighWater = <[highWater] , [medWater, lowWater] > initially false, MethanePresent = <[methAppears] , [methLeaves] > initially false, PumpOn = <[switchOn] , [switchOff] > initially false]
+Prechart: [<0,Phi_1[WaterSensor, Controller, Pump]>]
+Prechart's linearisations: [[Phi_1[WaterSensor, Controller, Pump]]]
+Mainchart: [<0,Controller -> switchOn -> Pump>, <1,WaterSensor -> medWater -> Controller>, <2,WaterSensor -> lowWater -> Controller>, <3,Controller -> switchOff -> Pump>]
+Mainchart's linearisations: [[Controller -> switchOn -> Pump, WaterSensor -> medWater -> Controller, WaterSensor -> lowWater -> Controller, Controller -> switchOff -> Pump]]
+Alphabet: [medWater, switchOn, switchOff, lowWater]
+Fluent's Alphabet: [highWater, medWater, methLeaves, methAppears, switchOn, switchOff, lowWater]
+
+--- MTSA OUTPUT END ---
+
+
+
+
+

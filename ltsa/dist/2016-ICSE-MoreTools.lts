@@ -1,0 +1,179 @@
+// -----------------------------COMMENTS-------------------------------
+
+// - To execute the solution for update controllers select in the dropdown menu 
+// the "UPDATE_CONTROLLER" label, and then press the compose button.
+// - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
+// different transition requeriments presented in the paper.
+// - You can animate the controller obtained pressing the blue A in the top bar
+// - If you want to add green raw element to be process, change  set definition
+// and uncomment the 
+
+// ---------------------------ENVIRONMENTS-----------------------------
+
+//ACTION SETS
+set ControllableActions = {in, drill, polish, paint, glue, clean, out, trash}
+set NewControllableActions = {in, drill, polish, paint, sew, clean, out, trash}
+
+//Domain Old Model
+	IO = ({in, out, trash} -> IO).
+	OLD_ARM = ( polish -> POLISHED 
+		| drill -> DRILLED
+		| clean -> CLEANED
+		| paint -> PAINTED
+		| glue -> GLUED
+		| trash -> OLD_ARM),
+	DRILLED = ({drillOk,trash} -> OLD_ARM),
+	POLISHED = ({polishOk,trash} -> OLD_ARM),
+	PAINTED = ({paintOk,trash} -> OLD_ARM),
+	GLUED = ({glueOk,trash} -> OLD_ARM),
+	CLEANED = ({cleanOk,trash} -> OLD_ARM).
+
+//Domain New Model
+	NEW_ARM = ( paint -> PAINTED
+		| drill -> DRILLED
+		| clean -> CLEANED
+		| polish -> POLISHED
+		| trash -> OLD_ARM
+		| sew -> SEWED),
+	PAINTED = ({paintOk,trash} -> NEW_ARM),
+	DRILLED = ({drillOk,trash} -> NEW_ARM),
+	CLEANED = ({cleanOk,trash} -> NEW_ARM),
+	POLISHED = ({polishOk,trash} -> NEW_ARM),
+	SEWED = ({sewOk,trash} -> NEW_ARM).
+
+
+||OLD_ENV = (OLD_ARM || IO).
+||NEW_ENV = (NEW_ARM || IO).
+
+
+//DEFINED FLUENTS 
+fluent Drilled = <drillOk,{in,trash}>
+fluent DrillPending = <drill,{drillOk,trash}>
+fluent Polished = <polishOk, {in,trash}>
+fluent PolishPending = <polish, {polishOk,trash}>
+fluent Cleaned = <cleanOk, {in,trash}>
+fluent CleanPending = <clean, {cleanOk,trash}>
+fluent Painted = <paintOk, {in,trash}>
+fluent PaintPending = <paint, {paintOk,trash}>
+fluent Sewed = <sewOk, {in,trash}>
+fluent SewPending = <sew, {sewOk,trash}>
+fluent Glued = <glueOk, {in,trash}>
+fluent GluePending = <glue, {glueOk,trash}>
+
+fluent OldToolApplied = <{drillOk,cleanOk,polishOk,glueOk,paintOk},{out,trash}>
+fluent NewToolApplied = <{paintOk,drillOk,cleanOk,sewOk,polishOk},{out,trash}>
+fluent AnyToolApplied = <{glueOk,paintOk,drillOk,cleanOk,sewOk,polishOk},{out,trash}>
+fluent Processing = <in,{out,trash}>
+fluent Trashed = <trash,in>
+// RedIn -> !in
+// T =    (reconfigure -> !Polish) 
+
+// ---------------------------OLD CONTROLLER SPEC-----------------------------
+
+assert OLD_TOOL_ORDER = ((CleanPending -> Glued) && (GluePending -> Painted) 
+				&& (PaintPending -> Polished) && (PolishPending -> Drilled))
+assert OLD_TOOLS_POLICY = ( (drill || polish || clean || glue || paint ) -> Processing)
+assert OLD_OUT_IF_FINISHED = (out -> (Drilled && Polished && Cleaned && Glued && Painted))
+assert OLD_ONLY_ONE_INSTANCE = ( in -> (!OldToolApplied && !DrillPending && !PolishPending && !CleanPending && !PaintPending && !GluePending) )
+assert DRILL_ONCE = ( drill -> !Drilled )
+assert POLISH_ONCE = ( polish -> !Polished )
+assert CLEAN_ONCE = ( clean -> !Cleaned )
+assert GLUE_ONCE = ( glue -> !Glued )
+assert PAINT_ONCE =   ( paint -> !Painted )
+assert AVOID_TRASHING = ( !trash)
+
+ltl_property P_OLD_TOOL_ORDER = []OLD_TOOL_ORDER
+ltl_property P_OLD_TOOLS_POLICY = []OLD_TOOLS_POLICY
+ltl_property P_OLD_OUT_IF_FINISHED = []OLD_OUT_IF_FINISHED
+ltl_property P_OLD_ONLY_ONE_INSTANCE = []OLD_ONLY_ONE_INSTANCE
+ltl_property P_DRILL_ONCE = []DRILL_ONCE
+ltl_property P_POLISH_ONCE = []POLISH_ONCE
+ltl_property P_CLEAN_ONCE = []CLEAN_ONCE
+ltl_property P_GLUE_ONCE = []GLUE_ONCE
+ltl_property P_PAINT_ONCE = []PAINT_ONCE
+ltl_property P_AVOID_TRASHING = []AVOID_TRASHING
+
+controllerSpec D_P_P_G_C = {
+	safety = {P_OLD_TOOL_ORDER, P_OLD_TOOLS_POLICY, P_OLD_OUT_IF_FINISHED,
+			P_OLD_ONLY_ONE_INSTANCE, P_DRILL_ONCE, P_POLISH_ONCE, P_CLEAN_ONCE,
+			P_GLUE_ONCE, P_PAINT_ONCE, P_AVOID_TRASHING 
+			}
+	controllable = {ControllableActions}
+}
+controller ||C_D_P_P_G_C = (OLD_ENV)~{D_P_P_G_C}.
+||DrillPolishPaintGlueClean = (C_D_P_P_G_C || OLD_ENV).
+
+
+// ---------------------------NEW CONTROLLER SPEC-----------------------------
+
+assert NEW_TOOL_ORDER = ((CleanPending -> Sewed) && (SewPending -> Painted) 
+				&& (PaintPending -> Polished) && (PolishPending -> Drilled))
+assert NEW_TOOLS_POLICY = ( (drill || polish || clean || sew || paint ) -> Processing)
+assert NEW_OUT_IF_FINISHED = (out -> (Drilled && Polished && Cleaned && Sewed && Painted))
+assert NEW_ONLY_ONE_INSTANCE = ( in -> (!NewToolApplied && !DrillPending && !PolishPending && !CleanPending && !PaintPending && !SewPending) )
+assert SEW_ONCE = (sew -> !Sewed)
+
+ltl_property P_NEW_TOOL_ORDER = []NEW_TOOL_ORDER
+ltl_property P_NEW_TOOLS_POLICY = []NEW_TOOLS_POLICY
+ltl_property P_NEW_OUT_IF_FINISHED = []NEW_OUT_IF_FINISHED
+ltl_property P_NEW_ONLY_ONE_INSTANCE = []NEW_ONLY_ONE_INSTANCE
+ltl_property P_SEW_ONCE = []SEW_ONCE
+
+controllerSpec D_P_P_S_C = {
+	safety = {P_NEW_TOOL_ORDER, P_NEW_TOOLS_POLICY, P_NEW_OUT_IF_FINISHED,
+			P_NEW_ONLY_ONE_INSTANCE, P_DRILL_ONCE, P_POLISH_ONCE, P_CLEAN_ONCE,
+			P_SEW_ONCE, P_PAINT_ONCE, P_AVOID_TRASHING 
+			}
+	controllable = {NewControllableActions}
+}
+controller ||C_D_P_P_S_C = (NEW_ENV)~{D_P_P_S_C}.
+||DrillPolishPaintSewClean = (C_D_P_P_S_C || NEW_ENV).
+
+// ---------------------------UPDATING CONTROLLER SPEC-----------------------------
+fluent InTransition = <beginUpdate,startNewSpec>
+
+assert S_OLD = (OLD_TOOL_ORDER && OLD_TOOLS_POLICY && OLD_OUT_IF_FINISHED && OLD_ONLY_ONE_INSTANCE && DRILL_ONCE && POLISH_ONCE && PAINT_ONCE && GLUE_ONCE && CLEAN_ONCE)
+assert S_NEW = (NEW_TOOL_ORDER && NEW_TOOLS_POLICY && NEW_OUT_IF_FINISHED && NEW_ONLY_ONE_INSTANCE && DRILL_ONCE && POLISH_ONCE && PAINT_ONCE && SEW_ONCE && CLEAN_ONCE)
+
+ltl_property T_REMOVE_POLSHED = [](  (reconfigure -> (!Glued && !GluePending)) && (startNewSpec -> Reconfigure) && (InTransition -> (S_NEW_STAR || trash) ) )
+assert S_NEW_STAR = ( S_NEW_OUT_STAR && S_NEW_IN_STAR)
+
+assert S_NEW_OUT_STAR = (out -> (!Glued && Drilled && Polished && Cleaned && Sewed && Painted)) 
+assert S_NEW_IN_STAR = (in ->(!AnyToolApplied)) 
+
+
+updatingController UpdCont = {
+    oldController = DrillPolishPaintGlueClean,
+    oldEnvironment = OLD_ENV,
+    newEnvironment = NEW_ENV,
+    oldGoal = D_P_P_G_C,
+    newGoal = D_P_P_S_C,
+    transition = T_REMOVE_POLSHED,
+    nonblocking,
+    updateFluents = {
+		{Drilled,Drilled},
+		{Polished,Polished},
+		{Painted,Painted},
+		{FALSE,Sewed},
+		{Cleaned,Cleaned},
+		{Processing,Processing},
+		{DrillPending,DrillPending},
+		{PolishPending,PolishPending},
+		{PaintPending,PaintPending},
+		{FALSE,SewPending},
+		{CleanPending,CleanPending},
+		{Trashed,Trashed}
+	}
+}
+
+||UPDATE_CONTROLLER = UpdCont.
+// ---------------------------TEST AND RESULTS-----------------------------
+fluent StopOldSpec = <stopOldSpec, beginUpdate>
+fluent StartNewSpec = <startNewSpec,beginUpdate>
+fluent Reconfigure = <reconfigure, beginUpdate>
+
+assert TEST_FORMULA1 = (S_OLD W stopOldSpec)
+assert TEST_FORMULA2 = (startNewSpec -> S_NEW)
+assert TEST_FORMULA3 = (stopOldSpec -> X (!stopOldSpec))
+assert TEST_FORMULA4 = (beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && (startNewSpec -> S_NEW) && (stopOldSpec -> X(!stopOldSpec)))

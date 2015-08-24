@@ -1,0 +1,154 @@
+// -----------------------------COMMENTS-------------------------------
+
+// - To execute the solution for update controllers select in the dropdown menu 
+// the "UPDATE_CONTROLLER" label, and then press the compose button (||).
+// - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
+// different transition requeriments presented in the paper.
+// - You can animate the controller obtained pressing the blue A in the top bar
+
+// ---------------------------ENVIRONMENTS-----------------------------
+
+set ControllableActions = {initInventory, initCredit, eval, initShipping, initBilling, archive, rollback}
+set All = {ControllableActions, orderEntry, endInventory, endCredit, endShipping, endBilling, approve, reject}
+
+ENTRY = (orderEntry -> PROCESSING),
+PROCESSING = ({archive,reject,rollback} -> ENTRY).
+INVENTORY = (initInventory -> endInventory -> INVENTORY).
+CREDIT = (initCredit -> endCredit -> CREDIT).
+EVAL = (eval -> EVAL_RESPONSE),
+EVAL_RESPONSE = ({approve, reject} -> EVAL).
+SHIPPING = (initShipping -> SHIPPING_PROCESSING | rollback -> SHIPPING),
+SHIPPING_PROCESSING = ({endShipping,rollback} -> SHIPPING).
+BILLING = (initBilling -> BILLING_PROCESSING | rollback -> BILLING),
+BILLING_PROCESSING = ({endBilling, rollback} -> BILLING).
+
+||Environment = (ENTRY || INVENTORY || CREDIT || SHIPPING || BILLING || EVAL).
+
+//Fluents declaration
+fluent InventoryFinished = <endInventory,{orderEntry}>
+fluent CreditFinished = <endCredit,{orderEntry}>
+fluent ShippingFinished = <endShipping,{orderEntry}>
+fluent BillingFinished = <endBilling,{orderEntry}>
+
+fluent InventoryInitiated = <initInventory,{orderEntry}>
+fluent CreditInitiated = <initCredit,{orderEntry}>
+fluent ShippingInitiated = <initShipping,{orderEntry}>
+fluent BillingInitiated = <initBilling,{orderEntry}>
+
+fluent InventoryProcessing = <initInventory,endInventory>
+fluent CreditProcessing = <initCredit,endCredit>
+fluent ShippingProcessing = <initShipping,endShipping>
+fluent BillingProcessing = <initBilling,endBilling>
+
+fluent OrderArrived = <{orderEntry},{archive,reject}>
+fluent Archiving = <{archive},{initInventory,initCredit}>
+fluent EvalResponseDone = <{approve,reject},orderEntry>
+fluent OrderApproved = <{approve},{archive,rollback}>
+
+fluent RollbackDone = <rollback,orderEntry>
+
+// ---------------------------CONCURRENT CONTROLLER SPEC (old system)-----------------------------
+
+assert ARCHIVE_POLICY = (archive -> (ShippingFinished && BillingFinished))
+assert EVAL_POLICY = (eval -> (InventoryFinished && CreditFinished))
+assert DISABLE_DOBLE_EVAL = ((eval -> (InventoryFinished && CreditFinished)) && (EvalResponseDone -> !eval))
+assert INITS_POLICY = ((initInventory -> OrderArrived) && (initCredit -> OrderArrived) &&
+					 (initShipping -> OrderApproved) && (initBilling -> OrderApproved))
+assert DONT_INIT_TWICE = ((InventoryFinished -> !initInventory) && (CreditFinished -> !initCredit) &&
+					(ShippingFinished -> !initShipping) && (BillingFinished -> !initBilling)
+)
+assert AVOID_ROLLBACK = (!rollback)
+
+ltl_property P_ARCHIVE_POLICY = []ARCHIVE_POLICY
+ltl_property P_EVAL_POLICY = []EVAL_POLICY
+ltl_property P_DISABLE_DOBLE_EVAL = []DISABLE_DOBLE_EVAL
+ltl_property P_INITS_POLICY = []INITS_POLICY
+ltl_property P_DONT_INIT_TWICE = []DONT_INIT_TWICE
+ltl_property P_AVOID_ROLLBACK = []AVOID_ROLLBACK
+
+controllerSpec ConcurrentSpec = {
+    safety = {P_AVOID_ROLLBACK, P_EVAL_POLICY, P_ARCHIVE_POLICY, P_DISABLE_DOBLE_EVAL, P_INITS_POLICY, P_DONT_INIT_TWICE}
+    controllable = {ControllableActions}
+}
+
+controller ||ConcurrentController = Environment~{ConcurrentSpec}.
+||Concurrent = (ConcurrentController || Environment).
+
+// ---------------------------SEQUENTIAL CONTROLLER SPEC (new system)-----------------------------
+
+assert SEQUENTIAL = (((initShipping || endShipping) -> BillingFinished))// && (initBilling -> !ShippingInitiated) )
+
+ltl_property P_SEQUENTIAL = []SEQUENTIAL
+
+controllerSpec SequentialSpec = {
+    safety = {P_SEQUENTIAL,P_AVOID_ROLLBACK,P_EVAL_POLICY, P_ARCHIVE_POLICY, P_DISABLE_DOBLE_EVAL, P_INITS_POLICY, P_DONT_INIT_TWICE}
+    controllable = {ControllableActions}
+}
+
+controller ||SequentialController = Environment~{SequentialSpec}.
+||Sequential = (SequentialController || Environment).
+
+// ---------------------------UPDATING CONTROLLER SPEC-----------------------------
+
+assert AnyAction = (initInventory || initCredit || eval || initShipping || initBilling || archive || rollback ||
+			orderEntry || endInventory || endCredit || endShipping || endBilling || approve || reject)
+
+//Fluents for updates
+fluent EvalPending = <eval,{approve,reject}>
+
+fluent StopOldSpec = <stopOldSpec, beginUpdate>
+fluent StartNewSpec = <startNewSpec, beginUpdate>
+fluent Reconfigure = <reconfigure, beginUpdate>
+fluent InTransition = <stopOldSpec, startNewSpec>
+
+ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec)) )
+ltl_property T_PAY_THE_COST = [](rollback -> (StopOldSpec && !StartNewSpec && (ShippingInitiated && !BillingInitiated)))
+
+
+updatingController UpdCont = { 
+    oldController = Concurrent,
+    oldEnvironment = Environment,
+    newEnvironment = Environment,
+    oldGoal = ConcurrentSpec,
+    newGoal = SequentialSpec,
+	transition = T_NO_TP,
+    //transition = T_PAY_THE_COST,
+    nonblocking,
+    updateFluents = {
+		{InventoryFinished, InventoryFinished},
+        {CreditFinished, CreditFinished},
+        {ShippingFinished, ShippingFinished},
+        {BillingFinished, BillingFinished},
+
+        {InventoryInitiated, InventoryInitiated},
+        {CreditInitiated, CreditInitiated},
+        {ShippingInitiated, ShippingInitiated},
+        {BillingInitiated, BillingInitiated},
+
+        {InventoryProcessing, InventoryProcessing},
+        {CreditProcessing, CreditProcessing},
+        {ShippingProcessing, ShippingProcessing},
+        {BillingProcessing, BillingProcessing},
+
+        {OrderArrived, OrderArrived},
+        {Archiving, Archiving},
+        {EvalResponseDone, EvalResponseDone},
+        {OrderApproved, OrderApproved},
+		{EvalPending,EvalPending},
+
+		{RollbackDone,RollbackDone}
+
+    }
+}
+
+||UPDATE_CONTROLLER = UpdCont.
+// ---------------------------TEST AND RESULTS-----------------------------
+
+assert S_OLD = (ARCHIVE_POLICY && EVAL_POLICY && DISABLE_DOBLE_EVAL && INITS_POLICY && DONT_INIT_TWICE)
+assert S_NEW = (SEQUENTIAL && ARCHIVE_POLICY && EVAL_POLICY && DISABLE_DOBLE_EVAL && INITS_POLICY && DONT_INIT_TWICE)
+
+
+assert TEST_FORMULA1 = (S_OLD W stopOldSpec)
+assert TEST_FORMULA2 = [](startNewSpec -> []S_NEW)
+assert TEST_FORMULA3 = [](stopOldSpec -> X(!stopOldSpec))
+assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && [](startNewSpec -> []S_NEW) && [](stopOldSpec -> X(!stopOldSpec)))

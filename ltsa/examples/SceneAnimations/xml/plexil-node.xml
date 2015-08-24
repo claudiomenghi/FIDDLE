@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+
+<animation width="100" height="100">
+
+
+<behaviour id="inactive" algorithm="randomTimer" event="inactive.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+<behaviour id="waiting" algorithm="randomTimer" event="waiting.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+<behaviour id="executing" algorithm="randomTimer" event="executing.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+<behaviour id="finishing" algorithm="randomTimer" event="finishing.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+<behaviour id="finished" algorithm="randomTimer" event="finished.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+<behaviour id="failing" algorithm="randomTimer" event="failing.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+<draw>
+	<compose id="show" type = "switch">
+	<primitive type = "sprite">
+	        <param name = "src" value ="image/inactive.gif"/>
+		<param name = "hotspot" value = "(50,43)"/>
+	 </primitive>
+	 <primitive type = "sprite">
+	    <param name = "src" value ="image/waiting.gif"/>
+		<param name = "hotspot" value = "(50,43)"/>
+	 </primitive>
+	 <primitive type = "sprite">
+	    <param name = "src" value="image/executing.gif"/>
+		<param name = "hotspot" value = "(50,43)"/>
+	 </primitive>
+	 <primitive type = "sprite">
+	    <param name = "src" value="image/finishing.gif"/>
+		<param name = "hotspot" value = "(50,43)"/>
+	 </primitive>
+	 <primitive type = "sprite">
+	    <param name = "src" value="image/finished.gif"/>
+		<param name = "hotspot" value = "(50,43)"/>
+	 </primitive>
+	 	 <primitive type = "sprite">
+	 	    <param name = "src" value="image/failing.gif"/>
+	 		<param name = "hotspot" value = "(50,43)"/>
+	 </primitive>
+	</compose>
+</draw>
+
+
+<event object="inactive" event="inactive.end">
+  <set object="show" param="current" value="0" />
+  <stop behaviour="inactive" />
+  <announce event="inactive.end" />
+</event>
+
+<event object="waiting" event="waiting.end">
+  <set object="show" param="current" value="1" />
+  <stop behaviour="waiting" />
+  <announce event="waiting.end" />
+</event>
+
+<event object="executing" event="executing.end">
+  <set object="show" param="current" value="2" />
+  <stop behaviour="executing" />
+  <announce event="executing.end" />
+</event>
+
+
+<event object="finishing" event="finishing.end">
+  <set object="show" param="current" value="3" />
+  <stop behaviour="finishing" />
+  <announce event="finishing.end" />
+</event>
+
+<event object="finished" event="finished.end">
+  <set object="show" param="current" value="4" />
+  <stop behaviour="finished" />
+  <announce event="finished.end" />
+</event>
+
+<event object="failing" event="failing.end">
+  <set object="show" param="current" value="5" />
+  <stop behaviour="failing" />
+  <announce event="failing.end" />
+</event>
+
+
+<command name="inactive.begin">
+  <announce event="~inactive.end"/>
+  <set object="show" param="current" value="0" />
+  <reset behaviour="inactive"/>
+  <start behaviour="inactive"/>
+</command>
+
+<command name="waiting.begin">
+  <announce event="~waiting.end"/>
+  <set object="show" param="current" value="1" />
+  <reset behaviour="waiting"/>
+  <start behaviour="waiting"/>
+</command>
+
+<command name="executing.begin">
+  <announce event="~executing.end"/>
+  <set object="show" param="current" value="2" />
+  <reset behaviour="executing"/>
+  <start behaviour="executing"/>
+</command>
+
+<command name="finishing.begin">
+  <announce event="~finishing.end"/>
+  <set object="show" param="current" value="3" />
+  <reset behaviour="finishing"/>
+  <start behaviour="finishing"/>
+</command>
+
+<command name="finished.begin">
+  <announce event="~finished.end"/>
+  <set object="show" param="current" value="4" />
+  <reset behaviour="finished"/>
+  <start behaviour="finished"/>
+</command>
+
+<command name="failing.begin">
+  <announce event="~failing.end"/>
+  <set object="show" param="current" value="5" />
+  <reset behaviour="failing"/>
+  <start behaviour="failing"/>
+</command>
+
+
+</animation>

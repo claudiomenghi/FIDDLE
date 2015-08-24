@@ -1,0 +1,68 @@
+//leader election in a general synchronous ring
+set      UID  = {[3],[13],[12],[7],[19]}
+const    N    = #UID
+range    ID   = 1..N
+set      M    = {UID}
+
+const Diam = 4 //should be 4
+range Int =  0..Diam
+
+//links or channels hold at most a single message
+set Network = {[1][2], [2][3], [2][5], [5][3], [3][4], [4][1]}
+
+CHAN(Ch='[0][0])  =(put[Ch][m:M] -> get[Ch][m] -> CHAN).
+
+ALLOW = (get.Network.M->ALLOW)+{get[ID][ID][M]}.
+
+||NETWORK = (forall[ch:Network] CHAN(ch) || ALLOW)
+            /{forall[i:ID] {put[i]/put[i][ID]}}.
+
+//the synchronous model proceeds in two steps
+ROUND = (step1 -> step2 -> ROUND).
+
+//the processes
+PROCESS(Id=1,U=19) 
+  = (start->init[Id][U]->step1->MSGS[U][0]),
+MSGS[max:M][rounds:Int]
+  = (put[Id][max] -> step2 -> TRANS[max][rounds+1]),
+TRANS[max:M][rounds:Int]
+  = (get[ID][Id][m:M] 
+     -> if (m>max) then
+           (display[Id][m]->TRANS[m][rounds])
+        else
+           (display[Id][max]->TRANS[max][rounds])
+    |step1 -> if (rounds==Diam) then LEADER[max] else MSGS[max][rounds]
+    ),
+LEADER[max:M]
+  = if (max == U) then
+       (leader[Id] -> STOP)
+    else
+       (notleader[Id] -> STOP).
+
+||SYS = (forall[i:ID] PROCESS(i,@(UID,i-1)) || NETWORK)>>{step1,step2}.
+
+property 
+  ONELEADER      = (leader[i:ID] -> ELECTED[i]),
+  ELECTED[i:1..N]= (leader[i] -> ELECTED[i]).
+
+
+menu RUN = {step1,step2}
+
+animation NETWORK = "xml/network.xml"
+            actions{
+				forall[i:1..N] {
+                  init[i][u:UID]/display[i][u],
+                  leader[i]/leader[i],
+                  notleader[i]/notleader[i],
+                  display[i][m:M]/display[i][m], 
+                  put[i][UID]/chan[i][ID].begin
+  				}
+            }
+            controls {
+               start/init,
+               step1/round,         
+               step2/{chan.Network.end}
+            }
+
+
+                     

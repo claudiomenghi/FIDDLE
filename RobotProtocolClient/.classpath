@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ltsa"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MTSAEnactment"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MTSSynthesis"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MTSAClient"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MTSTools"/>
+	<classpathentry kind="lib" path="libs/jssc.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="libs/bcel.jar"/>
+	<classpathentry kind="lib" path="libs/bluecove-gpl.jar"/>
+	<classpathentry kind="lib" path="libs/bluecove.jar"/>
+	<classpathentry kind="lib" path="libs/charting.jar"/>
+	<classpathentry kind="lib" path="libs/commons-cli.jar"/>
+	<classpathentry kind="lib" path="libs/jcommon.jar"/>
+	<classpathentry kind="lib" path="libs/jfreechart.jar"/>
+	<classpathentry kind="lib" path="libs/jtools.jar"/>
+	<classpathentry kind="lib" path="libs/pccomm.jar"/>
+	<classpathentry kind="lib" path="libs/pctools.jar"/>
+	<classpathentry kind="lib" path="libs/stax-api-1.0.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="libs/javacv/javacpp.jar"/>
+	<classpathentry kind="lib" path="libs/javacv/javacv.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/FSP2MTS"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ltsa"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MTSAClient"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MTSSynthesis"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MTSTools"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/ltsa/lib/testng-6.8.13.jar"/>
+	<classpathentry kind="lib" path="/MTSTools/lib/jung/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/MTSTools/lib/jung/jung-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/MTSTools/lib/jung/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

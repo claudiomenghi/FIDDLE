@@ -1,0 +1,249 @@
+<project name="ltsa" default="compile" basedir=".">
+    <description>MTSA Build</description>
+
+	<!-- global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="build" location="bin"/>
+	<property name="dist"  location="dist"/>
+	<property name="lib"  location="${dist}/lib"/>
+	<property name="dest_dir"  location="dist"/>
+	<property name="mtsa.src" location="../MTSTools/src"/>
+    <property name="mtsa.lib" location="../MTSTools/lib"/>
+	<property name="mtsa.build" location="../MTSTools/bin"/>
+	<property name="mts_synthesis.src" location="../MTSSynthesis/src"/>
+	<!--property name="synthesis.lib" location="../MTSSynthesis/lib"/-->
+	<property name="mts_synthesis.build" location="../MTSSynthesis/bin"/>
+	<property name="mtsa_enactment.src" location="../MTSAEnactment/src"/>
+	<property name="mtsa_enactment.build" location="../MTSAEnactment/bin"/>
+	
+	
+	<!-- special ames hooks for LTSA -->
+<!--	<property name="ames-learning-ui" 
+		value="lstar.ltsa.SETCompositionalLearningUI"/>
+	<property name="ames-interface-learning-ui" 
+		value="lstar.interfaces.InterfaceLearningUI"/>
+-->	
+	<!-- output sensitivity: these are the default values used in the `run' 
+		 target.  The `run-verbose' and `run-quiet' targets, are provided so
+		 that these values need not be changed.  Note that these values, at
+		 present, only affect the verbosity of output from AMES packages. -->
+	<property name="show-warning" value="true"/>
+	<property name="show-error" value="true"/>
+	<property name="show-debug" value="true"/>
+	<property name="show-control-flow" value="true"/>
+	
+	<path id="build.classpath">
+		<pathelement location="${lib}/LTL2Buchi.jar"/>
+		<pathelement location="${lib}/scenebeans.jar"/>
+		<pathelement location="${lib}/collections-generic-4.01.jar"/>
+		<pathelement location="${lib}/commons-collections-3.2.jar"/>
+		<pathelement location="${lib}/commons-lang-2.2.jar"/>
+		<pathelement location="${lib}/framework.jar"/>
+		<pathelement location="${lib}/gnu-regexp-1.1.1.jar"/>
+		<pathelement location="${lib}/jdom.jar"/>
+		<pathelement location="${lib}/jel.jar"/>
+		<pathelement location="${lib}/natutil.jar"/>
+		<pathelement location="${lib}/swing-layout-1.0.jar"/>
+		<pathelement location="${lib}/xml.jar"/>
+		<pathelement location="${lib}/MTSACore.jar"/>
+		<pathelement location="${lib}/MTSSynthesis.jar"/>
+		<pathelement location="${lib}/MTSAEnactment.jar"/>
+		<pathelement location="${lib}/log4j-1.2.17.jar"/>
+		<pathelement location="${lib}/jargs.jar"/>
+		<pathelement location="${lib}/guava-12.0.1.jar"/>
+		<pathelement location="${lib}/jgraphx.jar"/>
+		<pathelement location="${lib}/jcommon.jar"/>
+		<pathelement location="${lib}/pccomm.jar"/>
+		<pathelement location="${lib}/jssc.jar"/>
+		<pathelement location="${lib}/commons-logging-1.1.3.jar"/>
+		<pathelement location="${lib}/spring-beans-3.2.3.RELEASE.jar"/>
+		<pathelement location="${lib}/spring-context-3.2.3.RELEASE.jar"/>
+		<pathelement location="${lib}/spring-core-3.2.3.RELEASE.jar"/>
+		<pathelement location="${lib}/spring-expression-3.2.3.RELEASE.jar"/>
+		<pathelement location="${lib}/miglayout15-swing.jar"/>
+		<pathelement location="${lib}/forms-1.3.0.jar"/>
+		<pathelement location="${lib}/com.microsoft.z3.jar"/>
+        <pathelement location="${lib}/jung/jung-algorithms-2.0.1.jar"/>
+        <pathelement location="${lib}/jung/jung-api-2.0.1.jar"/>
+        <pathelement location="${lib}/jung/jung-graph-impl-2.0.1.jar"/>
+	</path>
+
+	<path id="run.classpath">
+		<pathelement location="${lib}/LTL2Buchi.jar"/>
+		<pathelement location="${lib}/ltsa.jar"/>
+		<pathelement location="${lib}/MTSACore.jar"/>
+		<pathelement location="${lib}/MTSSynthesis.jar"/>
+		<pathelement location="${lib}/MTSAEnactment.jar"/>
+		<pathelement location="${lib}/log4j-1.2.17.jar"/>
+		<pathelement location="${lib}/collections-generic-4.01.jar"/>
+		<pathelement location="${lib}/commons-collections-3.2.jar"/>
+		<pathelement location="${lib}/commons-lang-2.2.jar"/>
+		<pathelement location="${lib}/framework.jar"/>
+		<pathelement location="${lib}/gnu-regexp-1.1.1.jar"/>
+		<pathelement location="${lib}/jdom.jar"/>
+		<pathelement location="${lib}/jel.jar"/>
+		<pathelement location="${lib}/natutil.jar"/>
+		<pathelement location="${lib}/swing-layout-1.0.jar"/>
+		<pathelement location="${lib}/xml.jar"/>
+		<pathelement location="${lib}/jargs.jar"/>
+		<pathelement location="${lib}/guava-12.0.1.jar"/>
+		<pathelement location="${lib}/jgraphx.jar"/>
+		<pathelement location="${lib}/jcommon.jar"/>
+		<pathelement location="${lib}/pccomm.jar"/>
+		<pathelement location="${lib}/jssc.jar"/>
+		<pathelement location="${lib}/commons-logging-1.1.3.jar"/>
+		<pathelement location="${lib}/spring-beans-3.2.3.RELEASE.jar"/>
+		<pathelement location="${lib}/spring-context-3.2.3.RELEASE.jar"/>
+		<pathelement location="${lib}/spring-core-3.2.3.RELEASE.jar"/>
+		<pathelement location="${lib}/spring-expression-3.2.3.RELEASE.jar"/>
+		<pathelement location="${lib}/miglayout15-swing.jar"/>
+		<pathelement location="${lib}/forms-1.3.0.jar"/>
+		<pathelement location="${lib}/com.microsoft.z3.jar"/>
+        <pathelement location="${lib}/jung/jung-algorithms-2.0.1.jar"/>
+        <pathelement location="${lib}/jung/jung-api-2.0.1.jar"/>
+        <pathelement location="${lib}/jung/jung-graph-impl-2.0.1.jar"/>
+	</path>
+	
+	<!-- things to do before compilation -->
+	<target name="init">
+		<!-- create time stamp -->
+		<tstamp/>
+		<!-- create the build directory structure -->
+		<mkdir dir="${build}" />
+		<mkdir dir="${lib}" />
+		<copy todir="${build}">	
+			<fileset dir="${src}" includes="**/*.gif"/>
+			<fileset dir="./" includes="examples/**/*.lts"/>
+			<fileset dir="${lib}" includes="lib/*.jar"/>
+		</copy>
+		<copy todir="${lib}">	
+			<fileset dir="lib" includes="*.jar" excludes="*MTS*.jar"/>
+		</copy>
+		<!--copy todir="${lib}">
+		    <fileset dir="${synthesis.lib}" includes="*.jar"/>
+		</copy-->
+	</target>
+
+	<!-- compile the ltsa source -->
+	<target name="compile-LTSA" depends="init, compile-MTSA, compile-MTSSynthesis, compile-MTSAEnactment"> 	
+		<javac debug="true" srcdir="${src}" destdir="${build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"
+         includeantruntime="false"/>
+		
+		<jar jarfile="${dist}/mtsa.jar">
+			<fileset dir="${build}" excludes="*.jar"/>
+			<fileset dir="./" file="src/ltsa-context.xml" />
+			<fileset dir="./" file="src/log4j.properties" />
+			<manifest>
+				<attribute name="Main-Class" value="ui.HPWindow"/>
+				<attribute name="Class-Path" value = "lib/collections-generic-4.01.jar lib/commons-collections-3.2.jar 
+					lib/commons-lang-2.2.jar lib/log4j-1.2.17.jar lib/commons-logging-1.1.3.jar
+					lib/jung/jung-algorithms-2.0.1.jar lib/jung/jung-api-2.0.1.jar lib/jung/jung-graph-impl-2.0.1.jar
+					lib/MTSACore.jar lib/swing-layout-1.0.jar lib/framework.jar lib/LTL2Buchi.jar lib/scenebeans.jar 
+					lib/xml.jar lib/jel.jar lib/jdom.jar lib/MTSSynthesis.jar lib/jargs.jar lib/guava-12.0.1.jar 
+					lib/spring-beans-3.2.3.RELEASE.jar lib/spring-context-3.2.3.RELEASE.jar lib/spring-core-3.2.3.RELEASE.jar
+					lib/spring-expression-3.2.3.RELEASE.jar lib/miglayout15-swing.jar lib/forms-1.3.0.jar lib/MTSAEnactment.jar
+					lib/pccomm.jar lib/jgraphx.jar lib/com.microsoft.z3.jar"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- compile the mtsa source -->
+	<target name="compile-MTSA" > 	
+		<javac  debug="true" srcdir="${mtsa.src}" destdir="${mtsa.build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"
+         includeantruntime="false"/>
+		<jar jarfile="${lib}/MTSACore.jar">
+			<fileset dir="${mtsa.build}"/>
+			<fileset dir="${mtsa.src}"/>
+		</jar>
+	</target>
+
+	<!-- compile the triggered scenario synthesiser source -->
+	<target name="compile-MTSSynthesis" depends="compile-MTSA"> 
+		<javac  debug="true" srcdir="${mts_synthesis.src}" destdir="${mts_synthesis.build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"
+         includeantruntime="false"/>
+		<jar jarfile="${lib}/MTSSynthesis.jar">
+			<fileset dir="${mts_synthesis.build}"/>
+			<fileset dir="${mts_synthesis.src}" includes="icon/*.gif"/>
+		</jar>
+	</target>
+		
+	<target name="compile-MTSAEnactment" > 
+		<javac  debug="true" srcdir="${mtsa_enactment.src}" destdir="${mtsa_enactment.build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"
+         includeantruntime="false"/>
+		<jar jarfile="${lib}/MTSAEnactment.jar">
+			<fileset dir="${mtsa_enactment.build}"/>
+			<fileset dir="${mtsa_enactment.src}" includes="icon/*.gif"/>
+			<manifest>
+				<attribute name="Class-Path" value="lib/bcel.jar lib/bluecove.jar lib/bluecove-gpl.jar lib/charting.jar lib/commons-cli.jar lib/jcommon.jar lib/jfreechart.jar lib/jgraphx.jar lib/jssc.jar lib/jtools.jar lib/log4j-1.2.17.jar lib/pccomm.jar lib/pctools.jar lib/stax-api-1.0.1.jar"/>
+			</manifest>
+
+		</jar>
+	</target>
+
+
+	<!-- compile the batch executable -->
+	<target name="compile-batch" depends="init">
+		<javac  debug="true" srcdir="${src}" destdir="${build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"/>
+		<jar jarfile="${dist}/BatchLtsa.jar">
+			<fileset dir="${build}"/>
+			<fileset dir="${src}" includes="icon/*.gif"/>
+			<manifest>
+				<attribute name="Main-Class" value="ui.LTSABatch"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="compileBatch" depends="init">
+		<antcall target="compile-batch"/>
+	</target>
+	
+	<!-- remove files generated by the build -->
+	<target name="clean">
+		<delete includeemptydirs="true" failonerror="false">	
+			<fileset dir="${build}"/>
+			<fileset file="${dist}/ltsa.jar"/>
+			<fileset file="${dist}/BatchLtsa.jar"/>
+			<fileset file="${lib}/MTSACore.jar"/>
+			<fileset file="${lib}/MTSSynthesis.jar"/>
+		</delete>
+	</target>
+	
+	<target name="compile" depends="clean, compile-LTSA">
+	</target>
+		
+		
+	<!-- execute the ltsa environment -->
+	<target name="run" depends="compile-LTSA">
+		<java classname="ui.HPWindow" classpathref="run.classpath" 
+			fork="true" failonerror="true" maxmemory="4G">
+					
+			<assertions enableSystemAssertions="true">
+				<enable/>
+			</assertions>
+			
+			<!-- Keys for controlling the output verbosity. -->
+			<sysproperty key="warning" value="${show-warning}"/>
+			<sysproperty key="error" value="${show-error}"/>
+			<sysproperty key="debug" value="${show-debug}"/>
+			<sysproperty key="control-flow" value="${show-control-flow}"/>
+					
+			<!-- Necessary to load the Learning User Interface -->
+			<!-- 
+						<sysproperty key="ames-learning-ui" 
+				value="${ames-learning-ui}"/>			
+			<sysproperty key="ames-interface-learning-ui" 
+				value="${ames-interface-learning-ui}"/>
+				-->	
+		</java>
+	</target>
+</project>

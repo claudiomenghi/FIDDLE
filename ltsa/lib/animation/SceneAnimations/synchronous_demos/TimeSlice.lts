@@ -1,0 +1,87 @@
+//leader election in a synchronous ring using the timeslice algorithm
+set      UID  = {[1],[7],[6],[3]}
+const    N    = #UID
+range    Int  = 0..31
+set      M    = {msg[UID]}
+set      NM   = {null,M}
+set Status    = {unknown, leader,notleader}
+
+//links or channels hold at most a single message
+CHAN  = (put[m:M] -> get[m] -> CHAN |end -> END).
+
+//the synchronous model proceeds in two steps
+ROUND =  ROUND[1],
+ROUND[r:Int] = (step1 -> round[r] -> step2 -> ROUND[r+1]
+               |end -> END ).
+
+//the processes
+minimal
+PROCESS(U=1) 
+  = (init[U]->null-> TRANS[1]['null]['unknown]),
+MSGS[round:Int][snd:NM][status:Status]
+  = (step2 -> 
+      if (round==0 || round == 31) then 
+         TRANS[round][snd][status]
+      else 
+         TRANS[round+1][snd][status]
+    |when (snd!='null) put[snd]-> MSGS[round]['null][status]
+    ),
+TRANS[round:Int][snd:NM][status:Status]
+  = (step1 -> 
+       if (round == (U-1)*N+1) then
+          (msg[U]->leader -> MSGS[0]['msg[U]]['leader])
+       else
+          MSGS[round][snd][status]    
+     |get.msg[v:UID] -> 
+       if (v!=U) then
+          (msg[v] -> notleader -> TRANS[0]['msg[v]]['notleader])
+       else
+          (end -> END)
+     |when(status == 'notleader) end -> END     
+     ).
+
+||LCR = ( ROUND 
+        || ONELEADER
+        || chan[1..N]:CHAN
+        || proc[i:1..N]:PROCESS(@(UID,i-1))
+        )/{
+        forall[i:1..N] {
+           proc[i].get/chan[i].get,
+           proc[i].put/chan[i%N+1].put,
+           end/proc[i].end,
+           end/chan[i].end,
+           step1/proc[i].step1,
+           step2/proc[i].step2
+           }
+        }>>{step1,step2,end}.
+            
+menu RUN = {step1,step2,end}
+
+property 
+  ONELEADER      = (proc[i:1..N].leader -> ELECTED[i]),
+  ELECTED[i:1..N]= (proc[i].leader -> ELECTED[i]
+                   |end -> END
+                   ).
+
+progress
+  ELECT[i:1..N]  = {proc[i].leader}
+
+animation RING = "xml/ring_count.xml"
+            actions{
+				forall[i:1..N] {
+                  proc[i].init[u:UID]/init[i][u],
+                  proc[i].leader/leader[i],
+				  proc[i].notleader/notleader[i],
+                  proc[i][m:M]/display[i][m], 
+                  proc[i].put.msg[UID]/channel[i%N+1].begin
+                },
+                round[i:Int]/round[i]
+            }
+            controls {
+               step1/start_round,
+               step2/{channel[1..N].end}
+            }
+
+
+
+                     

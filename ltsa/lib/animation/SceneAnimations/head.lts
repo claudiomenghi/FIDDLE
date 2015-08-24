@@ -1,0 +1,7 @@
+range Y = 0..4
+GANTRY =  (go[y:Y] -> end -> GANTRY).
+
+animation 
+  HEAD_ANIM  = "xml/fmc.xml"
+  actions  {go[y:Y]/head.go[y]}
+  controls {end/head.end, go[y:Y]/y[y]}

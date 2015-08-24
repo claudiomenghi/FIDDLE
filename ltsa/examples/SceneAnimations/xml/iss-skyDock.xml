@@ -1,0 +1,407 @@
+<?xml version="1.0"?>
+<!-- We specify the dimensions of the animation screen-->
+<animation width="1070" height="572">
+
+<behaviour id="approachOrbit" algorithm="randomTimer" event="approachOrbit.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+<behaviour id="proximityOperations" algorithm="randomTimer" event="proximityOperations.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+<behaviour id="farApproach" algorithm="randomTimer" event="farApproach.end">
+  <param name="maxDuration" value="2"/>
+</behaviour>
+
+
+
+
+<!--Define tag, creates a scene-graph fragment that is not rendered.
+The fragment can be linked into the rendered graph by the paste tag-->
+<define id="CEV">
+    <transform type="scale">
+      <param name="x" value="0.7" />
+      <param name="y" value="0.7" />
+	 <primitive type = "sprite">
+ 	  <param name = "src" value ="image/CEV_Sky1.jpg"/>
+	  <param name = "hotspot" value ="(20,25)"/>
+	 </primitive>
+    </transform>
+</define>
+
+ <define id="ISS">
+    <transform type="scale">
+       <param name="x" value="0.5" />
+      <param name="y" value="0.5" />
+
+      <transform type="translate">
+	 <param name="translation" value = "(700,150)" />
+
+    <primitive type = "sprite">
+ 	   <param name = "src" value ="image/ISS_Sky.jpg"/>
+	</primitive>
+     </transform>
+</transform>
+
+</define>
+
+  <define id="ISSbackground">
+
+       <transform type="translate">
+ 	 <param name="translation" value = "(0,0)" />
+
+     <primitive type = "sprite">
+  	   <param name = "src" value ="image/Sky1.jpg"/>
+ 	</primitive>
+      </transform>
+</define>
+
+ <!--<define id="title">
+    <transform type="translate">
+	  <param name="translation" value="(10,30)" />
+      <primitive type="text">
+        <param name="text" value = "Autonomous Rendezvous and Docking"/>
+      </primitive>
+	</transform>
+</define>-->
+
+
+<define id="panel">
+	<transform type="translate">
+	  <param name="translation" value="(818, 0)" />
+      <include src="issPanel.xml" id="panel.0" />
+	</transform>
+</define>
+
+
+<forall var = "i" values ="0 1 2 3 4 5 6 7 8 9 10 11">
+    <forall var="com" values = "enabled.begin disabled.begin failed.begin">
+	<command name="button.${i}.${com}">
+	<invoke object="panel.0" command="button.${i}.${com}"/>
+	</command>
+</forall>
+</forall>
+
+<!--
+<forall var="ev" values = "enabled.end disabled.end failed.end">
+	<event object="panel.0" event="${ev}">
+	<announce event="button.${i}.${ev}"/>
+	</event>
+
+	<event object="panel.0" event="~${ev}">
+   	<announce event="~button.${i}.${ev}"/>
+	</event>
+    </forall>
+</forall>
+
+-->
+
+<!-- Define a sequence of behaviours that the shuttle will follow-->
+
+  <seq id="flight_path" event="finished">
+
+    	<behaviour algorithm="move" id="move.turn1">
+      		<param name="from" value="0" />
+      		<param name="to" value="pi/6" />
+      		<param name="duration" value="0.0001" />
+    	</behaviour>
+
+    	<behaviour id="fly_seg1" algorithm="track" event="seg1-finished">
+		  	<param name="pointCount" value="2"/>
+		  	<param name="point" index="0" value="(-10,570)"/>
+		  	<param name="duration" index="0" value="1"/>
+		  	<param name="point" index="1" value="(18, 512)"/>
+		</behaviour>
+
+	   	<behaviour algorithm="move" id="move.turn2">
+	      	<param name="from" value="pi/6" />
+	      	<param name="to" value="pi/5.7" />
+	      	<param name="duration" value="0.02" />
+    	</behaviour>
+
+    	<behaviour id="fly_seg2" algorithm="track" event="seg1-finished">
+    		<param name="pointCount" value="2"/>
+    		<param name="point" index="0" value="(18,512)"/>
+    		<param name="duration" index="0" value="3"/>
+    		<param name="point" index="1" value="(78,310)"/>
+		</behaviour>
+
+		<behaviour algorithm="move" id="move.turn3">
+		    <param name="from" value="pi/5.7" />
+		    <param name="to" value="pi/4.8" />
+		    <param name="duration" value="0.02" />
+	    </behaviour>
+
+		<behaviour id="fly_seg3" algorithm="track" event="seg2-finished">
+    		<param name="pointCount" value="2"/>
+    		<param name="point" index="0" value="(78,310)"/>
+    		<param name="duration" index="0" value="3"/>
+    		<param name="point" index="1" value="(130,190)"/>
+		</behaviour>
+
+		<behaviour algorithm="move" id="move.turn4">
+			<param name="from" value="pi/4.8" />
+			<param name="to" value="pi/3.8" />
+			<param name="duration" value="0.02" />
+	   	</behaviour>
+
+	    <behaviour id="fly_seg4" algorithm="track" event="seg3-finished">
+			<param name="pointCount" value="2"/>
+			<param name="point" index="0" value="(130,190)"/>
+			<param name="duration" index="0" value="4"/>
+			<param name="point" index="1" value="(190,145)"/>
+		</behaviour>
+
+		<behaviour algorithm="move" id="move.turn5">
+			<param name="from" value="pi/3.8" />
+			<param name="to" value="pi/2" />
+			<param name="duration" value="1" />
+		</behaviour>
+
+  </seq>
+
+
+<seq id="flight_path2" event="finished">
+
+<behaviour id="fly_seg5" algorithm="track" event="seg4-finished">
+		    <param name="pointCount" value="2"/>
+			<param name="point" index="0" value="(190,145)"/>
+			<param name="duration" index="0" value="7"/>
+			<param name="point" index="1" value="(315,145)"/>
+</behaviour>
+
+<behaviour id="fly_seg6" algorithm="track" event="seg5-finished">
+			<param name="pointCount" value="2"/>
+			<param name="point" index="0" value="(315,145)"/>
+			<param name="duration" index="0" value="10"/>
+			<param name="point" index="1" value="(384,145)"/>
+</behaviour>
+
+</seq>
+
+<behaviour algorithm="track" id="Move.ISS">
+      		<param name="pointCount" value="2"/>
+			<param name="point" index="0" value="(-120,0)"/>
+			<param name="duration" index="0" value="55"/>
+			<param name="point" index="1" value="(140,0)"/>
+</behaviour>
+
+
+<behaviour id="explosion" algorithm="track" event="explosion.end">
+		    <param name="pointCount" value="5" />
+			<param name="duration" index="0" value="0.1" />
+			<param name="event" index="0" value="explosion.1" />
+			<param name="duration" index="1" value="0.1" />
+			<param name="event" index="1" value="explosion.2" />
+		 	<param name="duration" index="2" value="0.1" />
+		 	<param name="event" index="2" value="explosion.3" />
+		 	<param name="duration" index="3" value="0.1" />
+</behaviour>
+
+
+<seq id="flight_path3" event="finished">
+
+<behaviour id="fly_seg7" algorithm="track" event="seg6-finished">
+		    <param name="pointCount" value="2"/>
+			<param name="point" index="0" value="(384,145)"/>
+			<param name="duration" index="0" value="5"/>
+			<param name="point" index="1" value="(408,145)"/>
+</behaviour>
+</seq>
+
+<seq id="flight_path4" event="finished">
+
+<behaviour id="fly_seg8" algorithm="track" event="seg6-finished">
+		    <param name="pointCount" value="2"/>
+			<param name="point" index="0" value="(408,145)"/>
+			<param name="duration" index="0" value="15"/>
+			<param name="point" index="1" value="(480,145)"/>
+</behaviour>
+
+
+
+</seq>
+
+
+
+<!--Draw creates a scene-graph fragment that is rendered-->
+<draw>
+
+<compose id="show" type = "switch">
+     <primitive type = "null" />
+	 <forall var = "i" values = "1 2 3 ">
+	 <primitive type = "sprite">
+	    <param name = "src" value ="image/explosion${i}.gif"/>
+		<param name = "hotspot" value = "(-378,-115 )"/>
+     </primitive>
+	 </forall>
+	 <primitive type = "null" />
+	</compose>
+
+
+  <transform type="translate">
+
+		<param name="translation" value = "(-10,570)" />
+			<animate param="translation" behaviour="fly_seg1" />
+			<animate param="translation" behaviour="fly_seg2" />
+			<animate param="translation" behaviour="fly_seg3" />
+			<animate param="translation" behaviour="fly_seg4" />
+			<animate param="translation" behaviour="fly_seg5" />
+			<animate param="translation" behaviour="fly_seg6" />
+			<animate param="translation" behaviour="fly_seg7" />
+			<animate param="translation" behaviour="fly_seg8" />
+
+
+   <transform type="rotate" id="shuttle_angle">
+      		<param name="angle" value="0" />
+			<animate param="angle" behaviour="move.turn1" />
+			<animate param="angle" behaviour="move.turn2" />
+			<animate param="angle" behaviour="move.turn3" />
+			<animate param="angle" behaviour="move.turn4" />
+			<animate param="angle" behaviour="move.turn5" />
+      		<paste object="CEV" />
+    </transform>
+
+ </transform>
+
+
+
+
+<paste object="panel"/>
+
+ <transform type="translate">
+ <param name="translation" value = "(-120,0)" />
+	<animate param="translation" behaviour="Move.ISS"/>
+	 <paste object="ISS"/>
+    </transform>
+
+
+
+<!-- <paste object="title"/>-->
+ <paste object="ISSbackground"/>
+
+</draw>
+
+
+<!--We define how an animation reacts to the named command.-->
+
+
+<command name="approachOrbitCom">
+  <announce event = "~approachOrbit.finished"/>
+  <reset behaviour="approachOrbit" />
+  <start behaviour="approachOrbit" />
+   <start behaviour="Move.ISS"/>
+  <invoke command="button.4.enabled.begin" />
+</command>
+
+<command name="proximityOpsCom">
+<announce event = "~proximityOperations.finished"/>
+<reset behaviour="proximityOperations" />
+  <start behaviour="proximityOperations" />
+   <invoke command="button.4.disabled.begin" />
+    <invoke command="button.5.enabled.begin" />
+</command>
+
+<command name="farApproachCom">
+<announce event = "~farApproach.finished"/>
+<reset behaviour="farApproach" />
+  <start behaviour="farApproach" />
+    <invoke command="button.5.disabled.begin" />
+    <invoke command="button.6.enabled.begin" />
+</command>
+
+<command name="flight1.start">
+  <announce event = "~flight1.landed"/>
+  <reset behaviour="flight_path" />
+  <start behaviour="flight_path" />
+
+
+   <invoke command="button.6.disabled.begin" />
+     <invoke command="button.7.enabled.begin" />
+</command>
+
+
+<command name="flight2.start">
+  <announce event = "~flight2.landed"/>
+  <reset behaviour="flight_path2" />
+  <start behaviour="flight_path2" />
+  <invoke command="button.7.disabled.begin" />
+    <invoke command="button.8.enabled.begin" />
+</command>
+
+
+
+
+<command name="explosion.begin">
+  <announce event="~explosion.end"/>
+  <reset behaviour="explosion"/>
+  <start behaviour="explosion"/>
+</command>
+
+<!--We define how an animation reacts to a named event announced by one of its constituent beans-->
+
+<event object="approachOrbit" event="approachOrbit.end">
+  <announce event="approachOrbit.finished" />
+  <stop behaviour="approachOrbit" />
+</event>
+
+
+<event object="proximityOperations" event="proximityOperations.end">
+  <stop behaviour="proximityOperations" />
+  <announce event="proximityOperations.finished" />
+</event>
+
+<event object="farApproach" event="farApproach.end">
+  <stop behaviour="farApproach" />
+  <announce event="farApproach.finished" />
+</event>
+
+
+<event object="flight_path" event="finished">
+  <stop behaviour="flight_path" />
+  <announce event="flight1.landed" />
+</event>
+
+
+<event object="flight_path2" event="finished">
+  <stop behaviour="flight_path2" />
+  <announce event="flight2.landed" />
+  <announce event="~flight_path3.landed"/>
+  <start behaviour="flight_path3" />
+    <invoke command="button.8.disabled.begin" />
+    <invoke command="button.9.enabled.begin" />
+
+  <start behaviour="Move.ISS" />
+</event>
+
+<event object="flight_path3" event="finished">
+  <stop behaviour="flight_path3" />
+  <announce event="flight3.landed" />
+  <announce event="~flight_path4.landed"/>
+  <start behaviour="flight_path4" />
+  <invoke command="button.9.disabled.begin" />
+      <invoke command="button.10.enabled.begin" />
+
+</event>
+
+
+
+<event object="explosion" event="explosion.end">
+  <set object="show" param="current" value="0" />
+  <stop behaviour="explosion" />
+  <announce event="explosion.end" />
+</event>
+
+<!--The forall element is used for macro expansion of attribute values and iteration.
+A macro variable defined by a forall element is replaced within all attribute values in
+the elements within the forall element. Giving the macro multiple values will make
+the SceneBeans' XML processor translate the contents of the forall element
+multiple times, once for each value.-->
+<forall var = "i" values = "1 2 3  ">
+  <event object="explosion" event="explosion.${i}">
+    <set object="show" param="current" value="${i}" />
+  </event>
+</forall>
+
+</animation>

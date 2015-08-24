@@ -1,0 +1,52 @@
+set A = {follow, turnLeft, turnRight, turnAround, success, lost, fail, retry, position, corner1, corner2}
+set Controllable = {follow, turnLeft, turnRight, turnAround, retry, position}
+set Movements = {follow, turnLeft, turnRight, turnAround}
+set FailureSet = {fail, lost}
+
+
+ROBOT = (follow->ACK | turnLeft->ACK | turnRight->ACK | turnAround->ACK),
+ACK = (success->ROBOT | lost ->LOST | fail->FAIL ),
+LOST = (retry->LOST_1),
+LOST_1 = (success->REQ_POSITION | lost->FAIL),
+REQ_POSITION = (position->ACK_POSITION),
+ACK_POSITION = (corner1->ROBOT | corner2->ROBOT),
+FAIL = (lost->FAIL | fail -> FAIL).
+
+
+
+fluent F_Moving = <Controllable, success> initially 1
+fluent F_Failures = <FailureSet, A\{FailureSet}>
+
+assert Moving = F_Moving
+assert FinishMoving = !F_Moving
+assert Failures = F_Failures
+
+SUCCESSFULLY_MOVE = (success->SUCCESSFULLY_MOVE).
+S = (follow->S1),
+S1 = (Movements->S).
+
+||TEST = (NO_2_RIGHT).
+
+
+//ltl_property NO_2_RIGHT = (Movements\turnRight -> NO_2_RIGHT | turnRight->fail->NO_2_RIGHT | turnRight->sucess->PREV_RIGHT),
+//PREV_RIGHT = (Movements\turnRight -> NO_2_RIGHT).
+
+property NO_2_RIGHT = (A\{turnRight}->NO_2_RIGHT | turnRight->PREV_RIGHT ),
+PREV_RIGHT = (success->PREV_RIGHT2 | A\{success}->NO_2_RIGHT),
+PREV_RIGHT2 = (A\{turnRight}->NO_2_RIGHT ).
+
+
+
+//controllers
+controller ||C = (ROBOT)~{G1}.
+checkCompatibility ||Comp = (ROBOT)~{G1}.
+
+//Goals
+controllerSpec G1 = {
+       safety = {NO_2_RIGHT}
+       failure = {Failures}
+//       assumption = {Moving}
+       liveness = {FinishMoving}
+       controllable = {Controllable}
+}
+

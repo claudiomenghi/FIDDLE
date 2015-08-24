@@ -1,0 +1,310 @@
+<?xml version="1.0"?>
+
+<animation width="600" height="440">
+
+<define id = "node1">
+    <transform type = "translate">
+	 <param name="translation" value="(75,75)" />
+	   <style type="font">
+		 <param name="font" value="Helvetica-BOLD-24" />
+		   <transform type = "translate">
+		   	<param name="translation" value="(-15,8)" />
+		   <primitive id = "uid1" type="text">
+			   <param name="text" value = "1"/>
+		   </primitive>
+		   </transform>
+	    </style>
+	  <style id = "nodecolor1" type="RGBAColor">
+	  <param name="color" value="FFFF00" />
+	  <primitive type="circle">
+		 <param name="radius" value="28" />
+	  </primitive>
+	  </style>
+	  <style type="RGBAColor">
+	  <param name="color" value="000000" />
+	  <primitive type="circle">
+		  <param name="radius" value="30" />
+	  </primitive>
+	  </style>
+    </transform>
+</define>
+
+<define id = "node2">
+    <transform type = "translate">
+	 <param name="translation" value="(400,100)" />
+	   <style type="font">
+		 <param name="font" value="Helvetica-BOLD-24" />
+		   <transform type = "translate">
+		   	<param name="translation" value="(-15,8)" />
+		   <primitive id = "uid2" type="text">
+			   <param name="text" value = "2"/>
+		   </primitive>
+		   </transform>
+	    </style>
+	  <style id = "nodecolor2" type="RGBAColor">
+	  <param name="color" value="FFFF00" />
+	  <primitive type="circle">
+		 <param name="radius" value="28" />
+	  </primitive>
+	  </style>
+	  <style type="RGBAColor">
+	  <param name="color" value="000000" />
+	  <primitive type="circle">
+		  <param name="radius" value="30" />
+	  </primitive>
+	  </style>
+    </transform>
+</define>
+
+<define id = "node3">
+    <transform type = "translate">
+	 <param name="translation" value="(250,220)" />
+	   <style type="font">
+		 <param name="font" value="Helvetica-BOLD-24" />
+		   <transform type = "translate">
+		   	<param name="translation" value="(-15,8)" />
+		   <primitive id = "uid3" type="text">
+			   <param name="text" value = "3"/>
+		   </primitive>
+		   </transform>
+	    </style>
+	  <style id = "nodecolor3" type="RGBAColor">
+	  <param name="color" value="FFFF00" />
+	  <primitive type="circle">
+		 <param name="radius" value="28" />
+	  </primitive>
+	  </style>
+	  <style type="RGBAColor">
+	  <param name="color" value="000000" />
+	  <primitive type="circle">
+		  <param name="radius" value="30" />
+	  </primitive>
+	  </style>
+    </transform>
+</define>
+
+<define id = "node4">
+    <transform type = "translate">
+	 <param name="translation" value="(120,375)" />
+	   <style type="font">
+		 <param name="font" value="Helvetica-BOLD-24" />
+		   <transform type = "translate">
+		   	<param name="translation" value="(-15,8)" />
+		   <primitive id = "uid4" type="text">
+			   <param name="text" value = "4"/>
+		   </primitive>
+		   </transform>
+	    </style>
+	  <style id = "nodecolor4" type="RGBAColor">
+	  <param name="color" value="FFFF00" />
+	  <primitive type="circle">
+		 <param name="radius" value="28" />
+	  </primitive>
+	  </style>
+	  <style type="RGBAColor">
+	  <param name="color" value="000000" />
+	  <primitive type="circle">
+		  <param name="radius" value="30" />
+	  </primitive>
+	  </style>
+    </transform>
+</define>
+
+<define id = "node5">
+    <transform type = "translate">
+	 <param name="translation" value="(525,300)" />
+	   <style type="font">
+		 <param name="font" value="Helvetica-BOLD-24" />
+		   <transform type = "translate">
+		   	<param name="translation" value="(-15,8)" />
+		   <primitive id = "uid5" type="text">
+			   <param name="text" value = "5"/>
+		   </primitive>
+		   </transform>
+	    </style>
+	  <style id = "nodecolor5" type="RGBAColor">
+	  <param name="color" value="FFFF00" />
+	  <primitive type="circle">
+		 <param name="radius" value="28" />
+	  </primitive>
+	  </style>
+	  <style type="RGBAColor">
+	  <param name="color" value="000000" />
+	  <primitive type="circle">
+		  <param name="radius" value="30" />
+	  </primitive>
+	  </style>
+    </transform>
+</define>
+
+<define id = "blob">
+  <primitive type="circle">
+    <param name="radius" value="5" />
+  </primitive>
+</define>
+
+<behaviour id="chan1.2" algorithm="movePoint" event="end">
+  <param name="from" value="(75,75)"/>
+  <param name="to" value="(400,100)"/>
+  <param name="duration" value="2"/>
+</behaviour>
+
+<behaviour id="chan2.5" algorithm="movePoint" event="end">
+  <param name="from" value="(400,100)"/>
+  <param name="to" value="(525,300)"/>
+  <param name="duration" value="2"/>
+</behaviour>
+
+<behaviour id="chan5.3" algorithm="movePoint" event="end">
+  <param name="from" value="(525,300)"/>
+  <param name="to" value="(250,220)"/>
+  <param name="duration" value="2"/>
+</behaviour>
+
+<behaviour id="chan3.4" algorithm="movePoint" event="end">
+  <param name="from" value="(250,220)"/>
+  <param name="to" value="(120,375)"/>
+  <param name="duration" value="2"/>
+</behaviour>
+
+<behaviour id="chan4.1" algorithm="movePoint" event="end">
+  <param name="from" value="(120,375)"/>
+  <param name="to" value="(75,75)"/>
+  <param name="duration" value="2"/>
+</behaviour>
+
+<behaviour id="chan2.3" algorithm="movePoint" event="end">
+  <param name="from" value="(400,100)"/>
+  <param name="to" value="(250,220)"/>
+  <param name="duration" value="2"/>
+</behaviour>
+
+<forall var = "i" values ="1.2 2.5 5.3 3.4 4.1 2.3">
+<define id ="msg${i}">
+   <transform type = "translate">
+      <param name="translation" value="(-100,-100)" />
+	  <animate param = "translation" behaviour = "chan${i}"/>
+	  <style type="RGBAColor">
+	  <param name="color" value="00FF00" />
+	  <primitive type="circle">
+		 <param name="radius" value="8" />
+	  </primitive>
+	  </style>
+	  <style type="RGBAColor">
+	  <param name="color" value="000000" />
+	  <primitive type="circle">
+		  <param name="radius" value="10" />
+	  </primitive>
+	  </style>
+  </transform>
+</define>
+</forall>
+
+
+<draw>
+   <paste object = "node1"/>
+   <paste object = "node2"/>
+   <paste object = "node3"/>
+   <paste object = "node4"/>
+   <paste object = "node5"/>
+   <paste object = "msg1.2"/>
+   <paste object = "msg2.5"/>
+   <paste object = "msg5.3"/>
+   <paste object = "msg3.4"/>
+   <paste object = "msg4.1"/>
+   <paste object = "msg2.3"/>
+   <transform type = "translate">
+     <param name="translation" value="(80,107)" />
+	 <paste object = "blob"/>
+   </transform>
+   <transform type = "translate">
+     <param name="translation" value="(368,98)" />
+   	 <paste object = "blob"/>
+   </transform>
+   <transform type = "translate">
+      <param name="translation" value="(508,274)" />
+      <paste object = "blob"/>
+   </transform>
+   <transform type = "translate">
+      <param name="translation" value="(280,228)" />
+      <paste object = "blob"/>
+   </transform>
+   <transform type = "translate">
+       <param name="translation" value="(141,352)" />
+       <paste object = "blob"/>
+   </transform>
+   <transform type = "translate">
+          <param name="translation" value="(274,201)" />
+          <paste object = "blob"/>
+   </transform>
+   <primitive type = "line">
+      <param name="start" value="(75,75)" />
+	  <param name="end" value="(400,100)" />
+   </primitive>
+   <primitive type = "line">
+         <param name="start" value="(75,75)" />
+   	  <param name="end" value="(400,100)" />
+   </primitive>
+   <primitive type = "line">
+      <param name="start" value="(400,100)" />
+	  <param name="end" value="(525,300)" />
+   </primitive>
+   <primitive type = "line">
+         <param name="start" value="(525,300)" />
+   	  <param name="end" value="(250,220)" />
+   </primitive>
+   <primitive type = "line">
+      <param name="start" value="(250,220)" />
+      <param name="end" value="(120,375)" />
+    </primitive>
+	<primitive type = "line">
+	      <param name="start" value="(120,375)" />
+	      <param name="end" value="(75,75)" />
+	</primitive>
+    <primitive type = "line">
+      <param name="start" value="(400,100)" />
+      <param name="end" value="(250,220)" />
+    </primitive>
+	<style type="font">
+	  <param name="font" value="TimesRoman-ITALIC-24" />
+       <transform type="translate">
+	   <param name="translation" value="(20,25)" />
+	   <primitive type="text">
+		   <param name="text" value = "Leader Election in a General Network"/>
+	   </primitive>
+	   </transform>
+     </style>
+</draw>
+
+<forall var = "i" values ="1 2 3 4 5">
+<forall var = "uid" values ="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20">
+<command name = "display.${i}.${uid}">
+  <set object="uid${i}" param="text" value="${uid}"/>
+</command>
+</forall>
+</forall>
+
+<forall var = "i" values ="1 2 3 4 5">
+<command name = "leader.${i}">
+  <set object="nodecolor${i}" param="color" value="FF0000"/>
+</command>
+
+<command name = "notleader.${i}">
+  <set object="nodecolor${i}" param="color" value="0000FF"/>
+</command>
+</forall>
+
+<forall var = "i" values ="1.2 2.5 5.3 3.4 4.1 2.3">
+<command name = "chan.${i}.begin">
+   <announce event = "~chan.${i}.end"/>
+    <reset behaviour="chan${i}"/>
+    <start behaviour="chan${i}"/>
+</command>
+
+<event object="chan${i}" event="end">
+  <announce event="chan.${i}.end"/>
+</event>
+</forall>
+
+
+</animation>

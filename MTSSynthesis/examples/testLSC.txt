@@ -1,0 +1,3 @@
+{bot|highWater}
+{pumpOn|medWater|lowWater|pumpOff}
+{bot,highWater,pumpOn,medWater,lowWater,pumpOff,methLeaves}

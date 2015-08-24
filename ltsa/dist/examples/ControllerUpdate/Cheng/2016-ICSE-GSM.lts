@@ -1,0 +1,112 @@
+// -----------------------------COMMENTS-------------------------------
+
+// - To execute the solution for update controllers select in the dropdown menu 
+// the "UPDATE_CONTROLLER" label, and then press the compose button (||).
+// - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
+// different transition requeriments presented in the paper.
+// - You can animate the controller obtained pressing the blue A in the top bar
+
+// ---------------------------ENVIRONMENTS-----------------------------
+
+set OldPositions = {x, y}
+set NewPositions = {x, y, z}
+set OldControllableActions = {shift[OldPositions], encode, send, receive, decode[2..3], output}
+set NewControllableActions = {shift[NewPositions], encode, send, receive, decode[2..3], output}
+set Alphabet = {shift[NewPositions], encode, send, receive, decode[2..3], output}
+set UpdatingControllableActions = {NewControllableActions}
+
+OLD_ENV = SENDER,
+SENDER = (shift['x] -> shift['y] -> encode -> send -> RECEIVER),
+RECEIVER = (receive -> decode[2..3] -> output -> SENDER).
+
+NEW_ENV = SENDER,
+SENDER = (shift['x] -> shift['y] -> shift['z] -> encode -> send -> RECEIVER),
+RECEIVER = (receive -> decode[2..3] -> output -> SENDER).
+
+||OldEnvironment = (OLD_ENV).
+||NewEnvironment = (NEW_ENV).
+
+//Fluents declaration
+fluent ReadX = <shift['x],output>
+fluent ReadY = <shift['y],output>
+fluent ReadZ = <shift['z],output>
+
+// ---------------------------OLD CONTROLLER SPEC (at most 2 packet loss)-----------------------------
+
+assert DECODE = (!decode[3])
+ltl_property P_DECODE = []DECODE
+
+controllerSpec OldSpec = {
+    safety = {P_DECODE}
+    controllable = {OldControllableActions}
+}
+
+controller ||OldController = OldEnvironment~{OldSpec}.
+||OldEnvironmentController = (OldEnvironment || OldController).
+
+// ---------------------------NEW CONTROLLER SPEC (at most 3 packet loss)-----------------------------
+
+assert NEW_DECODE = [](!decode[2])
+
+ltl_property P_NEW_DECODE = []NEW_DECODE
+
+controllerSpec NewSpec = {
+    safety = {P_NEW_DECODE}
+    controllable = {NewControllableActions}
+}
+
+controller ||NewController = NewEnvironment~{NewSpec}.
+||NewEnvironmentController = (NewController || NewEnvironment).
+
+// ---------------------------UPDATING CONTROLLER SPEC-----------------------------
+
+//Fluents for updates
+fluent EncodeDone = <encode,output>
+fluent SendDone = <send,output>
+fluent ReceiveDone = <receive,output>
+fluent Decoded2 = <decode[2],output>
+fluent Decoded3 = <decode[3],output>
+fluent OutputDone = <output,shift['x]>
+fluent AlreadyDecoded = <decode[2..3],output>
+
+fluent StopOldSpec = <stopOldSpec, beginUpdate>
+fluent StartNewSpec = <startNewSpec, beginUpdate>
+fluent Reconfigure = <reconfigure, beginUpdate>
+fluent AnyActionUntilStartNew = <Alphabet,startNewSpec>
+
+assert AnyAction = (shift[NewPositions] || encode || send || receive || decode[2..3] || output)
+
+ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec))  )
+ltl_property T_NO_SEND = [](SendDone -> (!startNewSpec && !stopOldSpec))
+ 
+
+updatingController UpdCont = { 
+    oldController = OldEnvironmentController,
+    oldEnvironment = OldEnvironment,
+    newEnvironment = NewEnvironment,
+    oldGoal = OldSpec,
+    newGoal = NewSpec,
+    transition = T_NO_TP,
+	//transition = T_NO_SEND,
+    nonblocking,
+    updateFluents = {
+        {EncodeDone, EncodeDone},
+        {SendDone, SendDone},
+        {ReceiveDone, ReceiveDone},
+        {ReadX, ReadX},
+        {ReadY, ReadY},
+		{Decoded2,Decoded2}
+    }
+}
+
+// ---------------------------TEST AND RESULTS-----------------------------
+assert S_OLD = (DECODE)
+assert S_NEW = (NEW_DECODE)
+
+assert TEST_FORMULA1 = (S_OLD W stopOldSpec)
+assert TEST_FORMULA2 = [](startNewSpec -> []S_NEW)
+assert TEST_FORMULA3 = [](stopOldSpec -> X(!stopOldSpec))
+assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && [](startNewSpec -> []S_NEW) && [](stopOldSpec -> X(!stopOldSpec)))
+
+||UPDATE_CONTROLLER = UpdCont.
+

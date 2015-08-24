@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/bcel.jar"/>
+	<classpathentry kind="lib" path="lib/bluecove-gpl.jar"/>
+	<classpathentry kind="lib" path="lib/charting.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart.jar"/>
+	<classpathentry kind="lib" path="lib/jtools.jar"/>
+	<classpathentry kind="lib" path="lib/pccomm.jar"/>
+	<classpathentry kind="lib" path="lib/pctools.jar"/>
+	<classpathentry kind="lib" path="lib/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="lib/jgraphx.jar"/>
+	<classpathentry kind="lib" path="lib/yadrone_032.jar"/>
+	<classpathentry kind="lib" path="lib/ardronelib/xuggle-xuggler-5.4.jar"/>
+	<classpathentry kind="lib" path="lib/ardronelib/zxing/core-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/ardronelib/zxing/javase-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/ardronelib/slf4j-api-1.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/ardronelib/slf4j-jdk14-1.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/javaosc.jar"/>
+	<classpathentry kind="lib" path="lib/javaoscfull.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MTSTools"/>
+	<classpathentry kind="lib" path="lib/bluecove.jar"/>
+	<classpathentry kind="lib" path="lib/jssc.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

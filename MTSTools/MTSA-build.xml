@@ -1,0 +1,67 @@
+<project name="ltsa" default="ltsa + default backend" basedir=".">
+    <description>build core ltsa</description>
+
+	<!-- set global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="build" location="bin"/>
+	<property name="dist"  location="lib"/>
+
+	<property name="release-location" location="/vol/bitbucket/rbc/ltsa" />
+	
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="lib" />
+		<mkdir dir="plugins" />
+	</target>
+
+	<target name="core" depends="init" description="compile the source " >
+		<!-- Compile the java code from ${src} into ${build} -->
+
+		<javac srcdir="${src}" destdir="${build}" includes="**/*"/>
+		<delete file="lib/ltsa.jar" />
+		<jar jarfile="lib/ltsa.jar" basedir="${build}" /> <!--excludes="gov/*, ic/doc/ltsa/lts/* , ic/doc/ltsa/lts/ltl/*" / -->
+		<jar jarfile="examples.jar" basedir="${build}/.." includes="examples/* , examples/*/* , examples/*/*/*" />
+
+		<delete file="lib/MTSACore.jar" />
+		<javac srcdir="../MTSTools/src" destdir="../MTSTools/bin" includes="**/*"/>
+		<jar jarfile="lib/MTSACore.jar" basedir="../MTSTools/bin" includes="**/*" />
+		
+	</target>
+
+	<target name="ltsa + default backend" depends="core" description="compile the source " >
+	
+		<!-- Compile the java code from ${src} into ${build} -->
+		
+		<delete file="plugins/backend.jar" />
+
+		<javac  srcdir="${src}" destdir="${build}" >
+			<classpath>
+				<pathelement location="../ltsa/bin"/>
+				<pathelement location="./bin"/>
+				<pathelement location="."/>
+			</classpath>
+		</javac>
+
+		<jar jarfile="plugins/backend.jar" basedir="${build}" includes="ic/doc/ltsa/lts/* , ic/doc/ltsa/lts/ltl/*" />
+
+	</target>
+	
+	<target name="distribution" depends="clean , ltsa + default backend">
+		<zip destfile="${release-location}/ltsa.zip" basedir="." includes="lib/* , plugins , examples.jar , examples/* , examples/*/* , run.cmd , run.sh , ltsa.mb" />
+	</target>
+	
+
+	<target name="dist with plugins" depends="ltsa + default backend">
+		<zip destfile="${release-location}/ltsa.zip" basedir="." includes="lib/* , plugins , plugins/* , examples/* , examples/*/* , examples.jar , run.cmd , run.sh , ltsa.mb" />
+	</target>
+	
+	<target name="clean">
+		<delete>	
+			<fileset dir="plugins">
+			</fileset>
+		</delete>
+	</target>
+	
+</project>

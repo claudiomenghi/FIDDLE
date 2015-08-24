@@ -1,0 +1,3 @@
+{switchOn|lowWater,lowWater|switchOn}
+{switchOff|medWater|highWater|switchOn}
+{switchOn,switchOff,lowWater,medWater,highWater}

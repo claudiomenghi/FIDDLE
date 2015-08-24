@@ -1,0 +1,164 @@
+minimal ESCENARIO_1 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_9
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_7
+	|switchOff? -> ESCENARIO_1_E_17
+	),
+ESCENARIO_1_E_1 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_9
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_13
+	|switchOff? -> ESCENARIO_1_E_12
+	),
+ESCENARIO_1_E_3 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_9
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_10
+	|switchOff? -> ESCENARIO_1_E_14
+	),
+ESCENARIO_1_E_2 = (medWater -> ESCENARIO_1_E_8
+	|tau? -> ESCENARIO_1
+	),
+ESCENARIO_1_E_4 = (switchOn -> ESCENARIO_1_E_2
+	|methAppears? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_11
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_16
+	|switchOff? -> ESCENARIO_1_E_17
+	|tau? -> ESCENARIO_1_E_4
+	),
+ESCENARIO_1_E_5 = (switchOn -> ESCENARIO_1_E_2
+	|methAppears? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_9
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_13
+	|switchOff? -> ESCENARIO_1_E_12
+	|tau? -> ESCENARIO_1_E_5
+	),
+ESCENARIO_1_E_7 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_1
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_7
+	|switchOff? -> ESCENARIO_1_E_18
+	),
+ESCENARIO_1_E_6 = (switchOff -> ESCENARIO_1_E_17
+	|tau? -> ESCENARIO_1
+	),
+ESCENARIO_1_E_8 = (lowWater -> ESCENARIO_1_E_6
+	|tau? -> ESCENARIO_1
+	),
+ESCENARIO_1_E_10 = (switchOn -> ESCENARIO_1_E_2
+	|methAppears? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_1
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_7
+	|switchOff? -> ESCENARIO_1_E_4
+	|tau? -> ESCENARIO_1_E_10
+	),
+ESCENARIO_1_E_9 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_9
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_13
+	|switchOff? -> ESCENARIO_1_E_14
+	),
+ESCENARIO_1_E_12 = (switchOn -> ESCENARIO_1_E_2
+	|methAppears? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_3
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_15
+	|switchOff? -> ESCENARIO_1_E_17
+	|tau? -> ESCENARIO_1_E_12
+	),
+ESCENARIO_1_E_11 = (switchOn -> ESCENARIO_1_E_2
+	|methAppears? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_9
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_10
+	|switchOff? -> ESCENARIO_1_E_14
+	|tau? -> ESCENARIO_1_E_11
+	),
+ESCENARIO_1_E_13 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_1
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_7
+	|switchOff? -> ESCENARIO_1_E_4
+	),
+ESCENARIO_1_E_15 = (switchOn -> ESCENARIO_1_E_2
+	|methAppears? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_5
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_7
+	|switchOff? -> ESCENARIO_1_E_18
+	|tau? -> ESCENARIO_1_E_15
+	),
+ESCENARIO_1_E_14 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_3
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_15
+	|switchOff? -> ESCENARIO_1_E_17
+	),
+ESCENARIO_1_E_17 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_3
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_16
+	|switchOff? -> ESCENARIO_1_E_17
+	),
+ESCENARIO_1_E_16 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_5
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_7
+	|switchOff? -> ESCENARIO_1_E_18
+	),
+ESCENARIO_1_E_18 = (methAppears? -> ESCENARIO_1
+	|switchOn? -> ESCENARIO_1
+	|highWater? -> ESCENARIO_1_E_11
+	|medWater? -> ESCENARIO_1
+	|lowWater? -> ESCENARIO_1
+	|methLeaves? -> ESCENARIO_1_E_16
+	|switchOff? -> ESCENARIO_1_E_17
+	)\{tau}.
+/*
+ESCENARIO_1_E_1 = <methLeaves|highWater;[]>
+ESCENARIO_1_E_2 = <;[medWater|lowWater|switchOff]>
+ESCENARIO_1_E_3 = <switchOff|highWater;[]>
+ESCENARIO_1_E_4 = <highWater|methLeaves|switchOff;[switchOn|medWater|lowWater|switchOff]>
+ESCENARIO_1_E_5 = <switchOff|methLeaves|highWater;[switchOn|medWater|lowWater|switchOff]>
+ESCENARIO_1_E_6 = <;[switchOff]>
+ESCENARIO_1_E_7 = <methLeaves;[]>
+ESCENARIO_1_E_8 = <;[lowWater|switchOff]>
+ESCENARIO_1_E_9 = <highWater;[]>
+ESCENARIO_1_E_10 = <switchOff|highWater|methLeaves;[switchOn|medWater|lowWater|switchOff]>
+ESCENARIO_1_E_11 = <methLeaves|switchOff|highWater;[switchOn|medWater|lowWater|switchOff]>
+ESCENARIO_1_E_12 = <methLeaves|highWater|switchOff;[switchOn|medWater|lowWater|switchOff]>
+ESCENARIO_1 = <;[]>
+ESCENARIO_1_E_13 = <highWater|methLeaves;[]>
+ESCENARIO_1_E_15 = <highWater|switchOff|methLeaves;[switchOn|medWater|lowWater|switchOff]>
+ESCENARIO_1_E_14 = <highWater|switchOff;[]>
+ESCENARIO_1_E_17 = <switchOff;[]>
+ESCENARIO_1_E_16 = <switchOff|methLeaves;[]>
+ESCENARIO_1_E_18 = <methLeaves|switchOff;[]>
+*/

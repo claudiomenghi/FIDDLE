@@ -1,0 +1,151 @@
+// -----------------------------COMMENTS-------------------------------
+
+// - To execute the solution for update controllers select in the dropdown menu 
+// the "UPDATE_CONTROLLER" label, and then press the compose button.
+// - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
+// different transition requeriments presented in the paper.
+// - You can animate the controller obtained pressing the blue A in the top bar
+// - If you want to add green raw element to be process, change Colours set definition
+// and uncomment the 
+
+// ---------------------------ENVIRONMENTS-----------------------------
+
+//ACTION SETS
+//set Colours = {yellow, red, green}
+set Colours = {yellow, red}
+set ControllableActions = {in.Colours, drill.Colours, paint.Colours, out.Colours}
+set Alphabet = {ControllableActions, paintOk.Colours, drillOk.Colours}
+
+//Domain Model
+	IO = ({in[Colours], out[Colours]} -> IO).
+	ARM = ( paint[c:Colours] -> paintOk[c] -> ARM
+		| drill[c:Colours] -> drillOk[c] -> ARM).
+
+||ENV = (ARM || IO).
+
+
+//DEFINED FLUENTS 
+fluent Paint = <paintOk[Colours], out[Colours]>
+fluent PaintC[c:Colours] = <paintOk[c], in[c]>
+fluent HaveDrilled = <drillOk[Colours], out[Colours]>
+fluent HaveDrilledC[c:Colours] = <drillOk[c],in[c]>
+fluent DrillPendingC[c:Colours] = <drill[c],drillOk[c]>
+fluent PaintPendingC[c:Colours] = <paint[c], paintOk[c]>
+
+fluent RedIn = <in['red],out['red]>
+fluent YellowIn = <in['yellow],out['yellow]>
+fluent GreenIn = <in['green],out['green]>
+
+fluent PaintRed = <paintOk['red], in['red]>
+fluent PaintYellow = <paintOk['yellow], in['yellow]>
+fluent PaintGreen = <paintOk['green], in['green]>
+fluent HaveDrilledRed = <drillOk['red], in['red]>
+fluent HaveDrilledYellow = <drillOk['yellow], in['yellow]>
+fluent HaveDrilledGreen = <drillOk['green], in['green]>
+fluent DrillPendingRed = <drill['red],drillOk['red]>
+fluent DrillPendingYellow = <drill['yellow],drillOk['yellow]>
+fluent DrillPendingGreen = <drill['green],drillOk['green]>
+fluent PaintPendingRed = <paint['red],paintOk['red]>
+fluent PaintPendingYellow = <paint['yellow],paintOk['yellow]>
+fluent PaintPendingGreen = <paint['green],paintOk['green]>
+
+fluent ToolApplied[c:Colours] = <{paintOk[c],drillOk[c]},out[c]>
+fluent Processing[c:Colours] = <in[c],out[c]> 
+
+// ---------------------------OLD CONTROLLER SPEC-----------------------------
+
+assert TOOL_ORDER = forall [c:Colours] ((PaintC[c] -> HaveDrilledC[c]))
+assert PAINT_AND_DRILL_POLICY = forall [c:Colours] ( (paint[c] || drill[c] ) -> Processing[c])
+assert OUT_IF_FINISHED = forall [c:Colours] (out[c] -> (PaintC[c] && HaveDrilledC[c]))
+assert ONLY_ONE_COLOUR = forall [c:Colours] ( in[c] -> (!ToolApplied[c] && !DrillPendingC[c] && !PaintPendingC[c]) )
+assert DRILL_ONCE = forall [c:Colours] ( drill[c] -> !HaveDrilledC[c] )
+assert PAINT_ONCE = forall [c:Colours] ( paint[c] -> !PaintC[c] )
+
+ltl_property P_TOOL_ORDER = []TOOL_ORDER
+ltl_property P_PAINT_AND_DRILL_POLICY = []PAINT_AND_DRILL_POLICY
+ltl_property P_OUT_IF_FINISHED = []OUT_IF_FINISHED
+ltl_property P_ONLY_ONE_COLOUR = []ONLY_ONE_COLOUR
+ltl_property P_DRILL_ONCE = []DRILL_ONCE
+ltl_property P_PAINT_ONCE = []PAINT_ONCE
+
+controllerSpec DRILL_PAINT = {
+	safety = {P_TOOL_ORDER, P_DRILL_ONCE,
+			P_PAINT_AND_DRILL_POLICY, P_PAINT_ONCE,
+			P_OUT_IF_FINISHED, P_ONLY_ONE_COLOUR
+			}
+	controllable = {ControllableActions}
+}
+controller ||C_DRILL_PAINT = (ENV)~{DRILL_PAINT}.
+||DrillPaint = (C_DRILL_PAINT || ENV).
+
+
+// ---------------------------NEW CONTROLLER SPEC-----------------------------
+
+assert NEW_TOOL_ORDER = forall [c:Colours] (HaveDrilledC[c] -> PaintC[c])
+ltl_property P_NEW_TOOL_ORDER = []NEW_TOOL_ORDER
+
+controllerSpec PAINT_DRILL = {
+	safety = {P_NEW_TOOL_ORDER, P_DRILL_ONCE,
+			P_PAINT_AND_DRILL_POLICY, P_PAINT_ONCE,
+			P_OUT_IF_FINISHED, P_ONLY_ONE_COLOUR
+			}
+	controllable = {ControllableActions}
+}
+controller ||C_PAINT_DRILL = (ENV)~{PAINT_DRILL}.
+||PaintDrill = (C_PAINT_DRILL||ENV).
+
+// ---------------------------UPDATING CONTROLLER SPEC-----------------------------
+
+assert AnyAction = (in[Colours] || out[Colours] || drill[Colours] || paint[Colours] ||
+						drillOk[Colours] || paintOk[Colours])
+
+fluent AnyActionUntilStartNew = <Alphabet,startNewSpec>
+
+ltl_property T_UPDATE_WHEN_EMPTY = [](startNewSpec -> TRAIL_EMPTY ) // TP != Empty
+ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec))  ) // Finish actual instance with old Specification
+ltl_property T_OVERLAP = [](stopOldSpec -> (StartNewSpec && AnyActionUntilStartNew))
+
+assert TRAIL_EMPTY = forall [c:Colours] (!Processing[c])
+
+updatingController UpdCont = {
+    oldController = DrillPaint,
+    oldEnvironment = ENV,
+    newEnvironment = ENV,
+    oldGoal = DRILL_PAINT,
+    newGoal = PAINT_DRILL,
+    transition = T_UPDATE_WHEN_EMPTY,
+	//transition = T_NO_TP,
+	//transition = T_OVERLAP,
+    nonblocking,
+    updateFluents = {
+		{PaintRed,PaintRed},
+		{PaintYellow,PaintYellow},
+//		{PaintGreen,PaintGreen},
+		{HaveDrilledRed,HaveDrilledRed},
+		{HaveDrilledYellow,HaveDrilledYellow},
+//		{HaveDrilledGreen,HaveDrilledGreen},
+		{RedIn,RedIn},
+		{YellowIn,YellowIn},
+//		{GreenIn,GreenIn},
+		{DrillPendingRed,DrillPendingRed},
+		{DrillPendingYellow,DrillPendingYellow},
+//		{DrillPendingGreen,DrillPendingGreen},
+		{PaintPendingRed,PaintPendingRed},
+		{PaintPendingYellow,PaintPendingYellow},
+//		{PaintPendingGreen,PaintPendingGreen}
+	} 
+}
+
+||UPDATE_CONTROLLER = UpdCont.
+// ---------------------------TEST AND RESULTS-----------------------------
+assert S_OLD = (TOOL_ORDER && DRILL_ONCE && PAINT_ONCE && PAINT_AND_DRILL_POLICY && OUT_IF_FINISHED && ONLY_ONE_COLOUR)
+assert S_NEW = (NEW_TOOL_ORDER && DRILL_ONCE && PAINT_ONCE && PAINT_AND_DRILL_POLICY && OUT_IF_FINISHED && ONLY_ONE_COLOUR)
+
+fluent StopOldSpec = <stopOldSpec, beginUpdate>
+fluent StartNewSpec = <startNewSpec,beginUpdate>
+
+assert TEST_FORMULA1 = (S_OLD W stopOldSpec)
+assert TEST_FORMULA2 = [](startNewSpec -> []S_NEW)
+assert TEST_FORMULA3 = [](stopOldSpec -> X (!stopOldSpec))
+assert TEST_FORMULA4 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && [](startNewSpec -> []S_NEW) && [](stopOldSpec -> X(!stopOldSpec)))

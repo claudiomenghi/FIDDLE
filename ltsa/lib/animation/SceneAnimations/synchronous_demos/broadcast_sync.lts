@@ -1,0 +1,75 @@
+//breadth first search in a general synchronous network
+const False = 0
+const True  = 1
+range Bool  = False..True
+
+const    N    = 5
+range    ID   = 1..N
+set      M    = {probe}
+
+const Diam = 4 //should be 4
+range Int =  0..Diam
+
+//links or channels hold at most a single message
+set Network = {[1][2], [2][3], [2][5], [5][3], [3][4], [4][1]}
+
+CHAN(Ch='[0][0])  =(put[Ch][m:M] -> get[Ch][m] -> CHAN).
+
+ALLOW = (get.Network.M->ALLOW)+{get[ID][ID][M]}.
+
+||NETWORK = (forall[ch:Network] CHAN(ch) || ALLOW)
+            /{forall[i:ID] {put[i]/put[i][ID]}}.
+
+//the synchronous model proceeds in two steps
+ROUND  = (init -> ROUNDS),
+ROUNDS = (step1 ->step2 -> ROUNDS
+         |restart -> ROUND).
+
+//the processes
+PROCESS(Id=1) 
+   = (init->start[i:ID]
+     -> if (i==Id) then 
+          (marked[Id] -> step1 -> MSGS[True][False])
+        else
+          (step1 -> MSGS[False][False])
+     ),
+MSGS[mark:Bool][sent:Bool]
+    = (when mark && !sent put[Id].probe -> MSGS[mark][True]
+      |step2 -> TRANS[mark][sent]
+      ),
+TRANS[mark:Bool][sent:Bool]
+   = (get[i:ID][Id].probe
+     -> if !mark then
+         (marked[Id] -> parent[i][Id]->TRANS[True][False])
+        else
+         TRANS[mark][sent]
+     |step1 -> MSGS[mark][sent]
+     |restart -> PROCESS
+     ).
+
+||SYS = (forall[i:ID] PROCESS(i) || ROUND || NETWORK)>>{step1,step2,restart}.
+
+menu RUN = {start[ID],step1,step2}
+
+animation NETWORK = "xml/broadcast.xml"
+            actions{
+				forall[i:1..N] {
+                  marked[i]/leader[i],
+                  notleader[i]/notleader[i],
+                  put[i][M]/chan[i][ID].begin,
+                  init/clear[i]
+  				},
+                forall[i:Network] {
+                  parent[i]/parent[i],
+                  init/notparent[i]
+                }
+            }
+            controls {
+               start[i:ID]/start[i],
+               restart/restart,
+               step1/round,         
+               step2/{chan.Network.end}
+            }
+
+
+                     

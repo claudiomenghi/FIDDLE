@@ -1,0 +1,106 @@
+/*
+Environment model that is controllable by IA Controllers
+*/
+/*
+Environment model thaat is controllable by IA Controllers
+*/
+
+/*
+* sacar los atNX (X)
+* los goto deberían ser no controlables, el safety debería ser algo como no hacer dos turnLeft seguidos
+* el objetivo de liveness debería ser como el de las bandejas en
+productioncell, se puede probar modelarlo como falla o como
+gr1
+*/
+/*
+hay dos escenarios posibles con respecto al relocator:
+1 - representar la acción de poner el robot a mano en un nodo particular, siendo entonces controlables
+2 - una vez que el robot confirmo success después de perderse, 
+se observa la ubicación en la que está y se reporta, 
+siendo no controlable 
+porque uno no decide donde quedó (este no está sintetizando)
+*/
+MAP	= N0_N,
+N0_N = (load->N0_N|follow->N4_N|turnRight->N0_E|turnLeft->N0_W|turnAround->N0_S|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N0_W = (turnRight->N0_N|turnLeft->N0_S|turnAround->N0_E|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N0_S = (turnRight->N0_W|turnLeft->N0_E|turnAround->N0_N|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N0_E = (follow->N1_E|turnRight->N0_S|turnLeft->N0_N|turnAround->N0_W|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N1_N = (follow->N3_N|turnRight->N1_E|turnLeft->N1_W|turnAround->N1_S|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N1_W = (follow->N0_W|turnRight->N1_N|turnLeft->N1_S|turnAround->N1_E|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N1_S = (turnRight->N3_W|turnLeft->N3_E|turnAround->N3_N|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N1_E = (turnRight->N1_S|turnLeft->N1_N|turnAround->N1_W|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N3_N = (turnRight->N3_E|turnLeft->N3_W|turnAround->N3_S|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N3_W = (follow->N4_W |turnRight->N3_N|turnLeft->N3_S|turnAround->N3_E|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N3_S = (follow->N1_S|turnRight->N3_W|turnLeft->N3_E|turnAround->N3_N|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N3_E = (turnRight->N3_S|turnLeft->N3_N|turnAround->N3_W|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N4_N = (turnRight->N4_E|turnLeft->N4_W|turnAround->N4_S|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N4_W = (turnRight->N4_N|turnLeft->N4_S|turnAround->N4_E|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N4_S = (follow->N0_S|turnRight->N4_W|turnLeft->N4_E|turnAround->N4_N|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N),
+N4_E = (unload->N4_E|follow->N3_E|turnRight->N4_S|turnLeft->N4_N|turnAround->N4_W|gotoN0_N->N0_N|gotoN1_N->N1_N|gotoN4_N->N4_N).
+
+//INTRAY = (inTray -> load -> INTRAY).
+//OUTTRAY = (unload -> removedFromOutputTray -> OUTTRAY).
+
+ROBOT_CARGO = (load -> unload -> ROBOT_CARGO).
+ROBOT_MOVEMENT = (follow->ROBOT_REPLY
+				|turnRight->ROBOT_REPLY
+				|turnLeft->ROBOT_REPLY
+				|turnAround->ROBOT_REPLY),
+ROBOT_REPLY = (lost->ROBOT_LOST|success->ROBOT_MOVEMENT),
+ROBOT_LOST = (retry->ROBOT_RETRY),
+ROBOT_RETRY = (lost->ROBOT_LOST|successRetry->ROBOT_MOVEMENT).
+||ROBOT = (ROBOT_CARGO || ROBOT_MOVEMENT).
+
+RELOCATOR = (successRetry->RELOCATOR_RELOCATE),
+RELOCATOR_RELOCATE = (gotoN0_N->RELOCATOR|gotoN1_N->RELOCATOR|gotoN4_N->RELOCATOR).
+
+set ActionCommands = {follow,turnRight,turnLeft,turnAround,retry}
+set RelocateCommands = {gotoN0_N,gotoN1_N,gotoN4_N}
+set ReplyCommands = {lost,success,successRetry}
+set ControllableActions = {ActionCommands,unload,load}
+set FailActions = {lost}
+set UncontrollableActions = {FailActions,success,successRetry,RelocateCommands} //inTray,removedFromOutputTray,
+set Alphabet = {ControllableActions,UncontrollableActions}
+||Scenario = ( MAP || ROBOT || RELOCATOR ).// || INTRAY || OUTTRAY).
+||S2 = (NO_2_RIGHT || NO_2_LEFT || NO_2_AROUND ).// || INTRAY || OUTTRAY).
+
+property NO_2_RIGHT = (Alphabet\{turnRight}->NO_2_RIGHT | turnRight->PREV_RIGHT ),
+PREV_RIGHT = (success->PREV_RIGHT2 | Alphabet\{success}->NO_2_RIGHT),
+PREV_RIGHT2 = (Alphabet\{turnRight}->NO_2_RIGHT ).
+
+property NO_2_LEFT = (Alphabet\{turnLeft}->NO_2_LEFT | turnLeft->PREV_LEFT ),
+PREV_LEFT = (success->PREV_LEFT2 | Alphabet\{success}->NO_2_LEFT),
+PREV_LEFT2 = (Alphabet\{turnLeft}->NO_2_LEFT ).
+
+property NO_2_AROUND = (Alphabet\{turnAround}->NO_2_AROUND | turnAround->PREV_AROUND ),
+PREV_AROUND = (success->PREV_AROUND2 | Alphabet\{success}->NO_2_AROUND),
+PREV_AROUND2 = (Alphabet\{turnAround}->NO_2_AROUND ). 
+
+//DEFINED FLUENTS 
+fluent LOADED = <load, Alphabet\{load}>
+fluent UNLOADED = <unload, Alphabet\{unload}>
+//fluent REMOVED_FROM_OUTTRAY = <removedFromOutputTray, Alphabet\{removedFromOutputTray}>
+//fluent BEING_PROCESSED = <load, unload>
+//fluent F_SUCCESS = <success,Alphabet\{success}>
+//fluent F_SUCCESS_RETRY = <successRetry, Alphabet\{successRetry}>
+fluent F_FAILURES = <FailActions,Alphabet\{FailActions}>
+
+//DEFINED ASSERTIONS
+//assert ASSUME_ON_LOAD = (ADDED_TO_INTRAY || BEING_PROCESSED)
+//assert ASSUME_ON_UNLOAD = (REMOVED_FROM_OUTTRAY || BEING_PROCESSED)
+assert GOAL_FOR_LOAD = LOADED
+assert GOAL_FOR_UNLOAD = UNLOADED
+assert SUCCEDED = (<>[]!Failures -> (([]<>GOAL_FOR_LOAD)&&([]<>GOAL_FOR_UNLOAD)))
+assert Failures = F_FAILURES
+
+property SAFE = (follow->ActionCommands\{follow}->SAFE).
+
+controller ||C = (Scenario)~{Objective}.
+
+controllerSpec Objective = {
+	safety = {SAFE}//NO_2_RIGHT, NO_2_LEFT, NO_2_AROUND}
+	failure = {Failures}	
+//	assumption = {ASSUME_ON_LOAD, ASSUME_ON_UNLOAD}
+//	liveness = {GOAL_FOR_LOAD,GOAL_FOR_UNLOAD}
+	controllable = {ControllableActions}
+}

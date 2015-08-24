@@ -1,0 +1,1 @@
+java -Xmx1g -Ddebug="false" -Dwarning="true" -Dcontrol-flow="false"  -classpath lib/collections-generic-4.01.jar;lib/commons-collections-3.2.jar;lib/commons-lang-2.2.jar;lib/MTSACore.jar;lib/swing-layout-1.0.jar;lib/framework.jar;lib/LTL2Buchi.jar;lib/scenebeans.jar;lib/xml.jar;lib/jel.jar;lib/jdom.jar;lib/MTSSynthesis.jar;lib/ltsa.jar ui.HPWindow

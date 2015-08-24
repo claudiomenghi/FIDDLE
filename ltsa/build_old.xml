@@ -1,0 +1,215 @@
+<project name="ltsa" default="compile" basedir=".">
+    <description>LTSA Build</description>
+
+	<!-- global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="build" location="bin"/>
+	<property name="dist"  location="lib"/>
+	<property name="dest_dir"  location="dist"/>
+	<property name="mtsa.src" location="../MTSTools/src"/>
+	<property name="mtsa.build" location="../MTSTools/bin"/>
+	<property name="mts_synthesis.src" location="../MTSSynthesis/src"/>
+	<property name="mts_synthesis.build" location="../MTSSynthesis/bin"/>
+	
+	<!-- special ames hooks for LTSA -->
+<!--	<property name="ames-learning-ui" 
+		value="lstar.ltsa.SETCompositionalLearningUI"/>
+	<property name="ames-interface-learning-ui" 
+		value="lstar.interfaces.InterfaceLearningUI"/>
+-->	
+	<!-- output sensitivity: these are the default values used in the `run' 
+		 target.  The `run-verbose' and `run-quiet' targets, are provided so
+		 that these values need not be changed.  Note that these values, at
+		 present, only affect the verbosity of output from AMES packages. -->
+	<property name="show-warning" value="true"/>
+	<property name="show-error" value="true"/>
+	<property name="show-debug" value="true"/>
+	<property name="show-control-flow" value="true"/>
+	
+	<path id="build.classpath">
+		<pathelement location="${dist}/LTL2Buchi.jar"/>
+		<pathelement location="${dist}/scenebeans.jar"/>
+		<pathelement location="${dist}/collections-generic-4.01.jar"/>
+		<pathelement location="${dist}/commons-collections-3.2.jar"/>
+		<pathelement location="${dist}/commons-lang-2.2.jar"/>
+		<pathelement location="${dist}/framework.jar"/>
+		<pathelement location="${dist}/gnu-regexp-1.1.1.jar"/>
+		<pathelement location="${dist}/jdom.jar"/>
+		<pathelement location="${dist}/jel.jar"/>
+		<pathelement location="${dist}/natutil.jar"/>
+		<pathelement location="${dist}/swing-layout-1.0.jar"/>
+		<pathelement location="${dist}/xml.jar"/>
+		<pathelement location="${dist}/guava-12.0.1.jar"/>
+	</path>
+
+	<path id="run.classpath">
+		<pathelement location="${dist}/LTL2Buchi.jar"/>
+		<pathelement location="${dist}/ltsa.jar"/>
+		<pathelement location="${dist}/MTSACore.jar"/>
+		<pathelement location="${dist}/MTSSynthesis.jar"/>
+		<pathelement location="${dist}/collections-generic-4.01.jar"/>
+		<pathelement location="${dist}/commons-collections-3.2.jar"/>
+		<pathelement location="${dist}/commons-lang-2.2.jar"/>
+		<pathelement location="${dist}/framework.jar"/>
+		<pathelement location="${dist}/gnu-regexp-1.1.1.jar"/>
+		<pathelement location="${dist}/jdom.jar"/>
+		<pathelement location="${dist}/jel.jar"/>
+		<pathelement location="${dist}/natutil.jar"/>
+		<pathelement location="${dist}/swing-layout-1.0.jar"/>
+		<pathelement location="${dist}/xml.jar"/>
+		<pathelement location="${dist}/guava-12.0.1.jar"/>
+	</path>
+
+	<path id="run-bBatch.classpath">
+		<pathelement location="${dist}/LTL2Buchi.jar"/>
+		<pathelement location="${dist}/ltsa.jar"/>
+		<pathelement location="${dist}/MTSACore.jar"/>
+		<pathelement location="${dist}/MTSSynthesis.jar"/>		
+		<pathelement location="${dist}/collections-generic-4.01.jar"/>
+		<pathelement location="${dist}/commons-collections-3.2.jar"/>
+		<pathelement location="${dist}/commons-lang-2.2.jar"/>
+		<pathelement location="${dist}/framework.jar"/>
+		<pathelement location="${dist}/gnu-regexp-1.1.1.jar"/>
+		<pathelement location="${dist}/jdom.jar"/>
+		<pathelement location="${dist}/jel.jar"/>
+		<pathelement location="${dist}/natutil.jar"/>
+		<pathelement location="${dist}/swing-layout-1.0.jar"/>
+		<pathelement location="${dist}/xml.jar"/>
+		<pathelement location="${lib}/guava-12.0.1.jar"/>
+	</path>
+
+	<!-- things to do before compilation -->
+	<target name="init">
+		<!-- create time stamp -->
+		<tstamp/>
+		<!-- create the build directory structure -->
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist}" />
+	</target>
+
+	<!-- compile the ltsa source -->
+	<target name="compile-LTSA" depends="init"> 	
+		<javac srcdir="${src}" destdir="${build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"/>
+		<jar jarfile="${dist}/ltsa.jar">
+			<fileset dir="${build}"/>
+			<fileset dir="${src}" includes="icon/*.gif"/>
+			<manifest>
+				<attribute name="Main-Class" value="ui.HPWindow"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- compile the mtsa source -->
+	<target name="compile-MTSA" depends="compile-LTSA, compile-MTSSynthesis"> 	
+		<javac srcdir="${mtsa.src}" destdir="${mtsa.build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"/>
+		<jar jarfile="${dist}/MTSACore.jar">
+			<fileset dir="${mtsa.build}"/>
+			<fileset dir="${mtsa.src}" includes="icon/*.gif"/>
+		</jar>
+	</target>
+
+	<!-- compile the triggered scenario synthesiser source -->
+	<target name="compile-MTSSynthesis"> 
+		<javac srcdir="${mts_synthesis.src}" destdir="${mts_synthesis.build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"/>
+		<jar jarfile="${dist}/MTSSynthesis.jar">
+			<fileset dir="${mts_synthesis.build}"/>
+			<fileset dir="${mts_synthesis.src}" includes="icon/*.gif"/>
+		</jar>
+	</target>
+		
+	<!-- compile the batch executable -->
+	<target name="compile-batch" depends="init">
+		<javac srcdir="${src}" destdir="${build}" 
+			classpathref="build.classpath"
+			source="1.6" target="1.6"/>
+		<jar jarfile="${dist}/BatchLtsa.jar">
+			<fileset dir="${build}"/>
+			<fileset dir="${src}" includes="icon/*.gif"/>
+			<manifest>
+				<attribute name="Main-Class" value="ui.LTSABatch"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="compileBatch" depends="init">
+		<antcall target="compile-batch"/>
+	</target>
+	
+	<!-- remove files generated by the build -->
+	<target name="clean">
+		<delete includeemptydirs="true" failonerror="false">	
+			<fileset dir="${build}"/>
+			<fileset file="${dist}/ltsa.jar"/>
+			<fileset file="${dist}/BatchLtsa.jar"/>
+			<fileset file="${dist}/MTSACore.jar"/>
+			<fileset file="${dist}/MTSSynthesis.jar"/>
+		</delete>
+	</target>
+	
+	<target name="compile" depends="compile-MTSA">
+	</target>
+		
+		
+	<!-- execute the ltsa environment -->
+	<target name="run" depends="compile-LTSA, compile-MTSA">
+		<java classname="ui.HPWindow" classpathref="run.classpath" 
+			fork="true" failonerror="true" maxmemory="512m">
+					
+			<assertions enableSystemAssertions="true">
+				<enable/>
+			</assertions>
+			
+			<!-- Keys for controlling the output verbosity. -->
+			<sysproperty key="warning" value="${show-warning}"/>
+			<sysproperty key="error" value="${show-error}"/>
+			<sysproperty key="debug" value="${show-debug}"/>
+			<sysproperty key="control-flow" value="${show-control-flow}"/>
+					
+			<!-- Necessary to load the Learning User Interface -->
+			<!-- 
+						<sysproperty key="ames-learning-ui" 
+				value="${ames-learning-ui}"/>			
+			<sysproperty key="ames-interface-learning-ui" 
+				value="${ames-interface-learning-ui}"/>
+				-->	
+		</java>
+	</target>
+	
+	<!-- run a bit quieter -->
+	<target name="run-quiet">
+		<antcall target="run">
+			<param name="show-debug" value="false"/>
+			<param name="show-control-flow" value="false"/>
+		</antcall>
+	</target>
+	
+	<!-- run a bit louder -->
+	<target name="run-verbose">
+		<antcall target="run">
+			<param name="show-debug" value="true"/>
+			<param name="show-control-flow" value="true"/>
+		</antcall>
+	</target>
+	
+	<target name="run-batch" depends="compile-batch">
+		<java classname="ui.LTSABatch" classpathref="run-batch.classpath" 
+			fork="true" failonerror="true" maxmemory="512m">
+					
+			<assertions enableSystemAssertions="true">
+				<enable/>
+			</assertions>
+			
+			<!-- Keys for controlling the output verbosity. -->
+			<sysproperty key="warning" value="true"/>
+			<sysproperty key="error" value="true"/>
+			<sysproperty key="debug" value="true"/>
+			<sysproperty key="control-flow" value="true"/>		
+		</java>
+	</target>
+</project>

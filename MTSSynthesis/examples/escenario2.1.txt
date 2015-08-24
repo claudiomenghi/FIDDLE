@@ -1,0 +1,3 @@
+{switchOn|methAppears,methAppears|switchOn}
+{switchOff|methLeaves|switchOn}
+{switchOn,switchOff,methAppears,methLeaves}

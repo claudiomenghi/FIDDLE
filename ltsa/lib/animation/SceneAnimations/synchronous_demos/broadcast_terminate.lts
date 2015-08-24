@@ -1,0 +1,90 @@
+//beadth first search in a general synchronous network
+const False = 0
+const True  = 1
+range Bool  = False..True
+
+const    N    = 5
+range    ID   = 1..N
+set      M    = {probe}
+
+range Int = 0..N
+
+//links or channels hold at most a single message
+set Network = {[1][2], [2][3], [2][5], [5][3], [3][4], [4][1]}
+
+CHAN(Ch='[0][0])  =(put[Ch][m:M] -> get[Ch][m] -> CHAN).
+
+REPLY(Ch='[0][0]) = (reply[Ch] -> getreply[Ch]->REPLY).
+
+ALLOW = (get.Network.M->ALLOW)+{get[ID][ID][M]}.
+
+||NETWORK = (forall[ch:Network] 
+               (CHAN(ch) || REPLY(ch)) 
+            || ALLOW
+            ) /{forall[i:ID] {
+                  put[i]/put[i][ID],
+                  getreply[i]/getreply[i][ID]
+                  }
+               }.
+
+//the synchronous model proceeds in two steps
+ROUND  = (init -> ROUNDS),
+ROUNDS = (step1 ->step2 -> ROUNDS
+         |restart -> ROUND).
+
+//the processes
+minimal
+PROCESS(Id=1) 
+   = (init->start[i:ID]
+     -> if (i==Id) then 
+          (marked[Id] -> step1 -> MSGS[True][False][False][0][0])
+        else
+          (step1 -> MSGS[False][False][False][0][0])
+     ),
+MSGS[mark:Bool][sent:Bool][comp:Bool][par:Int][rep:Int]
+    = (when mark && !sent put[Id].probe ->  MSGS[mark][True][comp][par][rep]
+      |when par>0 && comp reply[par][Id] -> MSGS[mark][sent][False][par][rep]
+      |when rep>0         reply[rep][Id] -> MSGS[mark][sent][comp][par][0]
+      |step2 -> TRANS[mark][sent][comp][par][rep]
+      ),
+TRANS[mark:Bool][sent:Bool][comp:Bool][par:Int][rep:Int]
+   = (get[i:ID][Id].probe
+     -> if !mark then
+         (marked[Id] -> parent[i][Id]->TRANS[True][False][comp][i][rep])                         
+        else
+          TRANS[mark][sent][comp][par][i]
+     |getreply[Id] -> complete[Id]-> TRANS[mark][sent][True][par][rep]
+     |step1 -> MSGS[mark][sent][comp][par][rep]
+     |restart -> PROCESS
+     ) + {reply[ID][Id]}.
+
+||SYS = (forall[i:ID] PROCESS(i) 
+        || NETWORK
+        || ROUND
+        )>>{step1,step2,restart}.
+
+menu RUN = {start[ID],step1,step2,restart}
+
+animation NETWORK = "xml/broadcast_terminate.xml"
+            actions{
+				forall[i:1..N] {
+                  marked[i]/leader[i],
+                  complete[i]/notleader[i],
+                  put[i][M]/chan[i][ID].begin,
+                  init/clear[i]
+  				},
+                forall[i:Network] {
+                  parent[i]/parent[i],
+                  reply[i]/reply[i].begin,
+                  init/notparent[i]
+                }
+            }
+            controls {
+               start[i:ID]/start[i],
+               restart/restart,
+               step1/round,         
+               step2/{{chan,reply}.Network.end}
+            }
+
+
+                     

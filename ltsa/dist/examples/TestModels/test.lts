@@ -1,0 +1,21 @@
+set ControllableActions = {c1, c2}
+set UncontrollableActions = {u1}
+set All = {ControllableActions, UncontrollableActions}
+
+ENV  = (c1 -> ENV | c2 -> ENV_),
+ENV_ = (u1 -> ENV).
+
+fluent C1 = <c1, c2>
+
+ltl_property ALWAYS_C1_FALSE = []C1
+ltl_property ALWAYS_C1_TRUE = []C1
+
+||Environment = (ENV).
+
+controller ||Controller = Environment~{Spec}.
+
+controllerSpec Spec = {
+	safety = {ALWAYS_C1_FALSE}
+	//safety = {ALWAYS_C1_TRUE}
+	controllable = {ControllableActions}
+}

@@ -1,0 +1,13 @@
+CHAN = (in->out->CHAN).
+
+animation CHAN = "xml\channel.xml"
+   actions {
+        in/channel.begin
+   }
+   controls {
+        out/channel.end
+   }
+
+animation TEST = "xml\channel.xml"
+          compose {CHAN}
+          controls{in/start}
