@@ -205,14 +205,6 @@ public class UpdatingEnvironmentGenerator {
 		}
 	}
 
-//	private void removeTopStates(MappingStructure mapping) {
-//
-//		updatingEnvironment = ControllerUtils.removeTopStates(updatingEnvironment, mapping.getOldFluents());
-//		newEnvironment = ControllerUtils.removeTopStates(newEnvironment, mapping.getNewFluents());
-//
-//		lastState = new Long(updatingEnvironment.getStates().size());
-//	}
-
 	private HashMap<Long, Long> linkStatesWithSameFluentValues(MappingStructure mapping) {
 
 		setStatesForEachPart();

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import control.ControllerGoalDefinition;
 import controller.game.gr.GRGameSolver;
 import controller.game.gr.GRRankSystem;
 import controller.game.gr.StrategyState;
@@ -49,25 +50,24 @@ public class UpdatingControllerSynthesizer {
 
 		CompactState env = MTSToAutomataConverter.getInstance().convert(environment, "UPD_CONT_ENVIRONMENT", false);
 
-		// set safety goals
 		Vector<CompactState> machines = new Vector<CompactState>();
 //		machines.addAll(CompositionExpression.preProcessSafetyReqs(uccs.getNewGoalDef(), output));
 
 		// add to safetyGoals .old actions
-		UpdatingControllerHandler updateHandler = new UpdatingControllerHandler();
-		Vector<CompactState> withOldActionsMachines = updateHandler.addOldTransitionsToSafetyMachines(machines, contActions);
+//		UpdatingControllerHandler updateHandler = new UpdatingControllerHandler();
+//		Vector<CompactState> withOldActionsMachines = updateHandler.addOldTransitionsToSafetyMachines(machines, contActions);
 
-		withOldActionsMachines.add(env);
+		machines.add(env);
 
-		uccs.setMachines(withOldActionsMachines);
+		uccs.setMachines(machines);
 
 		if (!uccs.debugModeOn() && uccs.getCheckTrace().isEmpty()){
 			// set liveness goal
-			uccs.goal = uccs.getNewGoalGR();
-			uccs.makeController = true;
+//			uccs.goal = uccs.getNewGoalGR();
+//			uccs.makeController = true;
 
 //			TransitionSystemDispatcher.parallelComposition(uccs, output);
-			solveControlProblem(environment, uccs.getNewGoalGR());
+			solveControlProblem(environment, uccs.getNewGoalGR(), uccs.getNewGoalDef());
 			
 			
 			
@@ -79,7 +79,9 @@ public class UpdatingControllerSynthesizer {
 		}
 	}
 
-	private static void solveControlProblem(MTS<Long, String> environment, GRControllerGoal<String> goal) {
+
+	private static void solveControlProblem(MTS<Long, String> environment, GRControllerGoal<String> goal, ControllerGoalDefinition controllerGoalDefinition) {
+		
 		GRGame<Long> game;
 	
 		game = new GRGameBuilder<Long, String>().buildGRGameFrom(environment, goal);
@@ -88,15 +90,16 @@ public class UpdatingControllerSynthesizer {
 		
 	
 	
-	solver.solveGame();
-	//ojo que el estado del environment puede tener problemas.  
-	if (solver.isWinning(environment.getInitialState())) {
-		Strategy<S, Integer> strategy = solver.buildStrategy();
-		//TODO refactor permissive
-		GRGameSolver<S> grSolver = (GRGameSolver<S>) gSolver;
-		Set<Pair<StrategyState<S, Integer>, StrategyState<S, Integer>>> worseRank = grSolver.getWorseRank();
-		MTS<StrategyState<S, Integer>, A> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(plant, strategy, worseRank, maxLazyness);
+		solver.solveGame();
+		//ojo que el estado del environment puede tener problemas.  
+		if (solver.isWinning(environment.getInitialState())) {
+			Strategy<Long, Integer> strategy = solver.buildStrategy();
+			//TODO refactor permissive
+			GRGameSolver<Long> grSolver = (GRGameSolver<Long>) solver;
+			Set<Pair<StrategyState<Long, Integer>, StrategyState<Long, Integer>>> worseRank = grSolver.getWorseRank();
+			MTS<StrategyState<Long, Integer>, String> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(environment, strategy, worseRank, null);
 		
-		result.removeUnreachableStates();
+			result.removeUnreachableStates();
+		}
 	}
 }

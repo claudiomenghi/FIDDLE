@@ -226,7 +226,8 @@ public class GRGameBuilder<State, Action> {
 		Assumptions<State> assumptions = new Assumptions<State>();
 		Guarantees<State> guarantees = new Guarantees<State>();
 		Set<State> failures = new HashSet<State>();
-		FluentStateValuation<State> valuation = buildGoalComponents(environment, goal, assumptions, guarantees, failures);
+//		FluentStateValuation<State> valuation = buildGoalComponents(environment, goal, assumptions, guarantees, failures);
+		return null;
 
 		// GRGoal<State> grGoal = new GRGoal<State>(guarantees, assumptions,
 		// failures, goal.isPermissive());
