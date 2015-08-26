@@ -1,8 +1,0 @@
-/** Concurrency: State Models and Java Programs
- *             Jeff Magee and Jeff Kramer
- *  
- */
-
-SWITCH = OFF,
-OFF    = (on -> ON),
-ON     = (off-> OFF).

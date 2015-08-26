@@ -1,8 +1,0 @@
-/** Concurrency: State Models and Java Programs
- *             Jeff Magee and Jeff Kramer
- *  
- */
-
-
-WRITER = (write[1]->write[3]->WRITER) 
-		+{write[0..3]}.
