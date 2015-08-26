@@ -210,18 +210,18 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	private AppletButton isApplet = null;
 
-	private ApplicationContext applicationContext = null;
+	//private ApplicationContext applicationContext = null;
 	
 	private EnactmentOptions<Long, String> enactmentOptions = new EnactmentOptions<Long, String>();
 
 	public HPWindow(AppletButton isap) {
-		//Try to load Spring ltsa-context.xml file
-		try {
-			applicationContext = new ClassPathXmlApplicationContext("ltsa-context.xml");
-		} catch (Exception e)
-		{
-			applicationContext = new FileSystemXmlApplicationContext("src/ltsa-context.xml");
-		}
+//		//Try to load Spring ltsa-context.xml file
+//		try {
+//			applicationContext = new ClassPathXmlApplicationContext("ltsa-context.xml");
+//		} catch (Exception e)
+//		{
+//			applicationContext = new FileSystemXmlApplicationContext("src/ltsa-context.xml");
+//		}
 		
 		isApplet = isap;
 		//SymbolTable.init();
@@ -507,8 +507,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		JMenu graphUpdateMenu = new GraphUpdateMenu();
 		mb.add(graphUpdateMenu);
 		SchedulerFactory<Long, String> schedulerFactory = null;
-		if (applicationContext != null)
-		  schedulerFactory = this.applicationContext.getBean(SchedulerFactory.class);
+		//if (applicationContext != null)
+		  //schedulerFactory = this.applicationContext.getBean(SchedulerFactory.class);
 		if (schedulerFactory != null) {
 			List<String> schedulerNames = schedulerFactory.getSchedulersList();
 			// Load first scheduler by default
@@ -882,8 +882,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	private void doGraphUpdate() {
-		updateGraphSimulation = new UpdateGraphSimulation(this, currentDirectory, applicationContext);
-		updateGraphSimulation.start();
+		//updateGraphSimulation = new UpdateGraphSimulation(this, currentDirectory, applicationContext);
+		//updateGraphSimulation.start();
 	}
 
 	// ------------------------------------------------------------------------
@@ -2374,6 +2374,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// <<< AMES
 
 	private void fillEnactorsMenu(JMenuItem parent_menu) {
+		/*
 		EnactorFactory<Long, String> enactorFactory = applicationContext
 				.getBean(EnactorFactory.class);
 		for (String enactorName : enactorFactory.getEnactorNames()) {
@@ -2382,7 +2383,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			parent_menu.add(menuItem);
 
 		}
-
+*/
 	}
 
 	/**
@@ -2391,7 +2392,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	 * @return the Application Context
 	 */
 	public ApplicationContext getApplicationContext() {
-		return applicationContext;
+		return null;//applicationContext;
 	}
 
 	//TODO move this class to a file. refactor needed to organize the menu related code.

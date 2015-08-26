@@ -13,6 +13,8 @@ import lts.ltl.AssertDefinition;
 import lts.ltl.FormulaFactory;
 import lts.ltl.PredicateDefinition;
 import ar.dc.uba.model.condition.Fluent;
+import ar.dc.uba.model.condition.FluentImpl;
+import ar.dc.uba.model.language.SingleSymbol;
 import control.ControllerGoalDefinition;
 import controller.model.ControllerGoal;
 import controller.model.gr.GRControllerGoal;
@@ -117,9 +119,23 @@ public class GoalDefToControllerGoal {
 		result.addAllActivityFluents(activityFluents);
 		involvedFluents.addAll(activityFluents);
 		
+		Set<Fluent> safetyFluents = new HashSet<Fluent>();
+		for (lts.Symbol safetyDefinition : goalDef.getSafetyDefinitions()) {
+			AssertDefinition def = AssertDefinition.getConstraint(safetyDefinition.getName());
+			if (def!=null){
+				//here we get the negated formula as we want to obtain states violating safety.
+				result.addSafety(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(false), safetyFluents));
+				
+			} else {
+				Diagnostics.fatal("Assertion not defined [" + safetyDefinition.getName() + "].");
+			}
+		}
+		
+		result.addAllSafetyFluents(safetyFluents);
+		involvedFluents.addAll(safetyFluents);
+		
 		result.addAllFluents(involvedFluents);
+	}	
 		
-		
-		
-	}
+	
 }

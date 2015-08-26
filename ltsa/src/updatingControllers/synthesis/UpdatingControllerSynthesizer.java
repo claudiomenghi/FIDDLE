@@ -69,15 +69,14 @@ public class UpdatingControllerSynthesizer {
 //			TransitionSystemDispatcher.parallelComposition(uccs, output);
 			solveControlProblem(environment, uccs.getNewGoalGR(), uccs.getNewGoalDef());
 			
-			
-			
 		} else {
 			if (!uccs.debugModeOn()){
 				//removed support for debugging
-				//				updateHandler.checkMappingValue(uccs.getCheckTrace(), output);
+				//updateHandler.checkMappingValue(uccs.getCheckTrace(), output);
 			}
 		}
 	}
+
 
 
 	private static void solveControlProblem(MTS<Long, String> environment, GRControllerGoal<String> goal, ControllerGoalDefinition controllerGoalDefinition) {
@@ -102,4 +101,5 @@ public class UpdatingControllerSynthesizer {
 			result.removeUnreachableStates();
 		}
 	}
+
 }

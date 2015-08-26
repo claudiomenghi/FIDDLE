@@ -258,4 +258,13 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 	public boolean addSafety(Formula safetyFormula) {
 		return this.safety.add(safetyFormula);
 	}
+	
+	public List<Formula> getSafety() {
+		return safety;
+	}
+	
+	public Set<Fluent> getSafetyFluents() {
+		return this.safetyFluents;
+	}
+	
 }

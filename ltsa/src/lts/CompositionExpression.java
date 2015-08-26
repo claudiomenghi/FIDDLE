@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -19,6 +20,10 @@ import org.apache.commons.lang.Validate;
 import ac.ic.doc.mtstools.model.MTS;
 import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ar.dc.uba.model.condition.Fluent;
+import ar.dc.uba.model.condition.FluentImpl;
+import ar.dc.uba.model.condition.Formula;
+import ar.dc.uba.model.language.SingleSymbol;
 import control.ControllerGoalDefinition;
 import control.util.GoalDefToControllerGoal;
 import dispatcher.TransitionSystemDispatcher;
@@ -319,10 +324,40 @@ public class CompositionExpression {
 		ControllerGoalDefinition pendingGoal = ControllerGoalDefinition.getDefinition(goal);
 		c.env = c.machines.get(0);
 		c.goal = GoalDefToControllerGoal.getInstance().buildControllerGoal(pendingGoal);
+	
+		for (Fluent fluent : c.goal.getSafetyFluents()) {
+			if (fluent.getTerminatingActions().isEmpty()){
+				Set<ar.dc.uba.model.language.Symbol> alphabetWithoutThisEvent = new HashSet<ar.dc.uba.model.language.Symbol>();
+			
+				generateAlphabetWithoutThisAction(c.env.getAlphabetV(), fluent, alphabetWithoutThisEvent);
+				
+				new FluentImpl(fluent.getName(), fluent.getInitiatingActions(), alphabetWithoutThisEvent, fluent.isInitialValue());
+			}
+		}
 		
+		for (Fluent fluent : c.goal.getFluents()) {
+			if (fluent.getTerminatingActions().isEmpty()){
+				Set<ar.dc.uba.model.language.Symbol> alphabetWithoutThisEvent = new HashSet<ar.dc.uba.model.language.Symbol>();
+			
+				generateAlphabetWithoutThisAction(c.env.getAlphabetV(), fluent, alphabetWithoutThisEvent);
+				
+				new FluentImpl(fluent.getName(), fluent.getInitiatingActions(), alphabetWithoutThisEvent, fluent.isInitialValue());
+			}
+		}
+			
+		
+	}
+
+	private void generateAlphabetWithoutThisAction(Vector<String> alphabet,
+			Fluent fluent,
+			Set<ar.dc.uba.model.language.Symbol> alphabetWithoutThisEvent) {
+		for (String str : alphabet) {
+			if (!fluent.getInitiatingActions().iterator().next().equals(new SingleSymbol(str)))
+				alphabetWithoutThisEvent.add(new SingleSymbol(str));
+		}
+	}
 //		Line commented for controller update. 
 		//		c.machines.addAll(CompositionExpression.preProcessSafetyReqs(pendingGoal, output));
-	}
 
 	/**
 	 * Generates a collection of Property LTSs from the safety formulas specified in <code>goal</code>.

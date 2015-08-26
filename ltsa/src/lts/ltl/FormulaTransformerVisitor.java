@@ -113,7 +113,14 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 */
 	@Override
 	public lts.ltl.Formula visit(Until u) {
-		throw new UnsupportedOperationException();
+		u.getLeft().accept(this);
+		Formula left = this.getTransformedFormula();
+		
+		u.getRight().accept(this);
+		Formula right = this.getTransformedFormula();
+		
+//		this.transformedFormula = new OrFormula(left, right);
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -121,7 +128,14 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 */
 	@Override
 	public lts.ltl.Formula visit(Release r) {
-		throw new UnsupportedOperationException();
+		r.getLeft().accept(this);
+		Formula left = this.getTransformedFormula();
+		
+		r.getRight().accept(this);
+		Formula right = this.getTransformedFormula();
+		
+//		this.transformedFormula = new OrFormula(left, right);
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -135,6 +149,12 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	private Fluent createFluent(Proposition proposition) {
 		String name = proposition.toString();
 		PredicateDefinition predicateDefinition = PredicateDefinition.get(name);
+		if (predicateDefinition==null){
+			HashSet<Symbol> initiatingAction = new HashSet<Symbol>();
+			initiatingAction.add(new SingleSymbol(name));
+			HashSet<Symbol> terminatingAction = new HashSet<Symbol>();
+			return new FluentImpl(name+"_event", initiatingAction, terminatingAction, false);
+		}
 		Validate.notNull(predicateDefinition, "Undefined predicate: " + name);
 		PredicateDefinition.compile(predicateDefinition);
 		
