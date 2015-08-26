@@ -1,6 +1,5 @@
 package controller.game.util;
 
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -35,74 +34,64 @@ import controller.model.gr.concurrency.GRCGoal;
  * @author dipi
  * 
  */
-//TODO MTS -> LTS
+// TODO MTS -> LTS
 public class GRGameBuilder<State, Action> {
-	
+
 	/**
 	 * Builds a GRGame from an MTS. The MTS is assumed to be an LTS
-	 * representation (i.e. only required transitions). 
+	 * representation (i.e. only required transitions).
 	 * 
 	 */
 	public GRGame<State> buildGRGameFrom(MTS<State, Action> mts, GRControllerGoal<Action> goal) {
-		this.validateActions(mts, goal); 
-		
+		this.validateActions(mts, goal);
+
 		Assumptions<State> assumptions = new Assumptions<State>();
 		Guarantees<State> guarantees = new Guarantees<State>();
 		Set<State> failures = new HashSet<State>();
-		FluentStateValuation<State> valuation = buildGoalComponents(mts, goal, assumptions, guarantees, failures);
-		
-		
-		GRGoal<State> grGoal = new GRGoal<State>(guarantees, assumptions, failures,  goal.isPermissive());
+		GRGoal<State> grGoal = new GRGoal<State>(guarantees, assumptions, failures, goal.isPermissive());
 		Set<State> initialStates = new HashSet<State>();
-		initialStates.add(mts.getInitialState());			
+		initialStates.add(mts.getInitialState());
 		GRGame<State> game = new GRGame<State>(initialStates, mts.getStates(), grGoal);
 		this.initialiseSuccessors(mts, goal, game);
 		return game;
 	}
-	
-	
+
 	public GRCGame<State> buildGRCGameFrom(MTS<State, Action> mts, GRControllerGoal<Action> goal) {
-		this.validateActions(mts, goal); 
-		
+		this.validateActions(mts, goal);
+
 		Assumptions<State> assumptions = new Assumptions<State>();
 		Guarantees<State> guarantees = new Guarantees<State>();
 		Set<State> failures = new HashSet<State>();
 		ConcurrencyLevel<State> concurrencyFluents = new ConcurrencyLevel<State>();
-		FluentStateValuation<State> valuation = buildGoalComponents(mts, goal, assumptions, guarantees, failures, concurrencyFluents);
-		
-		GRCGoal<State> grGoal = new GRCGoal<State>(guarantees, assumptions, failures,  goal.isPermissive(), concurrencyFluents);
+		GRCGoal<State> grGoal = new GRCGoal<State>(guarantees, assumptions, failures, goal.isPermissive(), concurrencyFluents);
 		Set<State> initialStates = new HashSet<State>();
-		initialStates.add(mts.getInitialState());				
+		initialStates.add(mts.getInitialState());
 		GRCGame<State> game = new GRCGame<State>(initialStates, mts.getStates(), grGoal);
 		this.initialiseSuccessors(mts, goal, game);
 		return game;
 	}
-	
-	
-	protected FluentStateValuation<State> buildGoalComponents(MTS<State, Action> mts,
-			GRControllerGoal<Action> goal, Assumptions<State> assumptions,
-			Guarantees<State> guarantees, Set<State> failures,ConcurrencyLevel<State> concurrencyFluents ){
-			FluentStateValuation<State> valuation = buildGoalComponents(mts, goal, assumptions, guarantees, failures);
-			this.formulasToConcurrency(concurrencyFluents, mts.getStates(), goal.getConcurrencyFluents(), valuation);
-			return valuation;
+
+	protected FluentStateValuation<State> buildGoalComponents(MTS<State, Action> mts, GRControllerGoal<Action> goal,
+			Assumptions<State> assumptions, Guarantees<State> guarantees, Set<State> failures, ConcurrencyLevel<State> concurrencyFluents) {
+		FluentStateValuation<State> valuation = buildGoalComponents(mts, goal, assumptions, guarantees, failures);
+		this.formulasToConcurrency(concurrencyFluents, mts.getStates(), goal.getConcurrencyFluents(), valuation);
+		return valuation;
 	}
 
-	protected FluentStateValuation<State> buildGoalComponents(MTS<State, Action> mts,
-			GRControllerGoal<Action> goal, Assumptions<State> assumptions,
-			Guarantees<State> guarantees, Set<State> failures) {
+	protected FluentStateValuation<State> buildGoalComponents(MTS<State, Action> mts, GRControllerGoal<Action> goal,
+			Assumptions<State> assumptions, Guarantees<State> guarantees, Set<State> failures) {
 		FluentStateValuation<State> valuation = FluentUtils.getInstance().buildValuation(mts, goal.getFluents());
-		
-		this.formulasToAssumptions(assumptions, mts.getStates(), goal.getAssumptions(),valuation);
-		this.formulasToGuarantees(guarantees, mts.getStates(),goal.getGuarantees(),valuation);
+
+		this.formulasToAssumptions(assumptions, mts.getStates(), goal.getAssumptions(), valuation);
+		this.formulasToGuarantees(guarantees, mts.getStates(), goal.getGuarantees(), valuation);
 		this.formulaToStateSet(failures, mts.getStates(), goal.getFaults(), valuation);
 		for (Fluent f : goal.getFluents())
-      for (State s : valuation.getStates())
-        System.out.println("s"+s+" f "+f.getName()+" = "+valuation.isTrue(s, f));
-		return valuation; //this contains the marked states, only fluents not a goal formula (even propositional), need to output formula itself into prism and evaluate there
+			for (State s : valuation.getStates())
+				System.out.println("s" + s + " f " + f.getName() + " = " + valuation.isTrue(s, f));
+		return valuation; // this contains the marked states, only fluents not a goal formula (even propositional), need to output formula itself into prism and evaluate there
 	}
 
-	protected void formulaToStateSet(Set<State> toBuild,
-			Set<State> allStates, List<Formula> formulas, FluentStateValuation<State> valuation) {
+	protected void formulaToStateSet(Set<State> toBuild, Set<State> allStates, List<Formula> formulas, FluentStateValuation<State> valuation) {
 
 		for (Formula formula : formulas) {
 			for (State state : allStates) {
@@ -121,33 +110,30 @@ public class GRGameBuilder<State, Action> {
 		}
 	}
 
-	
 	public void validateActions(MTS<State, Action> mts, GRControllerGoal<Action> goal) {
 		Set<Action> actions = mts.getActions();
 		if (!actions.containsAll(goal.getControllableActions())) {
 			Collection<Action> controllableNotIn = new HashSet<Action>();
-			
+
 			for (Action action : goal.getControllableActions()) {
 				if (!actions.contains(action)) {
 					controllableNotIn.add(action);
 				}
 			}
-			Logger.getAnonymousLogger().log(Level.WARNING, "The following actions in the controller " +
-					"Goal does not belong to the mts action set.\n" + controllableNotIn);
+			Logger.getAnonymousLogger().log(Level.WARNING,
+					"The following actions in the controller " + "Goal does not belong to the mts action set.\n" + controllableNotIn);
 		}
-		
+
 		for (Fluent fluent : goal.getFluents()) {
 			this.validateFluentSymbols(fluent, actions, fluent.getInitiatingActions());
 			this.validateFluentSymbols(fluent, actions, fluent.getTerminatingActions());
 		}
 	}
 
-	private void validateFluentSymbols(Fluent fluent, Set<Action> actions,
-			Set<Symbol> initiatingActions) {
+	private void validateFluentSymbols(Fluent fluent, Set<Action> actions, Set<Symbol> initiatingActions) {
 		for (Symbol symbol : initiatingActions) {
 			Validate.isTrue(actions.contains(symbol.toString()), "\n Every action in " + fluent
-					+ " must be included in model action set. \n Action: " + symbol.toString() 
-					+ " does not belong to actions set.");
+					+ " must be included in model action set. \n Action: " + symbol.toString() + " does not belong to actions set.");
 		}
 	}
 
@@ -171,7 +157,8 @@ public class GRGameBuilder<State, Action> {
 		}
 	}
 
-	private void formulasToAssumptions(Assumptions<State> assumptions, Set<State> states, List<Formula> formulas, FluentStateValuation<State> valuation) {
+	private void formulasToAssumptions(Assumptions<State> assumptions, Set<State> states, List<Formula> formulas,
+			FluentStateValuation<State> valuation) {
 
 		for (Formula formula : formulas) {
 			Assume<State> assume = new Assume<State>();
@@ -186,7 +173,7 @@ public class GRGameBuilder<State, Action> {
 			}
 			assumptions.addAssume(assume);
 		}
-		
+
 		if (assumptions.isEmpty()) {
 			Assume<State> trueAssume = new Assume<State>();
 			trueAssume.addStates(states);
@@ -194,8 +181,8 @@ public class GRGameBuilder<State, Action> {
 		}
 	}
 
-	private void formulasToGuarantees(Guarantees<State> guarantees, Set<State> states,
-			List<Formula> formulas, FluentStateValuation<State> valuation) {
+	private void formulasToGuarantees(Guarantees<State> guarantees, Set<State> states, List<Formula> formulas,
+			FluentStateValuation<State> valuation) {
 
 		for (Formula formula : formulas) {
 			Guarantee<State> guarantee = new Guarantee<State>();
@@ -210,16 +197,16 @@ public class GRGameBuilder<State, Action> {
 			}
 			guarantees.addGuarantee(guarantee);
 		}
-		
+
 		if (guarantees.isEmpty()) {
 			Guarantee<State> trueAssume = new Guarantee<State>();
 			trueAssume.addStates(states);
 			guarantees.addGuarantee(trueAssume);
 		}
 	}
-	
-	private void formulasToConcurrency(ConcurrencyLevel<State> concurrencyLevel, Set<State> states,
-			Set<Fluent> set, FluentStateValuation<State> valuation) {
+
+	private void formulasToConcurrency(ConcurrencyLevel<State> concurrencyLevel, Set<State> states, Set<Fluent> set,
+			FluentStateValuation<State> valuation) {
 
 		for (State state : states) {
 			Integer level = 0;
@@ -233,24 +220,21 @@ public class GRGameBuilder<State, Action> {
 		}
 	}
 
+	public GRGame<Long> buildGRUpdateGameFrom(MTS<Long, String> environment, GRControllerGoal<String> goal) {
 
-	public GRGame<Long> buildGRUPDATEGameFrom(MTS<Long, String> environment, GRControllerGoal<String> goal) {
-		
-	//aca es donde ademas de generar el juego, 
-		//agarras todos los estados del environment que satisfacen la negacion del safety y le borras las transiciones salientes
-		//hay un metodo removeTRansition... 
-		// ver si hay que acplicarle a environemtn un .removeUnreachableStates().  
-//		Assumptions<State> assumptions = new Assumptions<State>();
-//		Guarantees<State> guarantees = new Guarantees<State>();
-//		Set<State> failures = new HashSet<State>();
-//		FluentStateValuation<State> valuation = buildGoalComponents(mts, goal, assumptions, guarantees, failures);
-//		
-//		
-//		GRGoal<State> grGoal = new GRGoal<State>(guarantees, assumptions, failures,  goal.isPermissive());
-//		Set<State> initialStates = new HashSet<State>();
-//		initialStates.add(mts.getInitialState());			
-//		GRGame<State> game = new GRGame<State>(initialStates, mts.getStates(), grGoal);
-//		this.initialiseSuccessors(mts, goal, game);
-//		return game;	
-		}
+		// aca es donde ademas de generar el juego, agarras todos los estados del environment que satisfacen la negacion del safety y le borras las transiciones salientes hay un metodo removeTRansition... ver si hay que acplicarle a environemtn un .removeUnreachableStates().
+		Assumptions<State> assumptions = new Assumptions<State>();
+		Guarantees<State> guarantees = new Guarantees<State>();
+		Set<State> failures = new HashSet<State>();
+		FluentStateValuation<State> valuation = buildGoalComponents(environment, goal, assumptions, guarantees, failures);
+
+		// GRGoal<State> grGoal = new GRGoal<State>(guarantees, assumptions,
+		// failures, goal.isPermissive());
+		// Set<State> initialStates = new HashSet<State>();
+		// initialStates.add(mts.getInitialState());
+		// GRGame<State> game = new GRGame<State>(initialStates,
+		// mts.getStates(), grGoal);
+		// this.initialiseSuccessors(mts, goal, game);
+		// return game;
+	}
 }
