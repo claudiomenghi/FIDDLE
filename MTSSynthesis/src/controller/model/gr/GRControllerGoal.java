@@ -25,8 +25,6 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 
 	private boolean nonTransient;
 	private boolean testLatency;
-	private Integer maxControllers;
-	private Integer maxSchedulers;
 	private boolean isPermissive;
 	private boolean isNonBlocking;
 	private boolean exceptionHandling;
