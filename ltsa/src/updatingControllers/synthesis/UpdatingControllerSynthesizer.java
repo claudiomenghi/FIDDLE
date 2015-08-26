@@ -41,7 +41,6 @@ public class UpdatingControllerSynthesizer {
 
 		// set safety goals
 		Vector<CompactState> machines = new Vector<CompactState>();
-		machines.addAll(CompositionExpression.preProcessSafetyReqs(uccs.getNewGoalDef(), output));
 //		machines.addAll(CompositionExpression.preProcessSafetyReqs(uccs.getNewGoalDef(), output));
 
 		// add to safetyGoals .old actions
