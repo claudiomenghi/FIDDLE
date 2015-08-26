@@ -324,7 +324,12 @@ public class CompositionExpression {
 		ControllerGoalDefinition pendingGoal = ControllerGoalDefinition.getDefinition(goal);
 		c.env = c.machines.get(0);
 		c.goal = GoalDefToControllerGoal.getInstance().buildControllerGoal(pendingGoal);
-	
+		fixExtractedFluents(c);
+		c.machines.addAll(CompositionExpression.preProcessSafetyReqs(pendingGoal, output));
+		
+	}
+
+	private void fixExtractedFluents(CompositeState c) {
 		for (Fluent fluent : c.goal.getSafetyFluents()) {
 			if (fluent.getTerminatingActions().isEmpty()){
 				Set<ar.dc.uba.model.language.Symbol> alphabetWithoutThisEvent = new HashSet<ar.dc.uba.model.language.Symbol>();
@@ -344,8 +349,6 @@ public class CompositionExpression {
 				new FluentImpl(fluent.getName(), fluent.getInitiatingActions(), alphabetWithoutThisEvent, fluent.isInitialValue());
 			}
 		}
-			
-		
 	}
 
 	private void generateAlphabetWithoutThisAction(Vector<String> alphabet,
@@ -356,8 +359,7 @@ public class CompositionExpression {
 				alphabetWithoutThisEvent.add(new SingleSymbol(str));
 		}
 	}
-//		Line commented for controller update. 
-		//		c.machines.addAll(CompositionExpression.preProcessSafetyReqs(pendingGoal, output));
+//		
 
 	/**
 	 * Generates a collection of Property LTSs from the safety formulas specified in <code>goal</code>.

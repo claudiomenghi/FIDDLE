@@ -32,7 +32,7 @@ public class UpdatingEnvironmentGenerator {
 	private MTS<Long, String> oldEnvironment;
 	private MTS<Long, String> hatEnvironment;
 	private MTS<Long, String> newEnvironment;
-	private List<Fluent> properties;
+	private List<Fluent> propositions;
 	private MTS<Long, String> updatingEnvironment;
 	private MTS<Long, String> minimized;
 	private Long lastState;
@@ -40,13 +40,13 @@ public class UpdatingEnvironmentGenerator {
 	private Set<Long> oldEnvironmentStates;
 
 	public UpdatingEnvironmentGenerator(MTS<Long, String> oldController, MTS<Long, String> oldEnvironment, MTS<Long,
-		String> hatEnvironment, MTS<Long, String> newEnvironment, List<Fluent> properties) {
+		String> hatEnvironment, MTS<Long, String> newEnvironment, List<Fluent> propositions) {
 
 		this.oldController = oldController;
 		this.oldEnvironment = oldEnvironment;
 		this.hatEnvironment = hatEnvironment;
 		this.newEnvironment = newEnvironment;
-		this.properties = properties;
+		this.propositions = propositions;
 
 		updatingEnvironment = new MTSImpl<Long, String>(new Long(0));
 		minimized = null;
@@ -61,11 +61,11 @@ public class UpdatingEnvironmentGenerator {
 
 	public MTS<Long, String> generateEnvironment(Set<String> controllableActions, LTSOutput output) {
 		
-		this.removeTopStates(properties);
+		this.removeTopStates(propositions);
 		this.generateOldPart();
 		this.completeWithHatEnvironment();
 		this.changePairsToLong();
-		MappingStructure mappingStructure = new MappingStructure(updatingEnvironment, newEnvironment, properties);
+		MappingStructure mappingStructure = new MappingStructure(updatingEnvironment, newEnvironment, propositions);
 		HashMap<Long, Long> newEnvToThis = this.linkStatesWithSameFluentValues(mappingStructure);
 		this.completeWithNewEnvironment(newEnvToThis);
 //		this.minimize(output);
