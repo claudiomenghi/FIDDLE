@@ -375,6 +375,10 @@ public class CompactState implements Automata {
             states[i] = EventState.addTransToError(states[i],alphabet.length);
     }
 	
+    /**
+     * Removes all transitions to error. 
+     * Assumes that the current instance of CompactState is a Property LTS.  
+     */
     public void unMakeProperty() {
     	endseq = -9999;
     	prop = false;

@@ -38,7 +38,6 @@ public class UpdatingEnvironmentGenerator {
 	private Long lastState;
 	private Set<Long> eParallelCStates; // used for relabeling actions
 	private Set<Long> oldEnvironmentStates;
-	private ArrayList<String> extendedActions;
 
 	public UpdatingEnvironmentGenerator(MTS<Long, String> oldController, MTS<Long, String> oldEnvironment, MTS<Long,
 		String> hatEnvironment, MTS<Long, String> newEnvironment, List<Fluent> properties) {
@@ -58,12 +57,11 @@ public class UpdatingEnvironmentGenerator {
 
 		eParallelCStates = new HashSet<Long>();
 		oldEnvironmentStates = new HashSet<Long>();
-		extendedActions = new ArrayList<String>();
 	}
 
 	public MTS<Long, String> generateEnvironment(Set<String> controllableActions, LTSOutput output) {
 		
-		this.LTSsToLTKSs(properties);
+		this.removeTopStates(properties);
 		this.generateOldPart();
 		this.completeWithHatEnvironment();
 		this.changePairsToLong();
@@ -72,77 +70,13 @@ public class UpdatingEnvironmentGenerator {
 		this.completeWithNewEnvironment(newEnvToThis);
 //		this.minimize(output);
 //		return minimized;
-		this.addOrbits();
 		return updatingEnvironment;
 	}
 
-	private void addOrbits() {
-		
-		MTS<Long, String> result = new MTSImpl<Long, String>(new Long(0));	
-		for (Long state : updatingEnvironment.getStates()) {
-			result.addState(state);
-			
-			for (Pair<String, Long> outgoing : updatingEnvironment.getTransitions(state, MTS.TransitionType.REQUIRED)) {
-				String action = outgoing.getFirst();
-				Long to = outgoing.getSecond();
-				result.addState(to);
-				result.addAction(action);
-				result.addTransition(state, action, to, MTS.TransitionType.REQUIRED);
-			}
-			
-			Long newState = new Long(lastState);
-			String newAction = new String("_"+extendedActions.get(0)+"[0..1]");
-			result.addState(newState);
-			result.addAction(newAction);
-			result.addTransition(state, newAction, newState, MTS.TransitionType.REQUIRED);
-			lastState++;
-			
-			Long lastUsedState = newState;
-			int i = 0;
-			for (String action : extendedActions) {
-				if ((i != 0) && (i != extendedActions.size()-1)){
-					lastUsedState = addOrbitTransition(result, lastUsedState, action);
-				} else if (i == extendedActions.size()-1){
-					finishOrbit(result, lastUsedState, state, action);
-				}
-				i++;
-			}
-		}
-
-		
-		updatingEnvironment = result;
-	}
-
-	private Long addOrbitTransition(MTS<Long, String> result, Long from, String action) {
-		
-		Long to = new Long(lastState);
-		String newAction = new String("_"+action+"[0..1]");
-		result.addState(to);
-		result.addAction(newAction);
-		result.addTransition(from, newAction, to, MTS.TransitionType.REQUIRED);
-		lastState++;
-		return to;
-	}
-	
-	private void finishOrbit(MTS<Long, String> result, Long lastUsedState,
-			Long originalState, String action) {
-		String newAction = new String("_"+action+"[0..1]");
-		result.addAction(newAction);
-		result.addTransition(lastUsedState, newAction, originalState, MTS.TransitionType.REQUIRED);
-		
-	}
-
-	private void LTSsToLTKSs(List<Fluent> properties) {
+	private void removeTopStates(List<Fluent> properties) {
 		
 		hatEnvironment.addActions(newEnvironment.getActions());
 		newEnvironment.addActions(hatEnvironment.getActions());
-		for (String str : newEnvironment.getActions()) {
-			if (!str.equals("tau")){
-				extendedActions.add(str);
-			}
-		}
-		
-		java.util.Collections.sort(extendedActions);
 		
 		hatEnvironment = ControllerUtils.removeTopStates(hatEnvironment, properties);
 		newEnvironment = ControllerUtils.removeTopStates(newEnvironment, properties);
