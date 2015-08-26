@@ -119,7 +119,7 @@ public class GoalDefToControllerGoal {
 		
 		Set<Fluent> safetyFluents = new HashSet<Fluent>();
 		for (lts.Symbol safetyDefinition : goalDef.getSafetyDefinitions()) {
-			AssertDefinition def = AssertDefinition.getDefinition(safetyDefinition.getName());
+			AssertDefinition def = AssertDefinition.getConstraint(safetyDefinition.getName());
 			if (def!=null){
 				//here we get the negated formula as we want to obtain states violating safety.
 				result.addSafety(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(false), safetyFluents));

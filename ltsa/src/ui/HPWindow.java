@@ -215,13 +215,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private EnactmentOptions<Long, String> enactmentOptions = new EnactmentOptions<Long, String>();
 
 	public HPWindow(AppletButton isap) {
-		//Try to load Spring ltsa-context.xml file
-		try {
-			applicationContext = new ClassPathXmlApplicationContext("ltsa-context.xml");
-		} catch (Exception e)
-		{
-			applicationContext = new FileSystemXmlApplicationContext("src/ltsa-context.xml");
-		}
+//		//Try to load Spring ltsa-context.xml file
+//		try {
+//			applicationContext = new ClassPathXmlApplicationContext("ltsa-context.xml");
+//		} catch (Exception e)
+//		{
+//			applicationContext = new FileSystemXmlApplicationContext("src/ltsa-context.xml");
+//		}
 		
 		isApplet = isap;
 		//SymbolTable.init();

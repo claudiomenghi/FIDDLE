@@ -80,23 +80,23 @@ public class UpdatingControllerSynthesizer {
 	}
 
 	private static void solveControlProblem(MTS<Long, String> environment, GRControllerGoal<String> goal) {
-		GRGame<Long> game;
-	
-		game = new GRGameBuilder<Long, String>().buildGRGameFrom(environment, goal);
-		GRRankSystem<Long> system = new GRRankSystem<Long>(game.getStates(), game.getGoal().getGuarantees(), game.getGoal().getAssumptions(), game.getGoal().getFailures());
-		PerfectInfoGRGameSolver solver = new PerfectInfoGRGameSolver<Long>(game, system);
-		
-	
-	
-	solver.solveGame();
-	//ojo que el estado del environment puede tener problemas.  
-	if (solver.isWinning(environment.getInitialState())) {
-		Strategy<S, Integer> strategy = solver.buildStrategy();
-		//TODO refactor permissive
-		GRGameSolver<S> grSolver = (GRGameSolver<S>) gSolver;
-		Set<Pair<StrategyState<S, Integer>, StrategyState<S, Integer>>> worseRank = grSolver.getWorseRank();
-		MTS<StrategyState<S, Integer>, A> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(plant, strategy, worseRank, maxLazyness);
-		
-		result.removeUnreachableStates();
+//		GRGame<Long> game;
+//	
+//		game = new GRGameBuilder<Long, String>().buildGRUPDATEGameFrom(environment, goal);
+//		GRRankSystem<Long> system = new GRRankSystem<Long>(game.getStates(), game.getGoal().getGuarantees(), game.getGoal().getAssumptions(), game.getGoal().getFailures());
+//		PerfectInfoGRGameSolver solver = new PerfectInfoGRGameSolver<Long>(game, system);
+//		
+//	
+//	
+//	solver.solveGame();
+//	//ojo que el estado del environment puede tener problemas.  
+//	if (solver.isWinning(environment.getInitialState())) {
+//		Strategy<S, Integer> strategy = solver.buildStrategy();
+//		//TODO refactor permissive
+//		GRGameSolver<S> grSolver = (GRGameSolver<S>) gSolver;
+//		Set<Pair<StrategyState<S, Integer>, StrategyState<S, Integer>>> worseRank = grSolver.getWorseRank();
+//		MTS<StrategyState<S, Integer>, A> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(plant, strategy, worseRank, maxLazyness);
+//		
+//		result.removeUnreachableStates();
 	}
 }

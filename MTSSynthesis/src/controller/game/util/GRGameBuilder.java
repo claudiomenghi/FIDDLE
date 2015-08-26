@@ -48,6 +48,7 @@ public class GRGameBuilder<State, Action> {
 		Assumptions<State> assumptions = new Assumptions<State>();
 		Guarantees<State> guarantees = new Guarantees<State>();
 		Set<State> failures = new HashSet<State>();
+		this.buildGoalComponents(mts, goal, assumptions, guarantees, failures);
 		GRGoal<State> grGoal = new GRGoal<State>(guarantees, assumptions, failures, goal.isPermissive());
 		Set<State> initialStates = new HashSet<State>();
 		initialStates.add(mts.getInitialState());
@@ -63,6 +64,7 @@ public class GRGameBuilder<State, Action> {
 		Guarantees<State> guarantees = new Guarantees<State>();
 		Set<State> failures = new HashSet<State>();
 		ConcurrencyLevel<State> concurrencyFluents = new ConcurrencyLevel<State>();
+		this.buildGoalComponents(mts, goal, assumptions, guarantees, failures, concurrencyFluents);
 		GRCGoal<State> grGoal = new GRCGoal<State>(guarantees, assumptions, failures, goal.isPermissive(), concurrencyFluents);
 		Set<State> initialStates = new HashSet<State>();
 		initialStates.add(mts.getInitialState());
@@ -221,12 +223,12 @@ public class GRGameBuilder<State, Action> {
 	}
 
 	public GRGame<Long> buildGRUpdateGameFrom(MTS<Long, String> environment, GRControllerGoal<String> goal) {
-
+		return null;
 		// aca es donde ademas de generar el juego, agarras todos los estados del environment que satisfacen la negacion del safety y le borras las transiciones salientes hay un metodo removeTRansition... ver si hay que acplicarle a environemtn un .removeUnreachableStates().
-		Assumptions<State> assumptions = new Assumptions<State>();
-		Guarantees<State> guarantees = new Guarantees<State>();
-		Set<State> failures = new HashSet<State>();
-		FluentStateValuation<State> valuation = buildGoalComponents(environment, goal, assumptions, guarantees, failures);
+//		Assumptions<State> assumptions = new Assumptions<State>();
+//		Guarantees<State> guarantees = new Guarantees<State>();
+//		Set<State> failures = new HashSet<State>();
+//		FluentStateValuation<State> valuation = buildGoalComponents(environment, goal, assumptions, guarantees, failures);
 
 		// GRGoal<State> grGoal = new GRGoal<State>(guarantees, assumptions,
 		// failures, goal.isPermissive());
