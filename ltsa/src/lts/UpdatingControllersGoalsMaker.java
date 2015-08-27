@@ -18,8 +18,8 @@ public class UpdatingControllersGoalsMaker {
 		FormulaSyntax dontDo = FormulaSyntax.make(null, not, stopOldSpecFormula);
 		FormulaSyntax originalFormula = obtainFormula(formulaName);
 		// building formula
-		FormulaSyntax implicationFormula = FormulaSyntax.make(dontDo, arrow, originalFormula);
-		FormulaSyntax finalFormula = FormulaSyntax.make(null, always, implicationFormula);
+		FormulaSyntax finalFormula = FormulaSyntax.make(dontDo, arrow, originalFormula);
+//		FormulaSyntax finalFormula = FormulaSyntax.make(null, always, implicationFormula);
 		// saving formula
 		addFormula(cgd, formulaName.toString(), finalFormula, UpdateConstants.OLD_SUFFIX);
 		
@@ -29,13 +29,12 @@ public class UpdatingControllersGoalsMaker {
 		// getting elements that I need to build the formula
 		Symbol arrow = new Symbol(Symbol.ARROW);
 		Symbol always = new Symbol(Symbol.ALWAYS);
-		ActionName startNewSpecActionName = new ActionName(new Symbol(123, UpdateConstants.START_NEW_SPEC));
+		ActionName startNewSpecActionName = new ActionName(new Symbol(123, "StartNewSpec"));
 		FormulaSyntax startNewSpecFormula = FormulaSyntax.make(startNewSpecActionName);
 		FormulaSyntax originalFormula = obtainFormula(formulaName);
 		// building formula
-		FormulaSyntax alwaysNewGoal = FormulaSyntax.make(null, always, originalFormula);
-		FormulaSyntax implicationFormula = FormulaSyntax.make(startNewSpecFormula, arrow, alwaysNewGoal);
-		FormulaSyntax finalFormula = FormulaSyntax.make(null, always, implicationFormula);
+		FormulaSyntax finalFormula = FormulaSyntax.make(startNewSpecFormula, arrow, originalFormula);
+//		FormulaSyntax finalFormula = FormulaSyntax.make(null, always, implicationFormula);
 		// saving formula
 		addFormula(cgd, formulaName.toString(), finalFormula, UpdateConstants.NEW_SUFFIX);
 	}

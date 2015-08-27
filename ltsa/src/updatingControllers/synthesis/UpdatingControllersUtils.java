@@ -17,6 +17,7 @@ import lts.Symbol;
 import lts.UpdatingControllersGoalsMaker;
 import lts.chart.util.FormulaUtils;
 import lts.ltl.AssertDefinition;
+import lts.ltl.PredicateDefinition;
 import updatingControllers.UpdateConstants;
 import lts.UpdatingControllersDefinition;
 
@@ -26,12 +27,14 @@ import java.util.List;
 import java.util.Set;
 
 import static updatingControllers.UpdateConstants.*;
-import static updatingControllers.UpdateConstants.START_NEW_SPEC;
-import static updatingControllers.UpdateConstants.STOP_OLD_SPEC;
 
 public class UpdatingControllersUtils {
 
 	public static final Set<Fluent> UPDATE_FLUENTS = new HashSet<Fluent>();
+	public static final Fluent beginFluent;
+	public static final Fluent stopFluent;
+	public static final Fluent reconFluent;
+	public static final Fluent startFluent;
 
 	static {
 		HashSet<ar.dc.uba.model.language.Symbol> beginAction = new HashSet<ar.dc.uba.model.language.Symbol>();
@@ -43,11 +46,11 @@ public class UpdatingControllersUtils {
 		reconfigureAction.add(new SingleSymbol(UpdateConstants.RECONFIGURE));
 		startAction.add(new SingleSymbol(UpdateConstants.START_NEW_SPEC));
 
-		Fluent beginFluent = new FluentImpl("BeginUpdate", beginAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
-		Fluent stopFluent = new FluentImpl("StopOld", stopAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
-		Fluent reconFluent = new FluentImpl("Reconfigure", reconfigureAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
-		Fluent startFluent = new FluentImpl("StartNew", startAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
-
+		beginFluent = new FluentImpl("BeginUpdate", beginAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
+		stopFluent = new FluentImpl("StopOldSpec", stopAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
+		reconFluent = new FluentImpl("Reconfigure", reconfigureAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
+		startFluent = new FluentImpl("StartNewSpec", startAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
+		
 		UpdatingControllersUtils.UPDATE_FLUENTS.add(beginFluent);
 		UpdatingControllersUtils.UPDATE_FLUENTS.add(stopFluent);
 		UpdatingControllersUtils.UPDATE_FLUENTS.add(reconFluent);
@@ -120,8 +123,8 @@ public class UpdatingControllersUtils {
 
 		generateUpdateGoals(oldGoalDef, newGoalDef, updContDef.getSafety(), cgd);
 
-		UpdatingControllersGoalsMaker.addDontDoTwiceGoal(cgd, STOP_OLD_SPEC, DONT_DROP_TWICE);
-		UpdatingControllersGoalsMaker.addDontDoTwiceGoal(cgd, START_NEW_SPEC, DONT_START_TWICE);
+//		UpdatingControllersGoalsMaker.addDontDoTwiceGoal(cgd, STOP_OLD_SPEC, DONT_DROP_TWICE);
+//		UpdatingControllersGoalsMaker.addDontDoTwiceGoal(cgd, START_NEW_SPEC, DONT_START_TWICE);
 
 		// adding ControllerGoalDefinition
 		ControllerGoalDefinition.addDefinition(cgd.getNameString(), cgd);

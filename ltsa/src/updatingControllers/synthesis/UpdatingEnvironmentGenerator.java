@@ -6,11 +6,15 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
 import lts.CompactState;
 import lts.LTSOutput;
+
+import org.apache.commons.collections15.map.HashedMap;
+
 import updatingControllers.UpdateConstants;
 import updatingControllers.structures.MappingStructure;
 import ac.ic.doc.commons.relations.Pair;
@@ -38,6 +42,8 @@ public class UpdatingEnvironmentGenerator {
 	private Long lastState;
 	private Set<Long> eParallelCStates; // used for relabeling actions
 	private Set<Long> oldEnvironmentStates;
+	private MappingStructure mapping;
+	private HashMap<Long, Long> newEnvToThis;
 
 	public UpdatingEnvironmentGenerator(MTS<Long, String> oldController, MTS<Long, String> oldEnvironment, MTS<Long,
 		String> hatEnvironment, MTS<Long, String> newEnvironment, List<Fluent> propositions) {
@@ -47,6 +53,8 @@ public class UpdatingEnvironmentGenerator {
 		this.hatEnvironment = hatEnvironment;
 		this.newEnvironment = newEnvironment;
 		this.propositions = propositions;
+		this.mapping = null;
+		this.newEnvToThis = null;
 
 		updatingEnvironment = new MTSImpl<Long, String>(new Long(0));
 		minimized = null;
@@ -59,18 +67,18 @@ public class UpdatingEnvironmentGenerator {
 		oldEnvironmentStates = new HashSet<Long>();
 	}
 
-	public MTS<Long, String> generateEnvironment(Set<String> controllableActions, LTSOutput output) {
+	public void generateEnvironment(Set<String> controllableActions, LTSOutput output) {
 		
 		this.removeTopStates(propositions);
 		this.generateOldPart();
 		this.completeWithHatEnvironment();
 		this.changePairsToLong();
-		MappingStructure mappingStructure = new MappingStructure(updatingEnvironment, newEnvironment, propositions);
-		HashMap<Long, Long> newEnvToThis = this.linkStatesWithSameFluentValues(mappingStructure);
+		mapping = new MappingStructure(updatingEnvironment, newEnvironment, propositions);
+		this.newEnvToThis = this.linkStatesWithSameFluentValues(mapping);
 		this.completeWithNewEnvironment(newEnvToThis);
+//		this.makeOldActionsUncontrollable(controllableActions);
 //		this.minimize(output);
 //		return minimized;
-		return updatingEnvironment;
 	}
 
 	private void removeTopStates(List<Fluent> properties) {
@@ -122,7 +130,7 @@ public class UpdatingEnvironmentGenerator {
 
 			if (transition.getFirst().equals(action)) {
 
-				//				action = action.concat(UpdateControllerSolver.label); // rename the actions so as to
+				//action = action.concat(UpdateControllerSolver.label); // rename the actions so as to
 				// distinguish from the controllable in the new problem controller
 				oldPart.addAction(action); // actions is a Set. it Avoids duplicated actions
 				Pair<Long, Long> newState = new Pair<Long, Long>(transition.getSecond(), toState);
@@ -336,5 +344,43 @@ public class UpdatingEnvironmentGenerator {
 		CompactState csMachine = MTSToAutomataConverter.getInstance().convert(updatingEnvironment, "UPD_CONT_ENVIRONMENT", false);
 		csMachine = TransitionSystemDispatcher.minimise(csMachine, output);
 		this.minimized = AutomataToMTSConverter.getInstance().convert(csMachine);
+	}
+	
+	public MTS<Long, String> getUpdEnv(){
+		return updatingEnvironment;
+	}
+	
+	public MappingStructure getMapping(){
+		return mapping;
+	}
+	
+	public boolean isEParrallelCState(Long state){
+		return eParallelCStates.contains(state);
+	}
+	
+	public boolean isHatEnvironmentState(Long state){
+		return oldEnvironmentStates.contains(state);
+	}
+
+	public ArrayList<Boolean> getOldValuation(Long state) {
+		return mapping.getOldValuation(state);
+	}
+	
+	public ArrayList<Boolean> getNewValuation(Long state) {
+		return mapping.getNewValuation(state);
+	}
+
+	public Long mapStateToValuationState(Long state) {
+		for (Entry<Long, Long> entry : newEnvToThis.entrySet()) {
+			if (entry.getValue().equals(state)){
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+
+	public List<Fluent> getPropositions() {
+		
+		return propositions;
 	}
 }

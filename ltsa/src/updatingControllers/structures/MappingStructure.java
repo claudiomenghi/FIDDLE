@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import ac.ic.doc.commons.relations.Pair;
@@ -16,13 +17,16 @@ public class MappingStructure {
 
 	private HashMap<ArrayList<Boolean>, Set<Long>> structureOld;
 	private HashMap<ArrayList<Boolean>, Set<Long>> structureNew;
+	
+	private FluentStateValuation<Long> valuationOld;
+	private FluentStateValuation<Long> valuationNew;
 
 	public MappingStructure(MTS<Long, String> updatingEnvironment,
 			MTS<Long, String> newEnvironment, List<Fluent> properties) {
 		//we need them as List because order matters (these are used as the key of the structures above)
 		FluentUtils fluentUtils = FluentUtils.getInstance();
-		FluentStateValuation<Long> valuationOld = fluentUtils.buildValuation(updatingEnvironment, properties);
-		FluentStateValuation<Long> valuationNew = fluentUtils.buildValuation(newEnvironment, properties);
+		valuationOld = fluentUtils.buildValuation(updatingEnvironment, properties);
+		valuationNew = fluentUtils.buildValuation(newEnvironment, properties);
 
 		structureOld = setStructure(updatingEnvironment, valuationOld,  properties);
 		structureNew = setStructure(newEnvironment, valuationNew, properties);
@@ -62,6 +66,24 @@ public class MappingStructure {
 
 	public boolean containsNewValuation(ArrayList<Boolean> oldValuation) {
 		return structureNew.containsKey(oldValuation);
+	}
+
+	public ArrayList<Boolean> getOldValuation(Long state) {
+		for (Entry<ArrayList<Boolean>, Set<Long>> entry : structureOld.entrySet()) {
+			if (entry.getValue().contains(state)){
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+
+	public ArrayList<Boolean> getNewValuation(Long state) {
+		for (Entry<ArrayList<Boolean>, Set<Long>> entry : structureNew.entrySet()) {
+			if (entry.getValue().contains(state)){
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 
 
