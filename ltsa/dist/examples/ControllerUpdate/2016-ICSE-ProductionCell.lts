@@ -16,6 +16,9 @@ set Colours = {yellow, red}
 set ControllableActions = {in.Colours, drill.Colours, paint.Colours, out.Colours}
 set Alphabet = {ControllableActions, paintOk.Colours, drillOk.Colours}
 
+//Action Fluents
+
+
 //Domain Model
 	IO = ({in[Colours], out[Colours]} -> IO).
 	ARM = ( paint[c:Colours] -> paintOk[c] -> ARM
@@ -102,7 +105,7 @@ assert AnyAction = (in[Colours] || out[Colours] || drill[Colours] || paint[Colou
 fluent AnyActionUntilStartNew = <Alphabet,startNewSpec>
 
 ltl_property T_UPDATE_WHEN_EMPTY = [](startNewSpec -> TRAIL_EMPTY ) // TP != Empty
-ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec))  ) // Finish actual instance with old Specification
+ltl_property T_NO_TP = [](AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))// Finish actual instance with old Specification
 ltl_property T_OVERLAP = [](stopOldSpec -> (StartNewSpec && AnyActionUntilStartNew))
 
 assert TRAIL_EMPTY = forall [c:Colours] (!Processing[c])

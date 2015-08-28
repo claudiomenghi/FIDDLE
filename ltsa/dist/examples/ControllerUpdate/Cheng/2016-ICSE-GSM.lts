@@ -8,30 +8,29 @@
 
 // ---------------------------ENVIRONMENTS-----------------------------
 
-set OldPositions = {x, y}
-set NewPositions = {x, y, z}
-set OldControllableActions = {shift[OldPositions], encode, send, receive, decode[2..3], output}
-set NewControllableActions = {shift[NewPositions], encode, send, receive, decode[2..3], output}
-set Alphabet = {shift[NewPositions], encode, send, receive, decode[2..3], output}
-set UpdatingControllableActions = {NewControllableActions}
+set OldControllableActions = {shiftX, shiftY, shiftZ, encode, send, receive, decode[2..3], output}
+set NewControllableActions = {shiftX, shiftY, shiftZ, shiftT, encode, send, receive, decode[2..3], output}
+set AlphabetOld = {OldControllableActions}
+set AlphabetNew = {NewControllableActions}
 
 OLD_ENV = SENDER,
-SENDER = (shift['x] -> shift['y] -> encode -> send -> RECEIVER),
+SENDER = (shiftX -> shiftY -> shiftZ -> encode -> send -> RECEIVER),
 RECEIVER = (receive -> decode[2..3] -> output -> SENDER).
 
 NEW_ENV = SENDER,
-SENDER = (shift['x] -> shift['y] -> shift['z] -> encode -> send -> RECEIVER),
+SENDER = (shiftX -> shiftY -> shiftZ -> shiftT -> encode -> send -> RECEIVER),
 RECEIVER = (receive -> decode[2..3] -> output -> SENDER).
 
 ||OldEnvironment = (OLD_ENV).
 ||NewEnvironment = (NEW_ENV).
 
 //Fluents declaration
-fluent ReadX = <shift['x],output>
-fluent ReadY = <shift['y],output>
-fluent ReadZ = <shift['z],output>
+fluent ReadX = <shiftX,output>
+fluent ReadY = <shiftY,output>
+fluent ReadZ = <shiftZ,output>
+fluent ReadT = <shiftT,output>
 
-// ---------------------------OLD CONTROLLER SPEC (at most 2 packet loss)-----------------------------
+// ---------------------------OLD CONTROLLER SPEC -----------------------------
 
 assert DECODE = (!decode[3])
 ltl_property P_DECODE = []DECODE
@@ -44,7 +43,7 @@ controllerSpec OldSpec = {
 controller ||OldController = OldEnvironment~{OldSpec}.
 ||OldEnvironmentController = (OldEnvironment || OldController).
 
-// ---------------------------NEW CONTROLLER SPEC (at most 3 packet loss)-----------------------------
+// ---------------------------NEW CONTROLLER SPEC -----------------------------
 
 assert NEW_DECODE = [](!decode[2])
 
@@ -62,7 +61,7 @@ controller ||NewController = NewEnvironment~{NewSpec}.
 
 //Fluents for updates
 fluent EncodeDone = <encode,output>
-fluent SendDone = <send,output>
+fluent Sending = <send,output>
 fluent ReceiveDone = <receive,output>
 fluent Decoded2 = <decode[2],output>
 fluent Decoded3 = <decode[3],output>
@@ -72,12 +71,12 @@ fluent AlreadyDecoded = <decode[2..3],output>
 fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent StartNewSpec = <startNewSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
-fluent AnyActionUntilStartNew = <Alphabet,startNewSpec>
+fluent AnyActionUntilStartNew = <AlphabetNew,startNewSpec>
 
-assert AnyAction = (shift[NewPositions] || encode || send || receive || decode[2..3] || output)
+assert AnyAction = (shiftX || shiftY || shiftZ || shiftT || encode || send || receive || decode[2..3] || output)
 
 ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec))  )
-ltl_property T_NO_SEND = [](SendDone -> (!startNewSpec && !stopOldSpec))
+ltl_property T_NO_SEND = [](Sending -> (!startNewSpec && !stopOldSpec))
  
 
 updatingController UpdCont = { 
@@ -89,24 +88,17 @@ updatingController UpdCont = {
     transition = T_NO_TP,
 	//transition = T_NO_SEND,
     nonblocking,
-    updateFluents = {
-        {EncodeDone, EncodeDone},
-        {SendDone, SendDone},
-        {ReceiveDone, ReceiveDone},
-        {ReadX, ReadX},
-        {ReadY, ReadY},
-		{Decoded2,Decoded2}
-    }
+    updateFluents = {EncodeDone, SendDone, ReceiveDone, ReadX, ReadY, Decoded2}
+    
 }
 
 // ---------------------------TEST AND RESULTS-----------------------------
 assert S_OLD = (DECODE)
 assert S_NEW = (NEW_DECODE)
 
-assert TEST_FORMULA1 = (S_OLD W stopOldSpec)
-assert TEST_FORMULA2 = [](startNewSpec -> []S_NEW)
-assert TEST_FORMULA3 = [](stopOldSpec -> X(!stopOldSpec))
-assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && [](startNewSpec -> []S_NEW) && [](stopOldSpec -> X(!stopOldSpec)))
+assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
+assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
+assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
 
 ||UPDATE_CONTROLLER = UpdCont.
 

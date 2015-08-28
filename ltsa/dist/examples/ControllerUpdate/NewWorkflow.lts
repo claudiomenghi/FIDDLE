@@ -18,7 +18,7 @@ EVAL_RESPONSE = (approve -> PROCESSING2 | reject -> ENTRY),
 PROCESSING2 = ({initShipping, endShipping, initBilling, endBilling} -> PROCESSING2 | {archive,rollback} -> ENTRY).
 
 
-||Environment = (ENTRY).// || CREDIT || SHIPPING || BILLING).
+||Environment = (ENTRY).
 
 //Fluents declaration
 fluent InventoryFinished = <endInventory,{orderEntry}>
@@ -31,11 +31,6 @@ fluent CreditInitiated = <initCredit,{orderEntry}>
 fluent ShippingInitiated = <initShipping,{orderEntry}>
 fluent BillingInitiated = <initBilling,{orderEntry}>
 
-fluent InventoryProcessing = <initInventory,endInventory>
-fluent CreditProcessing = <initCredit,endCredit>
-fluent ShippingProcessing = <initShipping,endShipping>
-fluent BillingProcessing = <initBilling,endBilling>
-
 fluent OrderArrived = <{orderEntry},{archive,reject,rollback}>
 fluent Archiving = <{archive},{orderEntry}>
 fluent EvalResponseDone = <{approve,reject},orderEntry>
@@ -44,17 +39,29 @@ fluent OrderApproved = <{approve},{archive,rollback}>
 fluent RollbackDone = <rollback,orderEntry>
 
 // ---------------------------CONCURRENT CONTROLLER SPEC (old system)-----------------------------
+//Action Fluents
+fluent Archive_action = <archive, All\{archive}>
+fluent Eval_action = <eval, All\{eval}>
+fluent InitInventory_action = <initInventory, All\{initInventory}>
+fluent InitCredit_action = <initCredit, All\{initCredit}>
+fluent InitShipping_action = <initShipping, All\{initShipping}>
+fluent InitBilling_action = <initBilling, All\{initBilling}>
+fluent EndInventory_action = <endInventory, All\{endInventory}>
+fluent EndCredit_action = <endCredit, All\{endCredit}>
+fluent EndShipping_action = <endShipping, All\{endShipping}>
+fluent EndBilling_action = <endBilling, All\{endBilling}>
+fluent Rollback_action = <rollback, All\{rollback}>
 
-assert ARCHIVE_POLICY = (archive -> (ShippingFinished && BillingFinished))
-assert EVAL_POLICY = (eval -> (InventoryFinished && CreditFinished))
-assert INITS_POLICY = ((initInventory -> OrderArrived) && (initCredit -> OrderArrived) &&
-					 (initShipping -> OrderApproved) && (initBilling -> OrderApproved))
-assert DONT_INIT_TWICE = ((InventoryFinished -> !initInventory) && (CreditFinished -> !initCredit) &&
-					(ShippingFinished -> !initShipping) && (BillingFinished -> !initBilling) )
-assert ENDS_AFTER_INIT = ((endInventory -> InventoryInitiated) && (endCredit -> CreditInitiated) &&
-						  (endShipping -> ShippingInitiated) && (endBilling -> BillingInitiated))
+assert ARCHIVE_POLICY = (Archive_action -> (ShippingFinished && BillingFinished))
+assert EVAL_POLICY = (Eval_action -> (InventoryFinished && CreditFinished))
+assert INITS_POLICY = ((InitInventory_action -> OrderArrived) && (InitCredit_action -> OrderArrived) &&
+					 (InitShipping_action -> OrderApproved) && (InitBilling_action -> OrderApproved))
+assert DONT_INIT_TWICE = ((InventoryFinished -> !InitInventory_action) && (CreditFinished -> !InitCredit_action) &&
+					(ShippingFinished -> !InitShipping_action) && (BillingFinished -> !InitBilling_action) )
+assert ENDS_AFTER_INIT = ((EndInventory_action -> InventoryInitiated) && (EndCredit_action -> CreditInitiated) &&
+						  (EndShipping_action -> ShippingInitiated) && (EndBilling_action -> BillingInitiated))
 
-assert AVOID_ROLLBACK = (!rollback)
+assert AVOID_ROLLBACK = (!Rollback_action)
 
 ltl_property P_ARCHIVE_POLICY = []ARCHIVE_POLICY
 ltl_property P_EVAL_POLICY = []EVAL_POLICY
@@ -73,7 +80,7 @@ controller ||ConcurrentController = Environment~{ConcurrentSpec}.
 
 // ---------------------------SEQUENTIAL CONTROLLER SPEC (new system)-----------------------------
 
-assert SEQUENTIAL = (((ShippingInitiated || ShippingFinished) -> BillingFinished))// && (initBilling -> !ShippingInitiated) )
+assert SEQUENTIAL = (((ShippingInitiated || ShippingFinished) -> BillingFinished))
 
 ltl_property P_SEQUENTIAL = []SEQUENTIAL
 
@@ -92,14 +99,13 @@ assert AnyAction = (initInventory || initCredit || eval || initShipping || initB
 
 //Fluents for updates
 fluent EvalPending = <eval,{approve,reject}>
-
 fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent StartNewSpec = <startNewSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
 fluent InTransition = <stopOldSpec, startNewSpec>
+fluent FaultyInterval = <initShipping, initBilling>
 
-ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec)) )
-ltl_property T_PAY_THE_COST = [](rollback -> (StopOldSpec && !StartNewSpec && (ShippingInitiated && !BillingInitiated)))
+ltl_property T_PAY_THE_COST = [](Rollback_action -> (StopOldSpec && !StartNewSpec && (ShippingInitiated && !BillingInitiated)))
 
 
 updatingController UpdCont = { 
@@ -109,12 +115,14 @@ updatingController UpdCont = {
     newEnvironment = Environment,
     oldGoal = ConcurrentSpec,
     newGoal = SequentialSpec,
-//    transition = T_NO_TP,
 //    transition = T_PAY_THE_COST,
     nonblocking,
     updateFluents = { InventoryFinished, CreditFinished, ShippingFinished, BillingFinished, 
         InventoryInitiated, CreditInitiated, ShippingInitiated, BillingInitiated,
-        OrderArrived, Archiving, EvalResponseDone, OrderApproved, EvalPending, RollbackDone
+        OrderArrived, Archiving, EvalResponseDone, OrderApproved, EvalPending, RollbackDone,
+		Archive_action, Eval_action, InitInventory_action, InitCredit_action, InitShipping_action,
+		InitBilling_action, EndInventory_action, EndCredit_action, EndShipping_action, EndBilling_action,
+		Rollback_action
     }
 
 }

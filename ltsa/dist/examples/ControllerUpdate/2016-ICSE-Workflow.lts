@@ -35,11 +35,6 @@ fluent CreditInitiated = <initCredit,{orderEntry}>
 fluent ShippingInitiated = <initShipping,{orderEntry}>
 fluent BillingInitiated = <initBilling,{orderEntry}>
 
-fluent InventoryProcessing = <initInventory,endInventory>
-fluent CreditProcessing = <initCredit,endCredit>
-fluent ShippingProcessing = <initShipping,endShipping>
-fluent BillingProcessing = <initBilling,endBilling>
-
 fluent OrderArrived = <{orderEntry},{archive,reject}>
 fluent Archiving = <{archive},{initInventory,initCredit}>
 fluent EvalResponseDone = <{approve,reject},orderEntry>
@@ -101,7 +96,6 @@ fluent StartNewSpec = <startNewSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
 fluent InTransition = <stopOldSpec, startNewSpec>
 
-ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec)) )
 ltl_property T_PAY_THE_COST = [](rollback -> (StopOldSpec && !StartNewSpec && (ShippingInitiated && !BillingInitiated)))
 
 

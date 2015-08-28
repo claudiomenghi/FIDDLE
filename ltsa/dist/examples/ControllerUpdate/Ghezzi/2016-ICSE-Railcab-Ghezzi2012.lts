@@ -7,10 +7,13 @@
 // - You can animate the controller obtained pressing the blue A in the top bar
 
 // ---------------------------ENVIRONMENTS-----------------------------
-set ControllableActions = {requestEnter, brake, emergencyBrake, idle_c, checkCrossingStatus}
+set ControllableActionsOld = {requestEnter, brake, emergencyBrake, idle_c}
+set ControllableActionsNew = {requestEnter, brake, emergencyBrake, idle_c, checkCrossingStatus}
+set AlphabetOld = {ControllableActionsOld, endOfTS, lastBrake, lastEmergencyBrake, noReturn,enterCrossing, enterAllowed[0..1]}
+set AlphabetNew = {ControllableActionsNew, endOfTS, lastBrake, lastEmergencyBrake, noReturn,enterCrossing, enterAllowed[0..1], working, notWorking, approachingCrossing}
 
     //oldEnvironment
-    E       = (idle_c -> E[0]),
+    E         = (idle_c -> E[0]),
 	E[0]      = (endOfTS -> TRAIN[1]),
     E[1]      = (lastBrake -> TRAIN[2]), 
     E[2]      = (lastEmergencyBrake -> TRAIN[3] ),
@@ -25,15 +28,29 @@ set ControllableActions = {requestEnter, brake, emergencyBrake, idle_c, checkCro
     REQUEST_RESPONSE = (endOfTS -> requestEnter ->  ANSWER | {lastBrake, brake, emergencyBrake, enterCrossing} -> REQUEST_RESPONSE),
 	ANSWER			 = ({enterAllowed[0..1], brake, emergencyBrake, enterCrossing} -> REQUEST_RESPONSE).
 
+	//hatEnvironment
+    E_HAT     = (idle_c -> E[0]),
+	E[0]      = (endOfTS -> TRAIN[1]),
+    E[1]	  = (noObservable -> TRAIN[2]),
+	E[2]      = (lastBrake -> TRAIN[3]), 
+    E[3]      = (lastEmergencyBrake -> TRAIN[4] ),
+    E[4]      = (noReturn -> TRAIN[5] ),
+    E[5]      = (enterCrossing -> E_HAT),
+
+	TRAIN[i:1..5] = (brake -> E_HAT |
+                    emergencyBrake -> E_HAT |
+					requestEnter -> E[i] |
+                    idle_c -> E[i]).
+
 
     //NewEnvironment
-    E_N      	  = (idle_c -> E_N[0]),
-    E_N[0]        = (endOfTS -> NEW_TRAIN[1]),
-    E_N[1]        = (approachingCrossing -> NEW_TRAIN[2]),
-    E_N[2]        = (lastBrake -> NEW_TRAIN[3]),
-    E_N[3]        = (lastEmergencyBrake -> NEW_TRAIN[4]),
-    E_N[4]        = (noReturn -> NEW_TRAIN[5]),
-    E_N[5]        = (enterCrossing -> E_N),
+    E_N       = (idle_c -> E_N[0]),
+    E_N[0]    = (endOfTS -> NEW_TRAIN[1]),
+    E_N[1]    = (approachingCrossing -> NEW_TRAIN[2]),
+    E_N[2]    = (lastBrake -> NEW_TRAIN[3]),
+    E_N[3]    = (lastEmergencyBrake -> NEW_TRAIN[4]),
+    E_N[4]    = (noReturn -> NEW_TRAIN[5]),
+    E_N[5]    = (enterCrossing -> E_N),
 
     NEW_TRAIN[i:1..5] = (brake -> E_N |
                     emergencyBrake -> E_N |
@@ -46,6 +63,7 @@ set ControllableActions = {requestEnter, brake, emergencyBrake, idle_c, checkCro
 
 
 ||OldEnvironment = (E || REQUEST_RESPONSE).
+||HatEnvironment = (E_HAT || REQUEST_RESPONSE).
 ||NewEnvironment = (E_N || REQUEST_RESPONSE || REQUEST_STATUS).
 
 //Fluents declaration
@@ -66,12 +84,11 @@ fluent EnterCrossingMade = <{enterCrossing},{endOfTS}>
 fluent LastEmergencyBrakeSection = <{lastEmergencyBrake},{endOfTS}>
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
-
 assert NOT_CRASH = !((CantEnter && TooLateToEmergencyBrake) || (!RequestedOnce && TooLateToEmergencyBrake))
-assert BRAKE_DURING_LASTBRAKE			= (brake -> !TooLateToBrake)
-assert EBRAKE_DURING_ELASTBRAKE  		= (emergencyBrake -> !TooLateToEmergencyBrake)
-assert BRAKE_ONLY_IF_IM_NOT_ALLOWED		= (brake -> CantEnter)
-assert EBRAKE_ONLY_IF_IM_NOT_ALLOWED	= (emergencyBrake -> CantEnter)
+assert BRAKE_DURING_LASTBRAKE			= (Brake_action -> !TooLateToBrake)
+assert EBRAKE_DURING_ELASTBRAKE  		= (EmergencyBrake_action -> !TooLateToEmergencyBrake)
+assert BRAKE_ONLY_IF_IM_NOT_ALLOWED		= (Brake_action -> CantEnter)
+assert EBRAKE_ONLY_IF_IM_NOT_ALLOWED	= (EmergencyBrake_action -> CantEnter)
 ltl_property P_NOT_CRASH						= []NOT_CRASH
 ltl_property P_BRAKE_DURING_LASTBRAKE			= []BRAKE_DURING_LASTBRAKE
 ltl_property P_EBRAKE_DURING_ELASTBRAKE  		= []EBRAKE_DURING_ELASTBRAKE
@@ -82,19 +99,21 @@ ltl_property P_EBRAKE_ONLY_IF_IM_NOT_ALLOWED	= []EBRAKE_ONLY_IF_IM_NOT_ALLOWED
 controllerSpec OldSpec = {
     safety = {P_BRAKE_DURING_LASTBRAKE, P_EBRAKE_DURING_ELASTBRAKE, P_NOT_CRASH, 
 			P_BRAKE_ONLY_IF_IM_NOT_ALLOWED, P_EBRAKE_ONLY_IF_IM_NOT_ALLOWED}
-    controllable = {ControllableActions}
+    controllable = {ControllableActionsOld}
 }
 
 controller ||OldController = OldEnvironment~{OldSpec}.
 ||EnvironmentAndController = (OldController || OldEnvironment).
+controller ||HatController = HatEnvironment~{OldSpec}.
+||HatEnvironmentAndController = (HatController || HatEnvironment).
 
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
 assert NEW_NOT_CRASH = !((CantEnter && TooLateToEmergencyBrake) || ((!RequestedOnce || !AskedWorkingOnce) && TooLateToEmergencyBrake) || (NotWorking && TooLateToEmergencyBrake))
-assert BRAKE_IF_SOMETHING_BAD			= (brake -> (CantEnter || NotWorking || !AskedWorkingOnce))
-assert EBRAKE_IF_SOMETHING_BAD			= (emergencyBrake -> (CantEnter || NotWorking || AskedWorkingOnce))
-assert CHECK_STATUS_AFTER_APPROACHING_CROSSING = (checkCrossingStatus -> ApproachingCrossingHappen)
-assert CHECK_STATUS_BEFORE_LAST_EMERGENCY_BRAKE = (TooLateToBrake -> (!checkCrossingStatus))
+assert BRAKE_IF_SOMETHING_BAD			= (Brake_action -> (CantEnter || NotWorking || !AskedWorkingOnce))
+assert EBRAKE_IF_SOMETHING_BAD			= (EmergencyBrake_action -> (CantEnter || NotWorking || AskedWorkingOnce))
+assert CHECK_STATUS_AFTER_APPROACHING_CROSSING = (CheckCrossingStatus_action -> ApproachingCrossingHappen)
+assert CHECK_STATUS_BEFORE_LAST_EMERGENCY_BRAKE = (TooLateToBrake -> (!CheckCrossingStatus_action))
 ltl_property P_BRAKE_IF_SOMETHING_BAD	    = []BRAKE_IF_SOMETHING_BAD
 ltl_property P_EBRAKE_IF_SOMETHING_BAD	    = []EBRAKE_IF_SOMETHING_BAD
 ltl_property P_NEW_NOT_CRASH 				= []NEW_NOT_CRASH
@@ -104,7 +123,7 @@ ltl_property P_CHECK_STATUS_BEFORE_LAST_EMERGENCY_BRAKE = []CHECK_STATUS_BEFORE_
 controllerSpec NewSpec = {
     safety = {P_BRAKE_DURING_LASTBRAKE, P_EBRAKE_DURING_ELASTBRAKE, P_NEW_NOT_CRASH, P_CHECK_STATUS_BEFORE_LAST_EMERGENCY_BRAKE,
 			P_BRAKE_IF_SOMETHING_BAD, P_EBRAKE_IF_SOMETHING_BAD, P_CHECK_STATUS_AFTER_APPROACHING_CROSSING}
-    controllable = {ControllableActions}
+    controllable = {ControllableActionsNew}
 }
 
 controller ||NewController = NewEnvironment~{NewSpec}.
@@ -114,36 +133,55 @@ controller ||NewController = NewEnvironment~{NewSpec}.
 
 // Updating Controller Fluents
 fluent InTransition = <stopOldSpec, startNewSpec>
+fluent InOverlapping = <startNewSpec, stopOldSpec>
 fluent StartNewSpec = <startNewSpec, beginUpdate>
 fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
 
-assert AnyAction = (requestEnter || brake || emergencyBrake || idle_c || checkCrossingStatus || endOfTS || approachingCrossing ||
-			lastBrake || lastEmergencyBrake || noReturn || enterCrossing || enterAllowed[0..1] || working || notWorking)
+//Actions Fluents
+fluent Brake_action = <brake,AlphabetOld\{brake}>
+fluent EmergencyBrake_action = <emergencyBrake,AlphabetOld\{emergencyBrake}>
+fluent CheckCrossingStatus_action = <checkCrossingStatus,AlphabetOld\{checkCrossingStatus}>
+fluent RequestEnter_action = <requestEnter, AlphabetOld\{requestEnter}>
+fluent Idle_c_action = <idle_c, AlphabetOld\{idle_c}>
+fluent EndOfTS_action = <endOfTS, AlphabetOld\{endOfTS}>
+fluent ApproachingCrossing_action = <approachingCrossing, AlphabetOld\{approachingCrossing}>
+fluent LastBrake_action = <lastBrake, AlphabetOld\{lastBrake}>
+fluent LastEmergencyBrake_action = <lastEmergencyBrake, AlphabetOld\{lastEmergencyBrake}>
+fluent NoReturn_action = <noReturn, AlphabetOld\{noReturn}>
+fluent EnterCrossing_action = <enterCrossing, AlphabetOld\{enterCrossing}>
+fluent EnterAllowed1_action = <enterAllowed[1], AlphabetOld\{enterAllowed[1]}>
+fluent EnterAllowed0_action = <enterAllowed[0], AlphabetOld\{enterAllowed[0]}>
+fluent Working_action = <working, AlphabetOld\{working}>
+fluent NotWorking_action = <notWorking, AlphabetOld\{notWorking}>
 
-ltl_property T_BRAKE = [](InTransition -> (LastEmergencyBrakeSection && ((!noReturn && !brake) W emergencyBrake)))
-//ltl_property T_BRAKE = []((InTransition && LastEmergencyBrakeSection) -> (((!noReturn && !brake) W emergencyBrake)))
-ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec)) )
+assert AnyAction = (RequestEnter_action || Brake_action || EmergencyBrake_action || Idle_c_action || CheckCrossingStatus_action || EndOfTS_action || ApproachingCrossing_action ||
+			LastBrake_action || LastEmergencyBrake_action || NoReturn_action || EnterCrossing_action || EnterAllowed0_action || EnterAllowed1_action || Working_action || NotWorking_action)
 
+
+ltl_property T_BRAKE = (InTransition -> (LastEmergencyBrakeSection && ((!NoReturn_action && !Brake_action) W emergencyBrake)))
+ltl_property T_NO_TP = (AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))
 
 updatingController UpdCont = {
-    oldController = EnvironmentAndController,
+    oldController = HatEnvironmentAndController,
     oldEnvironment = OldEnvironment,
-	hatEnvironment = OldEnvironment,
+	hatEnvironment = HatEnvironment,
     newEnvironment = NewEnvironment,
     oldGoal = OldSpec,
     newGoal = NewSpec,
 	// T = True is executed if no transition requirement is set
-	transition = T_BRAKE,
-	//transition = T_NO_TP,
+//	transition = T_BRAKE,
+	//transition = T_BRAKE,
 	nonblocking,
-    updateFluents = { EndOfTS, LastBrake, TooLateToBrake, TooLateToEmergencyBrake, BrakeMade, 
-				RequestedOnce, ResponsePending, ResponseRecieve, AskedWorkingOnce, EnterCrossingMade, WhoShouldPlay
+    updateFluents = { EndOfTS, LastBrake, TooLateToBrake, TooLateToEmergencyBrake, EnterCrossingMade, BrakeMade, 
+				RequestedOnce, ResponsePending, ResponseRecieve, AskedWorkingOnce, WhoShouldPlay,
+				CantEnter, NotWorking, ApproachingCrossingHappen, Brake_action, EmergencyBrake_action, CheckCrossingStatus_action,
 
-	}
+				NoReturn_action}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
+||HIDING = UPDATE_CONTROLLER\{stopOldSpec,startNewSpec,reconfigure}.
 
 // ---------------------------TEST AND RESULTS-----------------------------
 assert S_OLD = (BRAKE_DURING_LASTBRAKE && EBRAKE_DURING_ELASTBRAKE && NOT_CRASH && 
@@ -154,5 +192,5 @@ assert S_NEW = (BRAKE_DURING_LASTBRAKE && EBRAKE_DURING_ELASTBRAKE && NEW_NOT_CR
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
 assert TEST_FORMULA2 = [](startNewSpec -> S_NEW)
 assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
-assert TEST_FORMULA4 = [](startNewSpec -> Reconfigure)
-assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && [](startNewSpec -> []S_NEW))
+assert TEST_T_NO_TP = [](AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))
+//assert TEST_FINAL_FORMULA = ((!StopOldSpec -> S_OLD) && [](startNewSpec -> S_NEW))

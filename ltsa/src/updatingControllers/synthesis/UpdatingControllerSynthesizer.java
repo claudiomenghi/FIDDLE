@@ -23,22 +23,36 @@ import updatingControllers.UpdateConstants;
 import updatingControllers.structures.UpdatingControllerCompositeState;
 import ac.ic.doc.commons.relations.Pair;
 import ac.ic.doc.mtstools.model.MTS;
+import ac.ic.doc.mtstools.model.MTS.TransitionType;
+import ac.ic.doc.mtstools.model.impl.LTSAdapter;
+import ac.ic.doc.mtstools.model.impl.MTSAdapter;
+import ac.ic.doc.mtstools.model.impl.MTSImpl;
+import ac.ic.doc.mtstools.model.operations.TauRemoval;
 import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
 import ar.dc.uba.model.condition.Fluent;
+import ar.dc.uba.model.condition.FluentUtils;
 import ar.dc.uba.model.condition.Formula;
 import control.ControllerGoalDefinition;
 import control.util.ControllerUtils;
 import controller.game.gr.GRGameSolver;
 import controller.game.gr.GRRankSystem;
 import controller.game.gr.StrategyState;
+import controller.game.gr.knowledge.KnowledgeGRGame;
+import controller.game.gr.knowledge.KnowledgeGRGameSolver;
 import controller.game.gr.perfect.PerfectInfoGRGameSolver;
+import controller.game.model.Assume;
+import controller.game.model.Assumptions;
+import controller.game.model.Guarantee;
+import controller.game.model.Guarantees;
 import controller.game.model.Strategy;
 import controller.game.util.FluentStateValuation;
 import controller.game.util.GRGameBuilder;
 import controller.game.util.GameStrategyToMTSBuilder;
+import controller.game.util.SubsetConstructionBuilder;
 import controller.model.gr.GRControllerGoal;
 import controller.model.gr.GRGame;
+import controller.model.gr.GRGoal;
 
 /**
  * Created by Victor Wjugow on 10/06/15.
@@ -74,8 +88,7 @@ public class UpdatingControllerSynthesizer {
 		} else {
 			if (!uccs.debugModeOn()) {
 				// removed support for debugging
-				// updateHandler.checkMappingValue(uccs.getCheckTrace(),
-				// output);
+//				 updateHandler.checkMappingValue(uccs.getCheckTrace(), output);
 			}
 		}
 	}
@@ -86,17 +99,132 @@ public class UpdatingControllerSynthesizer {
 			ControllerGoalDefinition newGoalDef, LTSOutput output) {
 
 		MTS<Long, String> environment = updEnvGenerator.getUpdEnv();
-		MTS<Long, String> metaEnvironment = ControllerUtils.removeTopStates(
-				environment, UpdatingControllersUtils.UPDATE_FLUENTS);
+		MTS<Long, String> metaEnvironment = ControllerUtils.removeTopStates(environment, UpdatingControllersUtils.UPDATE_FLUENTS);
 
-		HashedMap<Long, ArrayList<Boolean>> valuation = buildValuationsManually(
-				environment, metaEnvironment, updEnvGenerator);
-
-		ArrayList<Fluent> propositions = (ArrayList<Fluent>) updEnvGenerator
-				.getPropositions();
-
+		Pair<HashedMap<Long, ArrayList<Boolean>>, HashSet<Long>> rarePair = buildValuationsManually(environment, metaEnvironment, updEnvGenerator);
+		
+		HashedMap<Long, ArrayList<Boolean>> valuation = rarePair.getFirst();
+		HashSet<Long> eParallelCStates = rarePair.getSecond();
+		
+		ArrayList<Fluent> propositions = (ArrayList<Fluent>) updEnvGenerator.getPropositions();
 		FluentStateValuation<Long> fluentStateValuation = buildFluentStateValuation(metaEnvironment, valuation, propositions);
 
+		makeOldActionsUncontrollable(newGoalGR.getControllableActions(), eParallelCStates, metaEnvironment);
+		MTS<Long, String> safetyEnv = applySafety(newGoalDef, metaEnvironment, fluentStateValuation);
+
+		uccs.setUpdateEnvironment(safetyEnv);
+
+		CompactState compactSafetyEnv = MTSToAutomataConverter.getInstance().convert(safetyEnv, "E_u||G(safety)", false);
+//		CompactState compactMetaEnv = MTSToAutomataConverter.getInstance().convert(metaEnvironment, "E_u", false);
+		
+		Vector<CompactState> machines = new Vector<CompactState>();
+		machines.add(compactSafetyEnv);
+//		machines.add(compactMetaEnv);
+
+		uccs.setMachines(machines);
+		
+		if (compactSafetyEnv.isNonDeterministic()){
+			nonBlockingGR(uccs, newGoalGR, output, safetyEnv);
+		} else {
+			synthesizeGRDeterministic(uccs, newGoalGR, output, safetyEnv);
+		}
+		
+	}
+
+	private static void nonBlockingGR(UpdatingControllerCompositeState uccs, GRControllerGoal<String> newGoalGR, LTSOutput output, MTS<Long, String> safetyEnv) {
+		
+		KnowledgeGRGame<Long, String> game;
+		GRGoal<Set<Long>> grGoal;
+		MTS<Set<Long>, String> perfectInfoGame;
+		SubsetConstructionBuilder<Long, String> subsetConstructionBuilder;
+		
+		FluentUtils fluentUtils = FluentUtils.getInstance();
+
+		subsetConstructionBuilder = new SubsetConstructionBuilder<Long, String>(safetyEnv);
+		
+		perfectInfoGame = subsetConstructionBuilder.build();
+		
+		FluentStateValuation<Set<Long>> valuation = fluentUtils.buildValuation(perfectInfoGame, newGoalGR.getFluents());
+		Assumptions<Set<Long>> assumptions = formulasToAssumptions(perfectInfoGame.getStates(), newGoalGR.getAssumptions(), valuation);
+		Guarantees<Set<Long>> guarantees = formulasToGuarantees(perfectInfoGame.getStates(), newGoalGR.getGuarantees(), valuation);
+		Set<Set<Long>> faults = formulaToStateSet(perfectInfoGame.getStates(), newGoalGR.getFaults(), valuation);
+		
+		FluentStateValuation<Set<Long>> nonDetValuation = fluentUtils.buildValuation(perfectInfoGame, newGoalGR.getFluents());
+		grGoal = new GRGoal<Set<Long>>(guarantees, assumptions, faults, newGoalGR.isPermissive());
+		Set<Set<Long>> initialStates = new HashSet<Set<Long>>();
+		Set<Long> initialState = new HashSet<Long>();
+		initialState.add(safetyEnv.getInitialState());
+		initialStates.add(initialState);
+		
+		game = new KnowledgeGRGame<Long, String>(initialStates, safetyEnv, perfectInfoGame, newGoalGR.getControllableActions(), grGoal);
+		
+		GRRankSystem<Set<Long>> system = new GRRankSystem<Set<Long>>(game.getStates(), grGoal.getGuarantees(), grGoal.getAssumptions(), grGoal.getFailures());
+
+		KnowledgeGRGameSolver<Long, String> solver = new KnowledgeGRGameSolver<Long, String>(game, system);
+		solver.solveGame();
+
+		if (solver.isWinning(perfectInfoGame.getInitialState())) {
+			Strategy<Set<Long>, Integer> strategy = solver.buildStrategy();
+
+			// Permissive Controllers!?
+			Set<Pair<StrategyState<Set<Long>, Integer>, StrategyState<Set<Long>, Integer>>> worseRank = solver.getWorseRank();
+			MTS<StrategyState<Set<Long>, Integer>, String> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(perfectInfoGame, strategy, worseRank);
+
+			result.removeUnreachableStates();
+			LTSAdapter<StrategyState<Set<Long>, Integer>, String> ltsAdapter = new LTSAdapter<StrategyState<Set<Long>,Integer>, String>(result, TransitionType.POSSIBLE);
+			MTS<StrategyState<Set<Long>, Integer>, String> synthesised  = new MTSAdapter<StrategyState<Set<Long>,Integer>, String>(ltsAdapter);
+			MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Set<Long>, Integer>, String>().transform(synthesised);
+
+			output.outln("Controller [" + plainController.getStates().size() + "] generated successfully.");
+			CompactState compactState = MTSToAutomataConverter.getInstance().convert(plainController, uccs.getName(), false);
+			uccs.setComposition(compactState);
+		} else {
+			output.outln("There is no controller for model " + uccs.name + " for the given setting.");
+			uccs.setComposition(null);		
+		}
+	}
+
+	private static Set<Set<Long>> formulaToStateSet(Set<Set<Long>> states,
+			List<Formula> faults, FluentStateValuation<Set<Long>> valuation) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private static void synthesizeGRDeterministic(UpdatingControllerCompositeState uccs, GRControllerGoal<String> newGoalGR, LTSOutput output, MTS<Long, String> safetyEnv) {
+		GRGame<Long> game;
+
+		game = new GRGameBuilder<Long, String>().buildGRGameFrom(safetyEnv,newGoalGR);
+		GRRankSystem<Long> system = new GRRankSystem<Long>(game.getStates(),game.getGoal().getGuarantees(),
+				game.getGoal().getAssumptions(), game.getGoal().getFailures());
+		PerfectInfoGRGameSolver<Long> solver = new PerfectInfoGRGameSolver<Long>(game, system);
+		solver.solveGame();
+		
+		// ojo que el estado del environment puede tener problemas.
+		if (solver.isWinning(safetyEnv.getInitialState())) {
+			Strategy<Long, Integer> strategy = solver.buildStrategy();
+			GRGameSolver<Long> grSolver = (GRGameSolver<Long>) solver;
+			Set<Pair<StrategyState<Long, Integer>, StrategyState<Long, Integer>>> worseRank = grSolver.getWorseRank();
+			MTS<StrategyState<Long, Integer>, String> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(safetyEnv, strategy, worseRank, newGoalGR.getLazyness());
+
+			if (result == null) {
+				output.outln("There is no controller for model " + uccs.name + " for the given setting.");
+				uccs.setComposition(null);
+			} else {
+				GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String> transformer = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>();
+				MTS<Long, String> plainController = transformer.transform(result);
+
+				output.outln("Controller [" + plainController.getStates().size() + "] generated successfully.");
+				CompactState convert = MTSToAutomataConverter.getInstance().convert(plainController, uccs.getName());
+				uccs.setComposition(convert);
+			}
+		} else {
+			output.outln("There is no controller for model " + uccs.name + " for the given setting.");
+			uccs.setComposition(null);
+		}
+		
+	}
+
+	private static MTS<Long, String> applySafety( ControllerGoalDefinition newGoalDef, MTS<Long, String> metaEnvironment, FluentStateValuation<Long> fluentStateValuation) {
 		Set<Fluent> safetyFluents = new HashSet<Fluent>();
 		List<Formula> safetyFormulas = new ArrayList<Formula>();
 		for (lts.Symbol safetyDefinition : newGoalDef.getSafetyDefinitions()) {
@@ -113,54 +241,30 @@ public class UpdatingControllerSynthesizer {
 		HashSet<Long> toBuild = new HashSet<Long>();
 		formulaToStateSet(toBuild, metaEnvironment.getStates(), safetyFormulas,	fluentStateValuation);
 		
-		for (Long state : toBuild) {
-			for (Pair<String, Long> transition : metaEnvironment.getTransitions(state, MTS.TransitionType.REQUIRED)) {
-				metaEnvironment.removeRequired(state, transition.getFirst(), transition.getSecond());
+		MTS<Long, String> safetyEnv = applySafetyInEnvironment(metaEnvironment, toBuild);
+		return safetyEnv;
+	}
+
+	private static MTS<Long, String> applySafetyInEnvironment(MTS<Long, String> metaEnvironment, HashSet<Long> toBuild) {
+		
+		MTS<Long, String> result = new MTSImpl<Long, String>(metaEnvironment.getInitialState());
+		
+		for (Long state : metaEnvironment.getStates()) {
+			result.addState(state);
+			if (!toBuild.contains(state)){
+				for (Pair<String, Long> transition : metaEnvironment.getTransitions(state, MTS.TransitionType.REQUIRED)) {
+					
+					result.addState(transition.getSecond());
+					result.addAction(transition.getFirst());
+					
+					result.addRequired(state, transition.getFirst(), transition.getSecond());
+				}
 			}
+			
 		}
-		metaEnvironment.removeUnreachableStates();
-
-		uccs.setUpdateEnvironment(metaEnvironment);
-		CompactState compactEnv = MTSToAutomataConverter.getInstance().convert(metaEnvironment, "E_u||G(safety)", false);
-
-		Vector<CompactState> machines = new Vector<CompactState>();
-		machines.add(compactEnv);
-
-		uccs.setMachines(machines);
+		result.removeUnreachableStates();
+		return result;
 		
-		
-		GRGame<Long> game;
-
-		game = new GRGameBuilder<Long, String>().buildGRGameFrom(metaEnvironment,newGoalGR);
-		GRRankSystem<Long> system = new GRRankSystem<Long>(game.getStates(),game.getGoal().getGuarantees(),
-				game.getGoal().getAssumptions(), game.getGoal().getFailures());
-		PerfectInfoGRGameSolver solver = new PerfectInfoGRGameSolver<Long>(game, system);
-		solver.solveGame();
-		
-		
-		// ojo que el estado del environment puede tener problemas.
-		if (solver.isWinning(metaEnvironment.getInitialState())) {
-			Strategy<Long, Integer> strategy = solver.buildStrategy();
-			GRGameSolver<Long> grSolver = (GRGameSolver<Long>) solver;
-			Set<Pair<StrategyState<Long, Integer>, StrategyState<Long, Integer>>> worseRank = grSolver.getWorseRank();
-			MTS<StrategyState<Long, Integer>, String> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(metaEnvironment, strategy, worseRank, null);
-
-			if (result == null) {
-				output.outln("There is no controller for model " + uccs.name + " for the given setting.");
-				// output.outln("Analysis time: " + (System.currentTimeMillis()
-				// - initialTime) + "ms.");
-				uccs.setComposition(null);
-			} else {
-				GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String> transformer = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>();
-				MTS<Long, String> plainController = transformer.transform(result);
-
-				// output.outln("Analysis time: " + (System.currentTimeMillis()
-				// - initialTime) + "ms.");
-				output.outln("Controller [" + plainController.getStates().size() + "] generated successfully.");
-				CompactState convert = MTSToAutomataConverter.getInstance().convert(plainController, uccs.getName());
-				uccs.setComposition(convert);
-			}
-		}
 	}
 
 	private static void formulaToStateSet(Set<Long> toBuild, Set<Long> allStates, List<Formula> formulas, FluentStateValuation<Long> valuation) {
@@ -170,13 +274,16 @@ public class UpdatingControllerSynthesizer {
 				formulaToStateSet(toBuild, formula, state, valuation);
 			}
 			if (toBuild.isEmpty()) {
-				Logger.getAnonymousLogger().log(Level.WARNING,
-						"No state satisfies formula: " + formula);
+				Logger.getAnonymousLogger().log(Level.WARNING, "No state satisfies formula: " + formula);
 			}
 		}
 	}
 
 	private static void formulaToStateSet(Set<Long> toBuild, Formula formula, Long state, FluentStateValuation<Long> valuation) {
+		if (state.equals(new Long(371))){
+			int i = 0;
+		}
+		
 		valuation.setActualState(state);
 		if (formula.evaluate(valuation)) {
 			toBuild.add(state);
@@ -216,12 +323,13 @@ public class UpdatingControllerSynthesizer {
 	}
 
 	// order is: {OriginalFluents, begin, stopOld, startNew, reconfig}
-	private static HashedMap<Long, ArrayList<Boolean>> buildValuationsManually(
+	private static Pair<HashedMap<Long, ArrayList<Boolean>>, HashSet<Long>> buildValuationsManually(
 			MTS<Long, String> env, MTS<Long, String> metaEnv,
 			UpdatingEnvironmentGenerator updEnvGenerator) {
 
 		HashedMap<Long, ArrayList<Boolean>> resultantValuation = new HashedMap<Long, ArrayList<Boolean>>();
 		HashedMap<Long, Long> statesMapping = new HashedMap<Long, Long>();
+		HashSet<Long> eParallelCStates = new HashSet<Long>();
 
 		statesMapping.put(metaEnv.getInitialState(), env.getInitialState());
 		ArrayList<Boolean> initialValuation = new ArrayList<Boolean>(
@@ -239,71 +347,49 @@ public class UpdatingControllerSynthesizer {
 
 		while (!toVisit.isEmpty()) {
 			Long actualInMetaEnv = toVisit.remove();
+			if (actualInMetaEnv.equals(new Long(371))){
+				int i = 0;
+			}
 			if (!discovered.contains(actualInMetaEnv)) {
 				discovered.add(actualInMetaEnv);
 
-				if (updEnvGenerator.isEParrallelCState(statesMapping
-						.get(actualInMetaEnv))) {
-					ArrayList<Boolean> valuation = new ArrayList<Boolean>(
-							updEnvGenerator.getOldValuation(statesMapping
-									.get(actualInMetaEnv)));
+				if (updEnvGenerator.isEParrallelCState(statesMapping.get(actualInMetaEnv))) {
+					ArrayList<Boolean> valuation = new ArrayList<Boolean>(updEnvGenerator.getOldValuation(statesMapping.get(actualInMetaEnv)));
 					valuation.add(false); // beginUpdate is false in E||C
 					valuation.add(false); // stopOldSpec is false in E||C
 					valuation.add(false); // startNewSpec is false in E||C
 					valuation.add(false); // reconfigure is false in E||C
 					resultantValuation.put(actualInMetaEnv, valuation);
+					eParallelCStates.add(actualInMetaEnv);
 
 				} else if (updEnvGenerator.isHatEnvironmentState(statesMapping
 						.get(actualInMetaEnv))) {
-					ArrayList<Boolean> valuation = new ArrayList<Boolean>(
-							updEnvGenerator.getOldValuation(statesMapping
-									.get(actualInMetaEnv)));
+					ArrayList<Boolean> valuation = new ArrayList<Boolean>(updEnvGenerator.getOldValuation(statesMapping.get(actualInMetaEnv)));
 					valuation.add(true); // beginUpdate is true in E
-					valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); // stopOldSpec
-																			// is
-																			// false
-																			// in
-																			// E
-					valuation.add(IsTrueStart(metaEnv, actualInMetaEnv)); // startNewSpec
-																			// is
-																			// false
-																			// in
-																			// E
+					valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); // stopOldSpec is false in E
+					valuation.add(IsTrueStart(metaEnv, actualInMetaEnv)); // startNewSpec is false in E
 					valuation.add(false); // reconfigure is false in E
 					resultantValuation.put(actualInMetaEnv, valuation);
 
 				} else { // is new Part
-					Long magicState = updEnvGenerator
-							.mapStateToValuationState(statesMapping
-									.get(actualInMetaEnv));
+					Long magicState = updEnvGenerator.mapStateToValuationState(statesMapping.get(actualInMetaEnv));
 					ArrayList<Boolean> valuation = new ArrayList<Boolean>(
 							updEnvGenerator.getNewValuation(magicState));
 					valuation.add(true); // beginUpdate is true in E'
-					valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); // stopOldSpec
-																			// is
-																			// false
-																			// in
-																			// E'
-					valuation.add(IsTrueStart(metaEnv, actualInMetaEnv)); // startNewSpec
-																			// is
-																			// false
-																			// in
-																			// E'
+					valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); // stopOldSpec is false in E'
+					valuation.add(IsTrueStart(metaEnv, actualInMetaEnv)); // startNewSpec is false in E'
 					valuation.add(true); // reconfigure is true in E'
 					resultantValuation.put(actualInMetaEnv, valuation);
 				}
 
-				for (Pair<String, Long> action_toStateInMetaEnv : metaEnv
-						.getTransitions(actualInMetaEnv,
-								MTS.TransitionType.REQUIRED)) {
+				for (Pair<String, Long> action_toStateInMetaEnv : metaEnv.getTransitions(actualInMetaEnv,MTS.TransitionType.REQUIRED)) {
 
-					toVisit.addAll(nextStatesToVisit(actualInMetaEnv,
-							action_toStateInMetaEnv, env, statesMapping));
+					toVisit.addAll(nextStatesToVisit(actualInMetaEnv, action_toStateInMetaEnv, env, statesMapping));
 				}
 			}
 		}
 
-		return resultantValuation;
+		return new Pair<HashedMap<Long, ArrayList<Boolean>>, HashSet<Long>>(resultantValuation,eParallelCStates);
 	}
 
 	private static ArrayList<Long> nextStatesToVisit(Long actualInMetaEnv,
@@ -356,5 +442,86 @@ public class UpdatingControllerSynthesizer {
 		return false;
 
 	}
+	
+	private static void makeOldActionsUncontrollable(Set<String> controllableActions, HashSet<Long> eParallelCStates, MTS<Long, String> safetyEnv) {
+		for (Long state : eParallelCStates) 
+		{
+			List<Pair<String, Long>> toBeChanged = new ArrayList<Pair<String, Long>>();
+			for (Pair<String, Long> action_toState : safetyEnv.getTransitions(state, TransitionType.REQUIRED)) {
+				if (controllableActions.contains(action_toState.getFirst())) {
+					toBeChanged.add(action_toState);
+				}
+			}
+			for (Pair<String, Long> action_toState : toBeChanged) {
+				String action = action_toState.getFirst();
+				Long toState = action_toState.getSecond();
+				safetyEnv.removeRequired(state, action, toState);
+				String actionWithOld = action + UpdateConstants.OLD_LABEL;
+				safetyEnv.addAction(actionWithOld);
+				safetyEnv.addRequired(state, actionWithOld, toState);
+			}
+		}
+		// add all .old accions to MTS so as to avoid problems while parallel composition
+		// I think is useless
+		for (String action : controllableActions) {
+			if (UpdatingControllersUtils.isNotUpdateAction(action)) {
+				safetyEnv.addAction(action + UpdateConstants.OLD_LABEL);
+			}
+		}
+		
+	}
 
+	private static Assumptions<Set<Long>> formulasToAssumptions(Set<Set<Long>> states, List<Formula> formulas, FluentStateValuation<Set<Long>> valuation) {
+
+		Assumptions<Set<Long>> assumptions = new Assumptions<Set<Long>>();
+		for (Formula formula : formulas) {
+			Assume<Set<Long>> assume = new Assume<Set<Long>>();
+			for (Set<Long> state : states) {
+				valuation.setActualState(state);
+				if (formula.evaluate(valuation)) {
+					assume.addState(state);
+				}
+			}
+			if (assume.isEmpty()) {
+				Logger.getAnonymousLogger().warning("There is no state satisfying formula:" + formula);
+			}
+			assumptions.addAssume(assume);
+		}
+
+		if (assumptions.isEmpty()) {
+			Assume<Set<Long>> trueAssume = new Assume<Set<Long>>();
+			trueAssume.addStates(states);
+			assumptions.addAssume(trueAssume);
+		}
+
+		return assumptions;
+	}
+
+	private static Guarantees<Set<Long>> formulasToGuarantees(Set<Set<Long>> states, List<Formula> formulas, FluentStateValuation<Set<Long>> valuation) {
+
+		Guarantees<Set<Long>> guarantees = new Guarantees<Set<Long>>();
+		for (Formula formula : formulas) {
+			Guarantee<Set<Long>> guarantee = new Guarantee<Set<Long>>();
+			for (Set<Long> state : states) {
+				valuation.setActualState(state);
+				if (formula.evaluate(valuation)) {
+					guarantee.addState(state);
+				}
+			}
+			if (guarantee.isEmpty()) {
+				Logger.getAnonymousLogger().warning("There is no state satisfying formula:" + formula);
+			}
+			guarantees.addGuarantee(guarantee);
+		}
+
+		if (guarantees.isEmpty()) {
+			Guarantee<Set<Long>> trueAssume = new Guarantee<Set<Long>>();
+			trueAssume.addStates(states);
+			guarantees.addGuarantee(trueAssume);
+		}
+
+		return guarantees;
+	}
+
+	
 }

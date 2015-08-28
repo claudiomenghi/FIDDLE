@@ -38,7 +38,6 @@ public class UpdatingEnvironmentGenerator {
 	private MTS<Long, String> newEnvironment;
 	private List<Fluent> propositions;
 	private MTS<Long, String> updatingEnvironment;
-	private MTS<Long, String> minimized;
 	private Long lastState;
 	private Set<Long> eParallelCStates; // used for relabeling actions
 	private Set<Long> oldEnvironmentStates;
@@ -57,7 +56,6 @@ public class UpdatingEnvironmentGenerator {
 		this.newEnvToThis = null;
 
 		updatingEnvironment = new MTSImpl<Long, String>(new Long(0));
-		minimized = null;
 		Pair<Long, Long> initialState = new Pair<Long, Long>(new Long(0), new Long(0));
 		oldPart = new MTSImpl<Pair<Long, Long>, String>(initialState);
 
@@ -69,25 +67,29 @@ public class UpdatingEnvironmentGenerator {
 
 	public void generateEnvironment(Set<String> controllableActions, LTSOutput output) {
 		
-		this.removeTopStates(propositions);
+		this.removeTopStates();
 		this.generateOldPart();
 		this.completeWithHatEnvironment();
 		this.changePairsToLong();
 		mapping = new MappingStructure(updatingEnvironment, newEnvironment, propositions);
 		this.newEnvToThis = this.linkStatesWithSameFluentValues(mapping);
 		this.completeWithNewEnvironment(newEnvToThis);
-//		this.makeOldActionsUncontrollable(controllableActions);
-//		this.minimize(output);
-//		return minimized;
 	}
 
-	private void removeTopStates(List<Fluent> properties) {
+	private void removeTopStates() {
 		
 		hatEnvironment.addActions(newEnvironment.getActions());
 		newEnvironment.addActions(hatEnvironment.getActions());
 		
-		hatEnvironment = ControllerUtils.removeTopStates(hatEnvironment, properties);
-		newEnvironment = ControllerUtils.removeTopStates(newEnvironment, properties);
+//		List<Fluent> newProposition = new ArrayList<Fluent>(); 
+//		for (Fluent prop : propositions) {
+//			if (!prop.getName().contains("action")){
+//				newProposition.add(prop);
+//			}
+//		}
+		
+		hatEnvironment = ControllerUtils.removeTopStates(hatEnvironment, propositions);
+		newEnvironment = ControllerUtils.removeTopStates(newEnvironment, propositions);
 		
 	}
 
@@ -207,7 +209,7 @@ public class UpdatingEnvironmentGenerator {
 			String action = action_toState.getFirst();
 			Pair<Long, Long> toPairState = action_toState.getSecond();
 			updatingEnvironment.addAction(action);
-
+			
 			Long to = getState(visited, toPairState);
 			updatingEnvironment.addRequired(longState, action, to);
 		}
@@ -315,37 +317,6 @@ public class UpdatingEnvironmentGenerator {
 		return newState;
 	}
 
-	private void makeOldActionsUncontrollable(Set<String> controllableActions) {
-		for (Long state : eParallelCStates) {
-			List<Pair<String, Long>> toBeChanged = new ArrayList<Pair<String, Long>>();
-			for (Pair<String, Long> action_toState : updatingEnvironment.getTransitions(state, TransitionType.REQUIRED)) {
-				if (controllableActions.contains(action_toState.getFirst())) {
-					toBeChanged.add(action_toState);
-				}
-			}
-			for (Pair<String, Long> action_toState : toBeChanged) {
-				String action = action_toState.getFirst();
-				Long toState = action_toState.getSecond();
-				updatingEnvironment.removeRequired(state, action, toState);
-				String actionWithOld = action + UpdateConstants.OLD_LABEL;
-				updatingEnvironment.addAction(actionWithOld);
-				updatingEnvironment.addRequired(state, actionWithOld, toState);
-			}
-		}
-		// add all .old accions to MTS so as to avoid problems while parallel composition
-		for (String action : controllableActions) {
-			if (UpdatingControllersUtils.isNotUpdateAction(action)) {
-				updatingEnvironment.addAction(action + UpdateConstants.OLD_LABEL);
-			}
-		}
-	}
-
-	private void minimize(LTSOutput output) {
-		CompactState csMachine = MTSToAutomataConverter.getInstance().convert(updatingEnvironment, "UPD_CONT_ENVIRONMENT", false);
-		csMachine = TransitionSystemDispatcher.minimise(csMachine, output);
-		this.minimized = AutomataToMTSConverter.getInstance().convert(csMachine);
-	}
-	
 	public MTS<Long, String> getUpdEnv(){
 		return updatingEnvironment;
 	}

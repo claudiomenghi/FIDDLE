@@ -11,17 +11,20 @@
 
 // ---------------------------ENVIRONMENTS-----------------------------
 set ControllableActions = {stopPump, startPump, procedure, endProcedure}
-set A = {ControllableActions, request, beginUpdate}
-
+set A = {ControllableActions, request}
+// Action Fluentes
+fluent StopPump_action = <{stopPump},A\{stopPump}>
+fluent Procedure_action = <{procedure},A\{procedure}>
+fluent EndProcedure_action = <{endProcedure},A\{endProcedure}>
 
     //OldEnvironment and NewEnvironment
     MAINTENANCE = (request -> endProcedure -> MAINTENANCE).
 
     ENV = STARTED,
-    STARTED = (stopPump -> STOPPED |
+    STARTED = (stopPump -> STOPPED | 
                     procedure -> STARTED | 
                     endProcedure -> STARTED),
-	STOPPED = (startPump -> STARTED |
+	STOPPED = (startPump -> STARTED | 
 				procedure -> STOPPED |
 				endProcedure -> STOPPED).
 
@@ -32,46 +35,41 @@ set A = {ControllableActions, request, beginUpdate}
 fluent PumpOff = <{stopPump},{startPump}>
 fluent PumpOn = <{startPump},{stopPump}> initially 1
 fluent RequestPending = <{request},{endProcedure}>
-fluent Procedure = <{procedure},{A\{procedure}}>
 fluent MainteinanceFinished = <{procedure}, {request}> 
 fluent PendingOk = <procedure, endProcedure>
-fluent Request = <{request},{A\{request}}>
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 
-assert PROCEDURE_WHILE_STOPPED = (procedure -> PumpOff)
-assert MAINTEINANCE_GUARANTEED = (endProcedure -> (MainteinanceFinished && PumpOn))
-assert PROCEDURE_IF_REQUEST = (procedure -> RequestPending)
-assert PUMP_OFF_ONLY_OK_NOT_PENDING = (stopPump->!PendingOk)
-assert DONT_DO_PROCEDURE_TWICE = (procedure -> X(!procedure W endProcedure))
+assert PROCEDURE_WHILE_STOPPED = (Procedure_action -> PumpOff)
+assert MAINTEINANCE_GUARANTEED = (EndProcedure_action -> (MainteinanceFinished && !PumpOff))
+assert PROCEDURE_IF_REQUEST = (Procedure_action -> RequestPending)
+assert PUMP_OFF_ONLY_OK_NOT_PENDING = (StopPump_action->!PendingOk)
 
 ltl_property P_PROCEDURE_WHILE_STOPPED = []PROCEDURE_WHILE_STOPPED
 ltl_property P_MAINTEINANCE_GUARANTEED = []MAINTEINANCE_GUARANTEED
 ltl_property P_PROCEDURE_IF_REQUEST = []PROCEDURE_IF_REQUEST
 ltl_property P_PUMP_OFF_ONLY_OK_NOT_PENDING = []PUMP_OFF_ONLY_OK_NOT_PENDING
-ltl_property P_DONT_DO_PROCEDURE_TWICE = []DONT_DO_PROCEDURE_TWICE
-
 
 controller ||OldController = OldEnvironment~{OldSpec}.
 ||EnvironmentAndController = (OldEnvironment || OldController).
 
 controllerSpec OldSpec = {
-    safety = {P_PROCEDURE_WHILE_STOPPED, P_MAINTEINANCE_GUARANTEED, P_DONT_DO_PROCEDURE_TWICE,
+    safety = {P_PROCEDURE_WHILE_STOPPED, P_MAINTEINANCE_GUARANTEED,
 			  P_PROCEDURE_IF_REQUEST, P_PUMP_OFF_ONLY_OK_NOT_PENDING}
     controllable = {ControllableActions}
 }
 
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
-assert MAINTEINANCE_GUARANTEED_NEW = (endProcedure -> MainteinanceFinished)
-assert NEVER_STOP = (!stopPump)
+assert MAINTEINANCE_GUARANTEED_NEW = (EndProcedure_action -> MainteinanceFinished)
+assert NEVER_STOP = (!StopPump_action)
 ltl_property P_MAINTEINANCE_GUARANTEED_NEW = []MAINTEINANCE_GUARANTEED_NEW 
 ltl_property P_NEVER_STOP = []NEVER_STOP
 
 
 controller ||NewController = NewEnvironment~{NewSpec}.
 controllerSpec NewSpec= {
-    safety = {P_NEVER_STOP, P_MAINTEINANCE_GUARANTEED_NEW, P_PROCEDURE_IF_REQUEST, P_DONT_DO_PROCEDURE_TWICE}
+    safety = {P_NEVER_STOP, P_MAINTEINANCE_GUARANTEED_NEW, P_PROCEDURE_IF_REQUEST}
     controllable = {ControllableActions}
 }
 
@@ -83,7 +81,7 @@ fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent StartNewSpec= <startNewSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
 
-ltl_property T = []((InTransition && PumpOff) -> (!endProcedure W startPump))
+ltl_property NewT = ((StopOldSpec && !StartNewSpec) -> (EndProcedure_action -> !PumpOff))
 
 updatingController UpdCont = {
     oldController = EnvironmentAndController,
@@ -93,22 +91,21 @@ updatingController UpdCont = {
     oldGoal = OldSpec, 
     newGoal = NewSpec,
     // T = True is executed if no transition requirement is set
-	transition = T,
+	transition = NewT,
 	nonblocking,
-    updateFluents = {RequestPending, PumpOff}
-
+    updateFluents = {RequestPending, PumpOff, MainteinanceFinished, PendingOk, StopPump_action, EndProcedure_action, Procedure_action}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
-
+||HIDING = UPDATE_CONTROLLER\{stopOldSpec,startNewSpec,reconfigure}.
 
 // ---------------------------TEST AND RESULTS-----------------------------
-assert S_OLD = (PROCEDURE_WHILE_STOPPED && MAINTEINANCE_GUARANTEED && DONT_DO_PROCEDURE_TWICE && PROCEDURE_IF_REQUEST && PUMP_OFF_ONLY_OK_NOT_PENDING)
-assert S_NEW = (NEVER_STOP && MAINTEINANCE_GUARANTEED_NEW && PROCEDURE_IF_REQUEST && DONT_DO_PROCEDURE_TWICE)
+assert S_OLD = (PROCEDURE_WHILE_STOPPED && MAINTEINANCE_GUARANTEED && PROCEDURE_IF_REQUEST && PUMP_OFF_ONLY_OK_NOT_PENDING)
+assert S_NEW = (NEVER_STOP && MAINTEINANCE_GUARANTEED_NEW && PROCEDURE_IF_REQUEST)
 
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
 assert TEST_FORMULA2 = [](startNewSpec -> S_NEW)
-assert TEST_FORMULA3 = [](startNewSpec -> Reconfigure)
-assert TEST_FORMULA4 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec))
+assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec))
+assert NewT = []((StopOldSpec && !StartNewSpec) -> (EndProcedure_action -> !PumpOff))
 
 assert DESIRABLE_BEHAVIOUR = !<>[]PumpOff

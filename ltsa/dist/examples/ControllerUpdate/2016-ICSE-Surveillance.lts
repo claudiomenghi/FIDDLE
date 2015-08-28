@@ -61,6 +61,7 @@ fluent FlyingHigh = <high,{mid,low,return2base}>
 fluent FlyingMid = <mid,{high,low,return2base}>
 fluent FlyingLow = <low,{mid,high,return2base}>
 fluent ScanPending	  = <scan,scan.val[0..1]>
+fluent ZoneScaned = <scan.val[0..1],{move,return2base}>
 fluent SuspiciousActivityDetected = <scan.val[1],{move,return2base}>
 fluent ScanProcessing	= <scan,{scan.val[0],pictureOk[1],return2base}>
 fluent PictureSent		= <pictureOk[1],{move,return2base}>
@@ -72,11 +73,11 @@ fluent HeightSet = <{high,mid,low},return2base>
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 
-assert DONT_SCAN_TWICE			= ((scan.val[0] || scan.val[1]) -> (!scan W move))
+assert DONT_SCAN_TWICE			= (scan ->!ZoneScaned)
 assert ALWAYS_FLY_HIGH 			= (MissionStarted -> (!FlyingLow && !FlyingMid))
 assert HOW_TO_MOVE				= ((move -> !ScanProcessing) )
-assert DONT_PICTURE_TWICE		= (PictureSent -> (!picture W (move || return2base)) )
-assert DETECTED_ACTIONS  		= ((picture -> SuspiciousActivityDetected) && (SuspiciousActivityDetected -> (!scan W (move || return2base))))
+assert DONT_PICTURE_TWICE		= (picture -> !PictureSent)
+assert DETECTED_ACTIONS  		= ((picture -> SuspiciousActivityDetected) && (scan -> !SuspiciousActivityDetected))
 assert HIGH_PRIORITY_TO_MISSION = (return2base -> NoBattery)
 
 ltl_property P_DONT_SCAN_TWICE = []DONT_SCAN_TWICE
@@ -97,8 +98,8 @@ controller ||OldController = OldEnvironment~{OldSpec}.
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
 assert ALWAYS_FLY_LOW = (MissionStarted -> (!FlyingHigh && !FlyingMid))
-assert NEW_HOW_TO_MOVE = ((move -> !Following) && (SuspiciousActivityDetected -> (!move W return2base)))
-assert FOLLOWING_ACTIONS = ((picture -> Following) && (Following -> (!scan W return2base) ) && (SuspiciousActivityDetected -> (!scan W return2base)) && (PictureSent -> !follow))
+assert NEW_HOW_TO_MOVE = ((move -> !Following) && (move -> !SuspiciousActivityDetected))
+assert FOLLOWING_ACTIONS = ((picture -> Following) && (scan -> !Following) && (scan -> !SuspiciousActivityDetected) && (PictureSent -> !follow))
 assert NO_FOLLOW_BEFORE_SCAN = (follow -> SuspiciousActivityDetected)
 assert WEATHER_POLICY = (scan -> !DangerousWeather)
 
@@ -123,11 +124,10 @@ assert AnyAction = (return2base || move || low || mid || high || scan || picture
 fluent AnyActionUntilStartNew = <Alphabet,startNewSpec>
 
 ltl_property T_LOW = []((startNewSpec -> (FlyingLow || !HeightSet))) // same as T = True
-ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec))  )// Must update while being at base
-ltl_property T_NO_TP_AND_NOT_UPDATE_AT_BASE = ([]((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec))  ) // No Controller
+ltl_property T_NO_TP_AND_NOT_UPDATE_AT_BASE = ([](AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) ))) // No Controller
  && [](startNewSpec -> (MissionStarted && HeightSet))  )
-ltl_property T_NO_SCAN_WHILE_UPDATE = []((StopOldSpec || StartNewSpec) -> (!ScanPending W (StopOldSpec && StartNewSpec)))
-ltl_property T_NO_MOVE_WHILE_UPDATE = []((StopOldSpec || StartNewSpec) -> (!move W (StopOldSpec && StartNewSpec))  )
+ltl_property T_NO_SCAN_WHILE_UPDATE = [](scan -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))
+ltl_property T_NO_MOVE_WHILE_UPDATE = [](move -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))
 
 ltl_property T_OVERLAP = [](stopOldSpec -> (StartNewSpec && AnyActionUntilStartNew))
 
