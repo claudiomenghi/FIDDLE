@@ -13,7 +13,7 @@ set NewControllableActions = {shiftX, shiftY, shiftZ, shiftT, encode, send, rece
 set AlphabetOld = {OldControllableActions}
 set AlphabetNew = {NewControllableActions}
 
-OLD_ENV = SENDER,
+OLD_ENV = SENDER,vim 
 SENDER = (shiftX -> shiftY -> shiftZ -> encode -> send -> RECEIVER),
 RECEIVER = (receive -> decode[2..3] -> output -> SENDER).
 
@@ -22,6 +22,7 @@ SENDER = (shiftX -> shiftY -> shiftZ -> shiftT -> encode -> send -> RECEIVER),
 RECEIVER = (receive -> decode[2..3] -> output -> SENDER).
 
 ||OldEnvironment = (OLD_ENV).
+||HatEnvironment = (OLD_ENV).
 ||NewEnvironment = (NEW_ENV).
 
 //Fluents declaration
@@ -32,7 +33,7 @@ fluent ReadT = <shiftT,output>
 
 // ---------------------------OLD CONTROLLER SPEC -----------------------------
 
-assert DECODE = (!decode[3])
+assert DECODE = (!Decode3_action)
 ltl_property P_DECODE = []DECODE
 
 controllerSpec OldSpec = {
@@ -45,7 +46,7 @@ controller ||OldController = OldEnvironment~{OldSpec}.
 
 // ---------------------------NEW CONTROLLER SPEC -----------------------------
 
-assert NEW_DECODE = [](!decode[2])
+assert NEW_DECODE = (!Decode2_action)
 
 ltl_property P_NEW_DECODE = []NEW_DECODE
 
@@ -65,40 +66,54 @@ fluent Sending = <send,output>
 fluent ReceiveDone = <receive,output>
 fluent Decoded2 = <decode[2],output>
 fluent Decoded3 = <decode[3],output>
-fluent OutputDone = <output,shift['x]>
+fluent OutputDone = <output,shiftX>
 fluent AlreadyDecoded = <decode[2..3],output>
 
-fluent StopOldSpec = <stopOldSpec, beginUpdate>
-fluent StartNewSpec = <startNewSpec, beginUpdate>
-fluent Reconfigure = <reconfigure, beginUpdate>
-fluent AnyActionUntilStartNew = <AlphabetNew,startNewSpec>
+//Action fluents
+fluent Decode3_action = <decode[3],AlphabetOld\{decode[3]}>
+fluent Decode2_action = <decode[2],AlphabetOld\{decode[2]}>
+fluent ShiftX_action = <shiftX,AlphabetOld\{shiftX}>
+fluent ShiftY_action = <shiftY,AlphabetOld\{shiftY}>
+fluent ShiftZ_action = <shiftZ,AlphabetOld\{shiftZ}>
+fluent ShiftT_action = <shiftT,AlphabetNew\{shiftT}>
+fluent Encode_action = <encode,AlphabetOld\{encode}>
+fluent Send_action = <send,AlphabetOld\{send}>
+fluent Receive_action = <receive,AlphabetOld\{receive}>
+fluent Output_action = <output,AlphabetOld\{output}>
 
-assert AnyAction = (shiftX || shiftY || shiftZ || shiftT || encode || send || receive || decode[2..3] || output)
+assert AnyAction = (ShiftX_action || ShiftY_action || ShiftZ_action || ShiftT_action || Encode_action ||
+					 Send_action || Receive_action || Decode2_action || Decode3_action || Output_action)
 
-ltl_property T_NO_TP = []((StopOldSpec || StartNewSpec) -> (!AnyAction W (StopOldSpec && StartNewSpec))  )
-ltl_property T_NO_SEND = [](Sending -> (!startNewSpec && !stopOldSpec))
- 
+ltl_property T_NO_UPDATE_WHILE_SEND = (Sending -> (!StartNewSpec && !StopOldSpec))
+
 
 updatingController UpdCont = { 
     oldController = OldEnvironmentController,
     oldEnvironment = OldEnvironment,
+	hatEnvironment = HatEnvironment,
     newEnvironment = NewEnvironment,
     oldGoal = OldSpec,
     newGoal = NewSpec,
-    transition = T_NO_TP,
-	//transition = T_NO_SEND,
+    //transition = T_NO_TP,
+	transition = T_NO_UPDATE_WHILE_SEND,
     nonblocking,
-    updateFluents = {EncodeDone, SendDone, ReceiveDone, ReadX, ReadY, Decoded2}
+    updateFluents = {EncodeDone, Sending, ReceiveDone, ReadX, ReadY, Decoded2, Decoded3,
+		 OutputDone, AlreadyDecoded, ReadX, ReadY, ReadZ, ReadT, Decode3_action, Decode2_action}
     
 }
 
 // ---------------------------TEST AND RESULTS-----------------------------
+fluent StopOldSpec = <stopOldSpec, beginUpdate>
+fluent StartNewSpec = <startNewSpec, beginUpdate>
+fluent Reconfigure = <reconfigure, beginUpdate>
+
 assert S_OLD = (DECODE)
 assert S_NEW = (NEW_DECODE)
 
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
 assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
 assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+assert T_NO_UPDATE_WHILE_SEND = [](Sending -> (!startNewSpec && !stopOldSpec))
 
 ||UPDATE_CONTROLLER = UpdCont.
 

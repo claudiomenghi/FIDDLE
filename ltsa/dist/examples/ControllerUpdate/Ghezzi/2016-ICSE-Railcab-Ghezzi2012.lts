@@ -3,8 +3,8 @@
 // - To execute the solution for update controllers select in the dropdown menu 
 // the "UPDATE_CONTROLLER" label, and then press the compose button (||).
 // - In the section of UPDATING CONTROLLER SPEC, in this file, you can specify
-// different transition requeriments presented in the paper. (T)
-// - You can animate the controller obtained pressing the blue A in the top bar
+// different transition requeriments presented in the paper.
+// - You can animate the controller obtained pressing the blue A in the top bar.
 
 // ---------------------------ENVIRONMENTS-----------------------------
 set ControllableActionsOld = {requestEnter, brake, emergencyBrake, idle_c}
@@ -83,6 +83,24 @@ fluent WhoShouldPlay = <{brake,emergencyBrake,requestEnter,idle_c},{endOfTS,appr
 fluent EnterCrossingMade = <{enterCrossing},{endOfTS}>
 fluent LastEmergencyBrakeSection = <{lastEmergencyBrake},{endOfTS}>
 
+//Actions Fluents
+fluent Brake_action = <brake,AlphabetOld\{brake}>
+fluent EmergencyBrake_action = <emergencyBrake,AlphabetOld\{emergencyBrake}>
+fluent CheckCrossingStatus_action = <checkCrossingStatus,AlphabetOld\{checkCrossingStatus}>
+fluent RequestEnter_action = <requestEnter, AlphabetOld\{requestEnter}>
+fluent Idle_c_action = <idle_c, AlphabetOld\{idle_c}>
+fluent EndOfTS_action = <endOfTS, AlphabetOld\{endOfTS}>
+fluent ApproachingCrossing_action = <approachingCrossing, AlphabetOld\{approachingCrossing}>
+fluent LastBrake_action = <lastBrake, AlphabetOld\{lastBrake}>
+fluent LastEmergencyBrake_action = <lastEmergencyBrake, AlphabetOld\{lastEmergencyBrake}>
+fluent NoReturn_action = <noReturn, AlphabetOld\{noReturn}>
+fluent EnterCrossing_action = <enterCrossing, AlphabetOld\{enterCrossing}>
+fluent EnterAllowed1_action = <enterAllowed[1], AlphabetOld\{enterAllowed[1]}>
+fluent EnterAllowed0_action = <enterAllowed[0], AlphabetOld\{enterAllowed[0]}>
+fluent Working_action = <working, AlphabetOld\{working}>
+fluent NotWorking_action = <notWorking, AlphabetOld\{notWorking}>
+//fluent NewLastEmergencyBrakeSection = <{lastEmergencyBrake},{endOfTS,emergencyBrake}>
+
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 assert NOT_CRASH = !((CantEnter && TooLateToEmergencyBrake) || (!RequestedOnce && TooLateToEmergencyBrake))
 assert BRAKE_DURING_LASTBRAKE			= (Brake_action -> !TooLateToBrake)
@@ -132,34 +150,15 @@ controller ||NewController = NewEnvironment~{NewSpec}.
 // ---------------------------UPDATING CONTROLLER SPEC-----------------------------
 
 // Updating Controller Fluents
-fluent InTransition = <stopOldSpec, startNewSpec>
-fluent InOverlapping = <startNewSpec, stopOldSpec>
 fluent StartNewSpec = <startNewSpec, beginUpdate>
 fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
-
-//Actions Fluents
-fluent Brake_action = <brake,AlphabetOld\{brake}>
-fluent EmergencyBrake_action = <emergencyBrake,AlphabetOld\{emergencyBrake}>
-fluent CheckCrossingStatus_action = <checkCrossingStatus,AlphabetOld\{checkCrossingStatus}>
-fluent RequestEnter_action = <requestEnter, AlphabetOld\{requestEnter}>
-fluent Idle_c_action = <idle_c, AlphabetOld\{idle_c}>
-fluent EndOfTS_action = <endOfTS, AlphabetOld\{endOfTS}>
-fluent ApproachingCrossing_action = <approachingCrossing, AlphabetOld\{approachingCrossing}>
-fluent LastBrake_action = <lastBrake, AlphabetOld\{lastBrake}>
-fluent LastEmergencyBrake_action = <lastEmergencyBrake, AlphabetOld\{lastEmergencyBrake}>
-fluent NoReturn_action = <noReturn, AlphabetOld\{noReturn}>
-fluent EnterCrossing_action = <enterCrossing, AlphabetOld\{enterCrossing}>
-fluent EnterAllowed1_action = <enterAllowed[1], AlphabetOld\{enterAllowed[1]}>
-fluent EnterAllowed0_action = <enterAllowed[0], AlphabetOld\{enterAllowed[0]}>
-fluent Working_action = <working, AlphabetOld\{working}>
-fluent NotWorking_action = <notWorking, AlphabetOld\{notWorking}>
 
 assert AnyAction = (RequestEnter_action || Brake_action || EmergencyBrake_action || Idle_c_action || CheckCrossingStatus_action || EndOfTS_action || ApproachingCrossing_action ||
 			LastBrake_action || LastEmergencyBrake_action || NoReturn_action || EnterCrossing_action || EnterAllowed0_action || EnterAllowed1_action || Working_action || NotWorking_action)
 
 
-ltl_property T_BRAKE = (InTransition -> (LastEmergencyBrakeSection && ((!NoReturn_action && !Brake_action) W emergencyBrake)))
+ltl_property T_BRAKE = ((StopOldSpec && !StartNewSpec) -> ((NoReturn_action || Brake_action) -> LastEmergencyBrakeSection))
 ltl_property T_NO_TP = (AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))
 
 updatingController UpdCont = {
@@ -170,18 +169,16 @@ updatingController UpdCont = {
     oldGoal = OldSpec,
     newGoal = NewSpec,
 	// T = True is executed if no transition requirement is set
-//	transition = T_BRAKE,
+	//transition = T_NO_TP,
 	//transition = T_BRAKE,
 	nonblocking,
     updateFluents = { EndOfTS, LastBrake, TooLateToBrake, TooLateToEmergencyBrake, EnterCrossingMade, BrakeMade, 
 				RequestedOnce, ResponsePending, ResponseRecieve, AskedWorkingOnce, WhoShouldPlay,
 				CantEnter, NotWorking, ApproachingCrossingHappen, Brake_action, EmergencyBrake_action, CheckCrossingStatus_action,
-
 				NoReturn_action}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
-||HIDING = UPDATE_CONTROLLER\{stopOldSpec,startNewSpec,reconfigure}.
 
 // ---------------------------TEST AND RESULTS-----------------------------
 assert S_OLD = (BRAKE_DURING_LASTBRAKE && EBRAKE_DURING_ELASTBRAKE && NOT_CRASH && 
@@ -190,7 +187,5 @@ assert S_NEW = (BRAKE_DURING_LASTBRAKE && EBRAKE_DURING_ELASTBRAKE && NEW_NOT_CR
             BRAKE_IF_SOMETHING_BAD && EBRAKE_IF_SOMETHING_BAD && CHECK_STATUS_AFTER_APPROACHING_CROSSING)
 
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
-assert TEST_FORMULA2 = [](startNewSpec -> S_NEW)
+assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
 assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
-assert TEST_T_NO_TP = [](AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))
-//assert TEST_FINAL_FORMULA = ((!StopOldSpec -> S_OLD) && [](startNewSpec -> S_NEW))

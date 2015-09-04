@@ -135,6 +135,6 @@ assert S_NEW = (SEQUENTIAL && ARCHIVE_POLICY && EVAL_POLICY && ENDS_AFTER_INIT &
 
 
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
-assert TEST_FORMULA2 = [](startNewSpec -> S_NEW)
-assert TEST_FORMULA3 = [](stopOldSpec -> X(!stopOldSpec))
-assert TEST_FINAL_FORMULA = ([](startNewSpec -> S_NEW) && [](startNewSpec -> []S_NEW) && [](stopOldSpec -> X(!stopOldSpec)))
+assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
+assert TEST_FORMULA2 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+

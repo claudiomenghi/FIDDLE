@@ -81,13 +81,6 @@ public class UpdatingEnvironmentGenerator {
 		hatEnvironment.addActions(newEnvironment.getActions());
 		newEnvironment.addActions(hatEnvironment.getActions());
 		
-//		List<Fluent> newProposition = new ArrayList<Fluent>(); 
-//		for (Fluent prop : propositions) {
-//			if (!prop.getName().contains("action")){
-//				newProposition.add(prop);
-//			}
-//		}
-		
 		hatEnvironment = ControllerUtils.removeTopStates(hatEnvironment, propositions);
 		newEnvironment = ControllerUtils.removeTopStates(newEnvironment, propositions);
 		

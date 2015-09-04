@@ -241,7 +241,9 @@ public class CompositionExpression {
 				// assert (cs.getCompositionType() != -1);
 				CompositeState toCompose = cs.clone();
 				TransitionSystemDispatcher.applyComposition(toCompose, output);
-				flatmachines.addElement(toCompose.getComposition());
+				if (toCompose.getComposition() != null){
+					flatmachines.addElement(toCompose.getComposition());
+				}
 				// } else {
 				// for (Enumeration ee = cs.machines.elements();
 				// ee.hasMoreElements();) {

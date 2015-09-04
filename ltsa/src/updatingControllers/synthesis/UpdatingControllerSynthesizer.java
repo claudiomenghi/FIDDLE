@@ -75,10 +75,8 @@ public class UpdatingControllerSynthesizer {
 		MTS<Long, String> hatE = uccs.getHatEnvironment();
 		MTS<Long, String> newE = uccs.getNewEnvironment();
 		List<Fluent> propositions = uccs.getUpdProperties();
-		UpdatingEnvironmentGenerator updEnvGenerator = new UpdatingEnvironmentGenerator(
-				oldC, oldE, hatE, newE, propositions);
+		UpdatingEnvironmentGenerator updEnvGenerator = new UpdatingEnvironmentGenerator(oldC, oldE, hatE, newE, propositions);
 		updEnvGenerator.generateEnvironment(contActions, output);
-		
 
 		if (!uccs.debugModeOn() && uccs.getCheckTrace().isEmpty()) {
 
@@ -101,6 +99,8 @@ public class UpdatingControllerSynthesizer {
 		MTS<Long, String> environment = updEnvGenerator.getUpdEnv();
 		MTS<Long, String> metaEnvironment = ControllerUtils.removeTopStates(environment, UpdatingControllersUtils.UPDATE_FLUENTS);
 
+		output.outln("Environment states:"+ metaEnvironment.getStates().size());
+		
 		Pair<HashedMap<Long, ArrayList<Boolean>>, HashSet<Long>> rarePair = buildValuationsManually(environment, metaEnvironment, updEnvGenerator);
 		
 		HashedMap<Long, ArrayList<Boolean>> valuation = rarePair.getFirst();
@@ -112,20 +112,26 @@ public class UpdatingControllerSynthesizer {
 		makeOldActionsUncontrollable(newGoalGR.getControllableActions(), eParallelCStates, metaEnvironment);
 		MTS<Long, String> safetyEnv = applySafety(newGoalDef, metaEnvironment, fluentStateValuation);
 
+		output.outln("Environment states after safety: "+ safetyEnv.getStates().size());
+		
 		uccs.setUpdateEnvironment(safetyEnv);
 
 		CompactState compactSafetyEnv = MTSToAutomataConverter.getInstance().convert(safetyEnv, "E_u||G(safety)", false);
-//		CompactState compactMetaEnv = MTSToAutomataConverter.getInstance().convert(metaEnvironment, "E_u", false);
+		CompactState compactMetaEnv = MTSToAutomataConverter.getInstance().convert(metaEnvironment, "meta E_u", false);
+		CompactState compactEnv = MTSToAutomataConverter.getInstance().convert(environment, "E_u", false);
 		
 		Vector<CompactState> machines = new Vector<CompactState>();
 		machines.add(compactSafetyEnv);
-//		machines.add(compactMetaEnv);
+		machines.add(compactMetaEnv);
+		machines.add(compactEnv);
 
 		uccs.setMachines(machines);
 		
 		if (compactSafetyEnv.isNonDeterministic()){
+			output.outln("Solving a deterministic controller synthesis");
 			nonBlockingGR(uccs, newGoalGR, output, safetyEnv);
 		} else {
+			output.outln("Solving a non deterministic controller synthesis");
 			synthesizeGRDeterministic(uccs, newGoalGR, output, safetyEnv);
 		}
 		
@@ -147,9 +153,8 @@ public class UpdatingControllerSynthesizer {
 		FluentStateValuation<Set<Long>> valuation = fluentUtils.buildValuation(perfectInfoGame, newGoalGR.getFluents());
 		Assumptions<Set<Long>> assumptions = formulasToAssumptions(perfectInfoGame.getStates(), newGoalGR.getAssumptions(), valuation);
 		Guarantees<Set<Long>> guarantees = formulasToGuarantees(perfectInfoGame.getStates(), newGoalGR.getGuarantees(), valuation);
-		Set<Set<Long>> faults = formulaToStateSet(perfectInfoGame.getStates(), newGoalGR.getFaults(), valuation);
+		Set<Set<Long>> faults = new HashSet<Set<Long>>();
 		
-		FluentStateValuation<Set<Long>> nonDetValuation = fluentUtils.buildValuation(perfectInfoGame, newGoalGR.getFluents());
 		grGoal = new GRGoal<Set<Long>>(guarantees, assumptions, faults, newGoalGR.isPermissive());
 		Set<Set<Long>> initialStates = new HashSet<Set<Long>>();
 		Set<Long> initialState = new HashSet<Long>();
@@ -166,7 +171,6 @@ public class UpdatingControllerSynthesizer {
 		if (solver.isWinning(perfectInfoGame.getInitialState())) {
 			Strategy<Set<Long>, Integer> strategy = solver.buildStrategy();
 
-			// Permissive Controllers!?
 			Set<Pair<StrategyState<Set<Long>, Integer>, StrategyState<Set<Long>, Integer>>> worseRank = solver.getWorseRank();
 			MTS<StrategyState<Set<Long>, Integer>, String> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(perfectInfoGame, strategy, worseRank);
 
@@ -184,12 +188,6 @@ public class UpdatingControllerSynthesizer {
 		}
 	}
 
-	private static Set<Set<Long>> formulaToStateSet(Set<Set<Long>> states,
-			List<Formula> faults, FluentStateValuation<Set<Long>> valuation) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	private static void synthesizeGRDeterministic(UpdatingControllerCompositeState uccs, GRControllerGoal<String> newGoalGR, LTSOutput output, MTS<Long, String> safetyEnv) {
 		GRGame<Long> game;
 
@@ -199,7 +197,6 @@ public class UpdatingControllerSynthesizer {
 		PerfectInfoGRGameSolver<Long> solver = new PerfectInfoGRGameSolver<Long>(game, system);
 		solver.solveGame();
 		
-		// ojo que el estado del environment puede tener problemas.
 		if (solver.isWinning(safetyEnv.getInitialState())) {
 			Strategy<Long, Integer> strategy = solver.buildStrategy();
 			GRGameSolver<Long> grSolver = (GRGameSolver<Long>) solver;
@@ -280,9 +277,6 @@ public class UpdatingControllerSynthesizer {
 	}
 
 	private static void formulaToStateSet(Set<Long> toBuild, Formula formula, Long state, FluentStateValuation<Long> valuation) {
-		if (state.equals(new Long(371))){
-			int i = 0;
-		}
 		
 		valuation.setActualState(state);
 		if (formula.evaluate(valuation)) {
@@ -347,9 +341,6 @@ public class UpdatingControllerSynthesizer {
 
 		while (!toVisit.isEmpty()) {
 			Long actualInMetaEnv = toVisit.remove();
-			if (actualInMetaEnv.equals(new Long(371))){
-				int i = 0;
-			}
 			if (!discovered.contains(actualInMetaEnv)) {
 				discovered.add(actualInMetaEnv);
 
@@ -399,8 +390,7 @@ public class UpdatingControllerSynthesizer {
 		ArrayList<Long> toVisit = new ArrayList<Long>();
 
 		for (Pair<String, Long> action_toStateInEnv : env
-				.getTransitions(statesMapping.get(actualInMetaEnv),
-						MTS.TransitionType.REQUIRED)) {
+				.getTransitions(statesMapping.get(actualInMetaEnv),	MTS.TransitionType.REQUIRED)) {
 
 			String actionInEnv = action_toStateInEnv.getFirst();
 			Long toStateInEnv = action_toStateInEnv.getSecond();

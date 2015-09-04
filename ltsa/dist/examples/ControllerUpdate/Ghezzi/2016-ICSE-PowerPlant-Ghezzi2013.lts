@@ -4,10 +4,11 @@
 // the "UPDATE_CONTROLLER" label, and then press the compose button.
 // - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
 // different transition requeriments presented in the paper.
-// - You can animate the controller obtained pressing the blue A in the top bar
-// - After composing an "UPDATE_CONTROLLER" controller you can check the DESIRABLE_BEHAVIOUR
-// property presented in the paper. To do so, after composing go to:
-// check menu > LTL property > DESIRABLE_BEHAVIOUR
+// - After Composing, you can animate the controller obtained pressing 
+// the blue A in the top bar
+// - After composing, you can validate that the controller obtain satisfy 
+// each updating controller goal formula by modelchecking.
+// In the top menu go to Check >> LTL property >> "formula_name"
 
 // ---------------------------ENVIRONMENTS-----------------------------
 set ControllableActions = {stopPump, startPump, procedure, endProcedure}
@@ -81,7 +82,7 @@ fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent StartNewSpec= <startNewSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
 
-ltl_property NewT = ((StopOldSpec && !StartNewSpec) -> (EndProcedure_action -> !PumpOff))
+ltl_property LeavesPumpOn = ((StopOldSpec && !StartNewSpec) -> (EndProcedure_action -> !PumpOff))
 
 updatingController UpdCont = {
     oldController = EnvironmentAndController,
@@ -91,21 +92,20 @@ updatingController UpdCont = {
     oldGoal = OldSpec, 
     newGoal = NewSpec,
     // T = True is executed if no transition requirement is set
-	transition = NewT,
+	transition = LeavesPumpOn,
 	nonblocking,
     updateFluents = {RequestPending, PumpOff, MainteinanceFinished, PendingOk, StopPump_action, EndProcedure_action, Procedure_action}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
-||HIDING = UPDATE_CONTROLLER\{stopOldSpec,startNewSpec,reconfigure}.
 
 // ---------------------------TEST AND RESULTS-----------------------------
 assert S_OLD = (PROCEDURE_WHILE_STOPPED && MAINTEINANCE_GUARANTEED && PROCEDURE_IF_REQUEST && PUMP_OFF_ONLY_OK_NOT_PENDING)
 assert S_NEW = (NEVER_STOP && MAINTEINANCE_GUARANTEED_NEW && PROCEDURE_IF_REQUEST)
 
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
-assert TEST_FORMULA2 = [](startNewSpec -> S_NEW)
+assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
 assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec))
-assert NewT = []((StopOldSpec && !StartNewSpec) -> (EndProcedure_action -> !PumpOff))
+assert LeavesPumpOn = []((StopOldSpec && !StartNewSpec) -> (EndProcedure_action -> !PumpOff))
 
 assert DESIRABLE_BEHAVIOUR = !<>[]PumpOff

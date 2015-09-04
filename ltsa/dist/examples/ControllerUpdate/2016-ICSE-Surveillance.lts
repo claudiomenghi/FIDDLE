@@ -14,8 +14,13 @@ const MAXWEATHER = 2
 
 set ControllableActions = {return2base, move, low, mid, high, scan, picture, takeoff}
 set NewControllableActions = {ControllableActions, follow, weather}
-set Alphabet = {return2base, move, low, mid, high, scan, picture, follow, weather, takeoff,
-				 scan.val[0..1], pictureOk[0..1], lowBattery, badWeather, goodWeather}
+set AlphabetOld = {return2base, move, low, mid, high, scan, picture, takeoff,
+				 scan.val[0..1], pictureOk[0..1], lowBattery}
+//set AlphabetNew = {return2base, move, low, mid, high, scan, picture, follow, weather, takeoff,
+//				 scan.val[0..1], pictureOk[0..1], lowBattery, badWeather, goodWeather}
+set AlphabetNew = {return2base, move, low, mid, high, scan, picture, follow, takeoff,
+				 scan.val[0..1], pictureOk[0..1], lowBattery}
+
 
     //oldEnvironment
     MISSION 	= (takeoff -> HEIGHT),
@@ -54,15 +59,16 @@ set Alphabet = {return2base, move, low, mid, high, scan, picture, follow, weathe
 	WEATHER_RESPONSE = (goodWeather -> WEATHER[0] | badWeather -> WEATHER[0]).
 
 ||OldEnvironment = (MISSION || BATTERY_COUNTER).
-||NewEnvironment = (NEW_MISSION || NEW_BATTERY_COUNTER || WEATHER_COUNTER).
+||NewEnvironment = (NEW_MISSION || NEW_BATTERY_COUNTER).// || WEATHER_COUNTER).
 
 //Fluents declaration
 fluent FlyingHigh = <high,{mid,low,return2base}>
 fluent FlyingMid = <mid,{high,low,return2base}>
 fluent FlyingLow = <low,{mid,high,return2base}>
 fluent ScanPending	  = <scan,scan.val[0..1]>
-fluent ZoneScaned = <scan.val[0..1],{move,return2base}>
+fluent ZoneScaned = <{scan.val[0], scan.val[1]},{move,return2base}>
 fluent SuspiciousActivityDetected = <scan.val[1],{move,return2base}>
+fluent NewSuspiciousActivityDetected = <scan.val[1],{return2base}>
 fluent ScanProcessing	= <scan,{scan.val[0],pictureOk[1],return2base}>
 fluent PictureSent		= <pictureOk[1],{move,return2base}>
 fluent NoBattery        = <lowBattery,takeoff>
@@ -70,15 +76,17 @@ fluent Following = <follow,return2base>
 fluent DangerousWeather = <badWeather,goodWeather>
 fluent CheckWeatherPending = <weather,{badWeather,goodWeather}>
 fluent HeightSet = <{high,mid,low},return2base>
+fluent MissionStarted = <takeoff,return2base>
+fluent ScanFailed	  = <scan.val[0],{move,return2base}>
+fluent PicturePending   = <picture,pictureOk[0..1]>
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
-
-assert DONT_SCAN_TWICE			= (scan ->!ZoneScaned)
+assert DONT_SCAN_TWICE			= (Scan_action ->!ZoneScaned)
 assert ALWAYS_FLY_HIGH 			= (MissionStarted -> (!FlyingLow && !FlyingMid))
-assert HOW_TO_MOVE				= ((move -> !ScanProcessing) )
-assert DONT_PICTURE_TWICE		= (picture -> !PictureSent)
-assert DETECTED_ACTIONS  		= ((picture -> SuspiciousActivityDetected) && (scan -> !SuspiciousActivityDetected))
-assert HIGH_PRIORITY_TO_MISSION = (return2base -> NoBattery)
+assert HOW_TO_MOVE				= ((Move_action -> !ScanProcessing) )
+assert DONT_PICTURE_TWICE		= (Picture_action -> !PictureSent)
+assert DETECTED_ACTIONS  		= ((Picture_action -> SuspiciousActivityDetected) && (Scan_action -> !SuspiciousActivityDetected))
+assert HIGH_PRIORITY_TO_MISSION = (Return2Base_action -> NoBattery)
 
 ltl_property P_DONT_SCAN_TWICE = []DONT_SCAN_TWICE
 ltl_property P_ALWAYS_FLY_HIGH = []ALWAYS_FLY_HIGH 
@@ -98,10 +106,11 @@ controller ||OldController = OldEnvironment~{OldSpec}.
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
 assert ALWAYS_FLY_LOW = (MissionStarted -> (!FlyingHigh && !FlyingMid))
-assert NEW_HOW_TO_MOVE = ((move -> !Following) && (move -> !SuspiciousActivityDetected))
-assert FOLLOWING_ACTIONS = ((picture -> Following) && (scan -> !Following) && (scan -> !SuspiciousActivityDetected) && (PictureSent -> !follow))
-assert NO_FOLLOW_BEFORE_SCAN = (follow -> SuspiciousActivityDetected)
-assert WEATHER_POLICY = (scan -> !DangerousWeather)
+assert NEW_HOW_TO_MOVE = ((Move_action -> !Following) && (Move_action -> !NewSuspiciousActivityDetected))
+assert FOLLOWING_ACTIONS = ((Picture_action -> Following) && (Scan_action -> !Following) &&
+					 (Scan_action -> !SuspiciousActivityDetected) && (PictureSent -> !Follow_action))
+assert NO_FOLLOW_BEFORE_SCAN = (Follow_action -> SuspiciousActivityDetected)
+assert WEATHER_POLICY = (Scan_action -> !DangerousWeather)
 
 ltl_property P_ALWAYS_FLY_LOW = []ALWAYS_FLY_LOW
 ltl_property P_NEW_HOW_TO_MOVE = []NEW_HOW_TO_MOVE
@@ -110,7 +119,8 @@ ltl_property P_NO_FOLLOW_BEFORE_SCAN = []NO_FOLLOW_BEFORE_SCAN
 ltl_property P_WEATHER_POLICY = []WEATHER_POLICY
 
 controllerSpec NewSpec = {
-    safety = {P_ALWAYS_FLY_LOW, P_FOLLOWING_ACTIONS, P_NO_FOLLOW_BEFORE_SCAN, P_HIGH_PRIORITY_TO_MISSION, P_NEW_HOW_TO_MOVE, P_DONT_SCAN_TWICE, P_WEATHER_POLICY}
+    safety = {P_ALWAYS_FLY_LOW, P_FOLLOWING_ACTIONS, P_NO_FOLLOW_BEFORE_SCAN, P_HIGH_PRIORITY_TO_MISSION,
+			 P_NEW_HOW_TO_MOVE, P_DONT_SCAN_TWICE}//, P_WEATHER_POLICY}
     controllable = {NewControllableActions}
 }
 
@@ -118,10 +128,27 @@ controller ||NewController = NewEnvironment~{NewSpec}.
 ||NewControllerAndNewEnvironment = (NewController || NewEnvironment).
 
 // ---------------------------UPDATING CONTROLLER SPEC-----------------------------
+//Action Fluents
+fluent Scan_action = <scan,AlphabetOld\{scan}>
+fluent Move_action = <move,AlphabetOld\{move}>
+fluent Picture_action = <picture,AlphabetOld\{picture}>
+fluent Return2Base_action = <return2base,AlphabetOld\{return2base}>
+fluent Follow_action = <follow,AlphabetNew\{follow}>
+fluent Low_action = <low,AlphabetOld\{low}>
+fluent Mid_action = <mid,AlphabetOld\{mid}>
+fluent High_action = <high,AlphabetOld\{high}>
+fluent Weather_action = <weather,AlphabetNew\{weather}>
+fluent LowBattery_action = <lowBattery,AlphabetOld\{lowBattery}>
+fluent PictureOk0_action = <pictureOk[0],AlphabetOld\{pictureOk[0]}>
+fluent PictureOk1_action = <pictureOk[1],AlphabetOld\{pictureOk[1]}>
+fluent ScanVal0_action = <scan.val[0],AlphabetOld\{scan.val[0]}>
+fluent ScanVal1_action = <scan.val[1],AlphabetOld\{scan.val[1]}>
+fluent BadWeather_action = <badWeather,AlphabetNew\{badWeather}>
+fluent GoodWeather_action = <goodWeather,AlphabetNew\{goodWeather}>
 
-assert AnyAction = (return2base || move || low || mid || high || scan || picture || follow || weather ||
-					lowBattery || pictureOk[0..1] || scan.val[0..1] || badWeather || goodWeather)
-fluent AnyActionUntilStartNew = <Alphabet,startNewSpec>
+assert AnyAction = (Return2Base_action || Move_action || Low_action || Mid_action || High_action || GoodWeather_action ||
+					 Scan_action || Picture_action || Follow_action || Weather_action || BadWeather_action || 
+					LowBattery_action || PictureOk0_action || PictureOk1_action || ScanVal0_action || PictureOk1_action)
 
 ltl_property T_LOW = []((startNewSpec -> (FlyingLow || !HeightSet))) // same as T = True
 ltl_property T_NO_TP_AND_NOT_UPDATE_AT_BASE = ([](AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) ))) // No Controller
@@ -129,16 +156,10 @@ ltl_property T_NO_TP_AND_NOT_UPDATE_AT_BASE = ([](AnyAction -> (!((StopOldSpec &
 ltl_property T_NO_SCAN_WHILE_UPDATE = [](scan -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))
 ltl_property T_NO_MOVE_WHILE_UPDATE = [](move -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))
 
-ltl_property T_OVERLAP = [](stopOldSpec -> (StartNewSpec && AnyActionUntilStartNew))
-
 // Updating Controller Fluents
 fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent StartNewSpec = <startNewSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
-
-fluent MissionStarted = <takeoff,return2base>
-fluent ScanFailed	  = <scan.val[0],{move,return2base}>
-fluent PicturePending   = <picture,pictureOk[0..1]>
 
 updatingController UpdCont = {
     oldController = EnvironmentAndController,
@@ -155,17 +176,18 @@ updatingController UpdCont = {
 //    transition = T_NO_MOVE_WHILE_UPDATE,
 //    transition = T_OVERLAP,
 	nonblocking,
-    updateFluents = {MissionStarted, FlyingHigh, FlyingLow, SuspiciousActivityDetected, NoBattery, ScanPending, 
-					ScanFailed, PicturePending,DangerousWeather,CheckWeatherPending, Following}
+    updateFluents = {MissionStarted, FlyingHigh, FlyingMid, FlyingLow, SuspiciousActivityDetected, NewSuspiciousActivityDetected, NoBattery, ScanPending, 
+					ScanFailed, PicturePending,Following,// DangerousWeather,CheckWeatherPending, 
+					Scan_action, Move_action, Picture_action, Return2Base_action, Follow_action, Low_action, Mid_action, High_action, 
+					LowBattery_action, PictureOk0_action, PictureOk1_action, ScanVal0_action, ScanVal1_action}//, BadWeather_action, Weather_action,GoodWeather_action}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
 // ---------------------------TEST AND RESULTS-----------------------------
 assert S_OLD = (ALWAYS_FLY_HIGH && DETECTED_ACTIONS && HIGH_PRIORITY_TO_MISSION && HOW_TO_MOVE && DONT_PICTURE_TWICE && DONT_SCAN_TWICE)
-assert S_NEW = (ALWAYS_FLY_LOW && FOLLOWING_ACTIONS && NO_FOLLOW_BEFORE_SCAN && HIGH_PRIORITY_TO_MISSION && NEW_HOW_TO_MOVE && DONT_SCAN_TWICE && WEATHER_POLICY)
+assert S_NEW = (ALWAYS_FLY_LOW && FOLLOWING_ACTIONS && NO_FOLLOW_BEFORE_SCAN && HIGH_PRIORITY_TO_MISSION && NEW_HOW_TO_MOVE && DONT_SCAN_TWICE)//&& WEATHER_POLICY)
 
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
-assert TEST_FORMULA2 = [](startNewSpec -> []S_NEW)
-assert TEST_FROMULA3 = [](stopOldSpec -> X(!stopOldSpec))
-assert TEST_FORMULA4 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
-assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && [](startNewSpec -> []S_NEW) && [](stopOldSpec -> X(!stopOldSpec)))
+assert TEST_FORMULA2 = [](startNewSpec -> S_NEW)
+assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+

@@ -9,10 +9,10 @@
 // ---------------------------ENVIRONMENTS-----------------------------
 
 //ACTION SETS
-set ControllableActions = {in, drill, polish, clean, out, stamp}
-set OldAlphabet = {ControllableActions, drillOk, polishOk, cleanOk, stampOk, reset}
-set NewControllableActions = {in, drill, paint, clean, out, reset, stamp}
-set NewAlphabet = {NewControllableActions, drillOk, paintOk, cleanOk, stampOk, reset}
+set ControllableActions = {drill, polish, clean, out, stamp}
+set OldAlphabet = {ControllableActions, in, drillOk, polishOk, cleanOk, stampOk, reset}
+set NewControllableActions = {drill, paint, clean, out, reset, stamp}
+set NewAlphabet = {NewControllableActions, in, drillOk, paintOk, cleanOk, stampOk, reset}
 
 //Domain Old Model
 	PRODUCTION_CELL_OLD = (in -> ARM),
@@ -119,16 +119,10 @@ fluent Paint_action = <paint,NewAlphabet\{paint}>
 fluent Stamp_action = <stamp,OldAlphabet\{stamp}>
 
 assert S_OLD = (OLD_TOOL_ORDER  && OLD_OUT_IF_FINISHED && DRILL_ONCE && POLISH_ONCE && CLEAN_ONCE)
-assert S_NEW = (NEW_TOOL_ORDER && NEW_OUT_IF_FINISHED)// && DRILL_ONCE && POLISH_ONCE && PAINT_ONCE && SEW_ONCE && CLEAN_ONCE)
+assert S_NEW = (NEW_TOOL_ORDER && NEW_OUT_IF_FINISHED && DRILL_ONCE && PAINT_ONCE && CLEAN_ONCE)
 
-ltl_property T_REMOVE_POLISHED = //[]( (reconfigure -> (!Polished && !PolishPending)) && 
-								//(startNewSpec -> Reconfigure) && 
-								((StopOldSpec && !StartNewSpec) -> (S_NEW_OUT_STAR || (Out_action -> Faulty)) )// )
-
-assert S_NEW_STAR = ( S_NEW_OUT_STAR)
-
-assert S_NEW_OUT_STAR = (Out_action -> (!Polished && Drilled && Cleaned && Painted)) 
-
+//ltl_property T
+ltl_property T_REMOVE_POLISHED = ((StopOldSpec && !StartNewSpec) -> (S_NEW || (Out_action -> Faulty)) )
 
 updatingController UpdCont = {
     oldController = DrillPolishClean,

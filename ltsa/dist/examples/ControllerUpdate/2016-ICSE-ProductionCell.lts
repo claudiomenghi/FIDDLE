@@ -5,150 +5,145 @@
 // - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
 // different transition requeriments presented in the paper.
 // - You can animate the controller obtained pressing the blue A in the top bar
-// - If you want to add green raw element to be process, change Colours set definition
-// and uncomment the 
 
 // ---------------------------ENVIRONMENTS-----------------------------
 
 //ACTION SETS
-//set Colours = {yellow, red, green}
-set Colours = {yellow, red}
-set ControllableActions = {in.Colours, drill.Colours, paint.Colours, out.Colours}
-set Alphabet = {ControllableActions, paintOk.Colours, drillOk.Colours}
+set ControllableActions = {drill, polish, clean, out, stamp}
+set OldAlphabet = {ControllableActions, in, drillOk, polishOk, cleanOk, stampOk, reset}
+set NewControllableActions = {drill, paint, clean, out, reset, stamp}
+set NewAlphabet = {NewControllableActions, in, drillOk, paintOk, cleanOk, stampOk, reset}
 
-//Action Fluents
+//Domain Old Model
+	PRODUCTION_CELL_OLD = (in -> ARM),
+	ARM = ( polish -> POLISHED 
+		| drill -> DRILLED
+		| clean -> CLEANED
+		| stamp -> TRASHED
+		| out -> reset -> PRODUCTION_CELL_OLD),
+	DRILLED = (drillOk -> ARM),
+	POLISHED = (polishOk -> ARM),
+	CLEANED = (cleanOk -> ARM),
+	TRASHED = (stampOk -> ARM).
+
+//Domain New Model
+	PRODUCTION_CELL_NEW = (in -> ARM),
+	ARM = ( paint -> PAINTED 
+		| drill -> DRILLED
+		| clean -> CLEANED
+		| stamp -> TRASHED
+		| out -> reset -> PRODUCTION_CELL_NEW),
+	DRILLED = (drillOk -> ARM),
+	PAINTED = (paintOk -> ARM),
+	CLEANED = (cleanOk -> ARM),
+	TRASHED = (stampOk -> ARM).
 
 
-//Domain Model
-	IO = ({in[Colours], out[Colours]} -> IO).
-	ARM = ( paint[c:Colours] -> paintOk[c] -> ARM
-		| drill[c:Colours] -> drillOk[c] -> ARM).
 
-||ENV = (ARM || IO).
+||OLD_ENV = (PRODUCTION_CELL_OLD).
+||NEW_ENV = (PRODUCTION_CELL_NEW).
 
 
 //DEFINED FLUENTS 
-fluent Paint = <paintOk[Colours], out[Colours]>
-fluent PaintC[c:Colours] = <paintOk[c], in[c]>
-fluent HaveDrilled = <drillOk[Colours], out[Colours]>
-fluent HaveDrilledC[c:Colours] = <drillOk[c],in[c]>
-fluent DrillPendingC[c:Colours] = <drill[c],drillOk[c]>
-fluent PaintPendingC[c:Colours] = <paint[c], paintOk[c]>
+fluent Drilled = <drillOk,reset>
+fluent DrillPending = <drill,drillOk>
+fluent Polished = <polishOk,reset>
+fluent PolishPending = <polish,polishOk>
+fluent Cleaned = <cleanOk,reset>
+fluent CleanPending = <clean,cleanOk>
+fluent Painted = <paintOk,reset>
+fluent PaintPending = <paint,paintOk>
+fluent Faulty = <stampOk,reset>
+fluent FaultyPending = <stamp,stampOk>
 
-fluent RedIn = <in['red],out['red]>
-fluent YellowIn = <in['yellow],out['yellow]>
-fluent GreenIn = <in['green],out['green]>
+fluent OldToolApplied = <{drillOk,cleanOk,polishOk},reset>
+fluent NewToolApplied = <{paintOk,drillOk,cleanOk},reset>
+fluent AnyToolApplied = <{paintOk,drillOk,cleanOk,polishOk},reset>
+fluent Processing = <in,reset>
+fluent OutDone = <out,reset>
 
-fluent PaintRed = <paintOk['red], in['red]>
-fluent PaintYellow = <paintOk['yellow], in['yellow]>
-fluent PaintGreen = <paintOk['green], in['green]>
-fluent HaveDrilledRed = <drillOk['red], in['red]>
-fluent HaveDrilledYellow = <drillOk['yellow], in['yellow]>
-fluent HaveDrilledGreen = <drillOk['green], in['green]>
-fluent DrillPendingRed = <drill['red],drillOk['red]>
-fluent DrillPendingYellow = <drill['yellow],drillOk['yellow]>
-fluent DrillPendingGreen = <drill['green],drillOk['green]>
-fluent PaintPendingRed = <paint['red],paintOk['red]>
-fluent PaintPendingYellow = <paint['yellow],paintOk['yellow]>
-fluent PaintPendingGreen = <paint['green],paintOk['green]>
-
-fluent ToolApplied[c:Colours] = <{paintOk[c],drillOk[c]},out[c]>
-fluent Processing[c:Colours] = <in[c],out[c]> 
+// Action Fluents
+fluent Out_action = <out,OldAlphabet\{out}>
+fluent Drill_action = <drill,OldAlphabet\{drill}>
+fluent Polish_action = <polish,OldAlphabet\{polish}>
+fluent Clean_action = <clean,OldAlphabet\{clean}>
+fluent Paint_action = <paint,NewAlphabet\{paint}>
+fluent Stamp_action = <stamp,OldAlphabet\{stamp}>
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
+assert OLD_TOOL_ORDER = ((CleanPending -> Polished) && (PolishPending -> Drilled))
+assert OLD_OUT_IF_FINISHED = (Out_action -> (Drilled && Polished && Cleaned))
+assert DRILL_ONCE = ( Drill_action -> !Drilled )
+assert POLISH_ONCE = ( Polish_action -> !Polished )
+assert CLEAN_ONCE = ( Clean_action -> !Cleaned )
+assert AVOID_STAMPING = ( !Stamp_action)
 
-assert TOOL_ORDER = forall [c:Colours] ((PaintC[c] -> HaveDrilledC[c]))
-assert PAINT_AND_DRILL_POLICY = forall [c:Colours] ( (paint[c] || drill[c] ) -> Processing[c])
-assert OUT_IF_FINISHED = forall [c:Colours] (out[c] -> (PaintC[c] && HaveDrilledC[c]))
-assert ONLY_ONE_COLOUR = forall [c:Colours] ( in[c] -> (!ToolApplied[c] && !DrillPendingC[c] && !PaintPendingC[c]) )
-assert DRILL_ONCE = forall [c:Colours] ( drill[c] -> !HaveDrilledC[c] )
-assert PAINT_ONCE = forall [c:Colours] ( paint[c] -> !PaintC[c] )
-
-ltl_property P_TOOL_ORDER = []TOOL_ORDER
-ltl_property P_PAINT_AND_DRILL_POLICY = []PAINT_AND_DRILL_POLICY
-ltl_property P_OUT_IF_FINISHED = []OUT_IF_FINISHED
-ltl_property P_ONLY_ONE_COLOUR = []ONLY_ONE_COLOUR
+ltl_property P_OLD_TOOL_ORDER = []OLD_TOOL_ORDER
+ltl_property P_OLD_OUT_IF_FINISHED = []OLD_OUT_IF_FINISHED
 ltl_property P_DRILL_ONCE = []DRILL_ONCE
-ltl_property P_PAINT_ONCE = []PAINT_ONCE
+ltl_property P_POLISH_ONCE = []POLISH_ONCE
+ltl_property P_CLEAN_ONCE = []CLEAN_ONCE
+ltl_property P_AVOID_STAMPING = []AVOID_STAMPING
 
-controllerSpec DRILL_PAINT = {
-	safety = {P_TOOL_ORDER, P_DRILL_ONCE,
-			P_PAINT_AND_DRILL_POLICY, P_PAINT_ONCE,
-			P_OUT_IF_FINISHED, P_ONLY_ONE_COLOUR
+controllerSpec DRILL_POLISH_CLEAN = {
+	safety = {P_OLD_TOOL_ORDER, P_OLD_OUT_IF_FINISHED,
+			P_DRILL_ONCE, P_POLISH_ONCE, P_CLEAN_ONCE,
+			P_AVOID_STAMPING 
 			}
 	controllable = {ControllableActions}
 }
-controller ||C_DRILL_PAINT = (ENV)~{DRILL_PAINT}.
-||DrillPaint = (C_DRILL_PAINT || ENV).
+controller ||C_DRILL_POLISH_CLEAN = (OLD_ENV)~{DRILL_POLISH_CLEAN}.
+||DrillPolishClean = (C_DRILL_POLISH_CLEAN || OLD_ENV).
 
 
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
-assert NEW_TOOL_ORDER = forall [c:Colours] (HaveDrilledC[c] -> PaintC[c])
-ltl_property P_NEW_TOOL_ORDER = []NEW_TOOL_ORDER
+assert NEW_TOOL_ORDER = ((DrillPending -> (Painted && Cleaned)) && (PaintPending -> (Cleaned && !Drilled)) && (CleanPending -> (!Painted && !Drilled)))
+assert NEW_OUT_IF_FINISHED = (Out_action -> (Drilled && Cleaned && Painted))
+assert PAINT_ONCE =   ( Paint_action -> !Painted )
 
-controllerSpec PAINT_DRILL = {
-	safety = {P_NEW_TOOL_ORDER, P_DRILL_ONCE,
-			P_PAINT_AND_DRILL_POLICY, P_PAINT_ONCE,
-			P_OUT_IF_FINISHED, P_ONLY_ONE_COLOUR
+ltl_property P_NEW_TOOL_ORDER = []NEW_TOOL_ORDER
+ltl_property P_NEW_OUT_IF_FINISHED = []NEW_OUT_IF_FINISHED
+ltl_property P_PAINT_ONCE = []PAINT_ONCE
+
+controllerSpec CLEAN_PAINT_DRILL = {
+	safety = {P_NEW_TOOL_ORDER, P_NEW_OUT_IF_FINISHED,
+			P_DRILL_ONCE, P_CLEAN_ONCE,
+			P_PAINT_ONCE, P_AVOID_STAMPING
 			}
-	controllable = {ControllableActions}
+	controllable = {NewControllableActions}
 }
-controller ||C_PAINT_DRILL = (ENV)~{PAINT_DRILL}.
-||PaintDrill = (C_PAINT_DRILL||ENV).
+controller ||C_CLEAN_PAINT_DRILL = (NEW_ENV)~{CLEAN_PAINT_DRILL}.
+||CleanPaintDrill = (C_CLEAN_PAINT_DRILL || NEW_ENV).
 
 // ---------------------------UPDATING CONTROLLER SPEC-----------------------------
-
-assert AnyAction = (in[Colours] || out[Colours] || drill[Colours] || paint[Colours] ||
-						drillOk[Colours] || paintOk[Colours])
-
-fluent AnyActionUntilStartNew = <Alphabet,startNewSpec>
-
-ltl_property T_UPDATE_WHEN_EMPTY = [](startNewSpec -> TRAIL_EMPTY ) // TP != Empty
-ltl_property T_NO_TP = [](AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (StartNewSpec && !StopOldSpec) )))// Finish actual instance with old Specification
-ltl_property T_OVERLAP = [](stopOldSpec -> (StartNewSpec && AnyActionUntilStartNew))
-
-assert TRAIL_EMPTY = forall [c:Colours] (!Processing[c])
+ltl_property T_UPDATE_WHILE_EMPTY = (StartNewSpec -> !Processing) // should give no controller because in is uncontrollable
+ltl_property T_REMOVE_POLISHED = ((StopOldSpec && !StartNewSpec) -> (S_NEW || (Out_action -> Faulty)) )
 
 updatingController UpdCont = {
-    oldController = DrillPaint,
-    oldEnvironment = ENV,
-    newEnvironment = ENV,
-    oldGoal = DRILL_PAINT,
-    newGoal = PAINT_DRILL,
-    transition = T_UPDATE_WHEN_EMPTY,
-	//transition = T_NO_TP,
-	//transition = T_OVERLAP,
+    oldController = DrillPolishClean,
+    oldEnvironment = OLD_ENV,
+    hatEnvironment = OLD_ENV,
+    newEnvironment = NEW_ENV,
+    oldGoal = DRILL_POLISH_CLEAN,
+    newGoal = CLEAN_PAINT_DRILL,
+    transition = T_REMOVE_POLISHED,
+	//transition = T_UPDATE_WHILE_EMPTY,
     nonblocking,
-    updateFluents = {
-		{PaintRed,PaintRed},
-		{PaintYellow,PaintYellow},
-//		{PaintGreen,PaintGreen},
-		{HaveDrilledRed,HaveDrilledRed},
-		{HaveDrilledYellow,HaveDrilledYellow},
-//		{HaveDrilledGreen,HaveDrilledGreen},
-		{RedIn,RedIn},
-		{YellowIn,YellowIn},
-//		{GreenIn,GreenIn},
-		{DrillPendingRed,DrillPendingRed},
-		{DrillPendingYellow,DrillPendingYellow},
-//		{DrillPendingGreen,DrillPendingGreen},
-		{PaintPendingRed,PaintPendingRed},
-		{PaintPendingYellow,PaintPendingYellow},
-//		{PaintPendingGreen,PaintPendingGreen}
-	} 
+    updateFluents = {Drilled, Polished, Painted, Cleaned, Faulty, Processing, DrillPending, PolishPending, Paint_action,
+		PaintPending, CleanPending, FaultyPending, OutDone, Out_action, Drill_action, Polish_action, Clean_action, Stamp_action}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
 // ---------------------------TEST AND RESULTS-----------------------------
-assert S_OLD = (TOOL_ORDER && DRILL_ONCE && PAINT_ONCE && PAINT_AND_DRILL_POLICY && OUT_IF_FINISHED && ONLY_ONE_COLOUR)
-assert S_NEW = (NEW_TOOL_ORDER && DRILL_ONCE && PAINT_ONCE && PAINT_AND_DRILL_POLICY && OUT_IF_FINISHED && ONLY_ONE_COLOUR)
-
 fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent StartNewSpec = <startNewSpec,beginUpdate>
+fluent Reconfigure = <reconfigure, beginUpdate>
 
-assert TEST_FORMULA1 = (S_OLD W stopOldSpec)
-assert TEST_FORMULA2 = [](startNewSpec -> []S_NEW)
-assert TEST_FORMULA3 = [](stopOldSpec -> X (!stopOldSpec))
-assert TEST_FORMULA4 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
-assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && [](startNewSpec -> []S_NEW) && [](stopOldSpec -> X(!stopOldSpec)))
+assert S_OLD = (OLD_TOOL_ORDER  && OLD_OUT_IF_FINISHED && DRILL_ONCE && POLISH_ONCE && CLEAN_ONCE)
+assert S_NEW = (NEW_TOOL_ORDER && NEW_OUT_IF_FINISHED && DRILL_ONCE && PAINT_ONCE && CLEAN_ONCE)
+
+assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
+assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
+assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+
