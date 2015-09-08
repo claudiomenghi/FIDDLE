@@ -6,9 +6,9 @@
 // different transition requeriments presented in the paper.
 // - After Composing, you can animate the controller obtained pressing 
 // the blue A in the top bar
-// - After composing, you can validate that the controller obtain satisfy 
+// - After composing, you can validate that the controller obtained satisfy 
 // each updating controller goal formula by modelchecking.
-// In the top menu go to Check >> LTL property >> "formula_name"
+// In the top menu go to Check >> LTL property >> TEST_FORMULA1/2/3
 
 // ---------------------------ENVIRONMENTS-----------------------------
 set ControllableActions = {stopPump, startPump, procedure, endProcedure}
@@ -92,7 +92,7 @@ updatingController UpdCont = {
     oldGoal = OldSpec, 
     newGoal = NewSpec,
     // T = True is executed if no transition requirement is set
-	transition = LeavesPumpOn,
+	//transition = LeavesPumpOn,
 	nonblocking,
     updateFluents = {RequestPending, PumpOff, MainteinanceFinished, PendingOk, StopPump_action, EndProcedure_action, Procedure_action}
 }

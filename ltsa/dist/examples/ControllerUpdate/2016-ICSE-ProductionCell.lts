@@ -5,6 +5,9 @@
 // - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
 // different transition requeriments presented in the paper.
 // - You can animate the controller obtained pressing the blue A in the top bar
+// - After composing, you can validate that the controller obtained satisfy 
+// each updating controller goal formula by modelchecking.
+// In the top menu go to Check >> LTL property >> TEST_FORMULA1/2/3
 
 // ---------------------------ENVIRONMENTS-----------------------------
 

@@ -5,6 +5,9 @@
 // - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
 // different transition requeriments presented in the paper.
 // - You can animate the controller obtained pressing the blue A in the top bar
+// - After composing, you can validate that the controller obtained satisfy 
+// each updating controller goal formula by modelchecking.
+// In the top menu go to Check >> LTL property >> TEST_FORMULA1/2/3
 
 // ---------------------------ENVIRONMENTS-----------------------------
 
@@ -13,7 +16,7 @@ set NewControllableActions = {shiftX, shiftY, shiftZ, shiftT, encode, send, rece
 set AlphabetOld = {OldControllableActions}
 set AlphabetNew = {NewControllableActions}
 
-OLD_ENV = SENDER,vim 
+OLD_ENV = SENDER,
 SENDER = (shiftX -> shiftY -> shiftZ -> encode -> send -> RECEIVER),
 RECEIVER = (receive -> decode[2..3] -> output -> SENDER).
 
@@ -22,7 +25,6 @@ SENDER = (shiftX -> shiftY -> shiftZ -> shiftT -> encode -> send -> RECEIVER),
 RECEIVER = (receive -> decode[2..3] -> output -> SENDER).
 
 ||OldEnvironment = (OLD_ENV).
-||HatEnvironment = (OLD_ENV).
 ||NewEnvironment = (NEW_ENV).
 
 //Fluents declaration
@@ -90,7 +92,7 @@ ltl_property T_NO_UPDATE_WHILE_SEND = (Sending -> (!StartNewSpec && !StopOldSpec
 updatingController UpdCont = { 
     oldController = OldEnvironmentController,
     oldEnvironment = OldEnvironment,
-	hatEnvironment = HatEnvironment,
+	hatEnvironment = OldEnvironment,
     newEnvironment = NewEnvironment,
     oldGoal = OldSpec,
     newGoal = NewSpec,

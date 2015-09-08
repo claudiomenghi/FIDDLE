@@ -117,21 +117,24 @@ public class UpdatingControllerSynthesizer {
 		uccs.setUpdateEnvironment(safetyEnv);
 
 		CompactState compactSafetyEnv = MTSToAutomataConverter.getInstance().convert(safetyEnv, "E_u||G(safety)", false);
-		CompactState compactMetaEnv = MTSToAutomataConverter.getInstance().convert(metaEnvironment, "meta E_u", false);
+//		CompactState compactMetaEnv = MTSToAutomataConverter.getInstance().convert(metaEnvironment, "meta E_u", false);
 //		CompactState compactEnv = MTSToAutomataConverter.getInstance().convert(environment, "E_u", false);
 		
 		Vector<CompactState> machines = new Vector<CompactState>();
 		machines.add(compactSafetyEnv);
-		machines.add(compactMetaEnv);
+//		machines.add(compactMetaEnv);
 //		machines.add(compactEnv);
 
 		uccs.setMachines(machines);
 		
+		output.outln("Synthezising GR");
 		if (compactSafetyEnv.isNonDeterministic()){
-			output.outln("Solving a deterministic controller synthesis");
+			output.outln("Environment after safety is non-deterministic");
+			output.outln("Solving a non-deterministic controller synthesis");
 			nonBlockingGR(uccs, newGoalGR, output, safetyEnv);
 		} else {
-			output.outln("Solving a non deterministic controller synthesis");
+			output.outln("Environment after safety is deterministic");
+			output.outln("Solving a deterministic controller synthesis");
 			synthesizeGRDeterministic(uccs, newGoalGR, output, safetyEnv);
 		}
 		
@@ -417,7 +420,8 @@ public class UpdatingControllerSynthesizer {
 		HashedMap<Long, Long> statesMapping = new HashedMap<Long, Long>();
 
 		statesMapping.put(initialEprimeMetaEnv, initialEprimeEnv);
-		ArrayList<Boolean> initialValuation = new ArrayList<Boolean>(updEnvGenerator.getNewValuation(initialEprimeEnv));
+		Long initialStateInEPrimeWithOriginalId = updEnvGenerator.mapStateToValuationState(initialEprimeEnv);
+		ArrayList<Boolean> initialValuation = new ArrayList<Boolean>(updEnvGenerator.getNewValuation(initialStateInEPrimeWithOriginalId));
 		initialValuation.add(true); // beginUpdate -> reconfigure traces fires beginUpdate
 		initialValuation.add(false); // beginUpdate -> reconfigure trace does not fire stopOldSpec
 		initialValuation.add(false); // beginUpdate -> reconfigure trace does not fire startNewSpec
@@ -435,8 +439,8 @@ public class UpdatingControllerSynthesizer {
 			if (!discovered.contains(actualInMetaEnv)) {
 				discovered.add(actualInMetaEnv);
 				
-				Long magicState = updEnvGenerator.mapStateToValuationState(statesMapping.get(actualInMetaEnv));
-				ArrayList<Boolean> valuation = new ArrayList<Boolean>(updEnvGenerator.getNewValuation(magicState));
+				Long stateInEPrimeWithOriginalId = updEnvGenerator.mapStateToValuationState(statesMapping.get(actualInMetaEnv));
+				ArrayList<Boolean> valuation = new ArrayList<Boolean>(updEnvGenerator.getNewValuation(stateInEPrimeWithOriginalId));
 				valuation.add(true); // beginUpdate is true in E'
 				valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); 
 				valuation.add(IsTrueStart(metaEnv, actualInMetaEnv));
