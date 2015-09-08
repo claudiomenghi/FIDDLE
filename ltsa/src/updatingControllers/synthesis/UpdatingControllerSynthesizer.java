@@ -118,12 +118,12 @@ public class UpdatingControllerSynthesizer {
 
 		CompactState compactSafetyEnv = MTSToAutomataConverter.getInstance().convert(safetyEnv, "E_u||G(safety)", false);
 		CompactState compactMetaEnv = MTSToAutomataConverter.getInstance().convert(metaEnvironment, "meta E_u", false);
-		CompactState compactEnv = MTSToAutomataConverter.getInstance().convert(environment, "E_u", false);
+//		CompactState compactEnv = MTSToAutomataConverter.getInstance().convert(environment, "E_u", false);
 		
 		Vector<CompactState> machines = new Vector<CompactState>();
 		machines.add(compactSafetyEnv);
 		machines.add(compactMetaEnv);
-		machines.add(compactEnv);
+//		machines.add(compactEnv);
 
 		uccs.setMachines(machines);
 		
@@ -326,8 +326,7 @@ public class UpdatingControllerSynthesizer {
 		HashSet<Long> eParallelCStates = new HashSet<Long>();
 
 		statesMapping.put(metaEnv.getInitialState(), env.getInitialState());
-		ArrayList<Boolean> initialValuation = new ArrayList<Boolean>(
-				updEnvGenerator.getOldValuation(env.getInitialState()));
+		ArrayList<Boolean> initialValuation = new ArrayList<Boolean>(updEnvGenerator.getOldValuation(env.getInitialState()));
 		initialValuation.add(false); // initial State beginUpdate is false
 		initialValuation.add(false); // initial State stopOld is false
 		initialValuation.add(false); // initial State startNew is false
@@ -353,24 +352,23 @@ public class UpdatingControllerSynthesizer {
 					resultantValuation.put(actualInMetaEnv, valuation);
 					eParallelCStates.add(actualInMetaEnv);
 
-				} else if (updEnvGenerator.isHatEnvironmentState(statesMapping
-						.get(actualInMetaEnv))) {
+				} else if (updEnvGenerator.isHatEnvironmentState(statesMapping.get(actualInMetaEnv))) {
 					ArrayList<Boolean> valuation = new ArrayList<Boolean>(updEnvGenerator.getOldValuation(statesMapping.get(actualInMetaEnv)));
 					valuation.add(true); // beginUpdate is true in E
-					valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); // stopOldSpec is false in E
-					valuation.add(IsTrueStart(metaEnv, actualInMetaEnv)); // startNewSpec is false in E
+					valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); 
+					valuation.add(IsTrueStart(metaEnv, actualInMetaEnv));
 					valuation.add(false); // reconfigure is false in E
 					resultantValuation.put(actualInMetaEnv, valuation);
 
 				} else { // is new Part
-					Long magicState = updEnvGenerator.mapStateToValuationState(statesMapping.get(actualInMetaEnv));
-					ArrayList<Boolean> valuation = new ArrayList<Boolean>(
-							updEnvGenerator.getNewValuation(magicState));
-					valuation.add(true); // beginUpdate is true in E'
-					valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); // stopOldSpec is false in E'
-					valuation.add(IsTrueStart(metaEnv, actualInMetaEnv)); // startNewSpec is false in E'
-					valuation.add(true); // reconfigure is true in E'
-					resultantValuation.put(actualInMetaEnv, valuation);
+//					Long magicState = updEnvGenerator.mapStateToValuationState(statesMapping.get(actualInMetaEnv));
+//					ArrayList<Boolean> valuation = new ArrayList<Boolean>(updEnvGenerator.getNewValuation(magicState));
+//					valuation.add(true); // beginUpdate is true in E'
+//					valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); 
+//					valuation.add(IsTrueStart(metaEnv, actualInMetaEnv));
+//					valuation.add(true); // reconfigure is true in E'
+//					resultantValuation.put(actualInMetaEnv, valuation);
+					resultantValuation.put(actualInMetaEnv, new ArrayList<Boolean>());
 				}
 
 				for (Pair<String, Long> action_toStateInMetaEnv : metaEnv.getTransitions(actualInMetaEnv,MTS.TransitionType.REQUIRED)) {
@@ -380,6 +378,9 @@ public class UpdatingControllerSynthesizer {
 			}
 		}
 
+		completeResultantValuationWithNewEnvironment(env, metaEnv, resultantValuation, updEnvGenerator);
+		
+		
 		return new Pair<HashedMap<Long, ArrayList<Boolean>>, HashSet<Long>>(resultantValuation,eParallelCStates);
 	}
 
@@ -388,14 +389,14 @@ public class UpdatingControllerSynthesizer {
 			HashedMap<Long, Long> statesMapping) {
 
 		ArrayList<Long> toVisit = new ArrayList<Long>();
-
+		
 		for (Pair<String, Long> action_toStateInEnv : env
 				.getTransitions(statesMapping.get(actualInMetaEnv),	MTS.TransitionType.REQUIRED)) {
 
 			String actionInEnv = action_toStateInEnv.getFirst();
 			Long toStateInEnv = action_toStateInEnv.getSecond();
 
-			if (action_toStateInMetaEnv.getFirst().equals(actionInEnv)) {
+			if (action_toStateInMetaEnv.getFirst().equals(actionInEnv) && !actionInEnv.equals(UpdateConstants.RECONFIGURE)) {
 
 				Long toStateInMetaEnv = action_toStateInMetaEnv.getSecond();
 
@@ -406,6 +407,75 @@ public class UpdatingControllerSynthesizer {
 		}
 
 		return toVisit;
+	}
+	
+	private static void completeResultantValuationWithNewEnvironment(MTS<Long, String> env, MTS<Long, String> metaEnv, HashedMap<Long, ArrayList<Boolean>> resultantValuation, UpdatingEnvironmentGenerator updEnvGenerator) {
+		
+		Long initialEprimeMetaEnv = findNewEnvInitialState(metaEnv);
+		Long initialEprimeEnv = findNewEnvInitialState(env);
+		
+		HashedMap<Long, Long> statesMapping = new HashedMap<Long, Long>();
+
+		statesMapping.put(initialEprimeMetaEnv, initialEprimeEnv);
+		ArrayList<Boolean> initialValuation = new ArrayList<Boolean>(updEnvGenerator.getNewValuation(initialEprimeEnv));
+		initialValuation.add(true); // beginUpdate -> reconfigure traces fires beginUpdate
+		initialValuation.add(false); // beginUpdate -> reconfigure trace does not fire stopOldSpec
+		initialValuation.add(false); // beginUpdate -> reconfigure trace does not fire startNewSpec
+		initialValuation.add(true); // beginUpdate -> reconfigure traces fires reconfigure
+		resultantValuation.put(initialEprimeMetaEnv, initialValuation);
+		
+		// BFS
+		Queue<Long> toVisit = new LinkedList<Long>();
+		Long firstState = new Long(initialEprimeMetaEnv);
+		toVisit.add(firstState);
+		ArrayList<Long> discovered = new ArrayList<Long>();
+
+		while (!toVisit.isEmpty()) {
+			Long actualInMetaEnv = toVisit.remove();
+			if (!discovered.contains(actualInMetaEnv)) {
+				discovered.add(actualInMetaEnv);
+				
+				Long magicState = updEnvGenerator.mapStateToValuationState(statesMapping.get(actualInMetaEnv));
+				ArrayList<Boolean> valuation = new ArrayList<Boolean>(updEnvGenerator.getNewValuation(magicState));
+				valuation.add(true); // beginUpdate is true in E'
+				valuation.add(isTrueStop(metaEnv, actualInMetaEnv)); 
+				valuation.add(IsTrueStart(metaEnv, actualInMetaEnv));
+				valuation.add(true); // reconfigure is true in E'
+				resultantValuation.put(actualInMetaEnv, valuation);
+				
+				for (Pair<String, Long> action_toStateInMetaEnv : metaEnv.getTransitions(actualInMetaEnv,MTS.TransitionType.REQUIRED)) {
+
+					toVisit.addAll(nextStatesToVisit(actualInMetaEnv, action_toStateInMetaEnv, env, statesMapping));
+				}
+				
+			}
+		}
+		
+	}
+	
+
+	private static Long findNewEnvInitialState(MTS<Long, String> anyEnv) {
+		
+		Long beginUpdateState = null;
+		Long initialState = null;
+		for (Pair<String, Long> transition: anyEnv.getTransitions(anyEnv.getInitialState(), MTS.TransitionType.REQUIRED)) {
+			
+			if(transition.getFirst().equals(UpdateConstants.BEGIN_UPDATE)){
+				beginUpdateState = transition.getSecond();
+				break;
+			}
+		}
+		
+		for (Pair<String, Long> transition: anyEnv.getTransitions(beginUpdateState, MTS.TransitionType.REQUIRED)) {
+			
+			if(transition.getFirst().equals(UpdateConstants.RECONFIGURE)){
+				initialState = transition.getSecond();
+				break;
+			}
+		}
+		
+		return initialState;
+		
 	}
 
 	private static Boolean IsTrueStart(MTS<Long, String> metaEnv, Long metaState) {

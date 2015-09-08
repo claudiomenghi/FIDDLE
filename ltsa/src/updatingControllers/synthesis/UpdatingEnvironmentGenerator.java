@@ -347,4 +347,8 @@ public class UpdatingEnvironmentGenerator {
 		
 		return propositions;
 	}
+	
+	public MTS<Long, String> getEprime() {
+		return newEnvironment;
+	}
 }

@@ -188,6 +188,6 @@ assert S_OLD = (ALWAYS_FLY_HIGH && DETECTED_ACTIONS && HIGH_PRIORITY_TO_MISSION 
 assert S_NEW = (ALWAYS_FLY_LOW && FOLLOWING_ACTIONS && NO_FOLLOW_BEFORE_SCAN && HIGH_PRIORITY_TO_MISSION && NEW_HOW_TO_MOVE && DONT_SCAN_TWICE)//&& WEATHER_POLICY)
 
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
-assert TEST_FORMULA2 = [](startNewSpec -> S_NEW)
+assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
 assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
 
