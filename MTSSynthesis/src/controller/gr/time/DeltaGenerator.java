@@ -34,6 +34,10 @@ public class DeltaGenerator {
 		 symbol = s;
 	 }
 	 
+	 public synchronized void reset(){
+		 deltaId = 0;
+	 }
+	 
 	 public void changeSymbol(){
 		 Random r = new Random();
 		 Character c = (char) (r.nextInt(26) + 'a');

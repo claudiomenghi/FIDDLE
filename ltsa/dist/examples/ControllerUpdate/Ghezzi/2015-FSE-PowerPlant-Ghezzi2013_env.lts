@@ -1,0 +1,44 @@
+UpdEnv = Q0,
+	Q0	= (stopPump.old -> Q1
+		  |beginUpdate -> Q8
+		  |request -> Q9),
+	Q1	= (startPump.old -> Q0
+		  |beginUpdate -> Q2
+		  |request -> Q5),
+	Q2	= ({procedure, startNewSpec, stopOldSpec} -> Q2
+		  |request -> Q3
+		  |startPump -> Q8
+		  |reconfigure -> Q13),
+	Q3	= (endProcedure -> Q2
+		  |{procedure, startNewSpec, stopOldSpec} -> Q3
+		  |startPump -> Q4
+		  |reconfigure -> Q11),
+	Q4	= (stopPump -> Q3
+		  |{procedure, startNewSpec, stopOldSpec} -> Q4
+		  |endProcedure -> Q8
+		  |reconfigure -> Q12),
+	Q5	= (beginUpdate -> Q3
+		  |procedure.old -> Q6
+		  |startPump.old -> Q9),
+	Q6	= (beginUpdate -> Q3
+		  |startPump.old -> Q7),
+	Q7	= (endProcedure.old -> Q0
+		  |beginUpdate -> Q4),
+	Q8	= (stopPump -> Q2
+		  |request -> Q4
+		  |{procedure, startNewSpec, stopOldSpec} -> Q8
+		  |reconfigure -> Q10),
+	Q9	= (beginUpdate -> Q4
+		  |stopPump.old -> Q5),
+	Q10	= ({procedure, startNewSpec, stopOldSpec} -> Q10
+		  |request -> Q12
+		  |stopPump -> Q13),
+	Q11	= ({procedure, startNewSpec, stopOldSpec} -> Q11
+		  |startPump -> Q12
+		  |endProcedure -> Q13),
+	Q12	= (endProcedure -> Q10
+		  |stopPump -> Q11
+		  |{procedure, startNewSpec, stopOldSpec} -> Q12),
+	Q13	= (startPump -> Q10
+		  |request -> Q11
+		  |{procedure, startNewSpec, stopOldSpec} -> Q13).

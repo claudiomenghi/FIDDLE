@@ -1,131 +1,114 @@
 package controller.gr.time;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import ac.ic.doc.mtstools.model.LTS;
 import ac.ic.doc.mtstools.model.MTS;
 import ac.ic.doc.mtstools.model.MTS.TransitionType;
 import ac.ic.doc.mtstools.model.impl.LTSAdapter;
-import ac.ic.doc.mtstools.model.impl.MTSAdapter;
 
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Z3Exception;
 
+import controller.gr.time.comparator.ControllerComparator;
+import controller.gr.time.model.ActivityDefinitions;
+import controller.gr.time.model.Chooser;
+import controller.gr.time.model.ComparatorPool;
+import controller.gr.time.model.Result;
+
 public abstract class LatencyEvaluator<P,A,S>{
 
-	private void addStat(Map<Result, Integer> stats, Result res) {
-		if(stats.keySet().contains(res)){
-			stats.put(res, stats.get(res)+1);
-		}else{
-			stats.put(res, 1);
-		}
+	protected MTS<P, A> heuristic;
+	protected MTS<P, A> maximalControllerUsingGR1;
+	protected Set<P> heuristicFinalStates; 
+	protected Set<P> perfectFinalStates;
+	protected Translator<S, P> translator;
+	protected ActivityDefinitions<A> activityDefinitions;
+	protected Set<A> controllableActions;
+	protected HashMap<GenericChooser<S,A,P>,BoolExpr> heuristicGamas;
+	protected Integer maxSchedulers;
+	LTS<S,A> realEnvironment;
+	ComparatorPool<A,P> comparatorPool;
+	private int maxThreadsByScheduler;
+	private int numberOfThreadsByControllers;
+
+	
+	public LatencyEvaluator(MTS<P, A> heuristic, MTS<P, A> maximalControllerUsingGR1,Set<P> heuristicFinalStates, Set<P> perfectFinalStates, ActivityDefinitions<A> activityDefinitions, Translator<S, P> translator2, Set<A> controllableActions, Integer maxSchedulers, LTS<S,A> realEnvironment ) {
+		this.heuristic = heuristic;
+		this.maximalControllerUsingGR1 = maximalControllerUsingGR1;
+		this.heuristicFinalStates = heuristicFinalStates;
+		this.perfectFinalStates = perfectFinalStates;
+		this.translator = translator2;
+		this.activityDefinitions = activityDefinitions;
+		this.controllableActions = controllableActions;
+		this.maxSchedulers = maxSchedulers;
+		this.realEnvironment = realEnvironment;
+		this.maxThreadsByScheduler = 8;
+		this.numberOfThreadsByControllers =1;
 	}
 	
-	public void evaluateLatency(
-			Set<A> controllableActions,
-			MTS<P, A> heuristic,
-			MTS<P, A> maximalControllerUsingGR1,
-			Set<P> heuristicFinalStates, 
-			Set<P> perfectFinalStates, 
-			Translator<S, P> translator, 
-			Integer maxControllers,
-			ActivityDefinitions<A> activityDefinitions) {
+	public void evaluateLatency(Integer maxControllers) {
 		//Start Z3 Definitions
-		String END_TO_END_NAME_1 = "f1";
-		String END_TO_END_NAME_2 = "f2";
-		
-		Map<Result,Integer> stats = new HashMap<Result,Integer>();
+		ResultCounter stats = new ResultCounter();
 		HeuristicSolutionsSchedulerIterator<P,A> heuristicIterator  = new HeuristicSolutionsSchedulerIterator<P,A>(heuristic, controllableActions ,heuristicFinalStates);
 		System.out.println("#Heuristic Solutions:" + heuristicIterator.getSize());
 		boolean doo = true;
-		
-		HashMap<GenericChooser<S,A,P>,BoolExpr> heursticGamas = new HashMap<GenericChooser<S,A,P>,BoolExpr>();
-		GamaComparator<A, P> comparator = new GamaComparator<A, P>(activityDefinitions);
-
-		ControllerGenerator<P, A> controllerGenerator = new ControllerGenerator<P, A>(new LTSAdapter<P,A>(maximalControllerUsingGR1, TransitionType.REQUIRED), controllableActions,perfectFinalStates);
-		
-		 Translator<P,P> trivialTranslator = new TrivialTranslator<P>();
-		 ControllerChooser<P, A> controllerChooser = controllerGenerator.getNew();
-		 int i =0;
-		 while(controllerChooser != null && i < maxControllers){
-			 controllerChooser.applyTo(new LTSAdapter<P,A>(maximalControllerUsingGR1, TransitionType.REQUIRED), trivialTranslator);
-			 controllerChooser = controllerGenerator.getNew();
-			 i++;
-		 }
-		
+		this.comparatorPool = new ComparatorPool<A,P>(maxThreadsByScheduler*numberOfThreadsByControllers
+				,activityDefinitions, maximalControllerUsingGR1.getStates(),"f1","f2");
+//		Translator<P,P> trivialTranslator = new TrivialTranslator<P>();
 		while(heuristicIterator.hasNext() && doo){
 			Chooser<P,A> heuristicScheduler  =  heuristicIterator.next();
 			MTS<P, A> result2 = heuristicScheduler.applyTo(heuristic);
 			try{
-				preCalculateGamaForHeuristic(heuristicFinalStates, controllableActions, END_TO_END_NAME_2, heursticGamas, getSchedulers(), result2, comparator, translator);
-				System.out.println("#Controllers:" + controllerGenerator.generated.size());
-				int j = 0;
-				for(GenericChooser<P, A, P> controllerScheduler: controllerGenerator.generated){
-					Map<Result, Integer> ctr_stats = new HashMap<Result,Integer>();
-					Result ctr_res = null;
-					for (GenericChooser<S,A,P> scheduler : getSchedulers()) {
-						MTS<P, A> result1 = new MTSAdapter<P,A>(controllerScheduler.applyTo(new LTSAdapter<P,A>(maximalControllerUsingGR1, TransitionType.REQUIRED), trivialTranslator));
-						MTS<P, A> result_1_schedulled = new MTSAdapter<P, A>(scheduler.applyTo(new LTSAdapter<P,A>(result1, TransitionType.REQUIRED),translator));
-						BoolExpr gama1 = comparator.calculateGama(result_1_schedulled , END_TO_END_NAME_1, result1, controllableActions, perfectFinalStates);
-						Result res = comparator.compareControllers(gama1, heursticGamas.get(scheduler), END_TO_END_NAME_1, END_TO_END_NAME_2);
-						addStat(ctr_stats,res);
-						if(ctr_stats.keySet().contains(Result.UNCOMPARABLES)||
-						  (ctr_stats.keySet().contains(Result.WORSE) && ctr_stats.keySet().contains(Result.BETTER))){
-							ctr_res = Result.UNCOMPARABLES;
-							addStat(stats, Result.UNCOMPARABLES);
-							System.out.println("RESULT_1");
-							System.out.println(result_1_schedulled.toString());
-							MTS<P, A> heuristic_schedulled = new MTSAdapter<P, A>(scheduler.applyTo(new LTSAdapter<P,A>(result2, TransitionType.REQUIRED),translator));
-							System.out.println("RESULT_2");
-							System.out.println(heuristic_schedulled.toString());
-							break;
-						}
-					}
-					if(ctr_res == null){
-						if(!ctr_stats.containsKey(Result.UNCOMPARABLES) && !ctr_stats.containsKey(Result.WORSE)){
-							if(ctr_stats.containsKey(Result.BETTER)){
-								ctr_res = Result.BETTER;
-							}else{
-								ctr_res = Result.EQUALLYGOOD;
-							}
-						}else if(ctr_stats.keySet().contains(Result.UNCOMPARABLES)||
-								(ctr_stats.keySet().contains(Result.WORSE) && ctr_stats.keySet().contains(Result.BETTER))){
-							ctr_res = Result.UNCOMPARABLES;
-						}else{
-							ctr_res = Result.WORSE;
-						}
-						addStat(stats, ctr_res);
-					}
-					System.out.println("Controller: " + j + " " + ctr_res);
-					j++;
+				preCalculateGamaForHeuristic();
+				ControllerGenerator<P, A> controllerGenerator = new ControllerGenerator<P, A>(new LTSAdapter<P,A>(maximalControllerUsingGR1, TransitionType.REQUIRED), controllableActions,perfectFinalStates);
+				int warningBetter = 0, warningEq = 0, warningWorse= 0 ;
+				int i = 0;
+				int size = maxControllers/numberOfThreadsByControllers;
+//		        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsByControllers);
+				while(!controllerGenerator.next(size).isEmpty() && i < maxControllers){
+					ControllerComparator<S,A,P> controllerTask = getControllerComparator(i,controllerGenerator.getLasts() ,stats, maximalControllerUsingGR1, perfectFinalStates, result2, heuristicFinalStates, 
+							maxSchedulers, controllableActions, activityDefinitions,realEnvironment, translator, comparatorPool, maxThreadsByScheduler);
+//					executor.execute(controllerTask);
+					controllerTask.run();
+					i+=controllerGenerator.getLasts().size();
 				}
+//		        executor.shutdown();
+//		        while (!executor.isTerminated()) {
+//		        }
+		        System.out.println("Finished all threads");
 				System.out.println(stats.toString());
+				System.out.println("Warnings: Eq " + warningEq + " - Better" + warningBetter + " - Worse "+ warningWorse);
+				System.out.println("#Controllers: " + controllerGenerator.generated.size());
+				System.gc();
 				doo = false;
 			}catch(Exception e){
 				e.printStackTrace();
-				addStat(stats, Result.EXCEPTION);
+				stats.addStat(Result.EXCEPTION);
 				System.out.println(stats.toString());
 			}
 		}
+		this.comparatorPool.dispose();
 	}
+
+//	protected BoolExpr getGama2(GenericChooser<S,A,P> scheduler) throws Z3Exception {
+//		return heuristicGamas.get(scheduler);
+//	}
 	
-	protected abstract Set<GenericChooser<S, A, P>> getSchedulers();
+	protected abstract ControllerComparator<S, A, P> getControllerComparator(int i, Set<ControllerChooser<P, A>> controllerChooser, ResultCounter stats,
+			MTS<P, A> result1, Set<P> perfectFinalStates2, MTS<P, A> result2,
+			Set<P> heuristicFinalStates2, Integer maxSchedulers2,
+			Set<A> controllableActions2,
+			ActivityDefinitions<A> activityDefinitions2,
+			LTS<S, A> realEnvironment2, Translator<S, P> translator2, ComparatorPool<A, P> comparator2,  Integer maxThreads);
+
+	protected abstract Set<GenericChooser<S, A, P>> getSchedulers(MTS<P, A> result1, MTS<P, A> result2);
 	
-	private void preCalculateGamaForHeuristic(Set<P> finalStates,
-			Set<A> controllableActions, String END_TO_END_NAME_2,
-			HashMap<GenericChooser<S,A,P>, BoolExpr> heursticGamas,
-			Set<GenericChooser<S,A,P>> schedulers,
-			MTS<P, A> result2,
-			GamaComparator<A, P> comparator, 
-			Translator<S,P> translator) throws Z3Exception {
-		for (GenericChooser<S,A,P> scheduler : schedulers) {
-			MTS<P, A> result_2_schedulled = new MTSAdapter<P,A>(scheduler.applyTo(new LTSAdapter<P,A>(result2, TransitionType.REQUIRED),translator));
-			BoolExpr gama2 = comparator.calculateGama(result_2_schedulled , END_TO_END_NAME_2, result2, controllableActions, finalStates);
-			if(gama2 == null){
-				throw new RuntimeException("Error generating Gama of the scheduled heuristic solution");
-			}
-			heursticGamas.put(scheduler, gama2);
-		}
-	}
+	protected abstract void preCalculateGamaForHeuristic() throws Z3Exception;
+	
+	protected abstract GenericChooser<S, A, P> getScheduler();
+	
 }

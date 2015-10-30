@@ -5,7 +5,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -20,10 +19,6 @@ import org.apache.commons.lang.Validate;
 import ac.ic.doc.mtstools.model.MTS;
 import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
-import ar.dc.uba.model.condition.Fluent;
-import ar.dc.uba.model.condition.FluentImpl;
-import ar.dc.uba.model.condition.Formula;
-import ar.dc.uba.model.language.SingleSymbol;
 import control.ControllerGoalDefinition;
 import control.util.GoalDefToControllerGoal;
 import dispatcher.TransitionSystemDispatcher;
@@ -54,9 +49,12 @@ class CompositeBody {
 	 * to handling conditionals and applying accessors it also applies
 	 * relabelling if necessary.
 	 */
-	void compose(CompositionExpression c, Vector machines, Hashtable<String, Value> locals) {
-		Vector<String> accessors = accessSet == null ? null : accessSet.getActions(locals, c.constants);
-		Relation relabels = RelabelDefn.getRelabels(relabelDefns, c.constants, locals);
+	void compose(CompositionExpression c, Vector machines,
+			Hashtable<String, Value> locals) {
+		Vector<String> accessors = accessSet == null ? null : accessSet
+				.getActions(locals, c.constants);
+		Relation relabels = RelabelDefn.getRelabels(relabelDefns, c.constants,
+				locals);
 		// conditional compostion
 		if (boolexpr != null) {
 			if (Expression.evaluate(boolexpr, locals, c.constants).intValue() != 0)
@@ -107,7 +105,8 @@ class CompositeBody {
 	/**
 	 * Relabels the set of referenced processes in <i>c<\i>.
 	 */
-	private Vector getPrefixedMachines(CompositionExpression c, Hashtable<String, Value> locals) {
+	private Vector getPrefixedMachines(CompositionExpression c,
+			Hashtable<String, Value> locals) {
 		if (prefix == null) {
 			return getMachines(c, locals);
 		} else {
@@ -136,7 +135,8 @@ class CompositeBody {
 	/**
 	 * Computes the set of referenced processes in <i>c<\i>.
 	 */
-	private Vector getMachines(CompositionExpression c, Hashtable<String, Value> locals) {
+	private Vector getMachines(CompositionExpression c,
+			Hashtable<String, Value> locals) {
 		Vector vm = new Vector();
 		if (singleton != null) {
 			singleton.instantiate(c, vm, c.output, locals);
@@ -188,7 +188,7 @@ public class CompositionExpression {
 	public Symbol goal;
 	public Vector<Symbol> controlStackEnvironments;
 	public Symbol enactmentControlled;
-
+	
 	/**
 	 * If the isComponent flag is true, then this ProcessSpec represents a
 	 * composition of several component processes. The component process can be
@@ -241,9 +241,7 @@ public class CompositionExpression {
 				// assert (cs.getCompositionType() != -1);
 				CompositeState toCompose = cs.clone();
 				TransitionSystemDispatcher.applyComposition(toCompose, output);
-				if (toCompose.getComposition() != null){
-					flatmachines.addElement(toCompose.getComposition());
-				}
+				flatmachines.addElement(toCompose.getComposition());
 				// } else {
 				// for (Enumeration ee = cs.machines.elements();
 				// ee.hasMoreElements();) {
@@ -253,22 +251,29 @@ public class CompositionExpression {
 
 			}
 		}
-		String refname = (actuals == null || makeControlStack) ? name.toString() : name.toString() + StateMachine.paramString(actuals);
+		String refname = (actuals == null || makeControlStack) ? name
+				.toString() : name.toString()
+				+ StateMachine.paramString(actuals);
 		CompositeState c = new CompositeState(refname, flatmachines);
 		c.priorityIsLow = priorityIsLow;
 		c.priorityLabels = computeAlphabet(priorityActions);
-		if (MTSUtils.isMTSRepresentation(c) && c.priorityLabels != null && !c.priorityLabels.isEmpty()) {
-			throw new RuntimeException("Priorities over MTS are not definde yet.");
+		if (MTSUtils.isMTSRepresentation(c) && c.priorityLabels != null
+				&& !c.priorityLabels.isEmpty()) {
+			throw new RuntimeException(
+					"Priorities over MTS are not definde yet.");
 		}
 
 		if (makeControlStack) {
 			if (actuals != null) {
 				if (actuals.size() != 1)
-					throw new RuntimeException("Control stack references may take only one integer parameter indicating a selected tier.");
+					throw new RuntimeException(
+							"Control stack references may take only one integer parameter indicating a selected tier.");
 				try {
-					c.controlStackSpecificTier = Integer.parseInt(actuals.get(0).toString());
+					c.controlStackSpecificTier = Integer.parseInt(actuals
+							.get(0).toString());
 				} catch (NumberFormatException why) {
-					throw new RuntimeException("Control stack references may take only one integer parameter indicating a selected tier.");
+					throw new RuntimeException(
+							"Control stack references may take only one integer parameter indicating a selected tier.");
 				}
 			}
 			c.controlStackEnvironments = new Hashtable<String, Object>();
@@ -283,13 +288,14 @@ public class CompositionExpression {
 			}
 		}
 
-		if (makeEnactment) {
-			LabelSet labelSet = (LabelSet) LabelSet.getConstants().get(enactmentControlled.toString());
-			if (labelSet == null)
-				Diagnostics.fatal("Controllable actions set '" + enactmentControlled.toString() + "' not defined.");
-			c.enactmentControlled = labelSet.getActions(null);
+		if (makeEnactment)
+		{
+	    LabelSet labelSet = (LabelSet) LabelSet.getConstants().get(enactmentControlled.toString());
+	    if (labelSet==null)
+	      Diagnostics.fatal("Controllable actions set '"+enactmentControlled.toString()+"' not defined.");
+	    c.enactmentControlled = labelSet.getActions(null);
 		}
-
+		
 		c.hidden = computeAlphabet(alphaHidden);
 		c.exposeNotHide = exposeNotHide;
 		c.makeDeterministic = makeDeterministic;
@@ -314,7 +320,8 @@ public class CompositionExpression {
 			c.makeDeterministic = true;
 			c.isProperty = true;
 		}
-		if (c.makeController || c.checkCompatible || c.isPlant || c.isControlledDet || c.makeSyncController) {
+		if (c.makeController || c.checkCompatible || c.isPlant
+				|| c.isControlledDet || c.makeSyncController) {
 			this.buildAndSetGoal(c);
 		}
 		c.setComponentAlphabet(computeAlphabet(this.getComponentAlphabet()));
@@ -323,89 +330,64 @@ public class CompositionExpression {
 
 	private void buildAndSetGoal(CompositeState c) {
 
-		ControllerGoalDefinition pendingGoal = ControllerGoalDefinition.getDefinition(goal);
-		c.env = c.machines.get(0);
-		c.goal = GoalDefToControllerGoal.getInstance().buildControllerGoal(pendingGoal);
-		fixExtractedFluents(c);
-		c.machines.addAll(CompositionExpression.preProcessSafetyReqs(pendingGoal, output));
-		
+		ControllerGoalDefinition pendingGoal = ControllerGoalDefinition
+				.getDefinition(goal);
+        c.env = c.machines.get(0);
+		c.machines.addAll(CompositionExpression.preProcessSafetyReqs(
+				pendingGoal, output));
+		c.goal = GoalDefToControllerGoal.getInstance().buildControllerGoal(
+				pendingGoal);
 	}
 
-	private void fixExtractedFluents(CompositeState c) {
-		for (Fluent fluent : c.goal.getSafetyFluents()) {
-			if (fluent.getTerminatingActions().isEmpty()){
-				Set<ar.dc.uba.model.language.Symbol> alphabetWithoutThisEvent = new HashSet<ar.dc.uba.model.language.Symbol>();
-			
-				generateAlphabetWithoutThisAction(c.env.getAlphabetV(), fluent, alphabetWithoutThisEvent);
-				
-				new FluentImpl(fluent.getName(), fluent.getInitiatingActions(), alphabetWithoutThisEvent, fluent.isInitialValue());
-			}
-		}
-		
-		for (Fluent fluent : c.goal.getFluents()) {
-			if (fluent.getTerminatingActions().isEmpty()){
-				Set<ar.dc.uba.model.language.Symbol> alphabetWithoutThisEvent = new HashSet<ar.dc.uba.model.language.Symbol>();
-			
-				generateAlphabetWithoutThisAction(c.env.getAlphabetV(), fluent, alphabetWithoutThisEvent);
-				
-				new FluentImpl(fluent.getName(), fluent.getInitiatingActions(), alphabetWithoutThisEvent, fluent.isInitialValue());
-			}
-		}
-	}
-
-	private void generateAlphabetWithoutThisAction(Vector<String> alphabet,
-			Fluent fluent,
-			Set<ar.dc.uba.model.language.Symbol> alphabetWithoutThisEvent) {
-		for (String str : alphabet) {
-			if (!fluent.getInitiatingActions().iterator().next().equals(new SingleSymbol(str)))
-				alphabetWithoutThisEvent.add(new SingleSymbol(str));
-		}
-	}
-//		
-
-	/**
-	 * Generates a collection of Property LTSs from the safety formulas specified in <code>goal</code>.
-	 * 
-	 * @param goal
-	 * @param output
-	 */
-	public static Collection<CompactState> preProcessSafetyReqs(ControllerGoalDefinition goal, LTSOutput output) {
-		ControllerGoalDefinition pendingGoal = ControllerGoalDefinition.getDefinition(goal.getName());
-		if (pendingGoal==null) {
-			output.outln("Safety requirement " + pendingGoal.getNameString() + " is not defined.");
-			throw new RuntimeException();
-		} 
+	public static Collection<CompactState> preProcessSafetyReqs(
+			ControllerGoalDefinition goal, LTSOutput output) {
+		ControllerGoalDefinition pendingGoal = ControllerGoalDefinition
+				.getDefinition(goal.getName());
 		Collection<CompactState> safetyReqs = new HashSet<CompactState>();
 		for (Symbol safetyDef : pendingGoal.getSafetyDefinitions()) {
-			ProcessSpec p = LTSCompiler.processes.get(safetyDef.getName());
-			CompactState cs = AssertDefinition.compileConstraint(output, safetyDef.getName());
+			ProcessSpec p = LTSCompiler.processes.get(safetyDef
+					.getName());
+			CompactState cs = AssertDefinition.compileConstraint(output,
+					safetyDef.getName());
 			if (p != null) {
 				StateMachine one = new StateMachine(p);
 				CompactState c = one.makeCompactState();
 				CompactState c2 = c;
 				safetyReqs.add(c2);
 			} else if (cs != null) {
-				Validate.notNull(cs, "LTL PROPERTY: " + safetyDef.getName() + " not defined.");
-				MTS<Long, String> convert = AutomataToMTSConverter.getInstance().convert(cs);
+				Validate.notNull(cs, "LTL PROPERTY: " + safetyDef.getName()
+						+ " not defined.");
+				MTS<Long, String> convert = AutomataToMTSConverter
+						.getInstance().convert(cs);
 				convert.removeAction("@" + safetyDef.getName());
-				cs = MTSToAutomataConverter.getInstance().convert(convert, safetyDef.getName());
+				cs = MTSToAutomataConverter.getInstance().convert(convert,
+						safetyDef.getName());
 				safetyReqs.add(cs);
 			} else {
 				CompositionExpression ce = LTSCompiler.getComposite(safetyDef.getName());
 				if (ce == null) {
 					StringBuffer sb = new StringBuffer();
-					sb.append("Safety property ").append(safetyDef.getName()).append(" is not defined.");
+					sb.append("Safety property ").append(safetyDef.getName())
+							.append(" is not defined.");
 					Diagnostics.fatal(sb.toString());
 				}
 				CompositeState compile = ce.compose(null);
 				compile.compose(output);
 
-				MTS<Long, String> convert = AutomataToMTSConverter.getInstance().convert(compile.composition);
-				convert.removeAction("@" + compile.name); // get rid of those horrible @s
-
-				CompactState convert2 = MTSToAutomataConverter.getInstance().convert(convert, safetyDef.getName(), false);
+				MTS<Long, String> convert = AutomataToMTSConverter
+						.getInstance().convert(compile.composition);
+				convert.removeAction("@" + compile.name); // get rid of those
+															// horrible @s
+				
+				CompactState convert2 = MTSToAutomataConverter
+						.getInstance().convert(convert,
+								safetyDef.getName(), false);
 
 				safetyReqs.add(convert2);
+				// for (Iterator it = compile.getMachines().iterator();
+				// it.hasNext();) {
+				// safetyReqs.add((CompactState) it.next());
+				// }
 			}
 		}
 		return safetyReqs;
@@ -455,10 +437,12 @@ class ProcessRef {
 		this.passBackClone = passBackClone;
 	}
 
-	public void instantiate(CompositionExpression c, Vector machines, LTSOutput output, Hashtable<String, Value> locals) {
+	public void instantiate(CompositionExpression c, Vector machines,
+			LTSOutput output, Hashtable<String, Value> locals) {
 		// compute parameters
 		Vector<Value> actuals = paramValues(locals, c);
-		String refname = (actuals == null) ? name.toString() : name.toString() + StateMachine.paramString(actuals);
+		String refname = (actuals == null) ? name.toString() : name.toString()
+				+ StateMachine.paramString(actuals);
 		// have we already compiled it?
 		CompactState mach = c.compiledProcesses.get(refname);
 		if (mach != null) {
@@ -472,7 +456,8 @@ class ProcessRef {
 		if (p != null) {
 			if (actualParams != null) { // check that parameter arity is correct
 				if (actualParams.size() != p.parameters.size())
-					Diagnostics.fatal("actuals do not match formal parameters", name);
+					Diagnostics.fatal("actuals do not match formal parameters",
+							name);
 			}
 			if (!p.imported()) {
 				StateMachine one = new StateMachine(p, actuals);
@@ -493,7 +478,8 @@ class ProcessRef {
 			return;
 		}
 		// it could be a constraint
-		mach = lts.ltl.AssertDefinition.compileConstraint(output, name, refname, actuals);
+		mach = lts.ltl.AssertDefinition.compileConstraint(output, name,
+				refname, actuals);
 		if (mach != null) {
 			if (this.passBackClone) {
 				machines.addElement(mach.myclone()); // pass back clone
@@ -506,7 +492,8 @@ class ProcessRef {
 		// it could be a triggered scenario
 		if (TriggeredScenarioDefinition.contains(name)) {
 			try {
-				mach = TriggeredScenarioDefinition.getDefinition(name).synthesise(output);
+				mach = TriggeredScenarioDefinition.getDefinition(name)
+						.synthesise(output);
 				if (this.passBackClone) {
 					machines.addElement(mach.myclone()); // pass back clone
 				}
@@ -522,7 +509,8 @@ class ProcessRef {
 		// it could be a component from a distribution
 		if (DistributionDefinition.contains(name)) {
 
-			DistributionDefinition distributionDefinition = DistributionDefinition.getDistributionDefinitionContainingComponent(name);
+			DistributionDefinition distributionDefinition = DistributionDefinition
+					.getDistributionDefinitionContainingComponent(name);
 			Symbol systemModelId = distributionDefinition.getSystemModel();
 
 			// system model is a reference to a process
@@ -533,16 +521,19 @@ class ProcessRef {
 			systemModelProcessRef.instantiate(c, machines, output, locals);
 
 			// get the system model
-			CompactState systemModel = c.compiledProcesses.get(systemModelId.getName());
+			CompactState systemModel = c.compiledProcesses.get(systemModelId
+					.getName());
 
 			// try to distribute
 			Collection<CompactState> distributedComponents = new LinkedList<CompactState>();
-			boolean isDistributionSuccessful = TransitionSystemDispatcher.tryDistribution(systemModel, distributionDefinition, output,
-					distributedComponents);
+			boolean isDistributionSuccessful = TransitionSystemDispatcher
+					.tryDistribution(systemModel, distributionDefinition,
+							output, distributedComponents);
 
 			// Add the distributed components as compiled
 			for (CompactState compactState : distributedComponents) {
-				if (this.passBackClone && compactState.getName().equals(name.getName())) {
+				if (this.passBackClone
+						&& compactState.getName().equals(name.getName())) {
 					// the machine is only the one with the requested name
 					machines.addElement(compactState.myclone()); // pass back
 																	// clone
@@ -553,28 +544,27 @@ class ProcessRef {
 																				// process
 			}
 			if (!isDistributionSuccessful) {
-				Diagnostics.fatal("Model " + systemModelId.getName() + " could not be distributed.", systemModelId);
+				Diagnostics.fatal("Model " + systemModelId.getName()
+						+ " could not be distributed.", systemModelId);
 			}
 			return;
 		}
 		// it must be a composition
-		CompositionExpression ce = (CompositionExpression) c.getComposites().get(name.toString());
+		CompositionExpression ce = (CompositionExpression) c.getComposites()
+				.get(name.toString());
 		if (ce == null)
 			Diagnostics.fatal("definition not found- " + name, name);
 		if (actualParams != null) { // check that parameter arity is correct
-			if (actualParams.size() != ce.parameters.size() && !ce.makeControlStack) // we
-																						// allow
-																						// control
-																						// stacks
-																						// with
-																						// or
-																						// without
-																						// parameters
-				Diagnostics.fatal("actuals do not match formal parameters", name);
+			if (actualParams.size() != ce.parameters.size()
+					&& !ce.makeControlStack) // we allow control stacks with or
+												// without parameters
+				Diagnostics.fatal("actuals do not match formal parameters",
+						name);
 		}
 		CompositeState cs;
 		if (ce == c) {
-			Hashtable<String, Value> save = (Hashtable<String, Value>) c.constants.clone();
+			Hashtable<String, Value> save = (Hashtable<String, Value>) c.constants
+					.clone();
 			cs = ce.compose(actuals);
 			c.constants = save;
 		} else
@@ -597,7 +587,8 @@ class ProcessRef {
 		}
 	}
 
-	private Vector<Value> paramValues(Hashtable<String, Value> locals, CompositionExpression c) {
+	private Vector<Value> paramValues(Hashtable<String, Value> locals,
+			CompositionExpression c) {
 		if (actualParams == null)
 			return null;
 		Vector<Value> v = new Vector<Value>();

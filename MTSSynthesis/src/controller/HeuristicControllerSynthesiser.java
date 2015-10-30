@@ -1,6 +1,8 @@
 package controller;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import ac.ic.doc.commons.relations.Pair;
@@ -20,14 +22,14 @@ import controller.game.model.GameSolver;
 import controller.game.model.Strategy;
 import controller.game.util.GRGameBuilder;
 import controller.game.util.GameStrategyToMTSBuilder;
-import controller.gr.time.Activity;
-import controller.gr.time.ActivityDefinitions;
 import controller.gr.time.GR1toReachability;
 import controller.gr.time.GenericChooser;
-import controller.gr.time.LatencyPresetEvaluator;
+import controller.gr.time.LatencyNotPresetEvaluator;
 import controller.gr.time.SchedulerGenerator;
 import controller.gr.time.Translator;
 import controller.gr.time.TranslatorPair;
+import controller.gr.time.model.Activity;
+import controller.gr.time.model.ActivityDefinitions;
 import controller.model.GRGameControlProblem;
 import controller.model.PerfectInfoGRControlProblem;
 import controller.model.gr.ConcurrencyControlProblem;
@@ -173,25 +175,81 @@ public class HeuristicControllerSynthesiser<S,A>{
 		
 		Translator<S,Pair<S,S>> translator = new TranslatorPair<S,S>();
 		
-		Set<GenericChooser<S, A, Pair<S, S>>> schedulers = generateSchedulers(goal.getMaxSchedulers()-1,realEnvironment,controllableActions,activityDefinitions);
-
 		Set<Pair<S, S>> heuristicComposedFinalStates = compositionFinalStates(heuristicFinalStates, heuristicComposition.getStates());
 		Set<Pair<S, S>> perfectComposedFinalStates = compositionFinalStates(perfectFinalStates,perfectComposition.getStates());
+		
+		pruneRealEnvironment(perfectComposition,realEnvironment);
 
-		LatencyPresetEvaluator<Pair<S,S>,A,S> evaluator = new LatencyPresetEvaluator<Pair<S,S>,A,S>(schedulers);
-		evaluator.evaluateLatency(goal.getControllableActions(), 
-				new MTSAdapter<Pair<S,S>,A>(heuristicComposition), 
-				new MTSAdapter<Pair<S,S>,A>(perfectComposition), 
-				heuristicComposedFinalStates, perfectComposedFinalStates, 
-				translator, goal.getMaxControllers()-1, activityDefinitions);
+//		Set<GenericChooser<S, A, Pair<S, S>>> schedulers = generateSchedulers(goal.getMaxSchedulers()-1,realEnvironment,controllableActions,activityDefinitions);
+//		LatencyPresetEvaluator<Pair<S,S>,A,S> evaluator = new LatencyPresetEvaluator<Pair<S,S>,A,S>(
+//								new MTSAdapter<Pair<S,S>,A>(heuristicComposition),
+//								new MTSAdapter<Pair<S,S>,A>(perfectComposition),
+//								heuristicComposedFinalStates, perfectComposedFinalStates,
+//								activityDefinitions, translator,
+//						        goal.getControllableActions(), 
+//						        schedulers, goal.getMaxSchedulers()-1);
+		LatencyNotPresetEvaluator<S,A> evaluator = new LatencyNotPresetEvaluator<S,A>(
+				new MTSAdapter<Pair<S,S>,A>(heuristicComposition),
+				new MTSAdapter<Pair<S,S>,A>(perfectComposition),
+				heuristicComposedFinalStates, perfectComposedFinalStates,
+				activityDefinitions, translator,
+		        controllableActions, 
+		        realEnvironment,goal.getMaxSchedulers()-1);
+		evaluator.evaluateLatency(goal.getMaxControllers()-1);
 	}
 	
+	private void pruneRealEnvironment(LTS<Pair<S, S>, A> perfectComposition, LTS<S, A> realEnvironment) {
+		Map<S,Set<Pair<A,S>>> transitionsToRemove = new HashMap<S,Set<Pair<A,S>>>();
+		Set<S> finalStates = new HashSet<S>();
+		Set<S> notFinalStates = new HashSet<S>();
+		for (S state : realEnvironment.getStates()) {
+			Set<A> enabled = new HashSet<A>();
+			for (Pair<S,S> p : perfectComposition.getStates()) {
+				if(p.getFirst().equals(state)){
+					if(perfectComposition.getTransitions(p).isEmpty()){
+						finalStates.add(state);
+					}else{
+						notFinalStates.add(state);
+						for(Pair<A,Pair<S,S>> t :perfectComposition.getTransitions(p)){
+							enabled.add(t.getFirst());
+						}
+					}
+				}
+			}
+			Set<Pair<A,S>> toRemove = new HashSet<Pair<A,S>>();
+			for(Pair<A,S> t : realEnvironment.getTransitions(state)){
+				if(!enabled.contains(t.getFirst())){
+					toRemove.add(t);
+				}
+			}
+			transitionsToRemove.put(state, toRemove);
+		}
+		for (S s : transitionsToRemove.keySet()) {
+			for (Pair<A,S> t : transitionsToRemove.get(s)) {
+				realEnvironment.removeTransition(s, t.getFirst(), t.getSecond());
+			}
+		}
+		for (S s : finalStates) {
+			if(notFinalStates.contains(s)){
+//				System.out.println("End and something more");
+			}else{
+//				System.out.println("Prunning something..");
+				for(Pair<A,S> transition: realEnvironment.getTransitions(s)){
+					realEnvironment.removeTransition(s, transition.getFirst(), transition.getSecond());
+				}
+			}
+		}
+		realEnvironment.removeUnreachableStates();
+	}
+
 	private Set<GenericChooser<S, A, Pair<S, S>>> generateSchedulers(Integer maxSchedulers, LTS<S, A> realEnvironment, Set<A> controllableActions, ActivityDefinitions<A> activityDefinitions) {
 		SchedulerGenerator<S, A> schedulerGenerator = new SchedulerGenerator<S,A>(realEnvironment, controllableActions, activityDefinitions);
-		GenericChooser<S, A, Pair<S,S>> scheduler = schedulerGenerator.getNew();
+		System.out.println("Estimation: " + schedulerGenerator.getEstimation());
+		
+		GenericChooser<S, A, Pair<S,S>> scheduler = schedulerGenerator.next();
 		int i = 0;
 		while(scheduler!=null && i< maxSchedulers){
-			scheduler = schedulerGenerator.getNew();
+			scheduler = schedulerGenerator.next();
 			i++;
 		}
 		return schedulerGenerator.getGenerated();

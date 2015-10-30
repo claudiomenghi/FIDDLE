@@ -17,5 +17,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ui.HPWindow"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ltsa"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx10g -ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx1g -ea"/>
 </launchConfiguration>

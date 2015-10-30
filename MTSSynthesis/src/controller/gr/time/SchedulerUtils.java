@@ -2,6 +2,9 @@ package controller.gr.time;
 
 import java.util.Set;
 
+import controller.gr.time.model.ChoiceType;
+import controller.gr.time.utils.TimeUtils;
+
 public class SchedulerUtils<A> {
 	
 	public SchedulerUtils(){}

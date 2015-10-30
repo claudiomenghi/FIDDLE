@@ -10,6 +10,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.math.RandomUtils;
 
+import controller.gr.time.model.ActivityDefinitions;
+import controller.gr.time.model.Choice;
+import controller.gr.time.model.EnvScheduler;
 import ac.ic.doc.commons.relations.Pair;
 import ac.ic.doc.mtstools.model.LTS;
 
@@ -22,21 +25,33 @@ public class SchedulerGenerator<S,A> {
 	Map<S , List<Choice<A>>> choices;
 	int limit;
 	Long maximum;
+	GenericChooser<S, A, Pair<S,S>> result;
+	Set<GenericChooser<S, A, Pair<S,S>>> lasts;
+
 	
 	Set<A> uncontrollableChoices;
 	ActivityDefinitions<A> activityDefinitions;
 	
+	protected SchedulerGenerator() {/*-_-*/}
 	public SchedulerGenerator(LTS<S,A> environment, Set<A> controllableActions, ActivityDefinitions<A> activityDefinitions) {
+		init(environment, controllableActions, activityDefinitions);
+	}
+
+	protected void init(LTS<S, A> environment, Set<A> controllableActions,ActivityDefinitions<A> activityDefinitions) {
 		this.environment = environment;
 		this.generated = new HashSet<GenericChooser<S, A, Pair<S,S>>>();
 		this.controllableActions = controllableActions;
-		SchedulerChoicesGenerator<S,A> choiceGenerator = new SchedulerChoicesGenerator<S,A>(environment, controllableActions);
+		SchedulerChoicesGenerator<S,A> choiceGenerator = getChoiceGenerator(environment, controllableActions);
 		this.uncontrollableActions = choiceGenerator.getUncontrollableActions();
 		this.endActions = choiceGenerator.getEndActions();
 		this.choices = choiceGenerator.getChoices();
 		this.limit = 2048;
 		this.maximum = null;
 		this.activityDefinitions = activityDefinitions;
+	}
+
+	protected SchedulerChoicesGenerator<S, A> getChoiceGenerator(LTS<S, A> environment, Set<A> controllableActions) {
+		return new SchedulerChoicesGenerator<S,A>(environment, controllableActions);
 	}
 	
 	public Long getEstimation(){
@@ -53,14 +68,46 @@ public class SchedulerGenerator<S,A> {
 		return this.maximum;
 	}
 	
-	public GenericChooser<S, A, Pair<S,S>> getNew(){
+	
+	public Long goodEstimation(){
+		if(this.maximum == null){
+			
+		}
+		return this.maximum;
+	}
+	
+	
+	public Set<GenericChooser<S, A, Pair<S,S>>> next(int cant){
 		int i = 0;
-		GenericChooser<S, A, Pair<S,S>> result = null; 
+		this.lasts  = new HashSet<GenericChooser<S, A, Pair<S,S>>>();
+		if(get()!=null){
+			this.lasts.add(get());
+			i++;
+		}
+		while(next()!=null && i<cant){
+			this.lasts.add(get());
+			i++;
+		}
+		return this.lasts;
+	}
+	
+	public GenericChooser<S, A, Pair<S,S>> get() {
+		return result;
+	}
+
+	public Set<GenericChooser<S, A, Pair<S,S>>> getLasts(){
+		return this.lasts;
+	}
+	
+	public GenericChooser<S, A, Pair<S,S>> next(){
+		int i = 0;
+		result = null; 
 		while(i < limit){
 			result = new EnvScheduler<S,A>(controllableActions,uncontrollableActions);
 			chooseActions(result,environment.getInitialState(), new HashSet<S>());
 			if(generated.contains(result)){
 				i++;
+				result = null;
 			}else{
 				generated.add(result);
 				return result;

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import controller.gr.time.model.Choice;
+import controller.gr.time.model.Scheduler;
 import ac.ic.doc.mtstools.model.MTS;
 
 

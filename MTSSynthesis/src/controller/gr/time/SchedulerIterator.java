@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import controller.gr.time.model.Choice;
+import controller.gr.time.model.Scheduler;
 import ac.ic.doc.mtstools.model.MTS;
 
 public class SchedulerIterator<S,A> extends RandomStrategyIterator<S, A>{
@@ -73,7 +75,7 @@ public class SchedulerIterator<S,A> extends RandomStrategyIterator<S, A>{
 	
 	@Override
 	protected boolean compatible(Scheduler<S, A> sl, Scheduler<S, A> sc) {
-		return (super.compatible(sl, sc) && consistentUncontrollable(sl.uncontrollableChoices, sc.uncontrollableChoices));
+		return (super.compatible(sl, sc) && consistentUncontrollable(sl.getUncontrollableChoices(), sc.getUncontrollableChoices()));
 	}
 
 	private boolean consistentUncontrollable(Set<A> ucl, Set<A> ucc) {

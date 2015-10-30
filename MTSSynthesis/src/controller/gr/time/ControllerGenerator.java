@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang.math.RandomUtils;
 
 import ac.ic.doc.mtstools.model.LTS;
+import controller.gr.time.model.Choice;
 
 public class ControllerGenerator<S,A> {
 	LTS<S,A> controller;
@@ -19,6 +20,8 @@ public class ControllerGenerator<S,A> {
 	Set<A> endActions;
 	Map<S , List<Choice<A>>> choices;
 	int limit;
+	ControllerChooser<S, A> result;
+	Set<ControllerChooser<S,A>> lasts;
 	
 	public ControllerGenerator(LTS<S,A> controller, Set<A> controllableActions, Set<S> finalStates) {
 		this.controller = controller;
@@ -30,10 +33,29 @@ public class ControllerGenerator<S,A> {
 		this.choices = choiceGenerator.getChoices();
 		this.limit = 2048;
 	}
+
 	
-	public ControllerChooser<S,A> getNew(){
+	public Set<ControllerChooser<S,A>> getLasts(){
+		return this.lasts;
+	}
+	
+	public Set<ControllerChooser<S,A>> next(int cant){
 		int i = 0;
-		ControllerChooser<S, A> result = null; 
+		this.lasts  = new HashSet<ControllerChooser<S,A>>();
+		if(get()!=null){
+			this.lasts.add(get());
+			i++;
+		}
+		while(next()!=null && i<cant){
+			this.lasts.add(get());
+			i++;
+		}
+		return this.lasts;
+	}
+	
+	public ControllerChooser<S,A> next(){
+		int i = 0;
+		result = null; 
 		while(i < limit){
 			result = new ControllerChooser<S,A>(controllableActions,uncontrollableActions);
 			chooseActions(result,controller.getInitialState(), new HashSet<S>());
@@ -45,6 +67,10 @@ public class ControllerGenerator<S,A> {
 				return result;
 			}
 		}
+		return result;
+	}
+	
+	public ControllerChooser<S, A> get() {
 		return result;
 	}
 
