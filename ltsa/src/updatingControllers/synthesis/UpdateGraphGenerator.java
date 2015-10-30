@@ -18,10 +18,7 @@ import updatingControllers.structures.graph.UpdateNode;
 import updatingControllers.structures.graph.UpdateTransition;
 
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Victor Wjugow on 10/06/15.
@@ -54,6 +51,7 @@ public class UpdateGraphGenerator {
 				updateFromNode(updateGraph, fromNode);
 				updateGraph.addEdge(transition, fromNode, toNode);
 				if (controllerSpecSymbol.equals(updateGraphDef.getInitialProblem())) {
+
 					updateGraph.setInitialState(fromNode);
 				}
 			}
@@ -137,7 +135,9 @@ public class UpdateGraphGenerator {
 	 */
 	private static void updateFromNode(UpdateGraph updateGraph, UpdateNode fromNode) {
 		if (updateGraph.containsVertex(fromNode)) {
-			Iterator<UpdateNode> it = updateGraph.getVertices().iterator();
+			UpdateNode[] la = updateGraph.getVertices();
+			List<UpdateNode> updateNodes = Arrays.asList(la);
+			Iterator<UpdateNode> it = updateNodes.iterator();
 			UpdateNode node = null;
 			while (it.hasNext() && node == null) {
 				UpdateNode next = it.next();
