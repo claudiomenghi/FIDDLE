@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../MTSAClient/MTSAClient.iml" filepath="$PROJECT_DIR$/../MTSAClient/MTSAClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../MTSAEnactment/MTSAEnactment.iml" filepath="$PROJECT_DIR$/../MTSAEnactment/MTSAEnactment.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../MTSATests/MTSATests.iml" filepath="$PROJECT_DIR$/../MTSATests/MTSATests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../MTSSynthesis/MTSSynthesis.iml" filepath="$PROJECT_DIR$/../MTSSynthesis/MTSSynthesis.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../MTSTools/MTSTools.iml" filepath="$PROJECT_DIR$/../MTSTools/MTSTools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../RobotProtocol/RobotProtocol.iml" filepath="$PROJECT_DIR$/../RobotProtocol/RobotProtocol.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../RobotProtocolClient/RobotProtocolClient.iml" filepath="$PROJECT_DIR$/../RobotProtocolClient/RobotProtocolClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ltsa.iml" filepath="$PROJECT_DIR$/ltsa.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="MTSAClient" />
+    <orderEntry type="module" module-name="ltsa" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-beans:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-aop:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: aopalliance:aopalliance:1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-core:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-expression:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.1.3" level="project" />
+    <orderEntry type="library" name="Maven: log4j:log4j:1.2.15" level="project" />
+    <orderEntry type="library" name="Maven: javax.mail:mail:1.4" level="project" />
+    <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
+    <orderEntry type="library" name="Maven: net.sourceforge.collections:collections-generic:4.01" level="project" />
+    <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2" level="project" />
+    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.2" level="project" />
+    <orderEntry type="library" name="Maven: gnu-regexp:gnu-regexp:1.1.4" level="project" />
+    <orderEntry type="library" name="Maven: org.jdom:jdom:1.1" level="project" />
+    <orderEntry type="library" name="Maven: net.java.dev.swing-layout:swing-layout:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:12.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:1.3.9" level="project" />
+    <orderEntry type="library" name="Maven: com.miglayout:miglayout-swing:4.2" level="project" />
+    <orderEntry type="library" name="Maven: com.miglayout:miglayout-core:4.2" level="project" />
+    <orderEntry type="library" name="Maven: com.jgoodies:forms:1.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.tinyjee.jgraphx:jgraphx:2.3.0.5" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: scenebeans:scenebeans:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../ltsa/lib/scenebeans.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: synoptic:synoptic:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../ltsa/lib/synoptic.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: jargs:jargs:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../ltsa/lib/jargs.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module" module-name="MTSSynthesis" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:1.3.2" level="project" />
+    <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
+    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: com.microsoft:z3:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../MTSSynthesis/lib/com.microsoft.z3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module" module-name="MTSTools" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-graph-impl:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-api:2.0.1" level="project" />
+    <orderEntry type="module" module-name="MTSAEnactment" />
+    <orderEntry type="library" name="Maven: org.apache.bcel:bcel:5.2" level="project" />
+    <orderEntry type="library" name="Maven: jakarta-regexp:jakarta-regexp:1.4" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.bluecove:bluecove-gpl:2.1.0" level="project" />
+    <orderEntry type="library" name="Maven: jfree:jcommon:1.0.16" level="project" />
+    <orderEntry type="library" name="Maven: jfree:jfreechart:1.0.13" level="project" />
+    <orderEntry type="library" name="Maven: javax.xml.stream:stax-api:1.0-2" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.bluecove:bluecove:2.1.0" level="project" />
+    <orderEntry type="library" name="Maven: commons-cli:commons-cli:1.2" level="project" />
+    <orderEntry type="library" name="Maven: jgraph:jgraph:5.0.4" level="project" />
+    <orderEntry type="library" name="Maven: com.google.zxing:core:2.2" level="project" />
+    <orderEntry type="library" name="Maven: com.google.zxing:javase:2.2" level="project" />
+    <orderEntry type="library" name="Maven: com.illposed.osc:javaosc-core:0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.scream3r:jssc:2.8.0" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: jadrone:jadrone:0.32">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../MTSAEnactment/lib/yadrone_032.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: pccomm:pccomm:0.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../MTSAEnactment/lib/pccomm.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: jgraphx:jgraphx:0.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../MTSAEnactment/lib/jgraphx.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+  </component>
+</module>

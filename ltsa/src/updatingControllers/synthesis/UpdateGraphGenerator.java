@@ -18,7 +18,10 @@ import updatingControllers.structures.graph.UpdateNode;
 import updatingControllers.structures.graph.UpdateTransition;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Victor Wjugow on 10/06/15.
@@ -39,11 +42,11 @@ public class UpdateGraphGenerator {
 			for (Symbol controllerSpecSymbol : updateGraphDef.getTransitions()) {
 				UpdatingControllersDefinition updateSpec = getUpdateControllerSpec(controllerSpecSymbol);
 				UpdatingControllerCompositeState updateController = (UpdatingControllerCompositeState) comp
-					.continueCompilation(updateSpec.getName().getName());
+						.continueCompilation(updateSpec.getName().getName());
 				TransitionSystemDispatcher.applyComposition(updateController, output);
 				if (updateController.getComposition().getName().endsWith(ControlConstants.NO_CONTROLLER)) {
 					throw new LTSException("Graph could not be generated because controller " + name + " could " +
-						"not be generated");
+							"not be generated");
 				}
 				UpdateTransition transition = buildTransition(updateController);
 				UpdateNode fromNode = buildFromNode(updateSpec, updateController);
@@ -51,7 +54,6 @@ public class UpdateGraphGenerator {
 				updateFromNode(updateGraph, fromNode);
 				updateGraph.addEdge(transition, fromNode, toNode);
 				if (controllerSpecSymbol.equals(updateGraphDef.getInitialProblem())) {
-
 					updateGraph.setInitialState(fromNode);
 				}
 			}
@@ -120,7 +122,7 @@ public class UpdateGraphGenerator {
 	}
 
 	private static UpdateNode buildNode(MTS<Long, String> environment, MTS<Long, String> controller, Set<String>
-		controllableActions, String goalName) {
+			controllableActions, String goalName) {
 		UpdateNode node = new UpdateNode();
 		node.setEnvironment(environment);
 		node.setController$environment(controller);
@@ -135,9 +137,7 @@ public class UpdateGraphGenerator {
 	 */
 	private static void updateFromNode(UpdateGraph updateGraph, UpdateNode fromNode) {
 		if (updateGraph.containsVertex(fromNode)) {
-			UpdateNode[] la = updateGraph.getVertices();
-			List<UpdateNode> updateNodes = Arrays.asList(la);
-			Iterator<UpdateNode> it = updateNodes.iterator();
+			Iterator<UpdateNode> it = updateGraph.getVertices().iterator();
 			UpdateNode node = null;
 			while (it.hasNext() && node == null) {
 				UpdateNode next = it.next();
