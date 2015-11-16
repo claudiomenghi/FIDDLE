@@ -61,10 +61,15 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="MTSSynthesis" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:1.3.2" level="project" />
+    <orderEntry type="module" module-name="MTSTools" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-graph-impl:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-api:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.org.apache:jaxp-ri:1.4" level="project" />
+    <orderEntry type="library" name="Maven: javax.xml.parsers:jaxp-api:1.4" level="project" />
+    <orderEntry type="module" module-name="MTSSynthesis" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:1.3.2" level="project" />
     <orderEntry type="module-library">
       <library name="Maven: com.microsoft:z3:1.0">
         <CLASSES>
@@ -74,9 +79,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="MTSTools" />
-    <orderEntry type="library" name="Maven: net.sf.jung:jung-graph-impl:2.0.1" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.jung:jung-api:2.0.1" level="project" />
     <orderEntry type="module" module-name="MTSAEnactment" />
     <orderEntry type="library" name="Maven: org.apache.bcel:bcel:5.2" level="project" />
     <orderEntry type="library" name="Maven: jakarta-regexp:jakarta-regexp:1.4" level="project" />

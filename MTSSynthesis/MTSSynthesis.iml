@@ -30,5 +30,7 @@
     <orderEntry type="module" module-name="MTSTools" />
     <orderEntry type="library" name="Maven: net.sf.jung:jung-graph-impl:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: net.sf.jung:jung-api:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.org.apache:jaxp-ri:1.4" level="project" />
+    <orderEntry type="library" name="Maven: javax.xml.parsers:jaxp-api:1.4" level="project" />
   </component>
 </module>
