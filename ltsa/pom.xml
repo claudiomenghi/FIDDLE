@@ -186,6 +186,13 @@
           <scope>system</scope>
           <systemPath>${project.basedir}/lib/jargs.jar</systemPath>
       </dependency>
+      <dependency>
+          <groupId>LTL2Buchi</groupId>
+          <artifactId>LTL2Buchi</artifactId>
+          <version>1.0</version>
+          <scope>system</scope>
+          <systemPath>${project.basedir}/lib/LTL2Buchi.jar</systemPath>
+      </dependency>
 	  <dependency>
 		  <groupId>MTSTools</groupId>
 		  <artifactId>MTSTools</artifactId>
