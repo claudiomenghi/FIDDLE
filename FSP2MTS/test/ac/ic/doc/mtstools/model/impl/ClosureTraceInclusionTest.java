@@ -15,13 +15,13 @@ import dispatcher.TransitionSystemDispatcher;
 
 public class ClosureTraceInclusionTest extends MTSTestBase {
 	
-	public void test5states() throws Exception {
+	/*public void test5states() throws Exception {
 		
 		String testModel = "M = (a?->B1 | a->B2), B1=(b->STOP | b->B3), B3 = (b->B3), B2 = (b->B3).";
 		String expectedFSP = "M = (b?->STOP | b->B3), B3 = (b->B3)+{a}.";
 
 		testTraceClousure(testModel, expectedFSP, Collections.singleton("a"));
-	}
+	}*/
 
 	public void test2StatesBisimulationWouldntMinimize() throws Exception {
 		String testModel = "M = (a->B1 | c->M), B1=(b->STOP).";

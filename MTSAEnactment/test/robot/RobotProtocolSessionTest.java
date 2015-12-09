@@ -30,52 +30,52 @@ public class RobotProtocolSessionTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
+	//@Test
 	public void testGetMasterId() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testGetRobotId() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testGetSerialLocation() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testRobotProtocolSession() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testIsConnected() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testOpen() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testClose() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testSendMessage() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testEventHandler() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	//@Test
 	public void testRun() {
 		fail("Not yet implemented");
 	}

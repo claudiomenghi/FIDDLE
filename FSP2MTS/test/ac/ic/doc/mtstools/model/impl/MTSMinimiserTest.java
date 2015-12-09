@@ -15,17 +15,17 @@ import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 
 public class MTSMinimiserTest extends MTSTestBase {
 
-	public void testLittleBrothersDesdeLaMismaTransaccion() throws Exception {
+	/*public void testLittleBrothersDesdeLaMismaTransaccion() throws Exception {
 		String sourceString = "A = (y->CM | x->C), CM = (c?->CM), C = (c->C).\r\n";
 
 		this.assertMinimisation(sourceString);		
-	}
+	}*/
 	
-	public void testMinimisaCorreccionBug1SiBorrasLitleBrothersNoAnda() throws Exception {
+	/*public void testMinimisaCorreccionBug1SiBorrasLitleBrothersNoAnda() throws Exception {
 		String sourceString = "A = (c->A | c->C), C = (c?->C).\r\n";
 
 		this.assertMinimisation(sourceString);
-	}
+	}*/
 	
 	public void testMinimisaEjemploLibroModelChecking() throws Exception {
 		String sourceString = "X = (x?->A|x?->B),\r\n" + 

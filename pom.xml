@@ -9,6 +9,11 @@
     	<module>MTSAEnactment</module>
     	<module>MTSTools</module>
 		<module>MTSSynthesis</module>
+		<module>MTSAClient</module>
+		<module>MTSATests</module>
+		<module>RobotProtocolClient</module>
+		<module>RobotProtocol</module>
+		<module>FSP2MTS</module>
 	</modules>
 	<build>
         <plugins>

@@ -61,6 +61,15 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: LTL2Buchi:LTL2Buchi:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../ltsa/lib/LTL2Buchi.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="module" module-name="MTSTools" />
     <orderEntry type="library" name="Maven: net.sf.jung:jung-graph-impl:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: net.sf.jung:jung-api:2.0.1" level="project" />

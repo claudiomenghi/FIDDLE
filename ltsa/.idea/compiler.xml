@@ -73,14 +73,23 @@
         <processorPath useClasspath="true" />
         <module name="RobotProtocol" />
       </profile>
+      <profile default="false" name="Annotation profile for FSP2MTS" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="FSP2MTS" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.7">
+      <module name="FSP2MTS" target="1.7" />
       <module name="ltsa" target="1.7" />
       <module name="MTSAClient" target="1.7" />
       <module name="MTSAEnactment" target="1.7" />
       <module name="MTSATests" target="1.7" />
       <module name="MTSSynthesis" target="1.7" />
       <module name="MTSTools" target="1.7" />
+      <module name="parent-project" target="1.5" />
       <module name="RobotProtocol" target="1.7" />
       <module name="RobotProtocolClient" target="1.7" />
     </bytecodeTargetLevel>

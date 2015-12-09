@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../FSP2MTS/FSP2MTS.iml" filepath="$PROJECT_DIR$/../FSP2MTS/FSP2MTS.iml" />
       <module fileurl="file://$PROJECT_DIR$/../MTSAClient/MTSAClient.iml" filepath="$PROJECT_DIR$/../MTSAClient/MTSAClient.iml" />
       <module fileurl="file://$PROJECT_DIR$/../MTSAEnactment/MTSAEnactment.iml" filepath="$PROJECT_DIR$/../MTSAEnactment/MTSAEnactment.iml" />
       <module fileurl="file://$PROJECT_DIR$/../MTSATests/MTSATests.iml" filepath="$PROJECT_DIR$/../MTSATests/MTSATests.iml" />
@@ -10,6 +11,7 @@
       <module fileurl="file://$PROJECT_DIR$/../RobotProtocol/RobotProtocol.iml" filepath="$PROJECT_DIR$/../RobotProtocol/RobotProtocol.iml" />
       <module fileurl="file://$PROJECT_DIR$/../RobotProtocolClient/RobotProtocolClient.iml" filepath="$PROJECT_DIR$/../RobotProtocolClient/RobotProtocolClient.iml" />
       <module fileurl="file://$PROJECT_DIR$/ltsa.iml" filepath="$PROJECT_DIR$/ltsa.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../parent-project.iml" filepath="$PROJECT_DIR$/../parent-project.iml" />
     </modules>
   </component>
 </project>

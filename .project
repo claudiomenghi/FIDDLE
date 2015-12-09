@@ -3,6 +3,9 @@
 	<name>parent-project</name>
 	<comment></comment>
 	<projects>
+		<project>MTSAEnactment</project>
+		<project>MTSSynthesis</project>
+		<project>MTSTools</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -1,5 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+        <artifactId>parent-project</artifactId>
+        <groupId>mtsa</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
   <groupId>MTSATests</groupId>
   <artifactId>MTSATests</artifactId>
   <version>0.0.1-SNAPSHOT</version>
@@ -45,5 +50,29 @@
       <version>0.0.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>ltsa</groupId>
+      <artifactId>ltsa</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>FSP2MTS</groupId>
+      <artifactId>FSP2MTS</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+      <dependency>
+          <groupId>MTSAClient</groupId>
+          <artifactId>MTSAClient</artifactId>
+          <version>0.0.1-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>MTSTools</groupId>
+          <artifactId>MTSTools</artifactId>
+          <version>0.0.1-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
   </dependencies>
 </project>
