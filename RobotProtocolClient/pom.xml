@@ -24,7 +24,13 @@
       </plugin>
     </plugins>
   </build>
+  
   <dependencies>
+  	<dependency>
+	    <groupId>org.bytedeco</groupId>
+	    <artifactId>javacv</artifactId>
+	    <version>1.1</version>
+	</dependency>
     <dependency>
       <groupId>MTSAClient</groupId>
       <artifactId>MTSAClient</artifactId>

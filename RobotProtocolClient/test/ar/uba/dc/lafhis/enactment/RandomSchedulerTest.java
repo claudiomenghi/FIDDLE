@@ -72,7 +72,7 @@ public class RandomSchedulerTest {
 	/**
 	 * Test method for {@link ar.uba.dc.lafhis.enactment.RandomController#takeNextAction()}.
 	 */
-	@Test
+	//@Test
 	public void testTakeNextAction() {
 		try {
 			scheduler.takeNextAction();

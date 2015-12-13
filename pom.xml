@@ -14,6 +14,8 @@
 		<module>RobotProtocolClient</module>
 		<module>RobotProtocol</module>
 		<module>FSP2MTS</module>
+		<module>NXTMSTSARobotDriver</module>
+		<module>EV3MTSARobotDriver</module>
 	</modules>
 	<build>
         <plugins>

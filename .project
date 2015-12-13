@@ -3,7 +3,10 @@
 	<name>parent-project</name>
 	<comment></comment>
 	<projects>
+		<project>ltsa</project>
+		<project>MTSAClient</project>
 		<project>MTSAEnactment</project>
+		<project>MTSATests</project>
 		<project>MTSSynthesis</project>
 		<project>MTSTools</project>
 	</projects>

@@ -2,7 +2,7 @@ Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
 Initialized StandardEnvironment with PropertySources [systemProperties,systemEnvironment]
-Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@4c9b195f: startup date [Fri Nov 13 14:14:25 ART 2015]; root of context hierarchy
+Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@37d6b129: startup date [Sat Dec 12 22:46:49 ART 2015]; root of context hierarchy
 Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
@@ -17,7 +17,7 @@ Found XML schema [http://www.springframework.org/schema/tool/spring-tool-3.0.xsd
 Loading bean definitions
 Loaded NamespaceHandler mappings: {http://www.springframework.org/schema/p=org.springframework.beans.factory.xml.SimplePropertyNamespaceHandler, http://www.springframework.org/schema/util=org.springframework.beans.factory.xml.UtilNamespaceHandler, http://www.springframework.org/schema/jee=org.springframework.ejb.config.JeeNamespaceHandler, http://www.springframework.org/schema/aop=org.springframework.aop.config.AopNamespaceHandler, http://www.springframework.org/schema/cache=org.springframework.cache.config.CacheNamespaceHandler, http://www.springframework.org/schema/c=org.springframework.beans.factory.xml.SimpleConstructorNamespaceHandler, http://www.springframework.org/schema/task=org.springframework.scheduling.config.TaskNamespaceHandler, http://www.springframework.org/schema/lang=org.springframework.scripting.config.LangNamespaceHandler, http://www.springframework.org/schema/context=org.springframework.context.config.ContextNamespaceHandler}
 Loaded 15 bean definitions from location pattern [ltsa-context.xml]
-Bean factory for org.springframework.context.support.ClassPathXmlApplicationContext@4c9b195f: org.springframework.beans.factory.support.DefaultListableBeanFactory@67c1f01c: defining beans [org.springframework.context.annotation.internalConfigurationAnnotationProcessor,org.springframework.context.annotation.internalAutowiredAnnotationProcessor,org.springframework.context.annotation.internalRequiredAnnotationProcessor,org.springframework.context.annotation.internalCommonAnnotationProcessor,ARDrone,enviromentChange,ARDroneII,enviromentChangeII,ARDroneUpdatingController,counterEnactor,enactorFactory,controllerScheduler,randomScheduler,UIController,schedullerFactory]; root of factory hierarchy
+Bean factory for org.springframework.context.support.ClassPathXmlApplicationContext@37d6b129: org.springframework.beans.factory.support.DefaultListableBeanFactory@355971ce: defining beans [org.springframework.context.annotation.internalConfigurationAnnotationProcessor,org.springframework.context.annotation.internalAutowiredAnnotationProcessor,org.springframework.context.annotation.internalRequiredAnnotationProcessor,org.springframework.context.annotation.internalCommonAnnotationProcessor,ARDrone,enviromentChange,ARDroneII,enviromentChangeII,ARDroneUpdatingController,counterEnactor,enactorFactory,controllerScheduler,randomScheduler,UIController,schedullerFactory]; root of factory hierarchy
 Creating shared instance of singleton bean 'org.springframework.context.annotation.internalConfigurationAnnotationProcessor'
 Creating instance of bean 'org.springframework.context.annotation.internalConfigurationAnnotationProcessor'
 Eagerly caching bean 'org.springframework.context.annotation.internalConfigurationAnnotationProcessor' to allow for resolving potential circular references
@@ -38,9 +38,9 @@ Creating shared instance of singleton bean 'org.springframework.context.annotati
 Creating instance of bean 'org.springframework.context.annotation.ConfigurationClassPostProcessor.importAwareProcessor'
 Eagerly caching bean 'org.springframework.context.annotation.ConfigurationClassPostProcessor.importAwareProcessor' to allow for resolving potential circular references
 Finished creating instance of bean 'org.springframework.context.annotation.ConfigurationClassPostProcessor.importAwareProcessor'
-Unable to locate MessageSource with name 'messageSource': using default [org.springframework.context.support.DelegatingMessageSource@38eb5d53]
-Unable to locate ApplicationEventMulticaster with name 'applicationEventMulticaster': using default [org.springframework.context.event.SimpleApplicationEventMulticaster@760e90d3]
-Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@67c1f01c: defining beans [org.springframework.context.annotation.internalConfigurationAnnotationProcessor,org.springframework.context.annotation.internalAutowiredAnnotationProcessor,org.springframework.context.annotation.internalRequiredAnnotationProcessor,org.springframework.context.annotation.internalCommonAnnotationProcessor,ARDrone,enviromentChange,ARDroneII,enviromentChangeII,ARDroneUpdatingController,counterEnactor,enactorFactory,controllerScheduler,randomScheduler,UIController,schedullerFactory,org.springframework.context.annotation.ConfigurationClassPostProcessor.importAwareProcessor]; root of factory hierarchy
+Unable to locate MessageSource with name 'messageSource': using default [org.springframework.context.support.DelegatingMessageSource@382d0236]
+Unable to locate ApplicationEventMulticaster with name 'applicationEventMulticaster': using default [org.springframework.context.event.SimpleApplicationEventMulticaster@42005598]
+Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@355971ce: defining beans [org.springframework.context.annotation.internalConfigurationAnnotationProcessor,org.springframework.context.annotation.internalAutowiredAnnotationProcessor,org.springframework.context.annotation.internalRequiredAnnotationProcessor,org.springframework.context.annotation.internalCommonAnnotationProcessor,ARDrone,enviromentChange,ARDroneII,enviromentChangeII,ARDroneUpdatingController,counterEnactor,enactorFactory,controllerScheduler,randomScheduler,UIController,schedullerFactory,org.springframework.context.annotation.ConfigurationClassPostProcessor.importAwareProcessor]; root of factory hierarchy
 Returning cached instance of singleton bean 'org.springframework.context.annotation.internalConfigurationAnnotationProcessor'
 Returning cached instance of singleton bean 'org.springframework.context.annotation.internalAutowiredAnnotationProcessor'
 Returning cached instance of singleton bean 'org.springframework.context.annotation.internalRequiredAnnotationProcessor'
@@ -119,7 +119,7 @@ Autowiring by type from bean name 'schedullerFactory' to bean named 'randomSched
 Autowiring by type from bean name 'schedullerFactory' to bean named 'UIController'
 Finished creating instance of bean 'schedullerFactory'
 Returning cached instance of singleton bean 'org.springframework.context.annotation.ConfigurationClassPostProcessor.importAwareProcessor'
-Unable to locate LifecycleProcessor with name 'lifecycleProcessor': using default [org.springframework.context.support.DefaultLifecycleProcessor@4a8c7267]
+Unable to locate LifecycleProcessor with name 'lifecycleProcessor': using default [org.springframework.context.support.DefaultLifecycleProcessor@5f67a0fe]
 Returning cached instance of singleton bean 'lifecycleProcessor'
 Searching for key 'spring.liveBeansView.mbeanDomain' in [systemProperties]
 Searching for key 'spring.liveBeansView.mbeanDomain' in [systemEnvironment]
