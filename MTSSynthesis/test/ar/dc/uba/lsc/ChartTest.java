@@ -181,7 +181,7 @@ public class ChartTest {
 		assertEquals(4, this.createSeveralConditionsBeginingChartWithInteractionsB().getQtyInteractions());
 	}
 
-	@Test
+	//@Test
 	public void testQtyLinearisations() {
 		assertEquals(1, this.createOneInteractionChart().getLinearisations().size());
 		

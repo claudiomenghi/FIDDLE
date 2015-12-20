@@ -20,7 +20,7 @@ public class NXTRobotCommTest {
 		
 	}
 
-	@Test
+	//@Test
 	public void testReadColor() {
 		
 		try {

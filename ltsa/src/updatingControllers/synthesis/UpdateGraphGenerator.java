@@ -42,11 +42,11 @@ public class UpdateGraphGenerator {
 			for (Symbol controllerSpecSymbol : updateGraphDef.getTransitions()) {
 				UpdatingControllersDefinition updateSpec = getUpdateControllerSpec(controllerSpecSymbol);
 				UpdatingControllerCompositeState updateController = (UpdatingControllerCompositeState) comp
-					.continueCompilation(updateSpec.getName().getName());
+						.continueCompilation(updateSpec.getName().getName());
 				TransitionSystemDispatcher.applyComposition(updateController, output);
 				if (updateController.getComposition().getName().endsWith(ControlConstants.NO_CONTROLLER)) {
 					throw new LTSException("Graph could not be generated because controller " + name + " could " +
-						"not be generated");
+							"not be generated");
 				}
 				UpdateTransition transition = buildTransition(updateController);
 				UpdateNode fromNode = buildFromNode(updateSpec, updateController);
@@ -122,7 +122,7 @@ public class UpdateGraphGenerator {
 	}
 
 	private static UpdateNode buildNode(MTS<Long, String> environment, MTS<Long, String> controller, Set<String>
-		controllableActions, String goalName) {
+			controllableActions, String goalName) {
 		UpdateNode node = new UpdateNode();
 		node.setEnvironment(environment);
 		node.setController$environment(controller);

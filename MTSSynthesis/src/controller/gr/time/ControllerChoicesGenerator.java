@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import controller.gr.time.model.Choice;
 import ac.ic.doc.mtstools.model.LTS;
 
 public class ControllerChoicesGenerator<S, A> extends ChoicesGenerator<S, A> {
@@ -14,6 +15,7 @@ public class ControllerChoicesGenerator<S, A> extends ChoicesGenerator<S, A> {
 		super();
 		this.finalStates = finalStates;
 		init(environment, controllableActions);
+		this.choices = this.getChoices();
 	}
 	
 	@Override

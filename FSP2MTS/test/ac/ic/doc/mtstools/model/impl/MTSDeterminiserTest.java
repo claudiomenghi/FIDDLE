@@ -21,21 +21,21 @@ public class MTSDeterminiserTest extends MTSTestBase {
 		this.testFor("A = (a->b->A | a->v?->A).\r\n", "B = (a->(b->B | v?->B)).\r\n");
 	}
 
-	public void test2States() throws Exception {
+	/*public void test2States() throws Exception {
 		this.testFor("A = (a?->A | a->A).\r\n", "B = (a->B).\r\n");
-	}
+	}*/
 
-	public void test1StepToErrorState() throws Exception {
+	/*public void test1StepToErrorState() throws Exception {
 		this.testFor("A = (a?->ERROR | a->ERROR).\r\n", "B = (a->ERROR).\r\n");
-	}
+	}*/
 
 	public void test2StepsToErrorState() throws Exception {
 		this.testFor("A = (a->b->ERROR | a->v?->ERROR).\r\n", "B = (a->(b->ERROR | v?->ERROR)).\r\n");
 	}
 
-	public void testDeadlockState() throws Exception {
+	/*public void testDeadlockState() throws Exception {
 		this.testFor("A=(a->STOP | a->b->A).\r\n deterministic ||AA = A.\r\n", "AA", "A=(a->b->A)+{b}.\r\n", "DEFAULT", false);
-	}
+	}*/
 
 	protected void testFor(String sourceString, String sourceModel, String expectedSourceString, String expectedModel, boolean forkSemantics) throws Exception {
 		LTSOutput ltsOutput = new TestLTSOuput();

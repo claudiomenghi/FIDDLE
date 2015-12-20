@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>parent-project</name>
+	<comment></comment>
+	<projects>
+		<project>ltsa</project>
+		<project>MTSAClient</project>
+		<project>MTSAEnactment</project>
+		<project>MTSATests</project>
+		<project>MTSSynthesis</project>
+		<project>MTSTools</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
+	</natures>
+</projectDescription>

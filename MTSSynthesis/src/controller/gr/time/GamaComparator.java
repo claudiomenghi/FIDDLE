@@ -20,7 +20,6 @@ import ac.ic.doc.mtstools.model.MTS;
 import ac.ic.doc.mtstools.model.MTS.TransitionType;
 
 import com.microsoft.z3.ApplyResult;
-import com.microsoft.z3.ArithExpr;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
 import com.microsoft.z3.Expr;
@@ -32,9 +31,15 @@ import com.microsoft.z3.Status;
 import com.microsoft.z3.Tactic;
 import com.microsoft.z3.Z3Exception;
 
+import controller.gr.time.model.Activity;
+import controller.gr.time.model.ActivityDefinitions;
+import controller.gr.time.model.Result;
+import controller.gr.time.model.TimedAutomata;
+import controller.gr.time.model.TimedState;
+import controller.gr.time.model.TimedTrace;
+import controller.gr.time.utils.TimeUtils;
+
 public class GamaComparator<A, S> {
-	
-	
 	private Context z3;
 	private Map<String,RealExpr> consts;
 	private RealExpr URG_VAR;
@@ -42,12 +47,17 @@ public class GamaComparator<A, S> {
 	private DeltaGenerator deltaGenerator; 
 	private DeltaGenerator tempVarGenerator;
 	private ActivityDefinitions<A> activityDefinitions; 
-
+	private String stopwatchName1;
+	private String stopwatchName2;
 	private static final boolean PRINT_GAMA = false;
-	private static final boolean PRINT_DETAIL = true;
+	private static final boolean PRINT_DETAIL = false;
 	private static String URGENT_VAR = "cfkz1";
-	private static Set<String> allTimers;
-	
+	private Map<String,RealExpr> tempVar;
+	private BoolExpr positive;
+	private Set<S> states;
+	private int uses = 0;
+	private static int limit = 1000;
+	private Tactic tac;
 	
 	public GamaComparator() {
 		deltaGenerator = new DeltaGenerator();
@@ -56,7 +66,9 @@ public class GamaComparator<A, S> {
 		deltaGenerator.changeSymbol();
 		try {
 			z3 = new Context();
+			tac = z3.MkTactic("qe"); // quantifier elimination
 			consts = new HashMap<String,RealExpr>(); 
+			tempVar = new HashMap<String,RealExpr>();
 			URG_VAR = z3.MkRealConst(URGENT_VAR);
 			URG_COND = z3.MkLe(URG_VAR, z3.MkReal(0));
 			consts.put(URGENT_VAR,URG_VAR);
@@ -67,31 +79,102 @@ public class GamaComparator<A, S> {
 	}
 	
 	
-	public GamaComparator(ActivityDefinitions<A> activityDefinitions) {
+	public GamaComparator(ActivityDefinitions<A> activityDefinitions, Set<S> states, String END_TO_END_NAME1, String END_TO_END_NAME2) {
 		this();
 		this.activityDefinitions = activityDefinitions;
+		boot(activityDefinitions, states, END_TO_END_NAME1, END_TO_END_NAME2);
 	}
 
 
+	private void boot(ActivityDefinitions<A> activityDefinitions,
+			Set<S> states, String END_TO_END_NAME1, String END_TO_END_NAME2) {
+		BoolExpr[] and = new BoolExpr[(states.size()+activityDefinitions.getActivities().size()+2)*2];
+		int i=0;
+		for (Activity<A> activity : activityDefinitions.getActivities()) {
+			String timer = TimeUtils.getTimer(activity.getName());
+			String time = TimeUtils.getTimeFromTimer(timer);
+			try {
+				addConst(time);
+				and[i++] = z3.MkLe(z3.MkReal(0),getConst(timer));
+				and[i++] = z3.MkLe(z3.MkReal(0),getConst(time));
+			} catch (Z3Exception e) {
+				e.printStackTrace();
+			}
+		}
+		this.states = states;
+		for (S state : states) {
+			String label = TimeUtils.getLabelFromState(state);
+			String timer = TimeUtils.getTimer(label);
+			String time = TimeUtils.getTimeFromTimer(timer);
+			try {
+				addConst(time);
+				and[i++] = z3.MkLe(z3.MkReal(0),getConst(timer));
+				and[i++] = z3.MkLe(z3.MkReal(0),getConst(time));
+			} catch (Z3Exception e) {
+				e.printStackTrace();
+			}
+		}
+		stopwatchName1 = END_TO_END_NAME1;
+		stopwatchName2 = END_TO_END_NAME2;
+		try {
+			String time1 = TimeUtils.getTimeLabel(stopwatchName2);
+			String time2  = TimeUtils.getTimeLabel(stopwatchName2);
+			String timer1 = TimeUtils.getTimerFromTime(time1);
+			String timer2 = TimeUtils.getTimerFromTime(time2);
+			addConst(time1);
+			addConst(time2);
+			and[i++] = z3.MkLe(z3.MkReal(0),getConst(timer1));
+			and[i++] = z3.MkLe(z3.MkReal(0),getConst(time1));
+			and[i++] = z3.MkLe(z3.MkReal(0),getConst(timer2));
+			and[i++] = z3.MkLe(z3.MkReal(0),getConst(time2));
+		} catch (Z3Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			this.positive = z3.MkAnd(and);
+		} catch (Z3Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public String getStopwatchName1() {
+		return stopwatchName1;
+	}
+	
+	public String getStopwatchName2() {
+		return stopwatchName2;
+	}
+
 	public Result compareControllers(BoolExpr gama1, BoolExpr gama2, String END_TO_END_NAME_1, String END_TO_END_NAME_2){
 		try {
+			if(uses>limit){
+				this.disposeContext();
+				this.boot(activityDefinitions, states, stopwatchName1, stopwatchName2);
+				uses = 0;
+			}
+			uses++;
 			
 			String END_TO_END_TIME_1 = "T" + END_TO_END_NAME_1;
 			String END_TO_END_TIME_2  = "T" + END_TO_END_NAME_2;
 //			BETTER = END_TO_END_TIME_1 +" > "+ END_TO_END_TIME_2;
 //			WORSE = END_TO_END_TIME_1 +" < "+ END_TO_END_TIME_2;
 			
-			
-			BoolExpr question1 = z3.MkGt(consts.get(END_TO_END_TIME_2), consts.get(END_TO_END_TIME_1));
-			
 			List<BoolExpr> truth = new ArrayList<BoolExpr>();
+			BoolExpr question1 = z3.MkGt(getConst(END_TO_END_TIME_2), getConst(END_TO_END_TIME_1));
+			BoolExpr question2 = z3.MkGt(getConst(END_TO_END_TIME_1), getConst(END_TO_END_TIME_2));
+			
 			truth.add(gama1);
 			truth.add(gama2);
+			truth.add(positive);
+			
 			Pair<Status,Model> s1 = check(truth, question1);
-			
-			BoolExpr question2 = z3.MkGt(consts.get(END_TO_END_TIME_1), consts.get(END_TO_END_TIME_2));
 			Pair<Status,Model> s2 = check(truth, question2);
-			
+			gama1.Dispose();
+			gama2.Dispose();
+			question1.Dispose();
+			question2.Dispose();
 			if(s2.getFirst().equals(Status.SATISFIABLE)){
 				if(s1.getFirst().equals(Status.SATISFIABLE)){
 					if(PRINT_DETAIL){
@@ -104,7 +187,7 @@ public class GamaComparator<A, S> {
 						System.out.println("Model W");
 						System.out.println(s1.getSecond().toString());
 					}
-					return Result.UNCOMPARABLES;
+					return Result.INCOMPARABLES;
 				}else{
 					return Result.BETTER;
 				}
@@ -129,9 +212,10 @@ public class GamaComparator<A, S> {
 		solver.Assert(question);
 		Status status = solver.Check();
 		Model model = null;
-			if(status.equals(Status.SATISFIABLE)){
-				model = solver.Model();
-			}
+		if(PRINT_DETAIL && status.equals(Status.SATISFIABLE)){
+			model = solver.Model();
+		}
+		solver.Dispose();
 		return new Pair<Status,Model>(status,model);
 	}
 	
@@ -140,32 +224,31 @@ public class GamaComparator<A, S> {
 		String key = ki.trim();
 		if(consts.containsKey(key))
 			return consts.get(key);
-		try {
-			String[] parts = (key.trim()).split("\\+");;
-			if(parts.length == 1){
-				RealExpr r = z3.MkRealConst(key);
-				consts.put(key,r);
-				return r;
-			}else{
-				ArithExpr[] res = new ArithExpr[parts.length];
-				int i = 0;
-				for (String part : parts) {
-					res[i] = getConst(part);
-					i++;
-				}
-				return (RealExpr) z3.MkAdd(res);
-			}
-			
-		} catch (Z3Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		throw new RuntimeException("Not found key " + key);
+//		try {
+//			String[] parts = (key.trim()).split("\\+");;
+//			if(parts.length == 1){
+//				RealExpr r = z3.MkRealConst(key);
+//				consts.put(key,r);
+//				return r;
+//			}else{
+//				ArithExpr[] res = new ArithExpr[parts.length];
+//				int i = 0;
+//				for (String part : parts) {
+//					res[i] = getConst(part);
+//					i++;
+//				}
+//				return  (RealExpr) z3.MkAdd(res);
+//			}
+//			
+//		} catch (Z3Exception e) {
+//			e.printStackTrace();
+//			return null;
+//		}
 	}
 	
 	
-	private Map<TimedState, String> stateTimers;
-	
-	protected BoolExpr calculateGama(MTS<S, A> scheduled, String END_TO_END_NAME, MTS<S, A> original, Set<A> controllableActions, Set<S> finalStates)
+	public BoolExpr calculateGama(MTS<S, A> scheduled, String END_TO_END_NAME, MTS<S, A> original, Set<A> controllableActions, Set<S> finalStates)
 					throws Z3Exception {
 		Stack<Pair<A, S>> s  = new Stack<Pair<A, S>>();
 		Stack<Pair<A, S>> trace  = new Stack<Pair<A, S>>();
@@ -184,8 +267,8 @@ public class GamaComparator<A, S> {
 				winningStates.add(st);
 		}
 		
-		stateTimers = new HashMap<TimedState,String>();
-		allTimers = new HashSet<String>();
+		Map<TimedState, String> stateTimers = new HashMap<TimedState,String>();
+		Set<String> allTimers = new HashSet<String>();
 		//End Z3 Definitions
 		allTimers.add(END_TO_END_STOPWATCH);
 		
@@ -198,7 +281,6 @@ public class GamaComparator<A, S> {
 		
 		TimedState initial = new TimedState(z3.MkTrue());
 		Set<RealExpr> actualValuations = new HashSet<RealExpr>();
-		
 		
 		actualValuations.add(getConst(END_TO_END_STOPWATCH));
 		actualValuations.add(getConst(URGENT_VAR));
@@ -213,7 +295,7 @@ public class GamaComparator<A, S> {
 		//Add successors of initial state
 		for (Pair<A, S> transState : scheduled.getTransitions(scheduled.getInitialState(), TransitionType.REQUIRED)) {
 			s.push(transState);
-			translateTransitionToPTA(timedStates, actTimers, second, transState, original, controllableActions);
+			translateTransitionToPTA(timedStates, actTimers, second, transState, original, controllableActions, allTimers, stateTimers);
 		}
 		
 		//DFS to add all the transitions up to the first goal 
@@ -231,7 +313,7 @@ public class GamaComparator<A, S> {
 				trace.add(v);
 				for (Pair<A, S> pair : scheduled.getTransitions(v.getSecond(), TransitionType.REQUIRED)) {
 					s.push(pair);
-					translateTransitionToPTA(timedStates, actTimers, timedStates.get(v.getSecond()), pair, original, controllableActions);
+					translateTransitionToPTA(timedStates, actTimers, timedStates.get(v.getSecond()), pair, original, controllableActions, allTimers, stateTimers);
 				}
 			}
 		}
@@ -241,7 +323,7 @@ public class GamaComparator<A, S> {
 		
 		for (S winning : winningStates) {
 			if(timedStates.containsKey(winning)){
-				BoolExpr entranceCondition = z3.MkEq(consts.get(END_TO_END_STOPWATCH), consts.get(END_TO_END_TIME));
+				BoolExpr entranceCondition = z3.MkEq(getConst(END_TO_END_STOPWATCH), getConst(END_TO_END_TIME));
 				Set<RealExpr> resetedClocks = new HashSet<RealExpr>();
 				resetedClocks.add(getConst(URGENT_VAR));
 				timedStates.get(winning).addSuccessor(entranceCondition, resetedClocks, END_TO_END_END ,ending);
@@ -252,11 +334,11 @@ public class GamaComparator<A, S> {
 		
 		a.addWinning(ending);
 		
-		return calculateGama(a);
+		return calculateGama(a, allTimers);
 	}
 	
 	
-	private BoolExpr calculateGama(TimedAutomata a) {
+	private BoolExpr calculateGama(TimedAutomata a, Set<String> allTimers) {
 		Queue<TimedState> pendings = new LinkedList<TimedState>();		
 		Map<TimedState,BoolExpr> calculated = new HashMap<TimedState,BoolExpr>();
 		HashSet<TimedState> pendingsH  = new HashSet<TimedState>(); 
@@ -281,7 +363,7 @@ public class GamaComparator<A, S> {
 						BoolExpr[] or = new BoolExpr[next.getSuccessors().size()];
 						int i = 0;
 						for(TimedState s :next.getSuccessors()){
-							BoolExpr expr = pre(next, next.getTransition(s), s, calculated.get(s));
+							BoolExpr expr = pre(next, next.getTransition(s), s, calculated.get(s), allTimers);
 							or[i] = expr;
 							i++;
 						}
@@ -317,8 +399,8 @@ public class GamaComparator<A, S> {
 	
 	
 	
-	private BoolExpr pre(TimedState s1, TimedTrace e, TimedState s2, BoolExpr phi) {
-		return left(s1, cosito(e, leftRight(s2,phi)));
+	private BoolExpr pre(TimedState s1, TimedTrace e, TimedState s2, BoolExpr phi, Set<String> allTimers) {
+		return left(s1, cosito(e, leftRight(s2,phi, allTimers)), allTimers);
 	}
 	
 	
@@ -352,11 +434,11 @@ public class GamaComparator<A, S> {
 	}
 	
 	
-	private BoolExpr leftRight(TimedState s2, BoolExpr phi) {
-		return left(s2,phi);
+	private BoolExpr leftRight(TimedState s2, BoolExpr phi, Set<String> allTimers) {
+		return left(s2,phi, allTimers);
 	}
 	
-	private BoolExpr left(TimedState s2, BoolExpr phi){
+	private BoolExpr left(TimedState s2, BoolExpr phi, Set<String> allTimers){
 		BoolExpr res = null;
 		try {
 			if(s2.getCondition().equals(URG_COND)){
@@ -365,7 +447,7 @@ public class GamaComparator<A, S> {
 				expr[1] = phi;
 				res = z3.MkAnd(expr);
 			}else{
-				res = right(s2, phi); 
+				res = right(s2, phi, allTimers); 
 			}	
 		} catch (Z3Exception e1) {
 			e1.printStackTrace();
@@ -373,7 +455,7 @@ public class GamaComparator<A, S> {
 		return res;
 	}
 	
-	private BoolExpr right(TimedState s2, BoolExpr phi){
+	private BoolExpr right(TimedState s2, BoolExpr phi, Set<String> allTimers){
 		BoolExpr res = null;
 		try {
 			BoolExpr[] and = new BoolExpr[2];
@@ -392,7 +474,7 @@ public class GamaComparator<A, S> {
 			Map<S,TimedState> timedStates,
 			Map<TimedState, Set<String>> actTimers,
 			TimedState previous, Pair<A, S> transState,
-			MTS<S, A> original, Set<A> controllableActions)
+			MTS<S, A> original, Set<A> controllableActions, Set<String> allTimers, Map<TimedState, String> stateTimers)
 					throws Z3Exception {
 		
 		TimedState next = null;
@@ -423,7 +505,7 @@ public class GamaComparator<A, S> {
 				addConst(time);
 				entranceCondition = z3.MkTrue();
 			}else{
-				entranceCondition = z3.MkEq(consts.get(timer), consts.get(TimeUtils.getTimeFromTimer(timer)));
+				entranceCondition = z3.MkEq(getConst(timer), getConst(TimeUtils.getTimeFromTimer(timer)));
 				actualTimers.remove(timer);
 			}
 		}else{
@@ -455,7 +537,7 @@ public class GamaComparator<A, S> {
 		if(stateTimers.containsKey(previous)){
 			String stateTimer = stateTimers.get(previous);
 //			System.out.println("Label: "+transition+", Eq"+stateTimer + "-->" + state);
-			BoolExpr soujournCondition = z3.MkEq(consts.get(stateTimer), consts.get(TimeUtils.getTimeFromTimer(stateTimer)));
+			BoolExpr soujournCondition = z3.MkEq(getConst(stateTimer), getConst(TimeUtils.getTimeFromTimer(stateTimer)));
 			
 			if(entranceCondition.equals(z3.MkTrue())){
 				entranceCondition = soujournCondition;
@@ -510,13 +592,13 @@ public class GamaComparator<A, S> {
 				return z3.MkTrue();
 			}else if(actualTimers.size() == 1) {
 				for (String timer : actualTimers) {
-					return z3.MkLe(consts.get(timer), consts.get(TimeUtils.getTimeFromTimer(timer)));
+					return z3.MkLe(getConst(timer), getConst(TimeUtils.getTimeFromTimer(timer)));
 				}
 			}else {
 				BoolExpr[] and = new BoolExpr[actualTimers.size()];
 				int i = 0;
 				for (String timer : actualTimers) {
-					and[i++] = z3.MkLe(consts.get(timer), consts.get(TimeUtils.getTimeFromTimer(timer)));
+					and[i++] = z3.MkLe(getConst(timer), getConst(TimeUtils.getTimeFromTimer(timer)));
 				}
 				return z3.MkAnd(and);
 			}
@@ -544,13 +626,13 @@ public class GamaComparator<A, S> {
 			
 			int i = 0;
 			for (String timer : allTimers) {
-				RealExpr t = consts.get(timer);
+				RealExpr t = getConst(timer);
 				RealExpr[] add = new RealExpr[2];
 				add[0] = t;
 				add[1] = x;
 				from[i] = t;
 				to[i] = z3.MkAdd(add);
-				tempTo[i] = z3.MkRealConst(i+tempVarGenerator.getNextDelta());
+				tempTo[i] = getTempConst();
 				i++;
 			}
 			
@@ -564,16 +646,26 @@ public class GamaComparator<A, S> {
 			
 			Goal g = z3.MkGoal(true, true, false);
 			g.Assert((BoolExpr)ex);
-			Tactic tac = z3.MkTactic("qe"); // quantifier elimination
+			
 			ApplyResult a = tac.Apply(g); // look at a.Subgoals
 			
-			BoolExpr[] result = new BoolExpr[ a.Subgoals()[0].Formulas().length];
+			BoolExpr[] result = new BoolExpr[a.Subgoals()[0].Formulas().length];
 			i=0;
 			for (BoolExpr boolExpr : a.Subgoals()[0].Formulas()) {
 				result[i++] = boolExpr;
 			}
 			
-			BoolExpr res = (BoolExpr) z3.MkAnd(result).Simplify();
+			BoolExpr res = (BoolExpr) z3.MkAnd(result);
+			a.Dispose();
+			g.Dispose();
+			p.Dispose();
+			ex.Dispose();
+			tmp.Dispose();
+			i = 0;
+			while(i<allTimers.size()) {
+				to[i++].Dispose();
+			}
+			tempVarGenerator.reset();
 			
 			return res;
 		} catch (Z3Exception e) {
@@ -583,6 +675,15 @@ public class GamaComparator<A, S> {
 	}
 	
 	
+	private Expr getTempConst() throws Z3Exception {
+		String name = tempVarGenerator.getNextDelta();
+		if(!tempVar.containsKey(name)){
+			tempVar.put(name, z3.MkRealConst(name));
+		}
+		return tempVar.get(name);
+	}
+
+
 	private void printToFile(String content, String name) {
 		try {
 			String dir = System.getProperty("user.dir");
@@ -604,4 +705,24 @@ public class GamaComparator<A, S> {
 		}
 	}
 
+	public void disposeContext(){
+		z3.Dispose();
+	}
+
+	public void disposeAll() {
+		//Free all variables
+		try {
+			positive.Dispose();
+			for(String key : tempVar.keySet()){
+				tempVar.get(key).Dispose();
+			}
+			for(String key : consts.keySet()){
+				consts.get(key).Dispose();
+			}
+			tac.Dispose();
+		} catch (Z3Exception e) {
+			e.printStackTrace();
+		}
+		this.disposeContext();
+	}
 }

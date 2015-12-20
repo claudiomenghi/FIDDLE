@@ -613,9 +613,9 @@ public abstract class NXTRobot extends Robot {
 		
 		//TODO: Revisar parametros Motor.A y Motor.C - deberia usarse el Pilot
 		double extraRango = 20.0;
-		double linea = this.getPathColor() ; //- extraRango;                // lectura del sensor de luz sobre la línea
-		double suelo = this.getOutOfPath() ;                // lectura del sensor de luz fuera de la línea
-		double velMax = this.getVelocidadMaxima(); // velocidad (grados por segundo) máxima de los motores
+		double linea = this.getPathColor() ; //- extraRango;                // lectura del sensor de luz sobre la linea
+		double suelo = this.getOutOfPath() ;                // lectura del sensor de luz fuera de la linea
+		double velMax = this.getVelocidadMaxima(); // velocidad (grados por segundo) maxima de los motores
 	    
 	    //if (reverse) velMax = -velMax;
 		double kp = 0;           // constante de proporcionalidad

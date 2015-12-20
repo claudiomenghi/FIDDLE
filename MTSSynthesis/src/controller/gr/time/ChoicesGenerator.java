@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import controller.gr.time.model.Choice;
+import controller.gr.time.model.ChoiceType;
 import ac.ic.doc.commons.relations.BinaryRelation;
 import ac.ic.doc.commons.relations.Pair;
 import ac.ic.doc.mtstools.model.LTS;
@@ -32,10 +34,13 @@ public abstract class ChoicesGenerator<S,A> {
 		this.uncontrollableActions = new HashSet<A>();
 		this.endActions = new HashSet<A>();
 		this.controllableActions = controllableActions;
+		classifyTransitions(environment, controllableActions);
+	}
+
+	private void classifyTransitions(LTS<S, A> environment,	Set<A> controllableActions) {
 		for(S state : environment.getStates()){
 			identifyTransitionType(environment.getTransitions(state), controllableActions, state);
 		}
-		this.choices = this.getChoices();
 	}
 	
 	private void identifyTransitionType(BinaryRelation<A, S> stateTransitions, Set<A> cActions, S state) {

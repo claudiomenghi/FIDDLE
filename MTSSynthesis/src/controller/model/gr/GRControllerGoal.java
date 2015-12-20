@@ -13,44 +13,36 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 	private List<Formula> faults;
 	private List<Formula> assumptions;
 	private List<Formula> guarantees;
-	private List<Formula> safety;
-	
-	private Set<Action> controllableActions;
-
 	private Set<Fluent> fluents;
+	private Set<Action> controllableActions;
 	private Set<Fluent> fluentsInFaults;
-	private Set<Fluent> concurrencyFluents;
-	private Set<Fluent> activityFluents;
-	private Set<Fluent> safetyFluents;
-
-	private boolean nonTransient;
-	private boolean testLatency;
 	private boolean isPermissive;
 	private boolean isNonBlocking;
 	private boolean exceptionHandling;
-	private boolean reachability;
-	
+	private Set<Fluent> concurrencyFluents;
+	private Set<Fluent> activityFluents;
 	private Integer lazyness;
+	private boolean nonTransient;
+	private boolean testLatency;
 	private Integer maxControllers;
 	private Integer maxSchedulers;
+	private boolean reachability;
+	
 	
 	public GRControllerGoal() {
 		this.faults = new ArrayList<Formula>();
 		this.assumptions = new ArrayList<Formula>();
 		this.guarantees = new ArrayList<Formula>();
-		this.safety = new ArrayList<Formula>();
-		this.faults = new ArrayList<Formula>();
-		this.controllableActions = new HashSet<Action>();
 		this.fluents = new HashSet<Fluent>();
+		this.controllableActions = new HashSet<Action>();
 		this.concurrencyFluents = new HashSet<Fluent>();
 		this.activityFluents = new HashSet<Fluent>();
-		this.fluentsInFaults = new HashSet<Fluent>();
-		this.safetyFluents = new HashSet<Fluent>();
-		this.reachability = false;
-		this.testLatency = false;
 		this.lazyness = 0;
+		this.testLatency = false;
 		this.maxControllers = 0;
 		this.maxSchedulers = 0;
+		this.reachability = false;
+
 	}
 	
 	@Override
@@ -59,7 +51,6 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 		clone.faults = this.faults;
 		clone.assumptions = this.assumptions;
 		clone.guarantees = this.guarantees;
-		clone.safety = this.safety;
 		clone.fluents = this.fluents;
 		clone.controllableActions = this.controllableActions;
 		clone.concurrencyFluents = this.concurrencyFluents;
@@ -82,6 +73,7 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 			reducedGoal.assumptions.add(Formula.TRUE_FORMULA);
 			
 		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
 			reducedGoal = this;
 			e.printStackTrace();
 		}		
@@ -204,8 +196,8 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 	}
 
 	@Override
-	public boolean addFault(Formula faultFormula) {
-		return this.faults.add(faultFormula);
+	public void addFault(Formula faultFormula) {
+		this.faults.add(faultFormula);
 	}
 
 	@Override
@@ -214,8 +206,8 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 	}
 
 	@Override
-	public boolean addAllFluentsInFaults(Set<Fluent> fluentsInFaults) {
-		return this.fluentsInFaults.addAll(fluentsInFaults);
+	public void addAllFluentsInFaults(Set<Fluent> fluentsInFaults) {
+		this.fluentsInFaults = fluentsInFaults;
 	}
 
 	@Override
@@ -248,23 +240,4 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 	public void setLazyness(Integer lazyness) {
 		this.lazyness = lazyness;
 	}
-
-	@Override
-	public boolean addAllSafetyFluents(Set<Fluent> safetyFluents) {
-		return this.safetyFluents.addAll(safetyFluents);
-	}
-
-	@Override
-	public boolean addSafety(Formula safetyFormula) {
-		return this.safety.add(safetyFormula);
-	}
-	
-	public List<Formula> getSafety() {
-		return safety;
-	}
-	
-	public Set<Fluent> getSafetyFluents() {
-		return this.safetyFluents;
-	}
-	
 }

@@ -5,7 +5,6 @@ import lts.Symbol;
 
 /*
 * abstract syntax tree for LTL formlae
-* abstract syntax tree for LTL formulae
 */
 
 abstract public class Formula implements Comparable {

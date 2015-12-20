@@ -11,7 +11,7 @@
     <property name="mtsa.lib" location="../MTSTools/lib"/>
 	<property name="mtsa.build" location="../MTSTools/bin"/>
 	<property name="mts_synthesis.src" location="../MTSSynthesis/src"/>
-	<!--property name="synthesis.lib" location="../MTSSynthesis/lib"/-->
+	<property name="synthesis.lib" location="../MTSSynthesis/lib"/>
 	<property name="mts_synthesis.build" location="../MTSSynthesis/bin"/>
 	<property name="mtsa_enactment.src" location="../MTSAEnactment/src"/>
 	<property name="mtsa_enactment.build" location="../MTSAEnactment/bin"/>
@@ -119,9 +119,9 @@
 		<copy todir="${lib}">	
 			<fileset dir="lib" includes="*.jar" excludes="*MTS*.jar"/>
 		</copy>
-		<!--copy todir="${lib}">
+		<copy todir="${lib}">
 		    <fileset dir="${synthesis.lib}" includes="*.jar"/>
-		</copy-->
+		</copy>
 	</target>
 
 	<!-- compile the ltsa source -->

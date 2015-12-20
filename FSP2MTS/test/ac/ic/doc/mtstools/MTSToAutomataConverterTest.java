@@ -38,7 +38,7 @@ public class MTSToAutomataConverterTest extends MTSTestBase {
 		assertEquals(1, automata.states.length);
 	}
 
-	public void testMTSUnMTSAEstadoPorAMaybe() throws Exception {
+	/*public void testMTSUnMTSAEstadoPorAMaybe() throws Exception {
 		MTS<Long, String> mts = buildBasicMTS();
 		mts.addAction(A_ACTION);
 		mts.addState(ESTADO_CERO);
@@ -69,9 +69,9 @@ public class MTSToAutomataConverterTest extends MTSTestBase {
 		assertEquals("a?", alphabet[transitions.getAction()]);
 		
 		assertEquals(1, automata.states.length);
-	}
+	}*/
 	
-	public void testMTSDosMTSAEstadoPorAMaybe() throws Exception {
+	/*public void testMTSDosMTSAEstadoPorAMaybe() throws Exception {
 		MTS<Long, String> mts = buildBasicMTS();
 		mts.addAction("a");
 		mts.addState(ESTADO_CERO);
@@ -93,9 +93,9 @@ public class MTSToAutomataConverterTest extends MTSTestBase {
 		assertEquals("a?", alphabet[transitions.getAction()]);
 		
 		assertEquals(2, automata.states.length);
-	}
+	}*/
 
-	public void testMTSDosMTSAEstadoPorA() throws Exception {
+	/*public void testMTSDosMTSAEstadoPorA() throws Exception {
 		MTS<Long, String> mts = buildBasicMTS();
 		mts.addAction("a");
 		mts.addState(ESTADO_CERO);
@@ -117,9 +117,9 @@ public class MTSToAutomataConverterTest extends MTSTestBase {
 		assertEquals("a", alphabet[transitions.getAction()]);
 		
 		assertEquals(2, automata.states.length);
-	}
+	} */
 
-	public void testMTSDosMTSAEstadoPorAyCicloEnCeroPorB() throws Exception {
+	/*public void testMTSDosMTSAEstadoPorAyCicloEnCeroPorB() throws Exception {
 		MTS<Long, String> mts = buildBasicMTS();
 		mts.addAction("a");
 		mts.addAction("b");
@@ -152,6 +152,6 @@ public class MTSToAutomataConverterTest extends MTSTestBase {
 		}
 		
 		assertEquals(2, automata.states.length);
-	}
+	}*/
 
 }

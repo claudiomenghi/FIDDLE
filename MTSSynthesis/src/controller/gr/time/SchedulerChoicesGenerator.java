@@ -5,12 +5,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import controller.gr.time.model.Choice;
 import ac.ic.doc.mtstools.model.LTS;
 
 public class SchedulerChoicesGenerator<S, A> extends ChoicesGenerator<S, A> {
-
+	protected SchedulerChoicesGenerator() {}
 	public SchedulerChoicesGenerator(LTS<S, A> environment, Set<A> controllableActions) {
 		super(environment, controllableActions);
+		this.choices = this.getChoices();
 	}
 	
 	@Override
@@ -19,7 +21,7 @@ public class SchedulerChoicesGenerator<S, A> extends ChoicesGenerator<S, A> {
 		//We are choosing all the controllable set, since we assume 
 		//the controllers that we are going to schedule
 		//have only one controllable action enabled. 
-		Set<A> controllableActions = controllable.get(st);
+		Set<A> controllableActions = getControllableFromState(st);
 		if(uncontrollable.get(st).isEmpty() && ends.get(st).isEmpty()){
 			choices.add(new Choice<A>(controllableActions));	
 		}else{
@@ -46,7 +48,8 @@ public class SchedulerChoicesGenerator<S, A> extends ChoicesGenerator<S, A> {
 		}
 		return choices;
 	}
-	
-	
 
+	protected Set<A> getControllableFromState(S st) {
+		return controllable.get(st);
+	}
 }

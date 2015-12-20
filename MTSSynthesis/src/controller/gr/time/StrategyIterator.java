@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import controller.gr.time.model.Choice;
+import controller.gr.time.model.ChoiceType;
+import controller.gr.time.model.Scheduler;
 import ac.ic.doc.commons.relations.BinaryRelation;
 import ac.ic.doc.commons.relations.Pair;
 import ac.ic.doc.mtstools.model.MTS;
@@ -17,8 +20,8 @@ public abstract class StrategyIterator<S,A>{
 	Map<S, Set<A>> uncontrollable;
 	Map<S, Set<A>> ends;
 	List<Scheduler<S,A>> schedulers;
-	Set<A> controllableActions;
-	Set<A> uncontrollableActions;
+	private Set<A> controllableActions;
+	private Set<A> uncontrollableActions;
 	Map<S , List<Choice<A>>>  choices;
 	int iter;
 	
@@ -37,9 +40,9 @@ public abstract class StrategyIterator<S,A>{
 		this.controllable = new HashMap<S, Set<A>>();
 		this.uncontrollable = new HashMap<S, Set<A>>();
 		this.ends = new HashMap<S, Set<A>>();
-		this.uncontrollableActions = new HashSet<A>();
+		this.setUncontrollableActions(new HashSet<A>());
 		iter = 0;
-		this.controllableActions = controllableActions2;
+		this.setControllableActions(controllableActions2);
 		for(S state : mts.getStates()){
 			identifyTransitionType(mts.getTransitions(state, TransitionType.REQUIRED), controllableActions2, state);
 		}
@@ -59,7 +62,7 @@ public abstract class StrategyIterator<S,A>{
 				controllable.add(label);
 			else if(type.equals(ChoiceType.UNCONTROLLABLE)){
 				uncontrollable.add(label);
-				uncontrollableActions.add(label);
+				getUncontrollableActions().add(label);
 			}else if(type.equals(ChoiceType.ENDS))
 				ends.add(label);
 			else 
@@ -186,5 +189,21 @@ public abstract class StrategyIterator<S,A>{
 		}else{
 			return 0;
 		}
+	}
+
+	public Set<A> getUncontrollableActions() {
+		return uncontrollableActions;
+	}
+
+	public void setUncontrollableActions(Set<A> uncontrollableActions) {
+		this.uncontrollableActions = uncontrollableActions;
+	}
+
+	public Set<A> getControllableActions() {
+		return controllableActions;
+	}
+
+	public void setControllableActions(Set<A> controllableActions) {
+		this.controllableActions = controllableActions;
 	}
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import controller.gr.time.model.Choice;
 import ac.ic.doc.commons.relations.BinaryRelation;
 import ac.ic.doc.mtstools.model.LTS;
 import ac.ic.doc.mtstools.model.impl.LTSImpl;

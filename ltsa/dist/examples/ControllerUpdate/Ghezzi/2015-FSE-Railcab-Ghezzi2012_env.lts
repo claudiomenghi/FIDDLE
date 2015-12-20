@@ -1,0 +1,170 @@
+UpdEnv = Q0,
+	Q0	= (beginUpdate -> Q1
+		  |idle_c.old -> Q15),
+	Q1	= ({startNewSpec, stopOldSpec} -> Q1
+		  |idle_c -> Q2
+		  |reconfigure -> Q34),
+	Q2	= ({startNewSpec, stopOldSpec} -> Q2
+		  |endOfTS -> Q3
+		  |reconfigure -> Q36),
+	Q3	= ({startNewSpec, stopOldSpec} -> Q3
+		  |idle_c -> Q4
+		  |requestEnter -> Q5
+		  |reconfigure -> Q40
+		  |reconfigure -> Q41),
+	Q4	= ({startNewSpec, stopOldSpec} -> Q4
+		  |reconfigure -> Q44
+		  |reconfigure -> Q45),
+	Q5	= ({startNewSpec, stopOldSpec} -> Q5
+		  |enterAllowed[0..1] -> Q6
+		  |reconfigure -> Q37
+		  |reconfigure -> Q38),
+	Q6	= ({startNewSpec, stopOldSpec} -> Q6
+		  |lastBrake -> Q7
+		  |reconfigure -> Q31
+		  |reconfigure -> Q32),
+	Q7	= ({startNewSpec, stopOldSpec} -> Q7
+		  |idle_c -> Q8
+		  |{brake, emergencyBrake} -> Q13
+		  |reconfigure -> Q46),
+	Q8	= ({startNewSpec, stopOldSpec} -> Q8
+		  |lastEmergencyBrake -> Q9
+		  |reconfigure -> Q33),
+	Q9	= ({startNewSpec, stopOldSpec} -> Q9
+		  |idle_c -> Q10
+		  |{brake, emergencyBrake} -> Q13
+		  |reconfigure -> Q42),
+	Q10	= ({startNewSpec, stopOldSpec} -> Q10
+		  |noReturn -> Q11
+		  |reconfigure -> Q39),
+	Q11	= ({startNewSpec, stopOldSpec} -> Q11
+		  |idle_c -> Q12
+		  |{brake, emergencyBrake} -> Q13
+		  |reconfigure -> Q43),
+	Q12	= (enterCrossing -> Q1
+		  |{startNewSpec, stopOldSpec} -> Q12
+		  |reconfigure -> Q35),
+	Q13	= ({startNewSpec, stopOldSpec} -> Q13
+		  |idle_c -> Q14
+		  |reconfigure -> Q34
+		  |reconfigure -> Q36),
+	Q14	= (endOfTS -> Q3
+		  |{startNewSpec, stopOldSpec} -> Q14
+		  |reconfigure -> Q34
+		  |reconfigure -> Q36),
+	Q15	= (beginUpdate -> Q2
+		  |endOfTS -> Q16),
+	Q16	= (beginUpdate -> Q3
+		  |requestEnter.old -> Q17),
+	Q17	= (beginUpdate -> Q5
+		  |enterAllowed[0] -> Q18
+		  |enterAllowed[1] -> Q24),
+	Q18	= (beginUpdate -> Q6
+		  |lastBrake -> Q19),
+	Q19	= (beginUpdate -> Q7
+		  |idle_c.old -> Q20
+		  |{brake, emergencyBrake}.old -> Q22),
+	Q20	= (beginUpdate -> Q8
+		  |lastEmergencyBrake -> Q21),
+	Q21	= (beginUpdate -> Q9
+		  |emergencyBrake.old -> Q22),
+	Q22	= (beginUpdate -> Q13
+		  |idle_c.old -> Q23),
+	Q23	= (beginUpdate -> Q14
+		  |endOfTS -> Q16),
+	Q24	= (beginUpdate -> Q6
+		  |lastBrake -> Q25),
+	Q25	= (beginUpdate -> Q7
+		  |idle_c.old -> Q26),
+	Q26	= (beginUpdate -> Q8
+		  |lastEmergencyBrake -> Q27),
+	Q27	= (beginUpdate -> Q9
+		  |idle_c.old -> Q28),
+	Q28	= (beginUpdate -> Q10
+		  |noReturn -> Q29),
+	Q29	= (beginUpdate -> Q11
+		  |idle_c.old -> Q30),
+	Q30	= (enterCrossing -> Q0
+		  |beginUpdate -> Q12),
+	Q31	= ({startNewSpec, stopOldSpec} -> Q31
+		  |lastBrake -> Q46),
+	Q32	= ({startNewSpec, stopOldSpec} -> Q32
+		  |approachingCrossing -> Q55),
+	Q33	= ({startNewSpec, stopOldSpec} -> Q33
+		  |lastEmergencyBrake -> Q42),
+	Q34	= ({startNewSpec, stopOldSpec} -> Q34
+		  |idle_c -> Q36),
+	Q35	= (enterCrossing -> Q34
+		  |{startNewSpec, stopOldSpec} -> Q35),
+	Q36	= ({startNewSpec, stopOldSpec} -> Q36
+		  |endOfTS -> Q40),
+	Q37	= (enterAllowed[0..1] -> Q31
+		  |{startNewSpec, stopOldSpec} -> Q37),
+	Q38	= (enterAllowed[0..1] -> Q32
+		  |{startNewSpec, stopOldSpec} -> Q38
+		  |approachingCrossing -> Q54),
+	Q39	= ({startNewSpec, stopOldSpec} -> Q39
+		  |noReturn -> Q43),
+	Q40	= (requestEnter -> Q38
+		  |{startNewSpec, stopOldSpec} -> Q40
+		  |idle_c -> Q44
+		  |checkCrossingStatus -> Q47),
+	Q41	= (requestEnter -> Q37
+		  |{startNewSpec, stopOldSpec} -> Q41
+		  |idle_c -> Q45
+		  |checkCrossingStatus -> Q48),
+	Q42	= ({brake, emergencyBrake} -> Q34
+		  |idle_c -> Q39
+		  |{startNewSpec, stopOldSpec} -> Q42
+		  |checkCrossingStatus -> Q50),
+	Q43	= ({brake, emergencyBrake} -> Q34
+		  |idle_c -> Q35
+		  |{startNewSpec, stopOldSpec} -> Q43
+		  |checkCrossingStatus -> Q51),
+	Q44	= (approachingCrossing -> Q41
+		  |{startNewSpec, stopOldSpec} -> Q44),
+	Q45	= STOP,
+	Q46	= (idle_c -> Q33
+		  |{brake, emergencyBrake} -> Q34
+		  |{startNewSpec, stopOldSpec} -> Q46
+		  |checkCrossingStatus -> Q49),
+	Q47	= ({notWorking, working} -> Q44
+		  |{startNewSpec, stopOldSpec} -> Q47
+		  |approachingCrossing -> Q58),
+	Q48	= ({notWorking, working} -> Q45
+		  |{startNewSpec, stopOldSpec} -> Q48),
+	Q49	= ({notWorking, working} -> Q33
+		  |{startNewSpec, stopOldSpec} -> Q49
+		  |lastEmergencyBrake -> Q53),
+	Q50	= ({notWorking, working} -> Q39
+		  |{startNewSpec, stopOldSpec} -> Q50
+		  |noReturn -> Q52),
+	Q51	= (enterCrossing -> Q34
+		  |{notWorking, working} -> Q35
+		  |{startNewSpec, stopOldSpec} -> Q51),
+	Q52	= ({brake, emergencyBrake} -> Q34
+		  |{notWorking, working} -> Q43
+		  |idle_c -> Q51
+		  |{startNewSpec, stopOldSpec} -> Q52),
+	Q53	= ({brake, emergencyBrake} -> Q34
+		  |{notWorking, working} -> Q42
+		  |idle_c -> Q50
+		  |{startNewSpec, stopOldSpec} -> Q53),
+	Q54	= ({brake, emergencyBrake} -> Q34
+		  |idle_c -> Q37
+		  |{startNewSpec, stopOldSpec} -> Q54
+		  |enterAllowed[0..1] -> Q55
+		  |checkCrossingStatus -> Q57),
+	Q55	= (idle_c -> Q31
+		  |{brake, emergencyBrake} -> Q34
+		  |{startNewSpec, stopOldSpec} -> Q55
+		  |checkCrossingStatus -> Q56),
+	Q56	= ({notWorking, working} -> Q31
+		  |{startNewSpec, stopOldSpec} -> Q56),
+	Q57	= ({notWorking, working} -> Q37
+		  |enterAllowed[0..1] -> Q56
+		  |{startNewSpec, stopOldSpec} -> Q57),
+	Q58	= ({notWorking, working} -> Q41
+		  |idle_c -> Q48
+		  |requestEnter -> Q57
+		  |{startNewSpec, stopOldSpec} -> Q58).

@@ -16,6 +16,10 @@ import com.microsoft.z3.Z3Exception;
 
 import controller.game.gr.GRGameSolver;
 import controller.game.gr.StrategyState;
+import controller.gr.time.model.Chooser;
+import controller.gr.time.model.Result;
+import controller.gr.time.model.Scheduler;
+import controller.gr.time.utils.TimeUtils;
 import controller.model.gr.GRControllerGoal;
 import controller.model.gr.GRGame;
 
@@ -100,23 +104,23 @@ public class GamaCalculator2<A,S>{
 						BoolExpr gama1 = comparator.calculateGama(result_1_schedulled , END_TO_END_NAME_1, result1, goal.getControllableActions(), finalStates);
 						Result res = comparator.compareControllers(gama1, heursticGamas.get(sched_id), END_TO_END_NAME_1, END_TO_END_NAME_2);
 						addStat(ctr_stats,res);
-						if(ctr_stats.keySet().contains(Result.UNCOMPARABLES)||
+						if(ctr_stats.keySet().contains(Result.INCOMPARABLES)||
 						  (ctr_stats.keySet().contains(Result.WORSE) && ctr_stats.keySet().contains(Result.BETTER))){
-							ctr_res = Result.UNCOMPARABLES;
-							addStat(stats, Result.UNCOMPARABLES);
+							ctr_res = Result.INCOMPARABLES;
+							addStat(stats, Result.INCOMPARABLES);
 							break;
 						}
 					}
 					if(ctr_res == null){
-						if(!ctr_stats.containsKey(Result.UNCOMPARABLES) && !ctr_stats.containsKey(Result.WORSE)){
+						if(!ctr_stats.containsKey(Result.INCOMPARABLES) && !ctr_stats.containsKey(Result.WORSE)){
 							if(ctr_stats.containsKey(Result.BETTER)){
 								ctr_res = Result.BETTER;
 							}else{
 								ctr_res = Result.EQUALLYGOOD;
 							}
-						}else if(ctr_stats.keySet().contains(Result.UNCOMPARABLES)||
+						}else if(ctr_stats.keySet().contains(Result.INCOMPARABLES)||
 								(ctr_stats.keySet().contains(Result.WORSE) && ctr_stats.keySet().contains(Result.BETTER))){
-							ctr_res = Result.UNCOMPARABLES;
+							ctr_res = Result.INCOMPARABLES;
 						}else{
 							ctr_res = Result.WORSE;
 						}

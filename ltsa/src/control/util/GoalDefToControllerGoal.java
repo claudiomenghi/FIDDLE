@@ -1,10 +1,9 @@
 package control.util;
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.Vector;
-
+import ar.dc.uba.model.condition.Fluent;
+import control.ControllerGoalDefinition;
+import controller.model.ControllerGoal;
+import controller.model.gr.GRControllerGoal;
 import lts.Diagnostics;
 import lts.LabelSet;
 import lts.Symbol;
@@ -12,12 +11,11 @@ import lts.chart.util.FormulaUtils;
 import lts.ltl.AssertDefinition;
 import lts.ltl.FormulaFactory;
 import lts.ltl.PredicateDefinition;
-import ar.dc.uba.model.condition.Fluent;
-import ar.dc.uba.model.condition.FluentImpl;
-import ar.dc.uba.model.language.SingleSymbol;
-import control.ControllerGoalDefinition;
-import controller.model.ControllerGoal;
-import controller.model.gr.GRControllerGoal;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
+import java.util.Vector;
 
 public class GoalDefToControllerGoal {
 	private static GoalDefToControllerGoal instance = new GoalDefToControllerGoal();
@@ -39,6 +37,7 @@ public class GoalDefToControllerGoal {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void buildControllableActionSet(ControllerGoal<String> goal, ControllerGoalDefinition goalDef) {
 
 		Hashtable<?, ?> constants = LabelSet.getConstants();
@@ -108,6 +107,7 @@ public class GoalDefToControllerGoal {
 		
 
 		Set<Fluent> activityFluents = new HashSet<Fluent>();
+		//Convert faults to Set<Formula> 
 		for (lts.Symbol activityDefinition : goalDef.getActivityDefinitions()) {
 			AssertDefinition def = AssertDefinition.getDefinition(activityDefinition.getName());
 			if (def!=null){
@@ -119,23 +119,11 @@ public class GoalDefToControllerGoal {
 		result.addAllActivityFluents(activityFluents);
 		involvedFluents.addAll(activityFluents);
 		
-//		Set<Fluent> safetyFluents = new HashSet<Fluent>();
-//		for (lts.Symbol safetyDefinition : goalDef.getSafetyDefinitions()) {
-//			AssertDefinition def = AssertDefinition.getConstraint(safetyDefinition.getName());
-//			if (def!=null){
-//				//here we get the negated formula as we want to obtain states violating safety.
-//				result.addSafety(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(false), safetyFluents));
-//				
-//			} else {
-//				Diagnostics.fatal("Assertion not defined [" + safetyDefinition.getName() + "].");
-//			}
-//		}
-//		
-//		result.addAllSafetyFluents(safetyFluents);
-//		involvedFluents.addAll(safetyFluents);
+		
 		
 		result.addAllFluents(involvedFluents);
-	}	
 		
-	
+		
+		
+	}
 }
