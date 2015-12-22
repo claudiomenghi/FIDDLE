@@ -58,19 +58,19 @@ fluent OutDone = <out,reset>
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 assert OLD_TOOL_ORDER = ((PolishPending -> Drilled))
 assert OLD_OUT_IF_FINISHED = (Old_Out_action -> (Drilled && Polished))
-assert DRILL_ONCE = ( Drill_action -> !Drilled )
+assert OLD_DRILL_ONCE = ( Old_Drill_action -> !Drilled )
 assert POLISH_ONCE = ( Polish_action -> !Polished )
 assert OLD_AVOID_STAMPING = ( !Old_Stamp_action)
 
 ltl_property P_OLD_TOOL_ORDER = []OLD_TOOL_ORDER
 ltl_property P_OLD_OUT_IF_FINISHED = []OLD_OUT_IF_FINISHED
-ltl_property P_DRILL_ONCE = []DRILL_ONCE
+ltl_property P_OLD_DRILL_ONCE = []OLD_DRILL_ONCE
 ltl_property P_POLISH_ONCE = []POLISH_ONCE
 ltl_property P_OLD_AVOID_STAMPING = []OLD_AVOID_STAMPING
 
 controllerSpec DRILL_POLISH = {
 	safety = {P_OLD_TOOL_ORDER, P_OLD_OUT_IF_FINISHED,
-			P_DRILL_ONCE, P_POLISH_ONCE, P_OLD_AVOID_STAMPING 
+			P_OLD_DRILL_ONCE, P_POLISH_ONCE, P_OLD_AVOID_STAMPING 
 			}
 	controllable = {ControllableActions}
 }
@@ -84,15 +84,17 @@ assert NEW_TOOL_ORDER = ( (DrillPending -> Painted) && (PaintPending -> !Drilled
 assert NEW_OUT_IF_FINISHED = (New_Out_action -> (Drilled && Painted))
 assert PAINT_ONCE =   ( Paint_action -> !Painted )
 assert NEW_AVOID_STAMPING = (!New_Stamp_action)
+assert NEW_DRILL_ONCE = ( New_Drill_action -> !Drilled )
 
 ltl_property P_NEW_TOOL_ORDER = []NEW_TOOL_ORDER
 ltl_property P_NEW_OUT_IF_FINISHED = []NEW_OUT_IF_FINISHED
 ltl_property P_PAINT_ONCE = []PAINT_ONCE
 ltl_property P_NEW_AVOID_STAMPING = []NEW_AVOID_STAMPING
+ltl_property P_NEW_DRILL_ONCE = []NEW_DRILL_ONCE
 
 controllerSpec PAINT_DRILL = {
 	safety = {P_NEW_TOOL_ORDER, P_NEW_OUT_IF_FINISHED,
-			P_DRILL_ONCE, P_PAINT_ONCE, P_NEW_AVOID_STAMPING
+			P_NEW_DRILL_ONCE, P_PAINT_ONCE, P_NEW_AVOID_STAMPING
 			}
 	controllable = {NewControllableActions}
 }
@@ -103,29 +105,32 @@ controller ||C_PAINT_DRILL = (NEW_ENV)~{PAINT_DRILL}.
 // Action Fluents
 fluent Old_Out_action = <out,OldAlphabet\{out}>
 fluent New_Out_action = <out,NewAlphabet\{out}>
-fluent Drill_action = <drill,OldAlphabet\{drill}>
+fluent Out_action = <out,{OldAlphabet,NewAlphabet}\{out}>
+fluent Old_action = <out,{OldAlphabet,NewAlphabet}\{out}>
+fluent Old_Drill_action = <drill,OldAlphabet\{drill}>
+fluent New_Drill_action = <drill,NewAlphabet\{drill}>
 fluent Polish_action = <polish,OldAlphabet\{polish}>
 fluent Paint_action = <paint,NewAlphabet\{paint}>
 fluent Old_Stamp_action = <stamp,OldAlphabet\{stamp}>
 fluent New_Stamp_action = <stamp,NewAlphabet\{stamp}>
 
-assert S_OLD = (OLD_TOOL_ORDER  && OLD_OUT_IF_FINISHED && DRILL_ONCE && POLISH_ONCE)
-assert S_NEW = (NEW_TOOL_ORDER && NEW_OUT_IF_FINISHED && DRILL_ONCE && PAINT_ONCE)
+assert S_OLD = (OLD_TOOL_ORDER  && OLD_OUT_IF_FINISHED && OLD_DRILL_ONCE && POLISH_ONCE)
+assert S_NEW = (NEW_TOOL_ORDER && NEW_OUT_IF_FINISHED && NEW_DRILL_ONCE && PAINT_ONCE)
 
 //ltl_property T
-ltl_property T_REMOVE_POLISHED = ((StopOldSpec && !StartNewSpec) -> (S_NEW || (Out_action -> Faulty)) )
+ltl_property T_REMOVE_POLISHED = ((StopOldSpec && !StartNewSpec) -> (S_NEW || (Old_Out_action -> Faulty)) )
 
 updatingController UpdCont = {
-    oldController = DrillPolishClean,
+    oldController = DrillPolish,
     oldEnvironment = OLD_ENV,
     hatEnvironment = OLD_ENV,
     newEnvironment = NEW_ENV,
-    oldGoal = DRILL_POLISH_CLEAN,
-    newGoal = CLEAN_PAINT_DRILL,
+    oldGoal = DRILL_POLISH,
+    newGoal = PAINT_DRILL,
     transition = T_REMOVE_POLISHED,
     nonblocking,
-    updateFluents = {Drilled, Polished, Painted, Cleaned, Faulty, Processing, DrillPending, PolishPending, Paint_action,
-		PaintPending, CleanPending, FaultyPending, OutDone, Out_action, Drill_action, Polish_action, Clean_action, Stamp_action}
+    updateFluents = {Drilled, Polished, Painted, Faulty, Processing, DrillPending, PolishPending, Paint_action,
+		PaintPending, FaultyPending, OutDone, Out_action, Old_Drill_action, New_Drill_action, Polish_action, Old_Stamp_action, New_Stamp_action}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
