@@ -14,6 +14,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 import controller.game.model.Game;
+import controller.model.Goal;
 
 public class OppositeSafeGame<S,A> implements Game<S> {
 	protected LTS<S, A> env;
@@ -165,4 +166,9 @@ public class OppositeSafeGame<S,A> implements Game<S> {
 		result.addAll(this.getControllableSuccessors(state));
 		return result ;
 	}
+
+	@Override
+	public Goal getGoal() {
+		throw new NullPointerException("Missing implementation for this method!!!!");	
+	}	
 }

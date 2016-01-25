@@ -78,7 +78,7 @@ public class ParityGameSolver<State> extends RankBasedGameSolver<State, Integer>
 	@Override
 	protected void initialise(Queue<StrategyState<State, Integer>> pending) {
 //		all with odd priority
-		pending.addAll(this.getStrategyStates(this.game.getOddPriorityStates()));
+		pending.addAll(this.getStrategyStates(this.game.getGoal().getOddPriorityStates()));
 	}
 
 	@Override
