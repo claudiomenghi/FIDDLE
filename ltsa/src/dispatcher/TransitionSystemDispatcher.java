@@ -1596,6 +1596,22 @@ public class TransitionSystemDispatcher {
 		}
 	}
 
+	public static void synthesiseGRNoText(CompositeState compositeState, LTSOutput output) {
+		CompactState composition = compositeState.getComposition();
+		if (composition != null) {
+			if (compositeState.goal!=null) {
+				CompactState synthesiseController = synthesiseGRNoText(compositeState, compositeState.goal, output);
+				if (synthesiseController!=null) {
+					compositeState.setComposition(synthesiseController);
+				} else if (!composition.name.contains(ControlConstants.NO_CONTROLLER)) {
+					composition.name = composition.name + ControlConstants.NO_CONTROLLER;
+				}
+			} else {
+				Diagnostics.fatal("The controller must have a goal.");
+			}
+		}
+	}
+
 	private static CompactState applyLatencyHeuristic(
 			CompositeState compositeState, CompactState synthesiseController) {
 		GRControllerGoal<String> goal = compositeState.goal;
@@ -1714,7 +1730,9 @@ public class TransitionSystemDispatcher {
 				
 				output.outln("Analysis time: " + (System.currentTimeMillis() - initialTime) + "ms.");
 				output.outln("Controller [" + plainController.getStates().size() + "] generated successfully.");
-				return MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName(), isMTS);
+				CompactState controller = MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName(), isMTS);
+				controller.setMtsControlProblemAnswer("ALL");
+				return controller;
 			}
 		} else {
 //			Checking MTS control problem
@@ -1741,7 +1759,9 @@ public class TransitionSystemDispatcher {
 //				Set<String> disjunction = Sets.difference(synthesised.getActions(), env.getActions());
 //				TraceInclusionClosure.getInstance().applyMTSClosure(plainController, disjunction); 
 				output.outln("All implementations of " + compositeState.getName() + " can be controlled");
-				return MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName());
+				CompactState controller = MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName());
+				controller.setMtsControlProblemAnswer("ALL");
+				return controller;
 			}
 			
 //			Is it true that there is no implementation of mts for which there exists an LTS controller?
@@ -1761,10 +1781,144 @@ public class TransitionSystemDispatcher {
 			} else {
 				output.outln("Some implementations of " + compositeState.getName() + " can be controlled and some cannot.");
 				MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>().transform(synthesised);
-				return MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName());
+				CompactState controller = MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName());
+				controller.setMtsControlProblemAnswer("SOME");
+				return controller;
 			}
 		}
-	}	
+	}
+
+	public static CompactState synthesiseGRNoText(CompositeState compositeState,	GRControllerGoal<String> goal, LTSOutput output) {
+
+		//ToDani: MTS env = AutomataToMTS.getInstance().convert(compositeState.composition);
+				//ToDani: LTS controller = ControlProblemFactory.buildControlProblem(env, goal).solve()
+				//ToDani: return MTSToAutomata.convert(controller);
+				
+				
+				CompactState c =  compositeState.composition;
+				
+				long initialTime = System.currentTimeMillis();
+
+				boolean isMTS = MTSUtils.isMTSRepresentation(c);
+
+				if (!isMTS && (c.isNonDeterministic() || c.hasTau())) {
+					MTS<Long, String> env = AutomataToMTSConverter.getInstance().convert(c);
+
+					if (c.hasTau()) {
+						TauRemoval.muAddition(env, "-2", MTSConstants.TAU);
+						TauRemoval.apply(env, MTSConstants.TAU);
+						c = compositeState.composition =
+							MTSToAutomataConverter.getInstance().convert(env, compositeState.name, isMTS);
+					}
+
+					MTS<StrategyState<Set<Long>, Integer>, String> synthesised = null;
+					if (goal.isNonBlocking()) {
+						//Synthesising nonblocking controllers
+						env = ControllerUtils.embedFluents(env, goal, output);
+						NondetControlProblem<Long, String> cp = new NondetControlProblem<Long, String>(env, goal);
+						LTS<StrategyState<Set<Long>, Integer>, String> synthesisResult =
+							new ControllerSynthesisFacade<StrategyState<Set<Long>, Integer>, String, Integer>().synthesiseController(cp);
+						if (synthesisResult != null) {
+							synthesised = new MTSAdapter<StrategyState<Set<Long>,Integer>, String>(synthesisResult);
+							if (synthesised != null && c.hasTau())
+								TauRemoval.muRemoval(synthesised, "-2");
+						}
+					} else {
+						//synthesising Legal Controllers
+						//check: do i need to embed fluents?
+						long time = System.currentTimeMillis();
+						makeControlledDeterminisation(compositeState, output);
+						CompactState synthesiseController = synthesiseGR(compositeState, goal, output);
+						if (synthesiseController != null) {
+							MTS<Long, String> temp = AutomataToMTSConverter.getInstance().convert(synthesiseController);
+							TraceInclusionClosure.getInstance().applyMTSClosure(temp, Collections.singleton("-1"));
+							if (c.hasTau())
+								TauRemoval.muRemoval(temp, "-2");
+//						compositeState.setComposition(MTSToAutomataConverter.getInstance().convert(temp, compositeState.name));
+							return MTSToAutomataConverter.getInstance().convert(temp, compositeState.name, isMTS);
+						} else {
+							return null;
+						}
+					}
+					
+					if (synthesised==null) {
+						return null;
+					} else {
+						MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Set<Long>, Integer>, String>().transform(synthesised);
+						CompactState compactState = MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName(), isMTS);
+						compactState = minimise(compactState, output);
+						return compactState;
+					} 
+
+				} else if (!isMTS) {
+					//ToMarian: add this (most of it?) code to a new class LTSControlProblem
+
+					MTS<Long, String> env = AutomataToMTSConverter.getInstance().convert(c);
+					MTS<Long, String> plant = ControllerUtils.embedFluents(env, goal, output);
+					
+					ControllerSynthesisFacade<Long, String, Integer> facade = new ControllerSynthesisFacade<Long, String, Integer>();
+					MTS<StrategyState<Long, Integer>, String> synthesised = facade.synthesiseController(plant, goal);
+					
+					if (synthesised==null) {
+						return null;
+					} else {
+					  GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String> transformer = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>();
+						MTS<Long, String> plainController = transformer.transform(synthesised);
+						
+						recordControllerStateLabels(transformer.getStateMapping(), facade.getGame(), goal); //needed for MDP translation
+
+						CompactState controller = MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName(), isMTS);
+						controller.setMtsControlProblemAnswer("ALL");
+						return controller;
+					}
+				} else {
+//					Checking MTS control problem
+					if (c.isNonDeterministic()) { 
+						Diagnostics.fatal("The domain model [" + compositeState.getName() + "] must be deterministic [FM-2012]."); 
+					}
+
+					MTS<Long, String> env = AutomataToMTSConverter.getInstance().convert(c);
+
+					MTS<Pair<Long, Set<String>>, String> envStar = ControllerUtils.generateStarredEnvModel(env);
+					
+					MTS<Long, String> plant = new GenericMTSToLongStringMTSConverter<Pair<Long, Set<String>>, String>().transform(envStar);
+					
+					plant = ControllerUtils.embedFluents(plant, goal, output);
+					
+//					Is it true that for all implementations of mts there exists an LTS controller?
+					MTS<StrategyState<Long, Integer>, String> synthesised = new ControllerSynthesisFacade<Long, String, Integer>().synthesiseController(plant, goal);
+					
+					if (synthesised!=null) {
+						MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>().transform(synthesised);
+//						Set<String> disjunction = Sets.difference(synthesised.getActions(), env.getActions());
+//						TraceInclusionClosure.getInstance().applyMTSClosure(plainController, disjunction); 
+
+						CompactState controller = MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName());
+						controller.setMtsControlProblemAnswer("ALL");
+						return controller;
+					}
+					
+//					Is it true that there is no implementation of mts for which there exists an LTS controller?
+					Set<String> newActions = new HashSet<String>();
+					for (String action : envStar.getActions()) {
+						if (!env.getActions().contains(action)) {
+							newActions.add(action);
+						}
+					}
+					
+					goal.addAllControllableActions(newActions);
+					synthesised = new ControllerSynthesisFacade<Long, String, Integer>().synthesiseController(plant, goal);
+					if (synthesised==null) {
+						return null;
+					} else {
+						MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>().transform(synthesised);
+						CompactState controller = MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName());
+						controller.setMtsControlProblemAnswer("SOME");
+						return controller;
+					}
+				}
+	}
+
 	private static Map<Long,List<String>> lastControllerStateLabels;
 	
 	private static void recordControllerStateLabels(Map<StrategyState<Long,Integer>,Long> mapping, GRGame<Long> lastGame, GRControllerGoal<String> goal)

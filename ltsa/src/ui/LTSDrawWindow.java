@@ -17,6 +17,8 @@ import java.awt.event.MouseEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 import javax.swing.DefaultListModel;
@@ -118,6 +120,20 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		output.addMouseListener(new MyMouse());
 	}
 
+	public void setCurrentState(int[] currentStateNumbers)
+	{
+		this.prevEvent = Arrays.copyOf(currentStateNumbers, currentStateNumbers.length + 2);
+		this.lastEvent = Arrays.copyOf(currentStateNumbers, currentStateNumbers.length + 2);
+
+		this.prevEvent[prevEvent.length - 2] = currentStateNumbers[0];
+		this.lastEvent[lastEvent.length - 2] = currentStateNumbers[0];
+
+		this.prevEvent[prevEvent.length - 1] = 0;
+		this.lastEvent[lastEvent.length - 1] = 0;
+
+		this.lastName = "";
+	}
+
 	// ------------------------------------------------------------------------
 
 	class HStretchAction implements ActionListener {
@@ -153,17 +169,20 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 			int machine = list.getSelectedIndex();
 			if (machine < 0 || machine >= Nmach)
 				return;
-			if (singleMode) {
-				output.draw(machine, sm[machine],
-						validMachine(machine, prevEvent),
-						validMachine(machine, lastEvent), lastName);
-			} else {
-				if (!machineToDrawSet[machine]) {
-					output.draw(machine, sm[machine],
-							validMachine(machine, prevEvent),
-							validMachine(machine, lastEvent), lastName);
+
+			if (singleMode)
+			{
+				output.draw(machine, sm[machine], validMachine(machine, prevEvent), validMachine(machine, lastEvent), lastName);
+			}
+			else
+			{
+				if (!machineToDrawSet[machine])
+				{
+					output.draw(machine, sm[machine], validMachine(machine, prevEvent), validMachine(machine, lastEvent), lastName);
 					machineToDrawSet[machine] = true;
-				} else {
+				}
+				else
+				{
 					output.clear(machine);
 					machineToDrawSet[machine] = false;
 				}
@@ -225,8 +244,8 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 			buttonHighlight(e.name);
 			break;
 		case LTSEvent.INVALID:
-			prevEvent = null;
-			lastEvent = null;
+//			prevEvent = null;
+//			lastEvent = null;
 			cs = (CompositeState) e.info;
 			new_machines(cs);
 			break;

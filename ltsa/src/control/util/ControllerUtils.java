@@ -169,6 +169,11 @@ public class ControllerUtils {
 		output.outln("Game states: " + result.getStates().size());
 		return result;
 	}
+
+	public static MTS<Long, String> embedFluentsNoText(MTS<Long, String> mts, ControllerGoal<String> goal, LTSOutput output) {
+		MTS<Long, String> result = ControllerUtils.removeTopStates(mts, goal.getFluents());
+		return result;
+	}
 	
 	//to be refactored. It needs to be generalised as a strategy together with the subset construction for MTS Control. 
 	public static MTS<Pair<Long, Set<String>>, String> getSubSetConstructionFor(MTS<Long, String> mts, Set<String> controllable, LTSOutput output) {

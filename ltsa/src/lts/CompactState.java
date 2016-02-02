@@ -19,16 +19,20 @@ import ar.dc.uba.util.MTS2FSP;
 import lts.util.MTSUtils;
 
 public class CompactState implements Automata {
+
     public String name;
     public int maxStates;
     public String[] alphabet;
     public EventState []states; // each state is to a vector of <event, nextstate>
+    private String mtsControlProblemAnswer;
+
     /* AMES: Promoted visibility to public. */
     public int endseq = -9999; //number of end of sequence state if any
 
     public  CompactState() {} // null constructor
 
     public CompactState(int size, String name, StateMap statemap, MyList transitions, String[] alphabet, int endSequence) {
+        this.mtsControlProblemAnswer = "";
         this.alphabet = alphabet;
         this.name = name;
         maxStates = size;
@@ -50,11 +54,24 @@ public class CompactState implements Automata {
         }
         endseq = endSequence;
     }
-    
+
     public String getName() {
     	return this.name;
     }
-    
+
+    public String getMtsControlProblemAnswer()
+    {
+        if (this.mtsControlProblemAnswer.equals(""))
+            return "NONE";
+        else
+            return this.mtsControlProblemAnswer;
+    }
+
+    public void setMtsControlProblemAnswer(String answer)
+    {
+        this.mtsControlProblemAnswer = answer;
+    }
+
     public void reachable() {
     	  MyIntHash otn = EventStateUtils.reachable(states);
     	  //System.out.println("reachable states "+otn.size()+" total states "+maxStates);
@@ -406,11 +423,17 @@ public class CompactState implements Automata {
         m.endseq = endseq;
 		m.prop = prop;
         m.alphabet = new String[alphabet.length];
-        for (int i=0; i<alphabet.length; i++) m.alphabet[i]=alphabet[i];
+        System.arraycopy(alphabet, 0, m.alphabet, 0, alphabet.length);
         m.maxStates = maxStates;
         m.states = new EventState[maxStates];
-        for (int i=0;i<maxStates; i++)
-            m.states[i] = EventStateUtils.union(m.states[i],states[i]);
+        for (int i = 0; i < states.length; i++)
+        {
+            if (states[i] == null)
+                m.states[i] = null;
+            else
+                m.states[i] = EventState.copy(states[i]);
+        }
+
         return m;
     }
 
@@ -799,7 +822,27 @@ public class CompactState implements Automata {
 		return alphaMap;
 	}
 
-	/**
+    public int getEvent(String action)
+    {
+        for (int i = 0; i < this.alphabet.length; i++)
+            if (this.alphabet[i].equals(action))
+                return i;
+
+        throw new IllegalStateException("Invalid action execution");
+    }
+
+    public void swapStates(int i, int j)
+    {
+        EventState swap = this.states[i];
+        this.states[i] = this.states[j];
+        this.states[j] = swap;
+
+        for (EventState state : this.states)
+            if (state != null)
+                state.swapNext(i, j);
+    }
+
+    /**
 	 * An exception indicating that an error state has been encountered.
 	 */
 	public class ErrorStateReachedException extends Exception {

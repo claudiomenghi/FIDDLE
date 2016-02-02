@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import exploration.ExplorerDefinition;
 import controller.game.util.GeneralConstants;
 import lts.chart.BasicChartDefinition;
 import lts.chart.ConditionDefinition;
@@ -62,6 +63,7 @@ public class LTSCompiler {
 	static Hashtable<String,ProcessSpec> processes;
 	static Hashtable<String,CompactState> compiled;
 	static Hashtable<String,CompositionExpression> composites;
+	static Hashtable<String,ExplorerDefinition> explorers;
 	private static Hashtable<String,CompositionExpression> allComposites;
 	
 	private int compositionType = -1;
@@ -99,7 +101,11 @@ public class LTSCompiler {
 	public Hashtable<String,CompositionExpression> getComposites(){
 		return composites;
 	}
-	
+
+	public Hashtable<String,ExplorerDefinition> getExplorers(){
+		return explorers;
+	}
+
 	public Hashtable<String,ProcessSpec> getProcesses(){
 		return processes;
 	}
@@ -108,7 +114,17 @@ public class LTSCompiler {
 		return name != null ? allComposites.get(name) : null;
 	}
 
-	private void error(String errorMsg) {
+	public static Hashtable<String,CompactState> getCompiled()
+  {
+    return compiled;
+  }
+
+  public static Hashtable<String,CompositionExpression> getAllComposites()
+  {
+    return allComposites;
+  }
+
+  private void error(String errorMsg) {
 		Diagnostics.fatal(errorMsg, current);
 	}
 
@@ -130,10 +146,11 @@ public class LTSCompiler {
 	 * @return
 	 */
 	public void compile() {
-		processes = new Hashtable<String,ProcessSpec>(); // processes
-		composites = new Hashtable<String,CompositionExpression>(); // composites
-		compiled = new Hashtable<String,CompactState>(); // compiled
-		allComposites = new Hashtable<String,CompositionExpression>(); // All composites
+		processes = new Hashtable<>(); // processes
+		composites = new Hashtable<>(); // composites
+		explorers = new Hashtable<>();
+		compiled = new Hashtable<>(); // compiled
+		allComposites = new Hashtable<>(); // All composites
 		
 		doparse(composites, processes, compiled);
 	}
@@ -145,14 +162,90 @@ public class LTSCompiler {
 		AssertDefinition.compileAll(output);
 		CompositionExpression ce = composites.get(name);
 		if (ce == null && composites.size() > 0) {
-			Enumeration<CompositionExpression> e = composites.elements();
-			ce = e.nextElement();
+			if (explorers.containsKey(name))
+			{
+				ExplorerDefinition explorerDefinition = explorers.get(name);
+				Enumeration<CompositionExpression> e = composites.elements();
+				CompositionExpression fce = e.nextElement();
+
+				ce = new CompositionExpression();
+				ce.name = new Symbol(123, name);
+				ce.processes = fce.processes;
+				ce.setComposites(fce.getComposites());
+				ce.output = fce.output;
+				ce.priorityIsLow = true;
+				ce.compositionType = 45;
+				ce.makeController = true;
+				ce.goal = explorerDefinition.getGoal();
+				ce.compiledProcesses = new Hashtable<String, CompactState>(0);
+
+				ce.body = new CompositeBody();
+				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition.getView().size() + 1);
+
+				for (int i = 0; i < explorerDefinition.getView().size(); i++)
+				{
+					CompositeBody aCompositeBody = new CompositeBody();
+					aCompositeBody.singleton = new ProcessRef(false, true);
+					aCompositeBody.singleton.name = explorerDefinition.getView().get(i);
+					ce.body.procRefs.add(aCompositeBody);
+				}
+
+				for (int i = 0; i < explorerDefinition.getModel().size(); i++)
+				{
+					CompositeBody aCompositeBody = new CompositeBody();
+					aCompositeBody.singleton = new ProcessRef(false, true);
+					aCompositeBody.singleton.name = explorerDefinition.getModel().get(i);
+					ce.body.procRefs.add(aCompositeBody);
+				}
+			}
+			else
+			{
+				Enumeration<CompositionExpression> e = composites.elements();
+				ce = e.nextElement();
+			}
 		}
 		if (ce != null) {
 			//Is a composition expression.
 			return ce.compose(null);
 		} else {
-			// There is no composite expression.
+
+			if (explorers.containsKey(name))
+			{
+				ExplorerDefinition explorerDefinition = explorers.get(name);
+
+				ce = new CompositionExpression();
+				ce.name = new Symbol(123, name);
+				ce.processes = processes;
+				ce.output = output;
+				ce.priorityIsLow = true;
+				ce.compositionType = 45;
+				ce.makeController = true;
+				ce.goal = explorerDefinition.getGoal();
+				ce.compiledProcesses = new Hashtable<String, CompactState>(0);
+
+				ce.body = new CompositeBody();
+				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition.getView().size() + 1);
+
+				for (int i = 0; i < explorerDefinition.getView().size(); i++)
+				{
+					CompositeBody aCompositeBody = new CompositeBody();
+					aCompositeBody.singleton = new ProcessRef(false, true);
+					aCompositeBody.singleton.name = explorerDefinition.getView().get(i);
+					ce.body.procRefs.add(aCompositeBody);
+				}
+
+				for (int i = 0; i < explorerDefinition.getModel().size(); i++)
+				{
+					CompositeBody aCompositeBody = new CompositeBody();
+					aCompositeBody.singleton = new ProcessRef(false, true);
+					aCompositeBody.singleton.name = explorerDefinition.getModel().get(i);
+					ce.body.procRefs.add(aCompositeBody);
+				}
+
+				return ce.compose(null);
+			}
+
+			// There is no composite expression. 
 			try {
 				// All scenarios are synthesised
 				this.addAllToCompiled(TriggeredScenarioDefinition.synthesiseAll(output));
@@ -286,11 +379,11 @@ public class LTSCompiler {
 		return compiled;
 	}
 	
-	public void parse(Hashtable<String,CompositionExpression> composites, Hashtable<String,ProcessSpec> processes) {
+	public void parse(Hashtable<String,CompositionExpression> composites, Hashtable<String,ProcessSpec> processes, Hashtable<String,ExplorerDefinition> explorations) {
 		doparse(composites, processes, null);
 	}
 
-	private void doparse(Hashtable<String,CompositionExpression> composites, Hashtable<String,ProcessSpec> processes, Hashtable<String,CompactState> compiled) {
+	private void doparse(Hashtable<String, CompositionExpression> composites, Hashtable<String, ProcessSpec> processes, Hashtable<String, CompactState> compiled) {
 		ProbabilisticTransition.setLastProbBundle(ProbabilisticTransition.NO_BUNDLE);
 		next_symbol();
        try {
@@ -337,6 +430,19 @@ public class LTSCompiler {
 				ControllerGoalDefinition goal = new ControllerGoalDefinition(current);
 				this.goalDefinition(goal);
 				
+			} else if (current.kind == Symbol.EXPLORATION) {
+				next_symbol();
+
+				current_is(Symbol.UPPERIDENT, "exploration identifier expected");
+
+				this.validateUniqueProcessName(current);
+				ExplorerDefinition explorerDefinition = new ExplorerDefinition(current);
+				next_symbol();
+
+				this.explorerDefinition(explorerDefinition);
+
+				output.outln("Explorer: " + explorerDefinition.getName());
+
 			} else if (current.kind == Symbol.UPDATING_CONTROLLER) {
 				next_symbol();
 
@@ -2111,6 +2217,40 @@ public class LTSCompiler {
 
 		current_is(Symbol.RCURLY, "} expected");
 	}
+
+	private void explorerDefinition(ExplorerDefinition explorerDefinition) {
+		current_is(Symbol.BECOMES, "= expected after explorer identifier");
+		next_symbol();
+
+		current_is(Symbol.LCURLY, "{ expected");
+		next_symbol();
+
+		current_is(Symbol.EXPLORATION_ENVIRONMENT, "environment expected");
+		next_symbol();
+		explorerDefinition.setView(this.componentsNotEmpty());
+		next_symbol();
+
+		current_is(Symbol.EXPLORATION_MODEL, "model expected");
+		next_symbol();
+		explorerDefinition.setModel(this.componentsByCount(explorerDefinition.getView().size()));
+		next_symbol();
+
+		current_is(Symbol.EXPLORATION_GOAL, "goal expected");
+		next_symbol();
+		explorerDefinition.setGoal(this.componentsByCount(1));
+
+		if (current.kind == Symbol.COMMA)
+		{
+			next_symbol();
+			current_is(Symbol.EXPLORATION_ENVIRONMENT_ACTIONS, "actions expected");
+            next_symbol();
+            explorerDefinition.setEnvironmentActions(this.listsOfComponentsNotEmpty());
+		}
+
+		explorers.put(explorerDefinition.getName(), explorerDefinition);
+
+		current_is(Symbol.RCURLY, "} expected");
+	}
 	
 	
     private Pair<Integer,Integer> controllerSubPair() {
@@ -2265,6 +2405,56 @@ public class LTSCompiler {
 		next_symbol();
 	}
 
+    private List<List<Symbol>> listsOfComponentsNotEmpty()
+    {
+        List<List<Symbol>> listOfDefinitions = new ArrayList<>();
+
+        current_is(Symbol.BECOMES, "= expected");
+        next_symbol();
+
+        current_is(Symbol.LCURLY, "{ expected");
+        next_symbol();
+
+		current_is(Symbol.LCURLY, "{ expected");
+		while (current.kind == Symbol.LCURLY || current.kind == Symbol.COMMA)
+		{
+			List<Symbol> definitions = new ArrayList<>();
+
+			if (current.kind == Symbol.COMMA)
+				next_symbol();
+
+			current_is(Symbol.LCURLY, "{ expected");
+			next_symbol();
+			boolean finish = false;
+
+			current_is(Symbol.IDENTIFIER, "non empty set expected");
+			definitions.add(current);
+			next_symbol();
+			if (current.kind != Symbol.COMMA)
+				finish = true;
+			else
+				next_symbol();
+
+			while (current.kind == Symbol.IDENTIFIER && !finish)
+			{
+				definitions.add(current);
+				next_symbol();
+				if (current.kind != Symbol.COMMA)
+					break;
+				next_symbol();
+			}
+			current_is(Symbol.RCURLY, "} expected");
+			next_symbol();
+
+			listOfDefinitions.add(definitions);
+		}
+
+        current_is(Symbol.RCURLY, "} expected");
+        next_symbol();
+
+        return listOfDefinitions;
+    }
+
 	private List<Symbol> controllerSubGoal() {
 		expectBecomes();
 		List<Symbol> definitions = new ArrayList<Symbol>();
@@ -2286,7 +2476,76 @@ public class LTSCompiler {
 		
 		return definitions;
 	}
-	
+
+	private List<Symbol> componentsNotEmpty() {
+		List<Symbol> definitions = new ArrayList<Symbol>();
+		current_is(Symbol.BECOMES, "= expected");
+		next_symbol();
+
+		current_is(Symbol.LCURLY, "{ expected");
+		next_symbol();
+		boolean finish = false;
+
+		current_is(Symbol.UPPERIDENT, "non empty set expected");
+		definitions.add(current);
+		next_symbol();
+		if (current.kind != Symbol.COMMA)
+			finish = true;
+		else
+			next_symbol();
+
+		while (current.kind == Symbol.UPPERIDENT && !finish)
+		{
+			definitions.add(current);
+			next_symbol();
+			if (current.kind != Symbol.COMMA) {
+				finish = true;
+				break;
+			}
+			next_symbol();
+		}
+		current_is(Symbol.RCURLY, "} expected");
+		next_symbol();
+
+		return definitions;
+	}
+
+	private List<Symbol> componentsByCount(int count) {
+		List<Symbol> definitions = new ArrayList<Symbol>();
+		current_is(Symbol.BECOMES, "= expected");
+		next_symbol();
+
+		current_is(Symbol.LCURLY, "{ expected");
+		next_symbol();
+		boolean finish = false;
+
+		current_is(Symbol.UPPERIDENT, "non empty set expected");
+		definitions.add(current);
+		next_symbol();
+		if (current.kind != Symbol.COMMA)
+			finish = true;
+		else
+			next_symbol();
+
+		while (current.kind == Symbol.UPPERIDENT && !finish)
+		{
+			definitions.add(current);
+			next_symbol();
+			if (current.kind != Symbol.COMMA) {
+				finish = true;
+				break;
+			}
+			next_symbol();
+		}
+		current_is(Symbol.RCURLY, "} expected");
+		next_symbol();
+
+		if (definitions.size() != count)
+			error("View and Model haven't the same number of components");
+
+		return definitions;
+	}
+
 	private ArrayList<Symbol> controllerSubUpdateController() {
 		this.expectBecomes();
 		next_symbol();
@@ -2299,6 +2558,45 @@ public class LTSCompiler {
 	
 	}
 	
+	private ArrayList<Pair<Symbol,Symbol>> controllerFluentsUpdateController() {
+		ArrayList<Pair<Symbol,Symbol>> definitions = new ArrayList<Pair<Symbol,Symbol>>();
+		current_is(Symbol.BECOMES, "= expected");
+		next_symbol();
+
+		current_is(Symbol.LCURLY, "{ expected");
+		next_symbol();
+		boolean finish = false;
+		while (current.kind == Symbol.LCURLY && !finish) {
+			boolean innerFinish = false;
+			current_is(Symbol.LCURLY, "{ expected");
+			next_symbol();
+			Symbol first = null;
+			Symbol second = null;
+			if (current.kind == Symbol.UPPERIDENT){
+				first = current;
+				next_symbol();
+			}
+			current_is(Symbol.COMMA, ", expected");
+			next_symbol();
+			if (current.kind == Symbol.UPPERIDENT){
+				second = current;
+				next_symbol();
+			}
+			Pair<Symbol,Symbol> subDefinition = new Pair<Symbol,Symbol>(first,second);
+			definitions.add(subDefinition);
+			next_symbol();
+			if (current.kind != Symbol.COMMA) {
+				finish = true;
+				break;
+			}
+			next_symbol();
+		}
+		current_is(Symbol.RCURLY, "} expected");
+		next_symbol();
+		
+		return definitions;
+	}
+
 	private ArrayList<Symbol> controllerCheckTraceUpdateController() {
 		expectBecomes();
 		ArrayList<Symbol> definitions = new ArrayList<Symbol>();
