@@ -2,6 +2,8 @@ package controller.game.model;
 
 import java.util.Set;
 
+import controller.model.Goal;
+
 public interface Game<State> {
 
 	public abstract boolean isUncontrollable(State state);
@@ -21,5 +23,7 @@ public interface Game<State> {
 	public abstract void addUncontrollableSuccessor(State predecessor, State successor);
 	
 	public abstract Set<State> getInitialStates();
+	
+	public abstract Goal getGoal();
 
 }

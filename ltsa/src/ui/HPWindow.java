@@ -99,6 +99,7 @@ import ui.enactment.EnactorOptionsWindows;
 import ui.update.UpdateGraphSimulation;
 import updatingControllers.structures.UpdatingControllerCompositeState;
 import ac.ic.doc.mtstools.model.SemanticType;
+import controller.model.gr.GRControllerGoal;
 import custom.CustomAnimator;
 import custom.SceneAnimator;
 import dispatcher.TransitionSystemDispatcher;
@@ -107,6 +108,39 @@ import enactment.EnactmentOptions;
 import enactment.EnactorFactory;
 import enactment.MTSAEnactmentSimulation;
 import enactment.SchedulerFactory;
+import exploration.Explorer;
+import exploration.ExplorerDefinition;
+import exploration.knowledge.Knowledge;
+import exploration.model.Model;
+import exploration.strategy.*;
+import exploration.view.View;
+import exploration.view.ViewNextConfiguration;
+import exploration.view.ViewNextConfigurationRandom;
+import exploration.view.ViewNextConfigurationTrace;
+import jung.LTSJUNGCanvas;
+import jung.LTSJUNGCanvas.EnumLayout;
+import lts.*;
+import lts.ltl.AssertDefinition;
+import lts.ltl.FormulaFactory;
+import lts.util.MTSUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+import ui.enactment.EnactorOptionsWindows;
+import ui.LTSLayoutWindow;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.*;
+import javax.swing.text.JTextComponent;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+import java.util.List;
 
 public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		LTSOutput, LTSError, Runnable {
@@ -119,8 +153,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	AlphabetWindow alphabet;
 	PrintWindow prints;
 	LTSDrawWindow draws;
+	LTSLayoutWindow layouts;
 	JTabbedPane textIO;
 	JToolBar tools;
+	JTextField stepscount;
 
 	MTSAEnactmentSimulation<Long, String> enactmentSimulation = new MTSAEnactmentSimulation<Long, String>();
 	UpdateGraphSimulation updateGraphSimulation;
@@ -133,26 +169,57 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	EventManager eman = new EventManager();
 	Frame animator = null;
 	CompositeState current = null;
+	Explorer explorer = null;
+    Hashtable<String, ExplorerDefinition> explorerDefinitions = null;
 	String run_menu = DEFAULT;
 	String asserted = null;
+
+	// >>> AMES: Enhanced Modularity
+	Hashtable<String, LabelSet> labelSetConstants = null;
+	// <<< AMES
 
 	// Listener for the edits on the current document.
 	protected UndoableEditListener undoHandler = new UndoHandler();
 	// UndoManager that we add edits to.
 	protected UndoManager undo = new UndoManager();
 
-	JMenu file, edit, check, build, window, help, option, mts, menu_enactment,
-			menu_enactment_enactors;
-	JMenuItem file_new, file_open, file_save, file_saveAs, file_export,
-			file_exit, edit_cut, edit_copy, edit_paste, edit_undo,
-			edit_redo,
-			check_safe,
-			check_progress,
-			check_reachable, // check_stop,
-			build_parse, build_compile, build_compose, build_minimise,
-			help_about, supertrace_options, mtsRefinement, mtsConsistency,
-			checkDeadlock, controllerSynthesis, menu_enactment_run,
-			menu_enactment_options;
+	JMenu file;
+	JMenu edit;
+	JMenu check;
+	JMenu build;
+	JMenu window;
+	JMenu help;
+	JMenu option;
+	JMenu mts;
+	JMenu menu_enactment;
+	JMenu menu_enactment_enactors;
+	JMenuItem file_new;
+	JMenuItem file_open;
+	JMenuItem file_save;
+	JMenuItem file_saveAs;
+	JMenuItem file_export;
+	JMenuItem file_exit;
+	JMenuItem edit_cut;
+	JMenuItem edit_copy;
+	JMenuItem edit_paste;
+	JMenuItem edit_undo;
+	JMenuItem edit_redo;
+	JMenuItem check_safe;
+	JMenuItem check_progress;
+	JMenuItem check_reachable; // check_stop,
+	JMenuItem build_parse;
+	JMenuItem build_compile;
+	JMenuItem build_compose;
+	JMenuItem build_minimise;
+	JMenuItem help_about;
+	JMenuItem supertrace_options;
+	JMenuItem mtsRefinement;
+	JMenuItem mtsConsistency;
+	JMenuItem checkDeadlock;
+	JMenuItem controllerSynthesis;
+	JMenuItem menu_enactment_run;
+	JMenuItem menu_enactment_options;
+	JMenuItem layout_options;
 
 	// >>> AMES: Deadlock Insensitive Analysis
 	JMenuItem check_safe_no_deadlock;
@@ -188,6 +255,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JCheckBoxMenuItem window_alpha;
 	JCheckBoxMenuItem window_print;
 	JCheckBoxMenuItem window_draw;
+	JCheckBoxMenuItem window_layout;
 	JRadioButtonMenuItem strategyDFS, strategyBFS, strategyRandom;
 	ButtonGroup strategyGroup;
 	JMenuItem maxStateGeneration;
@@ -215,6 +283,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private EnactmentOptions<Long, String> enactmentOptions = new EnactmentOptions<Long, String>();
 
 	public HPWindow(AppletButton isap) {
+
 		//Try to load Spring ltsa-context.xml file
 		try {
 			applicationContext = new ClassPathXmlApplicationContext("ltsa-context.xml");
@@ -232,6 +301,54 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		// edit window for specification source
 		// input = new JTextArea("",24,80);
 		input = new JEditorPane();
+
+        input.addKeyListener(new KeyListener()
+        {
+
+            @Override
+            public void keyTyped(KeyEvent e)
+            {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                if ((e.getKeyCode() == KeyEvent.VK_Z) && e.isControlDown())
+                {
+                    try
+                    {
+                        undo.undo();
+                    }
+                    catch (CannotUndoException ignored)
+                    {
+
+                    }
+                    updateDoState();
+                }
+
+                if ((e.getKeyCode() == KeyEvent.VK_Y) && e.isControlDown())
+                {
+                    try
+                    {
+                        undo.redo();
+                    }
+                    catch (CannotUndoException ignored)
+                    {
+
+                    }
+                    updateDoState();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+
+            }
+        });
+
+
 		input.setEditorKit(new ColoredEditorKit());
 
 		input.setFont(FIXED);
@@ -389,6 +506,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		window_draw.setSelected(true);
 		window_draw.addActionListener(new WinDrawAction());
 		window.add(window_draw);
+		//layout
+		window_layout = new JCheckBoxMenuItem("Layout");
+		window_layout.setSelected(true);
+		window_layout.addActionListener(new WinLayoutAction());
+		window.add(window_layout);
 		// help menu
 		help = new JMenu("Help");
 		mb.add(help);
@@ -481,7 +603,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		setNewLabelFormat.addActionListener(opt);
 		option.add(setNewLabelFormat);
 		setNewLabelFormat.setSelected(true);
-		setMultipleLTS = new JCheckBoxMenuItem("Multiple LTS in Draw window");
+		setMultipleLTS = new JCheckBoxMenuItem("Multiple LTS in Draw and Layout windows");
 		setMultipleLTS.addActionListener(opt);
 		option.add(setMultipleLTS);
 		setMultipleLTS.setSelected(false);
@@ -490,6 +612,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		setAutoRun.addActionListener(opt);
 		option.add(setAutoRun);
 		setAutoRun.setSelected(false);
+
+		layout_options = new JMenuItem("Layout parameters");
+		layout_options.addActionListener(new LayoutOptionListener());
+		option.add(layout_options);
 
 		menu_enactment = new JMenu("Enactment");
 		mb.add(menu_enactment);
@@ -638,6 +764,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		tools.add(createTool("icon/alphabet.gif", "Run Arranged Animation", new DoAction(DO_ARRANGED_ANIMATOR)));
 		tools.addSeparator();
 		tools.add(createTool("icon/exploration.gif", "Do Exploration", new DoAction(DO_EXPLORATION)));
+		tools.add(createTool("icon/manual.png", "Manual", new DoAction(DO_EXPLORATION_MANUAL)));
+		tools.add(stepscount = createTextBox());
+		tools.add(createTool("icon/stepover.png", "Step Over", new DoAction(DO_EXPLORATION_STEPOVER)));
+		tools.add(createTool("icon/resume.png", "Resume", new DoAction(DO_EXPLORATION_RESUME)));
+
 		getContentPane().add("North", tools);
 		tools.addSeparator();
 		tools.add(createTool("icon/blanker.gif", "Blank Screen",
@@ -669,6 +800,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		LTSCanvas.newLabelFormat = setNewLabelFormat.isSelected();
 		LTSDrawWindow.singleMode = !setMultipleLTS.isSelected();
 		newDrawWindow(window_draw.isSelected());
+		//create layout tab
+		LTSLayoutWindow.singleMode = !setMultipleLTS.isSelected();
+		newLayoutWindow(window_layout.isSelected());
 		// switch to edit tab
 		swapto(0);
 		// close window action
@@ -706,6 +840,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		b.setToolTipText(tip);
 		b.addActionListener(act);
 		return b;
+	}
+
+	protected JTextField createTextBox()
+	{
+		JTextField t = new JTextField("1", 1);
+		t.setMaximumSize(new Dimension(300, 300));
+		return t;
 	}
 
 	// ------------------------------------------------------------------------
@@ -761,6 +902,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// Naha
 	static final int DO_ARRANGED_ANIMATOR = 19;
 	static final int DO_EXPLORATION = 21;
+	static final int DO_EXPLORATION_STEPOVER = 25;
+	static final int DO_EXPLORATION_RESUME = 23;
+	static final int DO_EXPLORATION_MANUAL = 24;
 	// Naha
 
 	private static final int DO_RUNENACTORS = 17;
@@ -812,7 +956,17 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			case DO_EXPLORATION:
 				showOutput();
 				compile();
-				init_exploration();
+				doComposition();
+				exploration_new();
+				break;
+			case DO_EXPLORATION_STEPOVER:
+				exploration_stepover();
+				break;
+			case DO_EXPLORATION_MANUAL:
+				exploration_manual();
+				break;
+			case DO_EXPLORATION_RESUME:
+				exploration_resume();
 				break;
 			case DO_reachable:
 				showOutput();
@@ -875,6 +1029,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			outln("**** Runtime Exception: " + e);
 			e.printStackTrace();
 			current = null;
+			explorer = null;
+			explorerDefinitions = null;
 		}
 		menuEnable(true);
 		// check_stop.setEnabled(false);
@@ -902,6 +1058,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// ------------------------------------------------------------------------
 	private void invalidateState() {
 		current = null;
+		explorer = null;
+		explorerDefinitions = null;
 		targetChoice.removeAllItems();
 		targetChoice.addItem(DEFAULT);
 		check_run.removeAll();
@@ -1169,6 +1327,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				prints.saveFile(currentDirectory, ".txt");
 			else if (pp.equals("Draw"))
 				draws.saveFile();
+			else if (pp.equals("Layout"))
+				layouts.saveFile();
 		}
 	}
 
@@ -1249,6 +1409,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				LTSDrawWindow.singleMode = !setMultipleLTS.isSelected();
 				if (draws != null)
 					draws.setMode(LTSDrawWindow.singleMode);
+				LTSLayoutWindow.singleMode = !setMultipleLTS.isSelected();
+				if (layouts!=null) layouts.setMode(LTSLayoutWindow.singleMode);
 			} else if (source == setNewLabelFormat) {
 				if (draws != null)
 					draws.setNewLabelFormat(setNewLabelFormat.isSelected());
@@ -1279,6 +1441,188 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 	}
 
+	class LayoutOptionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			final JFrame f = new JFrame("Layout parameters");
+			f.setResizable(false);
+			f.setSize(300, 600);
+			f.setLocationRelativeTo(null);
+			Container container = f.getContentPane();
+			container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+			JPanel content = new JPanel();
+			content.setLayout(new GridLayout(0,1));
+
+			JPanel kkpanel = new JPanel();
+			kkpanel.setBorder(BorderFactory.createTitledBorder(EnumLayout.KamadaKawai.toString()));
+			kkpanel.setLayout(new GridLayout(0,2));
+
+			kkpanel.add(new JLabel("Length factor"));
+			final JSpinner KK_length_factor_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.KK_length_factor,0.1,10.0,0.1));
+			kkpanel.add(KK_length_factor_spinner);
+
+// Not useful for connected graphs
+//		  kkpanel.add(new JLabel("Distance"));
+//		  final JSpinner KK_distance_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.KK_distance,0.1,10.0,0.1));
+//		  kkpanel.add(KK_distance_spinner);
+
+			kkpanel.add(new JLabel("Max iterations"));
+			final JSpinner kk_it_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.KK_max_iterations,1,10000,1));
+			kkpanel.add(kk_it_spinner);
+
+			container.add(kkpanel);
+
+			JPanel frpanel = new JPanel();
+			frpanel.setBorder(BorderFactory.createTitledBorder(EnumLayout.FruchtermanReingold.toString()));
+			frpanel.setLayout(new GridLayout(0,2));
+
+			frpanel.add(new JLabel("Attraction"));
+			final JSpinner fr_attraction_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.FR_attraction,0.1,10.0,0.05));
+			frpanel.add(fr_attraction_spinner);
+
+			frpanel.add(new JLabel("Repulsion"));
+			final JSpinner fr_repulsion_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.FR_repulsion,0.1,10.0,0.05));
+			frpanel.add(fr_repulsion_spinner);
+
+			frpanel.add(new JLabel("Max iterations"));
+			final JSpinner fr_it_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.FR_max_iterations,1,10000,1));
+			frpanel.add(fr_it_spinner);
+
+			container.add(frpanel);
+
+// No useful parameters for TreeLikeLTS, RadialLTS
+//		  JPanel treepanel = new JPanel();
+//		  treepanel.setBorder(BorderFactory.createTitledBorder(EnumLayout.TreeLikeLTS.toString()));
+//		  treepanel.setLayout(new GridLayout(0,2));
+//
+//		  treepanel.add(new JLabel("Horizontal distance"));
+//		  final JSpinner tree_distx_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.Tree_distX,0,1000,1));
+//		  treepanel.add(tree_distx_spinner);
+//
+//		  treepanel.add(new JLabel("Vertical distance"));
+//		  final JSpinner tree_disty_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.Tree_distY,0,1000,1));
+//		  treepanel.add(tree_disty_spinner);
+//
+//		  content.add(treepanel);
+//
+//		  JPanel radialpanel = new JPanel();
+//		  radialpanel.setBorder(BorderFactory.createTitledBorder(EnumLayout.RadialLTS.toString()));
+//		  radialpanel.setLayout(new GridLayout(0,2));
+//
+//		  radialpanel.add(new JLabel("Horizontal distance"));
+//		  final JSpinner radial_distx_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.Radial_distX,0,1000,1));
+//		  radialpanel.add(radial_distx_spinner);
+//
+//		  radialpanel.add(new JLabel("Vertical distance"));
+//		  final JSpinner radial_disty_spinner = new JSpinner(new SpinnerNumberModel(LTSJUNGCanvas.Radial_distY,0,1000,1));
+//		  radialpanel.add(radial_disty_spinner);
+//
+//		  content.add(radialpanel);
+
+//		  container.add(content);
+
+			final JButton okbutton = new JButton("Ok");
+			final JButton cancelbutton = new JButton("Cancel");
+			final JButton applybutton = new JButton("Apply");
+
+			class ButtonOptionListener implements ActionListener {
+				public void actionPerformed(ActionEvent e) {
+					if (e.getSource() == applybutton) {
+						updateValues();
+						if (layouts != null) {
+							layouts.refresh();
+						}
+					} else if (e.getSource() == okbutton) {
+						updateValues();
+						f.dispose();
+					} else if (e.getSource() == cancelbutton) {
+						f.dispose();
+					}
+				}
+
+				private void updateValues() {
+					try {
+						Object o = KK_length_factor_spinner.getValue();
+						if (o==null) return;
+						LTSJUNGCanvas.KK_length_factor = Double.parseDouble(o.toString()) < 0 ? 0 : (Double.parseDouble(o.toString()) > 10 ? 10 : Double.parseDouble(o.toString()));
+						//if (layouts!=null) layouts.getCanvas().setOptions(LTSJUNGCanvas.LayoutOptions.KK_length_factor,LTSJUNGCanvas.KK_length_factor);
+					} catch(NumberFormatException ignored) {}
+//		    	  try {
+//		  	    	  Object o = KK_distance_spinner.getValue();
+//		  	    	  if (o==null) return;
+//		  	    	  LTSJUNGCanvas.KK_distance = Double.parseDouble(o.toString()) < 0 ? 0 : (Double.parseDouble(o.toString()) > 10 ? 10 : Double.parseDouble(o.toString()));
+//		  	    	  //if (layouts!=null) layouts.setKK_distance(LTSLayoutWindow.KK_distance);
+//		    	  } catch(NumberFormatException nfe) {}
+					try {
+						Object o = kk_it_spinner.getValue();
+						if (o==null) return;
+						LTSJUNGCanvas.KK_max_iterations = Integer.parseInt(o.toString()) < 0 ? 0 : (Integer.parseInt(o.toString()) > 10000 ? 10000 : Integer.parseInt(o.toString()));
+						//if (layouts!=null) layouts.setKK_max_iterations(LTSLayoutWindow.KK_max_iterations);
+					} catch(NumberFormatException ignored) {}
+					try {
+						Object o = fr_attraction_spinner.getValue();
+						if (o==null) return;
+						LTSJUNGCanvas.FR_attraction = Double.parseDouble(o.toString()) < 0 ? 0 : (Double.parseDouble(o.toString()) > 10 ? 10 : Double.parseDouble(o.toString()));
+						//if (layouts!=null) layouts.setFR_attraction(LTSLayoutWindow.FR_attraction);
+					} catch(NumberFormatException ignored) {}
+					try {
+						Object o = fr_repulsion_spinner.getValue();
+						if (o==null) return;
+						LTSJUNGCanvas.FR_repulsion = Double.parseDouble(o.toString()) < 0 ? 0 : (Double.parseDouble(o.toString()) > 10 ? 10 : Double.parseDouble(o.toString()));
+						//if (layouts!=null) layouts.setFR_repulsion(LTSLayoutWindow.FR_repulsion);
+					} catch(NumberFormatException ignored) {}
+					try {
+						Object o = fr_it_spinner.getValue();
+						if (o==null) return;
+						LTSJUNGCanvas.FR_max_iterations = Integer.parseInt(o.toString()) < 0 ? 0 : (Integer.parseInt(o.toString()) > 10000 ? 10000 : Integer.parseInt(o.toString()));
+						//if (layouts!=null) layouts.setFR_max_iterations(LTSLayoutWindow.FR_max_iterations);
+					} catch(NumberFormatException ignored) {}
+//		    	  try {
+//		  	    	  Object o = tree_distx_spinner.getValue();
+//		  	    	  if (o==null) return;
+//		  	    	  LTSJUNGCanvas.Tree_distX = Integer.parseInt(o.toString()) < 0 ? 0 : (Integer.parseInt(o.toString()) > 1000 ? 1000 : Integer.parseInt(o.toString()));
+//		  	    	  //if (layouts!=null) layouts.setFR_max_iterations(LTSLayoutWindow.FR_max_iterations);
+//		    	  } catch(NumberFormatException nfe) {}
+//		    	  try {
+//		  	    	  Object o = tree_disty_spinner.getValue();
+//		  	    	  if (o==null) return;
+//		  	    	  LTSJUNGCanvas.Tree_distY = Integer.parseInt(o.toString()) < 0 ? 0 : (Integer.parseInt(o.toString()) > 1000 ? 1000 : Integer.parseInt(o.toString()));
+//		  	    	  //if (layouts!=null) layouts.setFR_max_iterations(LTSLayoutWindow.FR_max_iterations);
+//		    	  } catch(NumberFormatException nfe) {}
+//		    	  try {
+//		  	    	  Object o = radial_distx_spinner.getValue();
+//		  	    	  if (o==null) return;
+//		  	    	  LTSJUNGCanvas.Radial_distX = Integer.parseInt(o.toString()) < 0 ? 0 : (Integer.parseInt(o.toString()) > 1000 ? 1000 : Integer.parseInt(o.toString()));
+//		  	    	  //if (layouts!=null) layouts.setFR_max_iterations(LTSLayoutWindow.FR_max_iterations);
+//		    	  } catch(NumberFormatException nfe) {}
+//		    	  try {
+//		  	    	  Object o = radial_disty_spinner.getValue();
+//		  	    	  if (o==null) return;
+//		  	    	  LTSJUNGCanvas.Radial_distY = Integer.parseInt(o.toString()) < 0 ? 0 : (Integer.parseInt(o.toString()) > 1000 ? 1000 : Integer.parseInt(o.toString()));
+//		  	    	  //if (layouts!=null) layouts.setFR_max_iterations(LTSLayoutWindow.FR_max_iterations);
+//		    	  } catch(NumberFormatException nfe) {}
+				}
+			}
+
+			JPanel buttonpanel = new JPanel();
+			buttonpanel.setLayout(new GridLayout(0,3));
+
+			applybutton.addActionListener(new ButtonOptionListener());
+			okbutton.addActionListener(new ButtonOptionListener());
+			cancelbutton.addActionListener(new ButtonOptionListener());
+			buttonpanel.add(applybutton);
+			buttonpanel.add(okbutton);
+			buttonpanel.add(cancelbutton);
+
+			container.add(buttonpanel);
+
+			f.pack();
+			f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			f.setVisible(true);
+
+
+		}
+	}
+
 	class WinAlphabetAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			newAlphabetWindow(window_alpha.isSelected());
@@ -1294,6 +1638,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	class WinDrawAction implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			newDrawWindow(window_draw.isSelected());
+		}
+	}
+
+	class WinLayoutAction implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			newDrawWindow(window_layout.isSelected());
 		}
 	}
 
@@ -1429,7 +1779,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		public void actionPerformed(ActionEvent e) {
 			try {
 				undo.undo();
-			} catch (CannotUndoException ex) {
+			} catch (CannotUndoException ignored) {
 			}
 			updateDoState();
 		}
@@ -1439,7 +1789,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		public void actionPerformed(ActionEvent e) {
 			try {
 				undo.redo();
-			} catch (CannotUndoException ex) {
+			} catch (CannotUndoException ignored) {
 			}
 			updateDoState();
 		}
@@ -1591,6 +1941,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	public void resetMarker() {
 		fPos = -1;
 	}
+
 	// <<< AMES
 
 	public void resetInput() {
@@ -1632,12 +1983,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		LTSCompiler comp = new LTSCompiler(this, this, currentDirectory);
 		try {
 			comp.compile();
-			if (!parse(comp.getComposites(), comp.getProcesses())) {
+			if (!parse(comp.getComposites(), comp.getProcesses(), comp.getExplorers())) {
 				return null;
 			}
-			
-			cs = comp.continueCompilation((String) targetChoice
-					.getSelectedItem());
+
+			cs = comp.continueCompilation((String) targetChoice.getSelectedItem());
 
 		} catch (LTSException x) {
 			displayError(x);
@@ -1645,11 +1995,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return cs;
 	}
 
-	private void doparse(Hashtable cs, Hashtable ps) {
+	private void doparse(Hashtable cs, Hashtable ps, Hashtable ex) {
 		resetInput();
 		LTSCompiler comp = new LTSCompiler(this, this, currentDirectory);
 		try {
-			comp.parse(cs, ps);
+			comp.parse(cs, ps, ex);
 
 		} catch (LTSException x) {
 			displayError(x);
@@ -1721,7 +2071,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		CompositeState not_ltl_property = AssertDefinition.compile(
 				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
 		if (current != null && ltl_property != null) {
-			TransitionSystemDispatcher.checkFLTL(current, ltl_property, not_ltl_property, this.setFair.isSelected(), this);
+			TransitionSystemDispatcher.checkFLTL(current, ltl_property,
+					not_ltl_property, this.setFair.isSelected(), this);
 			postState(current);
 		}
 	}
@@ -1744,7 +2095,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private void doComposition() {
 		clearOutput();
 		compileIfChange();
-		if (current != null) {
+		if (current != null)
+		{
 			TransitionSystemDispatcher.applyComposition(current, this);
 			postState(current);
 		}
@@ -1765,35 +2117,200 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return false;
 	}
 
-	private void init_exploration() {
-		throw new UnsupportedOperationException("Exploration is not developed yet");
+	private void exploration_new()
+	{
+		// Definition
+		String choice = (String) targetChoice.getSelectedItem();
+		if (explorerDefinitions == null || !explorerDefinitions.containsKey(choice))
+		{
+			this.outln(choice + " is not a valid explorer");
+			return;
+		}
+		ExplorerDefinition explorerDefinition = explorerDefinitions.get(choice);
 
-//		CompositeState environmentView = current.clone();
-//		// The first machine will be in environmentView
-//		environmentView.machines = new Vector<CompactState>();
-//		environmentView.machines.add(current.machines.firstElement());
-//
-//		// The others machine will be in environmentModel
-//		CompositeState environmentModel = current.clone();
-//		environmentModel.machines = new Vector<CompactState>();
-//		for (CompactState compactState : current.machines) {
-//			if (current.machines.get(0) != compactState) {
-//				environmentModel.machines.add(compactState);
-//			}
-//		}
-//
-//		if (environmentModel.machines.size() > 0){
-//			Animator anim = new ExplorationAnimator(environmentView, environmentModel, eman);
-//			animator = new AnimArrangedWindow(anim, null, setAutoRun.getState(), false);
-//		} else {
-//			throw new UnsupportedOperationException("Exploration without an environmentModel is not developed yet");
-//		}
-//
-//		if (animator != null) {
-//			animator.pack();
-//			left(animator);
-//			animator.setVisible(true);
-//		}
+		// View
+		CompactState[] components = new CompactState[explorerDefinition.getView().size()];
+		for (int i = 0; i < explorerDefinition.getView().size(); i++)
+			for (int j = 0; j < current.machines.size(); j++)
+				if (explorerDefinition.getView().get(i).getName().equals(current.machines.elementAt(j).getName()))
+					components[i] = current.machines.elementAt(j);
+
+		List<List<Symbol>> environmentActions = explorerDefinition.getEnvironmentActions();
+		ViewNextConfiguration[] view_configurations = new ViewNextConfiguration[current.machines.size() - 1];
+		for (int i = 1; i < components.length; i++)
+		{
+			if (environmentActions != null && environmentActions.size() > i - 1)
+            {
+                String[] trace = new String[environmentActions.get(i - 1).size()];
+                for (int j = 0; j < trace.length; j++)
+                    trace[j] = environmentActions.get(i - 1).get(j).toString();
+                view_configurations[i] = new ViewNextConfigurationTrace(trace);
+            }
+			else
+				view_configurations[i] = new ViewNextConfigurationRandom();
+		}
+
+		View view = new View(components, view_configurations);
+
+		// Model
+		CompactState[] knowledge_configurations = new CompactState[explorerDefinition.getModel().size()];
+		for (int i = 0; i < explorerDefinition.getView().size(); i++)
+			for (int j = 0; j < current.machines.size(); j++)
+				if (explorerDefinition.getModel().get(i).getName().equals(current.machines.elementAt(j).getName()))
+					knowledge_configurations[i] = current.machines.elementAt(j);
+
+		CompactState[] model_configurations = new CompactState[knowledge_configurations.length];
+		for (int i = 0; i < model_configurations.length; i++)
+			model_configurations[i] = knowledge_configurations[i].myclone();
+
+		Model model = new Model(model_configurations);
+
+		// Knowledge
+		Knowledge knowledge = new Knowledge(knowledge_configurations);
+
+		// Goal
+		GRControllerGoal<String> goal = current.goal;
+		HashSet<String> controlableActions  = new HashSet<>(0);
+		for (String anAction : goal.getControllableActions())
+			if (!anAction.contains("["))
+				controlableActions.add(anAction);
+		goal.setControllableActions(controlableActions);
+
+		// Strategy manager
+		Strategy[] strategies = new Strategy[1];
+		strategies[0] = new StrategySynthesisNewAction(new StrategySynthesis(knowledge, goal.copy()), new StrategyNewAction(knowledge, goal.copy()));
+		//strategies[0] = new StrategyNewAction(knowledge, goal.copy());
+		StrategyManager strategyManager = new StrategyManager(strategies);
+
+		// Explorer
+		this.explorer = new Explorer(view, model, knowledge, goal, strategyManager);
+		String action = "      ";
+		String state = String.valueOf(knowledge.getCurrentStates()[0]);
+		while (state.length() < 3)
+			state = " " + state;
+		this.outln(action + "  ->  " + state);
+
+		current.composition = null;
+		current.makeController = false;
+		postState(current);
+		draws.setCurrentState(this.explorer.getCurrentStateNumbers());
+		layouts.setCurrentState(this.explorer.getCurrentStateNumbers());
+	}
+
+	private void exploration_manual()
+	{
+		if (this.explorer == null)
+			throw new UnsupportedOperationException("Primero hay que explorar");
+
+		String mtsControlProblemAnswer = this.explorer.getMTSControlProblemAnswer();
+
+		if (mtsControlProblemAnswer.equals("ALL"))
+		{
+			this.outln("All implementations can be controlled");
+			return;
+		}
+
+		if (mtsControlProblemAnswer.equals("NONE"))
+		{
+			this.outln("There is no controller for model for the given setting");
+			return;
+		}
+
+		String[] aviableActions = this.explorer.getAviableActions();
+		int choice = JOptionPane.showOptionDialog(null, "Choose the next action", "Next action", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, aviableActions, aviableActions[0]);
+
+		if (choice == -1)
+			return;
+
+		this.explorer.explore(aviableActions[choice]);
+
+		exploration_output();
+	}
+
+	private String exploration_stepover()
+	{
+		if (this.explorer == null)
+			throw new UnsupportedOperationException("Primero hay que explorar");
+
+		String mtsControlProblemAnswer = "";
+		Integer steps_count = getStepsCount();
+		for (int i = 0; i < steps_count; i++)
+		{
+			mtsControlProblemAnswer = this.explorer.getMTSControlProblemAnswer();
+
+			if (mtsControlProblemAnswer.equals("ALL"))
+			{
+				this.outln("All implementations can be controlled");
+				break;
+			}
+
+			if (mtsControlProblemAnswer.equals("NONE"))
+			{
+				this.outln("There is no controller for model for the given setting");
+				break;
+			}
+
+			if (mtsControlProblemAnswer.equals("RESET"))
+				explorer.reset();
+
+			if (mtsControlProblemAnswer.equals("SOME"))
+				this.explorer.explore();
+
+			exploration_output();
+		}
+
+		return mtsControlProblemAnswer;
+	}
+
+	private void exploration_resume()
+	{
+		String mtsControlProblemAnswer = exploration_stepover();
+		while (mtsControlProblemAnswer.equals("SOME") || mtsControlProblemAnswer.equals("RESET"))
+			mtsControlProblemAnswer = exploration_stepover();
+	}
+
+	private void exploration_output()
+	{
+		ArrayList<String> traceStates = this.explorer.getTraceLastStates();
+		ArrayList<String> traceActions = this.explorer.getTraceLastActions();
+
+		for (int j = 0; j < traceStates.size(); j++)
+		{
+			String action = traceActions.get(j);
+
+			while (action.length() < 6)
+				action = action + " ";
+
+			String state = traceStates.get(j);
+			while (state.length() < 3)
+				state = " " + state;
+
+			if (Objects.equals(state.trim(), ""))
+				this.outln(action);
+			else
+				this.outln(action + "  ->  " + state);
+		}
+
+        postState(current);
+		draws.setCurrentState(this.explorer.getCurrentStateNumbers());
+		layouts.setCurrentState(this.explorer.getCurrentStateNumbers());
+	}
+
+	private Integer getStepsCount()
+	{
+		Integer count_integer = 1;
+		try
+		{
+			String count_string = this.stepscount.getText();
+			count_integer = Integer.parseInt(count_string);
+		}
+		catch (NumberFormatException ignored)
+		{
+
+		}
+		if (count_integer < 1)
+			count_integer = 1;
+		return count_integer;
 	}
 
 	private void animate() {
@@ -1807,6 +2324,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			if (current.machines.size() > 1 && MTSUtils.isMTSRepresentation(current)) {
 				throw new UnsupportedOperationException("Animation for more than one MTS is not developed yet");
 			}
+
 
 			Animator anim = TransitionSystemDispatcher.generateAnimator(
 					current, this, eman);
@@ -1883,6 +2401,20 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	// ------------------------------------------------------------------------
 
+	private void newLayoutWindow(boolean disp) {
+		if (disp && textIO.indexOfTab("Layout")<0) {
+			// create Text window
+			layouts = new LTSLayoutWindow(current,eman);
+			textIO.addTab("Layout",layouts);
+			swapto(textIO.indexOfTab("Layout"));
+		} else if (!disp && textIO.indexOfTab("Layout")>0) {
+			swapto(0);
+			textIO.removeTabAt(textIO.indexOfTab("Layout"));
+			layouts.removeClient();
+			layouts = null;
+		}
+	}
+
 	private void newPrintWindow(boolean disp) {
 		if (disp && textIO.indexOfTab("Transitions") < 0) {
 			// create Text window
@@ -1945,7 +2477,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			if (o == null)
 				return;
 			SuperTrace.setDepthBound(Integer.parseInt(o));
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException ignored) {
 		}
 	}
 
@@ -2144,41 +2676,72 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// ------------------------------------------------------------------------
 
 	private boolean parse() {
-		return parse(null, null);
+		return parse(null, null, null);
 	}
 
-	private boolean parse(Hashtable<String, CompositionExpression> cs, Hashtable ps) {
+	/* AMES: promoted visibility from private to implement lts.LTSManager */
+	public boolean parse(Hashtable cs, Hashtable ps, Hashtable ex) {
+
 
 		String oldChoice = (String) targetChoice.getSelectedItem();
 
 		if (cs == null && ps == null) {
-			cs = new Hashtable<String,CompositionExpression>();
+			cs = new Hashtable();
 			ps = new Hashtable();
-			doparse(cs, ps);
+			ex = new Hashtable();
+			doparse(cs, ps, ex);
 		}
 
 		if (cs == null)
 			return false;
 		targetChoice.removeAllItems();
-		if (cs.isEmpty()) {
-			targetChoice.addItem(DEFAULT);
-		} else {
-			List<String> forSort = new ArrayList<String>(cs.keySet());
-			Collections.sort(forSort);
-			for (Iterator i = forSort.iterator(); i.hasNext();) {
-				targetChoice.addItem(i.next());
+
+		if (ex.size() == 0)
+		{
+			if (cs.size() == 0)
+			{
+				targetChoice.addItem(DEFAULT);
+			}
+			else
+			{
+				Enumeration e = cs.keys();
+				java.util.List forSort = new ArrayList();
+				while (e.hasMoreElements()) {
+					forSort.add(e.nextElement());
+				}
+				Collections.sort(forSort);
+				for (Object aForSort : forSort) {
+					targetChoice.addItem(aForSort);
+				}
 			}
 		}
-		if (oldChoice != null) {
-			if ((!oldChoice.equals(DEFAULT)) && cs.containsKey(oldChoice))
+		else
+		{
+			Enumeration e = ex.keys();
+			java.util.List forSort = new ArrayList();
+			while (e.hasMoreElements()) {
+				forSort.add(e.nextElement());
+			}
+			Collections.sort(forSort);
+			for (Object aForSort : forSort) {
+				targetChoice.addItem(aForSort);
+			}
+		}
+
+		if (oldChoice != null)
+		{
+			if (!oldChoice.equals(DEFAULT) && (ex.containsKey(oldChoice) || (ex.size() == 0 && cs.containsKey(oldChoice))))
 				targetChoice.setSelectedItem(oldChoice);
 		}
 		current = null;
+		explorer = null;
+		explorerDefinitions = ex;
 
 		// >>> AMES: Enhanced Modularity
 		eman.post(new LTSEvent(LTSEvent.NEWCOMPOSITES, cs.keySet()));
 		eman.post(new LTSEvent(LTSEvent.NEWPROCESSES, ps.keySet()));
-		eman.post(new LTSEvent(LTSEvent.NEWLABELSETS, (LabelSet.getConstants()).keySet()));
+		eman.post(new LTSEvent(LTSEvent.NEWLABELSETS,
+				(labelSetConstants = LabelSet.getConstants()).keySet()));
 		// <<< AMES
 
 		// deal with run menu
@@ -2261,7 +2824,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		try {
 			String lf = UIManager.getSystemLookAndFeelClassName();
 			UIManager.setLookAndFeel(lf);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 		HPWindow window = new HPWindow(null);
 		window.setTitle("MTS Analyser");
@@ -2326,9 +2889,29 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	 */
 	public void newMachines(java.util.List<CompactState> machines) {
 		CompositeState c = new CompositeState(
-				new Vector<CompactState>(machines));
+				new Vector<>(machines));
 		postState(c);
 		this.current = c;
+	}
+
+	/**
+	 * Returns the set of actions which correspond to the label set definition
+	 * with the given name.
+	 */
+	public Set<String> getLabelSet(String name) {
+		if (labelSetConstants == null)
+			return null;
+
+		Set<String> s = new HashSet<>();
+		LabelSet ls = labelSetConstants.get(name);
+
+		if (ls == null)
+			return null;
+
+		for (String a : ls.getActions(null))
+			s.add(a);
+
+		return s;
 	}
 
 	/**
@@ -2359,6 +2942,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 					outln("**** Runtime Exception: " + e);
 					e.printStackTrace();
 					current = null;
+					explorer = null;
+					explorerDefinitions = null;
 
 				} finally {
 					menuEnable(true);
@@ -2387,7 +2972,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	/**
 	 * Returns the instantiated Spring Application Context
-	 *
+	 * 
 	 * @return the Application Context
 	 */
 	public ApplicationContext getApplicationContext() {

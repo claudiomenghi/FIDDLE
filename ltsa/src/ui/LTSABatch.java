@@ -141,7 +141,7 @@ implements LTSManager, LTSInput, LTSOutput, LTSError {
         fSrc = model;
 		LTSCompiler comp = new LTSCompiler(this,this,currentDirectory);
 		try {
-			comp.parse(cs,ps);
+			comp.parse(cs,ps, new Hashtable());
 		} catch (LTSException x) {
 			displayError(x);
 			cs=null;

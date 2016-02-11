@@ -512,7 +512,14 @@ public class Symbol {
 	public static final int DISTRIBUTED_ALPHABETS = 2501;
 	public static final int SYSTEM_MODEL = 2502;
 	public static final int OUTPUT_FILE_NAME = 2503;
-	
+
+	// Exploration
+	public static final int EXPLORATION = 3300;
+	public static final int EXPLORATION_ENVIRONMENT = 3301;
+	public static final int EXPLORATION_MODEL = 3302;
+	public static final int EXPLORATION_GOAL = 3303;
+	public static final int EXPLORATION_ENVIRONMENT_ACTIONS = 3304;
+
 	//ControllerSynthesis
 	public static final int CONTROLLER = 3000;
 	public static final int GOAL = 3001;

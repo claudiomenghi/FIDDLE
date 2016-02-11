@@ -231,6 +231,80 @@ public class CompositeState{
 		
 	}
 
+	public void applyOperationsNoText(LTSOutput output) {
+		if (this.makeComponent) {
+			applyHiding();
+			TransitionSystemDispatcher.makeComponentModel(this, output);
+		}
+		if (makeDeterministic) {
+			applyHiding();
+			TransitionSystemDispatcher.determinise(this, output);
+		}
+		if (makeMinimal) {
+			applyHiding();
+			TransitionSystemDispatcher.minimise(this, output);
+		}
+		if (makeOptimistic) {
+			TransitionSystemDispatcher.makeOptimisticModel(this, output);
+			applyHiding();
+		}
+		if (makePessimistic) {
+			TransitionSystemDispatcher.makePessimisticModel(this, output);
+			applyHiding();
+		}
+		if (makeClousure) {
+			TransitionSystemDispatcher.makeClosureModel(this, output);
+			applyHiding();
+		}
+		if (makeAbstract) {
+			TransitionSystemDispatcher.makeAbstractModel(this, output);
+			applyHiding();
+		}
+		if (makeController && !checkCompatible) {
+			TransitionSystemDispatcher.synthesiseGRNoText(this, output);
+			applyHiding();
+		}
+		if (makeSyncController) {
+			TransitionSystemDispatcher.synthesiseSyncController(this, output);
+			applyHiding();
+		}
+		if (makeControlStack) {
+			TransitionSystemDispatcher.synthesiseControlStack(this, output);
+			applyHiding();
+		}
+
+        /*if (isProperty) //removed in merge ***
+        {
+          TransitionSystemDispatcher.makeProperty(this, output);
+          applyHiding();
+        }*/
+
+		if (isStarEnv) {
+			TransitionSystemDispatcher.makeStarEnv(this, output);
+			applyHiding();
+		}
+		if (isPlant) {
+			TransitionSystemDispatcher.makePlant(this, output);
+			applyHiding();
+		}
+		if (isControlledDet) {
+			TransitionSystemDispatcher.makeControlledDeterminisation(this, output);
+			applyHiding();
+		}
+		if (isProperty) {
+			TransitionSystemDispatcher.makeProperty(this, output);
+			applyHiding();
+		}
+		if (checkCompatible) {
+			TransitionSystemDispatcher.checkCompatible(this, output);
+			applyHiding();
+		} else {
+			applyHiding();
+		}
+
+
+	}
+
 	private void applyHiding() {
 		if (composition == null)
 			return;

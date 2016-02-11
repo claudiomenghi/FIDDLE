@@ -54,6 +54,12 @@ public class SymbolTable {
 		keyword.put("def", new Integer(Symbol.DEF));
 		keyword.put("foreach", new Integer(Symbol.FOREACH));
 
+		keyword.put ("exploration", new Integer(Symbol.EXPLORATION));
+	    keyword.put ("environment", new Integer(Symbol.EXPLORATION_ENVIRONMENT));
+	    keyword.put ("model", new Integer(Symbol.EXPLORATION_MODEL));
+	    keyword.put ("goal", new Integer(Symbol.EXPLORATION_GOAL));
+	    keyword.put ("environment_actions", new Integer(Symbol.EXPLORATION_ENVIRONMENT_ACTIONS));
+		
 		keyword.put("component", new Integer(Symbol.COMPONENT));
 		keyword.put("condition", new Integer(Symbol.CONDITION));
 		keyword.put("controller", new Integer(Symbol.CONTROLLER));

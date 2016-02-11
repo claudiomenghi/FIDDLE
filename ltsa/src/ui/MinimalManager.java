@@ -41,7 +41,7 @@ public class MinimalManager implements LTSManager {
         Hashtable cs;        
         LTSCompiler comp = new LTSCompiler(input,output,currentDirectory);
         try {
-            comp.parse(cs = new Hashtable(),new Hashtable());
+            comp.parse(cs = new Hashtable(),new Hashtable(),new Hashtable());
             
         } catch (LTSException x) {
             error.displayError(x);

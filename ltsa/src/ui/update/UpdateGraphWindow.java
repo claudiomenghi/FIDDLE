@@ -111,7 +111,7 @@ public class UpdateGraphWindow extends JFrame {
 		if (graphNames.isEmpty()) {
 			input.resetInput();
 			LTSCompiler compiler = new LTSCompiler(input, input, currentDirectory);
-			compiler.parse(new Hashtable(), new Hashtable());
+			compiler.parse(new Hashtable(), new Hashtable(), new Hashtable());
 			graphNames = UpdateGraphGenerator.getGraphNames();
 		}
 

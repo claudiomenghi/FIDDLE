@@ -188,6 +188,11 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 		return controllableActions;
 	}
 
+	public void setControllableActions(Set<Action> controllableActions)
+	{
+		this.controllableActions = controllableActions;
+	}
+
 	/* (non-Javadoc)
 	 * @see controller.model.gr.ControllerGoal#addAllControllableActions(java.util.Set)
 	 */
@@ -239,5 +244,54 @@ public class GRControllerGoal<Action> implements ControllerGoal<Action>,Cloneabl
 	
 	public void setLazyness(Integer lazyness) {
 		this.lazyness = lazyness;
+	}
+
+	public GRControllerGoal<String> copy()
+	{
+		GRControllerGoal<String> copy = new GRControllerGoal<String>();
+		copy.isPermissive = this.isPermissive;
+		copy.isNonBlocking = this.isNonBlocking;
+		copy.exceptionHandling = this.exceptionHandling;
+		copy.nonTransient = this.nonTransient;
+		copy.lazyness = this.lazyness;
+		copy.faults = copyListFormula(this.faults);
+		copy.assumptions = copyListFormula(this.assumptions);
+		copy.guarantees = copyListFormula(this.guarantees);
+		copy.fluents = copySetaFluent(this.fluents);
+		copy.fluentsInFaults = copySetaFluent(this.fluentsInFaults);
+		copy.concurrencyFluents = copySetaFluent(this.concurrencyFluents);
+
+		if (this.controllableActions == null)
+			copy.controllableActions = null;
+		else
+		{
+			Set<String> copyControllableActions = new HashSet<String>();
+			for (Action anAction : this.controllableActions)
+				copyControllableActions.add(anAction.toString());
+			copy.controllableActions = copyControllableActions;
+		}
+
+		return copy;
+	}
+
+	private List<Formula> copyListFormula(List<Formula> list)
+	{
+		if (list == null)
+			return null;
+
+		List<Formula> copy = new ArrayList<Formula>();
+		for (Formula aFormula : list)
+			copy.add(aFormula);
+		return copy;
+	}
+	private Set<Fluent> copySetaFluent(Set<Fluent> set)
+	{
+		if (set == null)
+			return null;
+
+		Set<Fluent> copy = new HashSet<Fluent>();
+		for (Fluent aFluent : set)
+			copy.add(aFluent);
+		return copy;
 	}
 }

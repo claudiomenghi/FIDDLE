@@ -1,4 +1,6 @@
 package lts;
+import org.apache.commons.lang.ArrayUtils;
+
 import java.io.PrintStream;
 import java.util.BitSet;
 import java.util.Enumeration;
@@ -16,14 +18,9 @@ public class EventState {
     EventState nondet;//used for additional non-deterministic transitions
     EventState path;  //used by analyser & by minimiser
 
-    /**
-     * 
-     * @param e, event
-     * @param i, next
-     */
-    public EventState(int e, int i ) {
-        event = e;
-        next = i;
+    public EventState(int event, int next) {
+        this.event = event;
+        this.next = next;
     }
 
     public Enumeration elements() {
@@ -34,12 +31,78 @@ public class EventState {
     {
       return event;
     }
-    
+
+    public int[] getEvents()
+    {
+        int[] events;
+        if (this.list == null)
+        {
+            events = new int[1];
+            events[0] = this.event;
+        }
+        else
+        {
+            int[] head = new int[1];
+            head[0] = this.event;
+
+            int[] tail = this.list.getEvents();
+
+            events = ArrayUtils.addAll(head, tail);
+        }
+
+        return events;
+    }
+
     public int getNext()
     {
       return next;
     }
-    
+
+    public int getNext(int event)
+    {
+        if (this.event == event)
+        {
+            return this.next;
+        }
+        else
+        {
+            if (this.list == null)
+                throw new IllegalStateException("Invalid action execution");
+
+            return this.list.getNext(event);
+        }
+    }
+
+    public void updateEventAndNext(int oldEvent, int newEvent, int newNext)
+    {
+        if (this.event == oldEvent)
+        {
+            this.event = newEvent;
+            this.next = newNext;
+        }
+        else
+        {
+            if (this.list != null)
+                this.list.updateEventAndNext(oldEvent, newEvent, newNext);
+        }
+    }
+
+    public void swapNext(int next1, int next2)
+    {
+        if (this.next == next1)
+        {
+            this.next = next2;
+        }
+        else
+        {
+            if (this.next == next2)
+                this.next = next1;
+        }
+
+        if (this.list != null)
+            this.list.swapNext(next1, next2);
+    }
+
     public static EventState remove(EventState head, EventState tr) {
         //remove from head
         if (head==null) return head;
@@ -79,6 +142,42 @@ public class EventState {
             p=p.list;
         }
         return head;
+    }
+
+    public static EventState removeEvent(EventState anEventState, int anEvent)
+    {
+        if (anEventState == null)
+            return null;
+
+        EventState cleanEvent = anEventState;
+        if (cleanEvent.event == anEvent)
+            cleanEvent = cleanEvent.list;
+        else
+            cleanEvent.list = EventState.removeEvent(cleanEvent.list, anEvent);
+        return cleanEvent;
+    }
+
+    public static EventState copy(EventState anEventState)
+    {
+        EventState aCopy = new EventState(anEventState.event, anEventState.next);
+        aCopy.machine = anEventState.machine;
+
+        if (anEventState.list == null)
+            aCopy.list = null;
+        else
+            aCopy.list = EventState.copy(anEventState.list);
+
+        if (anEventState.nondet == null)
+            aCopy.nondet = null;
+        else
+            aCopy.nondet = EventState.copy(anEventState.nondet);
+
+        if (anEventState.path == null)
+            aCopy.path = null;
+        else
+            aCopy.path = EventState.copy(anEventState.path);
+
+        return aCopy;
     }
 
     public static boolean hasState(EventState head, int next) {
@@ -124,6 +223,28 @@ public class EventState {
         return head;
     }
 
+    public static EventState replaceNext(EventState anEventState, int oldNext, int newNext)
+    {
+        if (anEventState == null)
+            return null;
+
+        if (anEventState.next == oldNext)
+            anEventState.next = newNext;
+
+        anEventState.list = EventState.replaceNext(anEventState.list, oldNext, newNext);
+
+        return anEventState;
+    }
+
+    public static EventState addEvent(EventState anEventState, int anEvent, int aState)
+    {
+        EventState updatedEvent = new EventState(anEvent, aState);
+        updatedEvent.machine = anEventState.machine;
+        updatedEvent.nondet = anEventState.nondet;
+        updatedEvent.path = anEventState.path;
+        updatedEvent.list = anEventState;
+        return updatedEvent;
+    }
 
     public static int toState(EventState head, int next) {
         EventState p =head;
@@ -661,6 +782,18 @@ public class EventState {
         return v;
     }
 
+    public void setList(EventState list)
+    {
+    	if (this.list == null)
+    		this.list = list;
+    	else
+    		this.list.setList(list);
+    }
+
+    public EventState getList()
+    {
+        return this.list;
+    }
 }
 
 
