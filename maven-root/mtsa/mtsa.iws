@@ -1,0 +1,1308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0eed6a81-a9b9-42fe-b032-d18e13488839" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractBackwardSimulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractConsistencyRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractForwardSimulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractListMTSTrace.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractMTSTransition.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractTransitionSystem.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/AlphabetSemantics.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BaseSemanticsByRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/BinaryRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/BinaryRelationUtils.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingAlphabetConsistency.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingBackwardSimulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingByTransformationSemantics$BranchingExpansion.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingByTransformationSemantics.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingConsistency.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingForwardSimulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingImplementationNotion.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingSemantics.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/ClousurePathBuilder$ClousurePathIterator$QueueType.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/ClousurePathBuilder$ClousurePathIterator.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/ClousurePathBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/ComponentProjectionBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/CompositionRuleApplier.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/CompositionState.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/CompositionStateFactory.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/Consistency.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/impl/DirectComponentProjectionBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/DoubleDictionary.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/EquivalenceClass.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/EquivalenceClassImpl.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/ExecutorServiceFactory$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/ExecutorServiceFactory.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/FixedPointRelationConstructor$PredicateCollable.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/FixedPointRelationConstructor.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/utils/GenericLTSToLongStringLTSConverter.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/utils/GenericMTSToLongStringMTSConverter.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/utils/GraphUtils.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/GraphWithInitialNode.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/predicates/HasNonDeterministicTransitionsStatePredicate.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/HashNAryRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/test-classes/MTSTools/ac/ic/doc/commons/relations/HashNAryRelationTest.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/collections/HierarchicalMap.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/IdentityRelation$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/IdentityRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/ImplementationNotion.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/predicates/IsDeadlockStatePredicate.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/predicates/IsDeterministicMTSPredicate.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/LTS.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/LTSAdapter.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/LTSImpl.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/LTSSimulationSemantics.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/LinkedListMTSTrace.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MDP.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTS$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTS$TransitionType$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTS$TransitionType$2.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTS$TransitionType$3.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTS$TransitionType.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTS.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/facade/MTSAFacade.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MTSAbstractBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSAdapter.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MTSClosure.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSClosureBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSComposer$Transition.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSComposer.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSCompositionAdapter.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTSConstants.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MTSConstraintBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MTSDeadLockManipulator.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MTSDeadLockManipulatorImpl.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MTSDeadlockStatus.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSDeterminiser.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSImpl.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSMinimiser.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSMultipleComposer.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverter.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/test-classes/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverterTest.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSQuickClone.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTSTrace.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/MTSTransition.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSTransitionImpl.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MTSTransitionWithModalityInfo.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/utils/MTSUtils.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/MapSetBinaryRelation$1$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/MapSetBinaryRelation$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/MapSetBinaryRelation$2.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/MapSetBinaryRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/MarkedMTS.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MergeBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/Minimiser.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MultipleState$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/MultipleState.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/NAryRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/Pair.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/ParallelComposer.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/PathBuilder$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/PathBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/PathBuilder2.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/PlusCARulesApplier.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/PlusCRRulesApplier.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/PlusOperatorApplier.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/collections/PowerSet$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/collections/PowerSet.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/test-classes/MTSTools/ac/ic/doc/commons/collections/PowerSetTest.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/ProbabilisticTransition.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/ProjectionBuilder$ProjectionIterator$QueueType.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/ProjectionBuilder$ProjectionIterator.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/ProjectionBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/utils/RMITest.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/Refinement.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/RefinementByRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/RelationConstructor.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/SemanticType$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/SemanticType$2.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/SemanticType$3.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/SemanticType$4.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/SemanticType$5.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/SemanticType.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/Simulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/SimulationChain.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/SimulationPredicate.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/StateSucessors.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/impl/StrongMergeBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/impl/StrongMergeBuilder2.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/StrongPlusCROperator.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/utils/TarjanAlgorithm$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/utils/TarjanAlgorithm.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/TauRemoval$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/TauRemoval$IncompleteSet.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/TauRemoval.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/test-classes/MTSTools/ac/ic/doc/commons/collections/TestHierarchicalMap.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/TraceInclusionClosure.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/Transition.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/TransitionRulesApplier.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/TransitionSystem.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/UniversalBinaryRelation$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/UniversalBinaryRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/UniversalNAryRelation$1.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/commons/relations/UniversalNAryRelation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/test-classes/MTSTools/ac/ic/doc/commons/relations/UniversalNAryRelationTest.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/UnmodifiableMTS.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakAlphabetConsistency.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakAlphabetConsistencyBackwardSimulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakAlphabetConsistencyForwardSimulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/operations/impl/WeakAlphabetMergeBuilder.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakAlphabetPlusCROperator.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakBackwardSimulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakBisimulationSemantics.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakConsistency.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakForwardSimulation.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakSemantics.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/classes/MTSTools/ac/ic/doc/mtstools/model/impl/WeakSimulationSemantics.class" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/mtsa-1.0-SNAPSHOT.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractBackwardSimulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractConsistencyRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractForwardSimulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractListMTSTrace.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractMTSTransition.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/AbstractTransitionSystem.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/AlphabetSemantics.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/BaseSemanticsByRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/BinaryRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/BinaryRelationUtils.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingAlphabetConsistency.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingBackwardSimulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingByTransformationSemantics.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingConsistency.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingForwardSimulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingImplementationNotion.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/BranchingSemantics.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/ClousurePathBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/ComponentProjectionBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/CompositionRuleApplier.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/CompositionState.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/CompositionStateFactory.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/Consistency.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/DirectComponentProjectionBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/DoubleDictionary.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/EquivalenceClass.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/EquivalenceClassImpl.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/ExecutorServiceFactory.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/FixedPointRelationConstructor.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/utils/GenericLTSToLongStringLTSConverter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/utils/GenericMTSToLongStringMTSConverter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/utils/GraphUtils.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/GraphWithInitialNode.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/predicates/HasNonDeterministicTransitionsStatePredicate.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/HashNAryRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/relations/HashNAryRelationTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/collections/HierarchicalMap.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/IdentityRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/ImplementationNotion.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/predicates/IsDeadlockStatePredicate.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/predicates/IsDeterministicMTSPredicate.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/LTS.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/LTSAdapter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/LTSImpl.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/LTSSimulationSemantics.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/LinkedListMTSTrace.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MDP.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/MTS.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/facade/MTSAFacade.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/MTSAbstractBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSAdapter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/MTSClosure.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSClosureBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSComposer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSCompositionAdapter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/MTSConstants.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/MTSConstraintBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/MTSDeadLockManipulator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/MTSDeadLockManipulatorImpl.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/MTSDeadlockStatus.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSDeterminiser.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSImpl.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSMinimiser.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSMultipleComposer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverterTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSQuickClone.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/MTSTools.ac.ic.doc.commons.collections.PowerSetTest.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/MTSTools.ac.ic.doc.commons.collections.TestHierarchicalMap.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/MTSTools.ac.ic.doc.commons.relations.HashNAryRelationTest.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/MTSTools.ac.ic.doc.commons.relations.UniversalNAryRelationTest.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/MTSTools.ac.ic.doc.mtstools.model.operations.impl.MTSPropertyToBuchiConverterTest.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/MTSTrace.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/MTSTransition.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSTransitionImpl.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSTransitionWithModalityInfo.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/utils/MTSUtils.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/MapSetBinaryRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MarkedMTS.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/MergeBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/Minimiser.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/MultipleState.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/NAryRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/Pair.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/ParallelComposer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/PathBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/PathBuilder2.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/PlusCARulesApplier.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/PlusCRRulesApplier.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/PlusOperatorApplier.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/collections/PowerSet.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/PowerSetTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/ProbabilisticTransition.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/ProjectionBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/utils/RMITest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/Refinement.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/RefinementByRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/RelationConstructor.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/SemanticType.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/Simulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/SimulationChain.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/SimulationPredicate.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/StateSucessors.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/StrongMergeBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/StrongMergeBuilder2.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/StrongPlusCROperator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-MTSTools.ac.ic.doc.commons.collections.PowerSetTest.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-MTSTools.ac.ic.doc.commons.collections.TestHierarchicalMap.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-MTSTools.ac.ic.doc.commons.relations.HashNAryRelationTest.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-MTSTools.ac.ic.doc.commons.relations.UniversalNAryRelationTest.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-MTSTools.ac.ic.doc.mtstools.model.operations.impl.MTSPropertyToBuchiConverterTest.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/utils/TarjanAlgorithm.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/TauRemoval.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/TestHierarchicalMap.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/TraceInclusionClosure.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/Transition.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/TransitionRulesApplier.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/TransitionSystem.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/UniversalBinaryRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/commons/relations/UniversalNAryRelation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/relations/UniversalNAryRelationTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/UnmodifiableMTS.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakAlphabetConsistency.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakAlphabetConsistencyBackwardSimulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakAlphabetConsistencyForwardSimulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/WeakAlphabetMergeBuilder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakAlphabetPlusCROperator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakBackwardSimulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakBisimulationSemantics.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakConsistency.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakForwardSimulation.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakSemantics.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/WeakSimulationSemantics.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mtsa.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mtsa.ipr" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mtsa.iws" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pom.xml" />
+    </list>
+    <ignored path="mtsa.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <ignored path="$PROJECT_DIR$/out/" />
+    <ignored path="$PROJECT_DIR$/target/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="mtsa" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-0.8872017">
+              <caret line="21" column="41" selection-start-line="21" selection-start-column="41" selection-end-line="21" selection-end-column="41" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mtsa.ipr" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mtsa.ipr">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="GradleLocalSettings">
+    <option name="externalProjectsViewState">
+      <projects_view />
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/utils/MTSUtils.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/utils/GenericMTSToLongStringMTSConverter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/facade/MTSAFacade.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/MTSAdapter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/UnmodifiableMTS.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/TestHierarchicalMap.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/relations/HashNAryRelationTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/relations/UniversalNAryRelationTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverterTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/BaseController.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/CounterEnactor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/Enactor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/ITransitionEventListener.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/ListeningStrategy.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/RandomController.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/RecoverEnactor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/TakeFirstController.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/TransitionDispatcher.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/TransitionEvent.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/UIController.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/test/TestDrone.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/test/TestImageListener.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/robot/UIRobot.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSAEnactment/robot/CommandAcceptedMessageTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/gui/ControllerCircularView.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/model/PerfectInfoGRControlProblem.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/model/AlphabetDistribution.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionAlgorithmDefaultImpl.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionAlgorithm.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionFacade.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/AndFormula.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/model/DistributionFeedbackOnModalityMismatch.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/FluentUtils.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/Fluent.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/FluentImpl.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/Chart.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/NotFormula.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/ExistentialTriggeredScenario.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/MTSFromETriggeredScenarioSynthesiser.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/util/SynthesiserHelper.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/MTSFromTriggeredScenarioSynthesiser.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/SynthesisVisitor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gr/knowledge/KnowledgeGRGameSolver.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/model/condition/ZetaFunctionTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/game/gr/GameSolverSimpleNegativeTests.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/bgr/BGRGameSolverTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ontroller/game/bgr/BGRGameSolver.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/PowerSetTest.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/bgr/BGRGameBuilder.java" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/lsc/ChartTest.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="Bundled (Maven 3)" />
+      </MavenGeneralSettings>
+    </option>
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="importAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="1.8" />
+  </component>
+  <component name="NamedScopeManager">
+    <order />
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="1439" />
+    <option name="y" value="27" />
+    <option name="width" value="1922" />
+    <option name="height" value="1054" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource ProjectPane="true" />
+      <autoscrollFromSource ProjectPane="true" />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scratches" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="settings.editor.selected.configurable" value="MavenSettings" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.3632184" />
+    <property name="recentsLimit" value="5" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="restartRequiresConfirmation" value="true" />
+    <property name="FullScreen" value="false" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
+      <module name="" />
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+      <option name="PROGRAM_PARAMETERS" />
+      <method />
+    </configuration>
+    <configuration default="true" type="AndroidRunConfigurationType" factoryName="Android Application">
+      <module name="" />
+      <option name="ACTIVITY_CLASS" value="" />
+      <option name="MODE" value="default_activity" />
+      <option name="DEPLOY" value="true" />
+      <option name="ARTIFACT_NAME" value="" />
+      <option name="TARGET_SELECTION_MODE" value="EMULATOR" />
+      <option name="USE_LAST_SELECTED_DEVICE" value="false" />
+      <option name="PREFERRED_AVD" value="" />
+      <option name="USE_COMMAND_LINE" value="true" />
+      <option name="COMMAND_LINE" value="" />
+      <option name="WIPE_USER_DATA" value="false" />
+      <option name="DISABLE_BOOT_ANIMATION" value="false" />
+      <option name="NETWORK_SPEED" value="full" />
+      <option name="NETWORK_LATENCY" value="none" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="true" />
+      <option name="FILTER_LOGCAT_AUTOMATICALLY" value="true" />
+      <method />
+    </configuration>
+    <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
+      <module name="" />
+      <option name="TESTING_TYPE" value="0" />
+      <option name="INSTRUMENTATION_RUNNER_CLASS" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TARGET_SELECTION_MODE" value="EMULATOR" />
+      <option name="USE_LAST_SELECTED_DEVICE" value="false" />
+      <option name="PREFERRED_AVD" value="" />
+      <option name="USE_COMMAND_LINE" value="true" />
+      <option name="COMMAND_LINE" value="" />
+      <option name="WIPE_USER_DATA" value="false" />
+      <option name="DISABLE_BOOT_ANIMATION" value="false" />
+      <option name="NETWORK_SPEED" value="full" />
+      <option name="NETWORK_LATENCY" value="none" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="true" />
+      <option name="FILTER_LOGCAT_AUTOMATICALLY" value="true" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <module />
+      <method />
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="GradleRunConfiguration" factoryName="Gradle">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list />
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <method />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="true" type="JarApplication" factoryName="JAR Application">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="MavenRunConfiguration" factoryName="Maven">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="mvn" />
+              </list>
+            </option>
+            <option name="profilesMap">
+              <map>
+                <entry key="compile" value="true" />
+              </map>
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+      <method />
+    </configuration>
+    <configuration default="true" type="TestNG" factoryName="TestNG">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="SUITE_NAME" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="GROUP_NAME" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="OUTPUT_DIRECTORY" />
+      <option name="ANNOTATION_TYPE" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <option name="USE_DEFAULT_REPORTERS" value="false" />
+      <option name="PROPERTIES_FILE" />
+      <envs />
+      <properties />
+      <listeners />
+      <method />
+    </configuration>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0eed6a81-a9b9-42fe-b032-d18e13488839" name="Default" comment="" />
+      <created>1455736939680</created>
+      <option name="number" value="Default" />
+      <updated>1455736939680</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="1439" y="27" width="1922" height="1054" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.290625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5441176" sideWeight="0.50416666" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32037815" sideWeight="0.49583334" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+    </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="8" />
+    </breakpoint-manager>
+    <watches-manager />
+  </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/PropositionalVariable.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/model/DistributionResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="17" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionAlgorithm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="3" selection-start-line="6" selection-start-column="3" selection-end-line="6" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/AndFormula.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/BinaryFormula.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="22" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/ConditionImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/Fluent.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="17" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/FluentImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/FluentPropositionalVariable.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/Valuation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/ZetaFunction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/FluentUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="124" column="36" selection-start-line="124" selection-start-column="36" selection-end-line="124" selection-end-column="36" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#977#985#0" expanded="true" />
+            <element signature="e#1304#1312#0" expanded="true" />
+            <element signature="e#1712#1720#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/language/Language.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/Interaction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/Condition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="20" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/Chart.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="24" column="20" selection-start-line="24" selection-start-column="20" selection-end-line="24" selection-end-column="20" />
+          <folding>
+            <element signature="e#3269#3280#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/ChartLanguageGenerationException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/Formula.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="8" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/NotFormula.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/ConditionLocation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/ExistentialTriggeredScenario.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="9" column="0" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/MTSFromETriggeredScenarioSynthesiser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="41" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/MTSFromUTriggeredScenarioSynthesiser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="24" column="13" selection-start-line="24" selection-start-column="13" selection-end-line="24" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/util/SynthesiserHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="37" selection-start-line="23" selection-start-column="37" selection-end-line="23" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/MTSFromTriggeredScenarioSynthesiser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="63" selection-start-line="23" selection-start-column="63" selection-end-line="23" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gb/GBGameSolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="28" column="13" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gb/GBRankSystem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="78" selection-start-line="22" selection-start-column="78" selection-end-line="22" selection-end-column="78" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/model/StateSpaceCuttingControlProblem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2917342">
+          <caret line="12" column="22" selection-start-line="12" selection-start-column="22" selection-end-line="12" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gb/GBRankFunction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.09724473">
+          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gb/GBRankContext.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.07293355">
+          <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gb/GBRank.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.07293355">
+          <caret line="3" column="13" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/SynthesisVisitor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8541329">
+          <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/gr/time/GamaCalculator2.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="26" column="4" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gr/knowledge/KnowledgeGRGameSolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="9" column="22" selection-start-line="9" selection-start-column="22" selection-end-line="9" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/model/condition/ZetaFunctionTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="12" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/model/language/CanonicalSymbolTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/parser/LanguageParserTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="13" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/relations/HashNAryRelationTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/game/gr/GameSolverSimplePositiveTests.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="21" column="13" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ontroller/game/bgr/BGRGameSolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.34035656">
+          <caret line="14" column="47" selection-start-line="14" selection-start-column="47" selection-end-line="14" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/bgr/BGRGameSolverTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.24311183">
+          <caret line="10" column="52" selection-start-line="10" selection-start-column="39" selection-end-line="10" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverterTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.38897893">
+          <caret line="24" column="28" selection-start-line="24" selection-start-column="28" selection-end-line="24" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/PowerSetTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="57" column="39" selection-start-line="57" selection-start-column="39" selection-end-line="57" selection-end-column="39" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#443#451#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/game/gr/GameSolverSimpleNegativeTests.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.39045554">
+          <caret line="24" column="62" selection-start-line="24" selection-start-column="62" selection-end-line="24" selection-end-column="62" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/TestHierarchicalMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.06507592">
+          <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/FluentStateValuation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.21149674">
+          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/GenericLTSStrategyStateToStateConverter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.21149674">
+          <caret line="22" column="13" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/lsc/ChartTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.25476992">
+          <caret line="433" column="126" selection-start-line="433" selection-start-column="126" selection-end-line="433" selection-end-column="126" />
+          <folding>
+            <element signature="e#976#986#0" expanded="true" />
+            <element signature="e#1211#1221#0" expanded="true" />
+            <element signature="e#1454#1464#0" expanded="true" />
+            <element signature="e#1900#1910#0" expanded="true" />
+            <element signature="e#2703#2713#0" expanded="true" />
+            <element signature="e#3605#3615#0" expanded="true" />
+            <element signature="e#4674#4684#0" expanded="true" />
+            <element signature="e#5647#5657#0" expanded="true" />
+            <element signature="e#6531#6541#0" expanded="true" />
+            <element signature="e#7302#7312#0" expanded="true" />
+            <element signature="e#7919#7929#0" expanded="true" />
+            <element signature="e#11295#11305#0" expanded="true" />
+            <element signature="e#12882#12892#0" expanded="true" />
+            <element signature="e#14689#14699#0" expanded="true" />
+            <element signature="e#15401#15411#0" expanded="true" />
+            <element signature="e#16028#16038#0" expanded="true" />
+            <element signature="e#18697#18707#0" expanded="true" />
+            <element signature="e#19701#19711#0" expanded="true" />
+            <element signature="e#21639#21649#0" expanded="true" />
+            <element signature="e#23908#23918#0" expanded="true" />
+            <element signature="e#26012#26022#0" expanded="true" />
+            <element signature="e#27967#27977#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/bgr/BGRGameBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3253796">
+          <caret line="20" column="13" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mtsa.ipr">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.8872017">
+          <caret line="21" column="41" selection-start-line="21" selection-start-column="41" selection-end-line="21" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.3632184" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>No facets are configured</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.3632184" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.3632184" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.3632184" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>mtsa</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.3632184" />
+                <option value="0.6" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>Maven: junit:junit:4.12</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.3632184" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>
