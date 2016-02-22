@@ -136,7 +136,7 @@ public class PathBuilder2<S, A> {
 		paths.add(path);
 	}
 
-	Collection<List<Pair<A, S>>> getPaths(final S state,final A label) {
+	public Collection<List<Pair<A, S>>> getPaths(final S state, final A label) {
 		Collection<List<Pair<A, S>>> result = paths.get(Pair.create(label, state));
 		if ( result != null) {
 			return result;

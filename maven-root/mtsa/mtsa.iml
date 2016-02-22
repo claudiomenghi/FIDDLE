@@ -49,6 +49,29 @@
     <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-ps:2.4" level="project" />
     <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-svg:2.4" level="project" />
     <orderEntry type="library" name="Maven: jfree:jfreechart:1.0.13" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacv:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:3.0.0-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-x86_64:3.0.0-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:2.8.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:linux-x86_64:2.8.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:2.8.3.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:linux-x86_64:2.8.3.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:2.2.3-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:linux-x86_64:2.2.3-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:0.5.3-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:linux-x86_64:0.5.3-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:videoinput:0.200-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:videoinput:linux-x86_64:0.200-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:2.3.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:linux-x86_64:2.3.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:1.07-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:linux-x86_64:1.07-1.1" level="project" />
+    <orderEntry type="library" name="Maven: net.java.dev.swing-layout:swing-layout:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.googlecode.javacpp:javacpp:0.7" level="project" />
+    <orderEntry type="library" name="Maven: org.testng:testng:6.9.10" level="project" />
+    <orderEntry type="library" name="Maven: com.beust:jcommander:1.48" level="project" />
+    <orderEntry type="library" name="Maven: org.beanshell:bsh:2.0b4" level="project" />
     <orderEntry type="module-library">
       <library name="Maven: jadrone:jadrone:0.32">
         <CLASSES>
@@ -98,6 +121,33 @@
       <library name="Maven: jargs:jargs:1.0">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/jargs/jargs/1.0/jargs-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: javacv:javacv:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/javacv/javacv/1.0/javacv-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: scenebeans:scenebeans:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/scenebeans/scenebeans/1.0/scenebeans-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: lejos:nxt:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lejos/nxt/1.0/nxt-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

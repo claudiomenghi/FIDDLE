@@ -34,11 +34,11 @@ import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 import ltsa.updatingControllers.synthesis.UpdatingControllerHandler;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
-import ac.ic.doc.distribution.DistributionFacade;
-import ac.ic.doc.distribution.model.AlphabetDistribution;
-import ac.ic.doc.distribution.model.DistributionFeedbackItem;
-import ac.ic.doc.distribution.model.DistributionResult;
-import ltsa.ac.ic.doc.mtstools.facade.MTSAFacade;
+import MTSSynthesis.ac.ic.doc.distribution.DistributionFacade;
+import MTSSynthesis.ac.ic.doc.distribution.model.AlphabetDistribution;
+import MTSSynthesis.ac.ic.doc.distribution.model.DistributionFeedbackItem;
+import MTSSynthesis.ac.ic.doc.distribution.model.DistributionResult;
+import MTSTools.ac.ic.doc.mtstools.facade.MTSAFacade;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
@@ -71,15 +71,15 @@ import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
 import ltsa.control.ControlStackSynthesiser;
 import ltsa.control.util.ControlConstants;
 import ltsa.control.util.ControllerUtils;
-import ltsa.controller.ControllerSynthesisFacade;
-import ltsa.controller.HeuristicControllerSynthesiser;
-import ltsa.controller.NondetControlProblem;
+import MTSSynthesis.controller.ControllerSynthesisFacade;
+import MTSSynthesis.controller.HeuristicControllerSynthesiser;
+import MTSSynthesis.controller.NondetControlProblem;
 import MTSSynthesis.controller.game.gr.StrategyState;
-import MTSSynthesis.controller.game.gr.model.Assumptions;
-import MTSSynthesis.controller.game.gr.model.Guarantees;
+import MTSSynthesis.controller.game.model.Assumptions;
+import MTSSynthesis.controller.game.model.Guarantees;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import MTSSynthesis.controller.model.gr.GRGame;
-import ltsa.controller.synchronous.SynchronousControlProblem;
+import MTSSynthesis.controller.synchronous.SynchronousControlProblem;
 
 /**
  * This class consists exclusively of static methods that operate on or return

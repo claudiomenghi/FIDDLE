@@ -34,9 +34,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import ui.LTSABatch;
+import ltsa.ui.LTSABatch;
 
-import ac.ic.doc.mtsa.MTSCompiler;
+import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
 import MTSAEnactment.ar.uba.dc.lafhis.enactment.TakeFirstController;

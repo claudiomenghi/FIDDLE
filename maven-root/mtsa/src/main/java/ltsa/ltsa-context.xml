@@ -15,7 +15,7 @@
    
    <!-- Demo I -->
    <!-- This DEMO needs the HACK in isControllable method -->
-	<bean id="ARDrone" class="ar.uba.dc.lafhis.enactment.robot.ARDroneRobotChange">
+	<bean id="ARDrone" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.robot.ARDroneRobotChange">
   		<constructor-arg index="0" value="ARDrone I"/>
   		<constructor-arg index="1" value="success"/>
   		<constructor-arg index="2" value="fail"/>
@@ -35,7 +35,7 @@
   		<constructor-arg index="16" value="charge"/>
 	</bean>
 	
-	<bean id="enviromentChange" class="ar.uba.dc.lafhis.enactment.RecoverEnactor">
+	<bean id="enviromentChange" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.RecoverEnactor">
 		<constructor-arg index="0" value="Env Change Demo"/>
 		<!-- Transitions that triggers the enactor -->
 		<property name="triggerActions">	<!-- Available options to replay -->
@@ -53,7 +53,7 @@
 	
 	<!-- Demo II -->
 	<!-- This DEMO needs the HACK in isControllable method -->
-	<bean id="ARDroneII" class="ar.uba.dc.lafhis.enactment.robot.ARDroneRobotMoving">
+	<bean id="ARDroneII" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.robot.ARDroneRobotMoving">
   		<constructor-arg index="0" value="ARDrone II"/>
   		<constructor-arg index="1" value="success"/>
   		<constructor-arg index="2" value="fail"/>
@@ -90,7 +90,7 @@
   		
 	</bean>
 	
-	<bean id="enviromentChangeII" class="ar.uba.dc.lafhis.enactment.RecoverEnactor">
+	<bean id="enviromentChangeII" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.RecoverEnactor">
 		<constructor-arg index="0" value="Env Change Demo II"/>
 		<!-- Transitions that triggers the enactor -->
 		<property name="triggerActions">	<!-- Available options to replay -->
@@ -108,7 +108,7 @@
 	
 	
 	<!-- Demo III -->
-	<bean id="ARDroneUpdatingController" class="ar.uba.dc.lafhis.enactment.robot.ARDroneUpdatingControllers">
+	<bean id="ARDroneUpdatingController" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.robot.ARDroneUpdatingControllers">
   		<constructor-arg index="0" value="ARDrone Updating Controller"/>
   		<constructor-arg index="1" value="success"/>
   		<constructor-arg index="2" value="fail"/>
@@ -174,7 +174,7 @@
 <!-- 	</bean> -->
 
 	
-	<bean id="counterEnactor" class="ar.uba.dc.lafhis.enactment.CounterEnactor">
+	<bean id="counterEnactor" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.CounterEnactor">
 		<constructor-arg index="0" value="Counter"/>
 		<constructor-arg index="1" value="resetCounter"/>
 	</bean>
@@ -197,26 +197,26 @@
 <!-- 	</bean> -->	
 
 	<!-- Enactor Factory -->
-	<bean id="enactorFactory" class="enactment.EnactorFactory"/>
+	<bean id="enactorFactory" class="ltsa.enactment.EnactorFactory"/>
 
 	<!-- Controller Enviroments / Schedulers-->
-	<bean id="controllerScheduler" class="ar.uba.dc.lafhis.enactment.TakeFirstController">
+	<bean id="controllerScheduler" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.TakeFirstController">
 		<constructor-arg index="0" value="Take First Controller"/>	
 	</bean>
 	
 	<!-- Schedulers -->
-	<bean id="randomScheduler" class="ar.uba.dc.lafhis.enactment.RandomController">
+	<bean id="randomScheduler" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.RandomController">
 		<constructor-arg index="0" value="Random Controller"/>	
 	</bean>
 	
 	<!-- Schedulers -->
-	<bean id="UIController" class="ar.uba.dc.lafhis.enactment.UIController">
+	<bean id="UIController" class="MTSAEnactment.ar.uba.dc.lafhis.enactment.UIController">
 		<constructor-arg index="0" value="UI Controller"/>	
 	</bean>
 	
 	
 	<!-- Scheduler Factory -->
-	<bean id="schedullerFactory" class="enactment.SchedulerFactory"/>
+	<bean id="schedullerFactory" class="ltsa.enactment.SchedulerFactory"/>
 	
 	
 	

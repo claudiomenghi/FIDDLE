@@ -7,10 +7,14 @@ import static org.junit.Assert.*;
 
 import java.util.HashSet;
 
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.BaseController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.CounterEnactor;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.Enactor;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.RandomController;
 import org.junit.Before;
 import org.junit.Test;
 
-import ac.ic.doc.mtsa.MTSCompiler;
+import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
 import MTSAEnactment.ar.uba.dc.lafhis.enactment.robot.NXTRobot;
@@ -70,7 +74,7 @@ public class RandomSchedulerTest {
 	}
 
 	/**
-	 * Test method for {@link ar.uba.dc.lafhis.enactment.RandomController#takeNextAction()}.
+	 * Test method for {@link MTSAEnactment.ar.uba.dc.lafhis.enactment.RandomController#takeNextAction()}.
 	 */
 	//@Test
 	public void testTakeNextAction() {

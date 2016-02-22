@@ -7,7 +7,7 @@ import java.util.Set;
 import org.apache.commons.collections15.CollectionUtils;
 
 import MTSTools.ac.ic.doc.commons.relations.Pair;
-import ltsa.ac.ic.doc.mtstools.facade.MTSAFacade;
+import MTSTools.ac.ic.doc.mtstools.facade.MTSAFacade;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 

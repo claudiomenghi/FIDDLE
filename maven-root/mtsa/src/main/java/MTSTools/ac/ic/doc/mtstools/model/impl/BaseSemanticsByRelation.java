@@ -12,7 +12,7 @@ import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.RefinementByRelation;
 
-class BaseSemanticsByRelation implements ImplementationNotion, RefinementByRelation {
+public class BaseSemanticsByRelation implements ImplementationNotion, RefinementByRelation {
 
 	private RelationConstructor relationConstructor;
 	private Set<?> silentActions;

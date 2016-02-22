@@ -231,7 +231,7 @@ public class AssertDefinition {
 		if (p.isConstraint &&  !p.isProperty) {
 			CompactState constrained = cs.getComposition();
 			//DIPI: temporal, hay que ver cuando aplicamos el constrained de MTS.
-			if (lts.util.MTSUtils.isMTSRepresentation(constrained)) {
+			if (ltsa.lts.util.MTSUtils.isMTSRepresentation(constrained)) {
 				cs.setComposition(TransitionSystemDispatcher.makeMTSConstraintModel(constrained, output));
 			}
 		}

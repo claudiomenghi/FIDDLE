@@ -289,7 +289,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			applicationContext = new ClassPathXmlApplicationContext("ltsa-context.xml");
 		} catch (Exception e)
 		{
-			applicationContext = new FileSystemXmlApplicationContext("/src/ltsa-context.xml");
+			applicationContext = new FileSystemXmlApplicationContext("src/main/java/ltsa/ltsa-context.xml");
 		}
 		
 		isApplet = isap;

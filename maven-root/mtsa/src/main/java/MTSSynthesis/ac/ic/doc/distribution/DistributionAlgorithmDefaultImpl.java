@@ -26,7 +26,7 @@ import MTSSynthesis.ac.ic.doc.distribution.model.DistributionFeedbackOnNonDeterm
 import MTSSynthesis.ac.ic.doc.distribution.model.DistributionFeedbackOnTracesAddedByComposition;
 import MTSSynthesis.ac.ic.doc.distribution.model.DistributionResult;
 import MTSSynthesis.ac.ic.doc.distribution.model.DistributionResultImpl;
-import ltsa.ac.ic.doc.mtstools.facade.MTSAFacade;
+import MTSTools.ac.ic.doc.mtstools.facade.MTSAFacade;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;

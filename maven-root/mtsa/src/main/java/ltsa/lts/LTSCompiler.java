@@ -1,7 +1,7 @@
 package ltsa.lts;
 
-import static lts.util.MTSUtils.getMaybeAction;
-import static lts.util.MTSUtils.getOpositeActionLabel;
+import static ltsa.lts.util.MTSUtils.getMaybeAction;
+import static ltsa.lts.util.MTSUtils.getOpositeActionLabel;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -292,9 +292,9 @@ public class LTSCompiler {
 		  if (fdef != null ){
 		    adaptFormulaAndCreateFluents(new FormulaFactory().make(symbol), involvedFluents);
 		  } else if (symbol.toString().equals(GeneralConstants.FALSE)){
-			  involvedFluents.add(new FluentImpl(symbol.toString(), new HashSet<ar.dc.uba.model.language.Symbol>(), new HashSet<ar.dc.uba.model.language.Symbol>(), false));
+			  involvedFluents.add(new FluentImpl(symbol.toString(), new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(), new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(), false));
 		  } else if (symbol.toString().equals(GeneralConstants.TRUE)){
-			  involvedFluents.add(new FluentImpl(symbol.toString(), new HashSet<ar.dc.uba.model.language.Symbol>(), new HashSet<ar.dc.uba.model.language.Symbol>(), true));
+			  involvedFluents.add(new FluentImpl(symbol.toString(), new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(), new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(), true));
 		  } else{
 			  //Diagnostics.fatal("Assertion not defined [" + guaranteeDefinition.getName() + "].");
 		    Diagnostics.fatal("Fluent/assertion not defined [" + symbol + "].");
@@ -325,7 +325,7 @@ public class LTSCompiler {
 		return compiled;
 	}
 	
-	private static Formula adaptFormulaAndCreateFluents(lts.ltl.Formula formula, Set<Fluent> involvedFluents) {
+	private static Formula adaptFormulaAndCreateFluents(ltsa.lts.ltl.Formula formula, Set<Fluent> involvedFluents) {
 		// create a visitor for the formula
 		FormulaTransformerVisitor formulaTransformerVisitor = new FormulaTransformerVisitor();
 		formula.accept(formulaTransformerVisitor);

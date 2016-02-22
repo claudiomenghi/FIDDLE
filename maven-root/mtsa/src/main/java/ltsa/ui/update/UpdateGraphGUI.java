@@ -22,10 +22,10 @@ import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.Set;
 
-import static ui.update.utilities.NonEditableGraphView.INITIAL_STYLE;
-import static ui.update.utilities.NonEditableGraphView.NEXT_STYLE;
-import static ui.update.utilities.NonEditableGraphView.REACHABLE_STYLE;
-import static ui.update.utilities.NonEditableGraphView.UNREACHABLE_STYLE;
+import static ltsa.ui.update.utilities.NonEditableGraphView.INITIAL_STYLE;
+import static ltsa.ui.update.utilities.NonEditableGraphView.NEXT_STYLE;
+import static ltsa.ui.update.utilities.NonEditableGraphView.REACHABLE_STYLE;
+import static ltsa.ui.update.utilities.NonEditableGraphView.UNREACHABLE_STYLE;
 
 /**
  * Created by Victor Wjugow on 15/06/15.

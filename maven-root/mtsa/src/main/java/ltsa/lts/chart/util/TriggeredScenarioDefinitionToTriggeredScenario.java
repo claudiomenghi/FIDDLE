@@ -88,7 +88,7 @@ public class TriggeredScenarioDefinitionToTriggeredScenario {
 	/**
 	 * Transforms the restricted interactions to a set of
 	 * restricted Symbol
-	 * @param restricted
+	 * @param restricteds
 	 * @param namingStrategy
 	 * @return
 	 */
@@ -97,7 +97,7 @@ public class TriggeredScenarioDefinitionToTriggeredScenario {
 		Set<Symbol> restrictedSymbols = new HashSet<Symbol>();
 
 		for (Interaction restricted : restricteds) {
-			ar.dc.uba.model.lsc.Interaction interaction = new ar.dc.uba.model.lsc.Interaction(restricted.getSource(),
+			MTSSynthesis.ar.dc.uba.model.lsc.Interaction interaction = new MTSSynthesis.ar.dc.uba.model.lsc.Interaction(restricted.getSource(),
 					restricted.getMessage(), restricted.getTarget());
 			restrictedSymbols.add(new SingleSymbol(interaction.getName(namingStrategy)));
 		}
@@ -113,9 +113,9 @@ public class TriggeredScenarioDefinitionToTriggeredScenario {
 	 * @param involvedFluents
 	 * @return
 	 */
-	private List<ar.dc.uba.model.lsc.Location> transformLocations(
+	private List<MTSSynthesis.ar.dc.uba.model.lsc.Location> transformLocations(
 			Iterator<? extends Location > locations, TriggeredScenarioDefinition lscDefinition, Set<Fluent> involvedFluents) {
-		List<ar.dc.uba.model.lsc.Location> result = new LinkedList<ar.dc.uba.model.lsc.Location>();
+		List<MTSSynthesis.ar.dc.uba.model.lsc.Location> result = new LinkedList<MTSSynthesis.ar.dc.uba.model.lsc.Location>();
 		while (locations.hasNext()) {
 			Location location = locations.next();
 			// in involved fluents the fluent acociated with a location condition will be added
@@ -130,7 +130,7 @@ public class TriggeredScenarioDefinitionToTriggeredScenario {
 	 * @param involvedFluents 
 	 * @return
 	 */
-	private ar.dc.uba.model.lsc.Location transformLocation(
+	private MTSSynthesis.ar.dc.uba.model.lsc.Location transformLocation(
 			Location location, TriggeredScenarioDefinition lscDefinition, Set<Fluent> involvedFluents) {
 		if(Location.isConditionPredicate.evaluate(location)) {
 			// If it's a condition location the formula must be transformed
@@ -138,10 +138,10 @@ public class TriggeredScenarioDefinitionToTriggeredScenario {
 			ConditionDefinition conditionDefinition = lscDefinition.getConditionDefinition(conditionLocation.getId());
 			Formula formula = FormulaUtils.adaptFormulaAndCreateFluents(conditionDefinition.getFplFormula().expand(new
 					FormulaFactory(), new Hashtable(), new Hashtable()), involvedFluents);
-			return new ar.dc.uba.model.lsc.ConditionLocation(conditionLocation.getId(), conditionLocation.getInstances(), formula);
+			return new MTSSynthesis.ar.dc.uba.model.lsc.ConditionLocation(conditionLocation.getId(), conditionLocation.getInstances(), formula);
 		} else if(!Location.isConditionPredicate.evaluate(location)) {
 			Interaction interaction = (Interaction) location;
-			return new ar.dc.uba.model.lsc.Interaction(interaction.getSource(), interaction.getMessage(), interaction.getTarget());
+			return new MTSSynthesis.ar.dc.uba.model.lsc.Interaction(interaction.getSource(), interaction.getMessage(), interaction.getTarget());
 		} else {
 			throw new IllegalArgumentException("Unknown location type: " + location); 
 		}

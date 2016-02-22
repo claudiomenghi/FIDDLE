@@ -159,6 +159,28 @@
             <artifactId>jfreechart</artifactId>
             <version>1.0.13</version>
         </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.swing-layout</groupId>
+            <artifactId>swing-layout</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.javacpp</groupId>
+            <artifactId>javacpp</artifactId>
+            <version>0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.9.10</version>
+        </dependency>
+
+
 
         <!-- Local dependencies   -->
         <dependency>
@@ -202,6 +224,27 @@
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/jargs/jargs/1.0/jargs-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>javacv</groupId>
+            <artifactId>javacv</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/javacv/javacv/1.0/javacv-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>scenebeans</groupId>
+            <artifactId>scenebeans</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/scenebeans/scenebeans/1.0/scenebeans-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>lejos</groupId>
+            <artifactId>nxt</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/lejos/nxt/1.0/nxt-1.0.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

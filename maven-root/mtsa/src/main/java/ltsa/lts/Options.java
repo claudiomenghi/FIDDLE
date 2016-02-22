@@ -5,9 +5,9 @@ public class Options {
 		BFS_STRATEGY, DFS_STRATEGY, RANDOM_STRATEGY;
 	}
 	
-	private static final String dfsClass= "lts.DFSCompositionEngine";
-	private static final String bfsClass= "lts.BFSCompositionEngine";
-	private static final String randomClass= "lts.RandomCompositionEngine";
+	private static final String dfsClass= "ltsa.lts.DFSCompositionEngine";
+	private static final String bfsClass= "ltsa.lts.BFSCompositionEngine";
+	private static final String randomClass= "ltsa.lts.RandomCompositionEngine";
 
 	private static long maxStatesGeneration= LTSConstants.NO_MAX_STATE_GENERATION;
 	private static boolean useGeneratedSeed= false;
