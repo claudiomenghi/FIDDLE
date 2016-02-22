@@ -1,4 +1,4 @@
-package ui.exploration;
+package ltsa.ui.exploration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,14 +6,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ui.Transition;
+import ltsa.ui.Transition;
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 
 public class EnvironmentModel {
 

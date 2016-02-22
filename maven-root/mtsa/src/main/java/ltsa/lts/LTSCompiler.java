@@ -17,8 +17,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
-import exploration.ExplorerDefinition;
-import controller.game.util.GeneralConstants;
+import ltsa.exploration.ExplorerDefinition;
+import MTSSynthesis.controller.game.util.GeneralConstants;
 import ltsa.lts.chart.BasicChartDefinition;
 import ltsa.lts.chart.ConditionDefinition;
 import ltsa.lts.chart.ConditionLocation;
@@ -45,13 +45,13 @@ import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
 import MTSSynthesis.ar.dc.uba.model.condition.Formula;
-import control.ControlStackDefinition;
-import control.ControlTierDefinition;
-import control.ControllerDefinition;
-import control.ControllerGoalDefinition;
-import dispatcher.TransitionSystemDispatcher;
-import updatingControllers.structures.UpdateGraphDefinition;
-import updatingControllers.synthesis.UpdateGraphGenerator;
+import ltsa.control.ControlStackDefinition;
+import ltsa.control.ControlTierDefinition;
+import ltsa.control.ControllerDefinition;
+import ltsa.control.ControllerGoalDefinition;
+import ltsa.dispatcher.TransitionSystemDispatcher;
+import ltsa.updatingControllers.structures.UpdateGraphDefinition;
+import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
 
 public class LTSCompiler {
 

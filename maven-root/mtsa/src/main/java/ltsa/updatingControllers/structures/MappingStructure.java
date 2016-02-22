@@ -1,4 +1,4 @@
-package updatingControllers.structures;
+package ltsa.updatingControllers.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentUtils;
-import controller.game.util.FluentStateValuation;
+import MTSSynthesis.controller.game.util.FluentStateValuation;
 
 public class MappingStructure {
 

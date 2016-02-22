@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ui.enactment;
+package ltsa.ui.enactment;
 
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;

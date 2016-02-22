@@ -1,14 +1,14 @@
-package ui.update;
+package ltsa.ui.update;
 
-import controller.game.util.GeneralConstants;
+import MTSSynthesis.controller.game.util.GeneralConstants;
 import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSException;
 import ltsa.lts.LTSOutput;
 import org.apache.commons.lang.mutable.MutableInt;
-import ui.HPWindow;
-import ui.update.utilities.UpdateGraphWindowListener;
-import updatingControllers.structures.graph.UpdateGraph;
-import updatingControllers.synthesis.UpdateGraphGenerator;
+import ltsa.ui.HPWindow;
+import ltsa.ui.update.utilities.UpdateGraphWindowListener;
+import ltsa.updatingControllers.structures.graph.UpdateGraph;
+import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;

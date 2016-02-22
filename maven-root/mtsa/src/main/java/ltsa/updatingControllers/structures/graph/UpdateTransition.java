@@ -1,4 +1,4 @@
-package updatingControllers.structures.graph;
+package ltsa.updatingControllers.structures.graph;
 
 import java.util.ArrayList;
 import java.util.List;

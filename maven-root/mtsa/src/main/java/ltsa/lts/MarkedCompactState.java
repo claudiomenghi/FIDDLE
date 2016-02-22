@@ -1,7 +1,7 @@
 package ltsa.lts;
 
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 
 import java.util.Iterator;
 import java.util.Set;

@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-package ui.enactment;
+package ltsa.ui.enactment;
 
 import javax.swing.*;
 import javax.swing.SpringLayout;

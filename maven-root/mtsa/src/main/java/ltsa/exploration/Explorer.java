@@ -1,12 +1,12 @@
 package ltsa.exploration;
 
 import MTSTools.ac.ic.doc.commons.relations.Pair;
-import controller.model.gr.GRControllerGoal;
-import exploration.knowledge.Knowledge;
-import exploration.model.Model;
-import exploration.strategy.Strategy;
-import exploration.strategy.StrategyManager;
-import exploration.view.View;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import ltsa.exploration.knowledge.Knowledge;
+import ltsa.exploration.model.Model;
+import ltsa.exploration.strategy.Strategy;
+import ltsa.exploration.strategy.StrategyManager;
+import ltsa.exploration.view.View;
 import ltsa.lts.EventState;
 import org.apache.commons.lang.ArrayUtils;
 

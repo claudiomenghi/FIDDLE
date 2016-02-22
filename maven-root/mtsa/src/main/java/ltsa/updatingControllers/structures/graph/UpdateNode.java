@@ -1,4 +1,4 @@
-package updatingControllers.structures.graph;
+package ltsa.updatingControllers.structures.graph;
 
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 

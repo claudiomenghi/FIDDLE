@@ -1,4 +1,4 @@
-package exploration.view;
+package ltsa.exploration.view;
 
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import com.google.common.primitives.Ints;

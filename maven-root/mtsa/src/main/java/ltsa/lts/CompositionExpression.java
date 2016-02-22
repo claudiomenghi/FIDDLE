@@ -17,11 +17,11 @@ import ltsa.lts.util.MTSUtils;
 import org.apache.commons.lang.Validate;
 
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
-import control.ControllerGoalDefinition;
-import control.util.GoalDefToControllerGoal;
-import dispatcher.TransitionSystemDispatcher;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ltsa.control.ControllerGoalDefinition;
+import ltsa.control.util.GoalDefToControllerGoal;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 
 /* -----------------------------------------------------------------------*/
 class CompositeBody {
@@ -478,7 +478,7 @@ class ProcessRef {
 			return;
 		}
 		// it could be a constraint
-		mach = lts.ltl.AssertDefinition.compileConstraint(output, name,
+		mach = ltsa.lts.ltl.AssertDefinition.compileConstraint(output, name,
 				refname, actuals);
 		if (mach != null) {
 			if (this.passBackClone) {

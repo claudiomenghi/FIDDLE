@@ -21,14 +21,14 @@ public class ProgressCheck {
 	int accept = -1;
 	boolean progress;
 
-	lts.ltl.FluentTrace tracer = null;
+	ltsa.lts.ltl.FluentTrace tracer = null;
 
 	public ProgressCheck(Automata m, LTSOutput o) {
 		mach = m;
 		output = o;
 	}
 
-	public ProgressCheck(Automata m, LTSOutput o, lts.ltl.FluentTrace t) {
+	public ProgressCheck(Automata m, LTSOutput o, ltsa.lts.ltl.FluentTrace t) {
 		mach = m;
 		output = o;
 		tracer = t;

@@ -11,9 +11,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import MTSTools.ac.ic.doc.mtstools.model.LTS;
-import ar.uba.dc.lafhis.enactment.BaseController;
-import ar.uba.dc.lafhis.enactment.TakeFirstController;
-import ar.uba.dc.lafhis.enactment.RandomController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.BaseController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.TakeFirstController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.RandomController;
 
 
 /**

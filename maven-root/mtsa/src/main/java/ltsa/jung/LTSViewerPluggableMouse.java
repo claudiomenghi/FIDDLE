@@ -12,9 +12,9 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 
-import jung.LTSGraph.LTSNavigator;
-import jung.LTSJUNGCanvas.EnumLayout;
-import jung.LTSJUNGCanvas.EnumMode;
+import ltsa.jung.LTSGraph.LTSNavigator;
+import ltsa.jung.LTSJUNGCanvas.EnumLayout;
+import ltsa.jung.LTSJUNGCanvas.EnumMode;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;

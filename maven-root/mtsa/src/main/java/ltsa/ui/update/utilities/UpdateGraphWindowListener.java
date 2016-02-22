@@ -1,8 +1,8 @@
-package ui.update.utilities;
+package ltsa.ui.update.utilities;
 
-import controller.game.util.GeneralConstants;
+import MTSSynthesis.controller.game.util.GeneralConstants;
 import org.apache.commons.lang.mutable.MutableInt;
-import ui.update.UpdateGraphGUI;
+import ltsa.ui.update.UpdateGraphGUI;
 
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;

@@ -1,4 +1,4 @@
-package exploration.knowledge;
+package ltsa.exploration.knowledge;
 
 public class StateEquivalence
 {

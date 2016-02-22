@@ -1,12 +1,12 @@
-package ui.update;
+package ltsa.ui.update;
 
-import controller.game.util.GeneralConstants;
-import enactment.SchedulerFactory;
+import MTSSynthesis.controller.game.util.GeneralConstants;
+import ltsa.enactment.SchedulerFactory;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.springframework.context.ApplicationContext;
-import ui.HPWindow;
+import ltsa.ui.HPWindow;
 
-import static controller.game.util.GeneralConstants.OPEN;
+import static MTSSynthesis.controller.game.util.GeneralConstants.OPEN;
 
 /**
  * Created by Victor Wjugow on 15/06/15.

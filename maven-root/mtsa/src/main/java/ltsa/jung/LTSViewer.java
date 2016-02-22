@@ -15,9 +15,9 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
-import jung.LTSGraph.LTSNavigator;
-import jung.LTSJUNGCanvas.EnumLayout;
-import jung.LTSJUNGCanvas.EnumMode;
+import ltsa.jung.LTSGraph.LTSNavigator;
+import ltsa.jung.LTSJUNGCanvas.EnumLayout;
+import ltsa.jung.LTSJUNGCanvas.EnumMode;
 
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.ConstantTransformer;

@@ -1,4 +1,4 @@
-package exploration.knowledge;
+package ltsa.exploration.knowledge;
 
 import ltsa.lts.EventState;
 import ltsa.lts.CompactState;

@@ -1,14 +1,14 @@
-package updatingControllers.synthesis;
+package ltsa.updatingControllers.synthesis;
 
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import ac.ic.doc.mtstools.utils.GraphUtils;
+import MTSTools.ac.ic.doc.mtstools.utils.GraphUtils;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentPropositionalVariable;
 import MTSSynthesis.ar.dc.uba.model.language.SingleSymbol;
-import control.ControllerGoalDefinition;
-import controller.model.gr.GRControllerGoal;
+import ltsa.control.ControllerGoalDefinition;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSOutput;
@@ -18,7 +18,7 @@ import ltsa.lts.UpdatingControllersGoalsMaker;
 import ltsa.lts.chart.util.FormulaUtils;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.PredicateDefinition;
-import updatingControllers.UpdateConstants;
+import ltsa.updatingControllers.UpdateConstants;
 import ltsa.lts.UpdatingControllersDefinition;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static updatingControllers.UpdateConstants.*;
+import static ltsa.updatingControllers.UpdateConstants.*;
 
 public class UpdatingControllersUtils {
 
@@ -37,19 +37,19 @@ public class UpdatingControllersUtils {
 	public static final Fluent startFluent;
 
 	static {
-		HashSet<ar.dc.uba.model.language.Symbol> beginAction = new HashSet<ar.dc.uba.model.language.Symbol>();
-		HashSet<ar.dc.uba.model.language.Symbol> stopAction = new HashSet<ar.dc.uba.model.language.Symbol>();
-		HashSet<ar.dc.uba.model.language.Symbol> reconfigureAction = new HashSet<ar.dc.uba.model.language.Symbol>();
-		HashSet<ar.dc.uba.model.language.Symbol> startAction = new HashSet<ar.dc.uba.model.language.Symbol>();
+		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> beginAction = new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>();
+		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> stopAction = new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>();
+		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> reconfigureAction = new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>();
+		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> startAction = new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>();
 		beginAction.add(new SingleSymbol(UpdateConstants.BEGIN_UPDATE));
 		stopAction.add(new SingleSymbol(UpdateConstants.STOP_OLD_SPEC));
 		reconfigureAction.add(new SingleSymbol(UpdateConstants.RECONFIGURE));
 		startAction.add(new SingleSymbol(UpdateConstants.START_NEW_SPEC));
 
-		beginFluent = new FluentImpl("BeginUpdate", beginAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
-		stopFluent = new FluentImpl("StopOldSpec", stopAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
-		reconFluent = new FluentImpl("Reconfigure", reconfigureAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
-		startFluent = new FluentImpl("StartNewSpec", startAction, new HashSet<ar.dc.uba.model.language.Symbol>(), false);
+		beginFluent = new FluentImpl("BeginUpdate", beginAction, new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(), false);
+		stopFluent = new FluentImpl("StopOldSpec", stopAction, new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(), false);
+		reconFluent = new FluentImpl("Reconfigure", reconfigureAction, new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(), false);
+		startFluent = new FluentImpl("StartNewSpec", startAction, new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(), false);
 		
 		UpdatingControllersUtils.UPDATE_FLUENTS.add(beginFluent);
 		UpdatingControllersUtils.UPDATE_FLUENTS.add(stopFluent);
@@ -163,7 +163,7 @@ public class UpdatingControllersUtils {
 		// TODO: refactor, code copied from GoalDefToControllerGoal.
 		// Check with dipi. we are not sure if this will work as expected
 		Set<Fluent> fluentsInFaults = new HashSet<Fluent>();
-		for (lts.Symbol faultsDefinition : controllerGoalDefinition.getFaultsDefinitions()) {
+		for (ltsa.lts.Symbol faultsDefinition : controllerGoalDefinition.getFaultsDefinitions()) {
 			AssertDefinition def = AssertDefinition.getDefinition(faultsDefinition.getName());
 			if (def != null) {
 				grcg.addFault(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), fluentsInFaults));

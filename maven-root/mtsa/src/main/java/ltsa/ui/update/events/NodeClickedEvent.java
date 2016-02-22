@@ -1,7 +1,7 @@
-package ui.update.events;
+package ltsa.ui.update.events;
 
-import updatingControllers.structures.graph.UpdateNode;
-import updatingControllers.structures.graph.UpdateTransition;
+import ltsa.updatingControllers.structures.graph.UpdateNode;
+import ltsa.updatingControllers.structures.graph.UpdateTransition;
 
 /**
  * Created by Victor Wjugow on 19/06/15.

@@ -1,4 +1,4 @@
-package exploration.view;
+package ltsa.exploration.view;
 
 import java.util.List;
 import java.util.Random;

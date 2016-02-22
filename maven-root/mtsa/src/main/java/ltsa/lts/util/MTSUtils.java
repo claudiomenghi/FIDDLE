@@ -1,9 +1,9 @@
 package ltsa.lts.util;
 
-import static lts.util.MTSUtils.getAction;
-import static lts.util.MTSUtils.getMaybeAction;
-import static lts.util.MTSUtils.getOpositeActionLabel;
-import static lts.util.MTSUtils.isMaybe;
+import static ltsa.lts.util.MTSUtils.getAction;
+import static ltsa.lts.util.MTSUtils.getMaybeAction;
+import static ltsa.lts.util.MTSUtils.getOpositeActionLabel;
+import static ltsa.lts.util.MTSUtils.isMaybe;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +24,7 @@ import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;
 import MTSTools.ac.ic.doc.mtstools.model.impl.CompositionRuleApplier;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSMultipleComposer;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 
 /**
  * This class consists exclusively of static methods that operate on or return

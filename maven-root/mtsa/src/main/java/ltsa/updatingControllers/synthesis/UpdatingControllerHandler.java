@@ -1,18 +1,18 @@
-package updatingControllers.synthesis;
+package ltsa.updatingControllers.synthesis;
 
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSImpl;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
 import MTSSynthesis.ar.dc.uba.model.language.SingleSymbol;
 import MTSSynthesis.ar.dc.uba.model.language.Symbol;
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
-import updatingControllers.UpdateConstants;
+import ltsa.updatingControllers.UpdateConstants;
 
 import java.util.HashSet;
 import java.util.Set;

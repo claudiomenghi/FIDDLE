@@ -19,7 +19,7 @@ public class FormulaUtils {
 	 * @param involvedFluents
 	 * @return
 	 */
-	public static Formula adaptFormulaAndCreateFluents(lts.ltl.Formula formula, Set<Fluent> involvedFluents) {
+	public static Formula adaptFormulaAndCreateFluents(ltsa.lts.ltl.Formula formula, Set<Fluent> involvedFluents) {
 		// create a visitor for the formula
 		FormulaTransformerVisitor formulaTransformerVisitor = new FormulaTransformerVisitor();
 		formula.accept(formulaTransformerVisitor);

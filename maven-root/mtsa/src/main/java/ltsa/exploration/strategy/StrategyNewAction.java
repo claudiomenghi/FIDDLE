@@ -1,13 +1,13 @@
-package exploration.strategy;
+package ltsa.exploration.strategy;
 
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentPropositionalVariable;
 import MTSSynthesis.ar.dc.uba.model.language.SingleSymbol;
 import MTSSynthesis.ar.dc.uba.model.language.Symbol;
-import controller.model.gr.GRControllerGoal;
-import exploration.Synthesis;
-import exploration.knowledge.Knowledge;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import ltsa.exploration.Synthesis;
+import ltsa.exploration.knowledge.Knowledge;
 import ltsa.lts.CompactState;
 import ltsa.lts.EventState;
 

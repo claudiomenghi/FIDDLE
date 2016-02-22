@@ -1,4 +1,4 @@
-package ui.update;
+package ltsa.ui.update;
 
 /**
  * Created by Victor Wjugow on 18/06/15.

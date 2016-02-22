@@ -1,8 +1,8 @@
-package ui.update;
+package ltsa.ui.update;
 
-import ui.update.events.EndedEvent;
-import ui.update.events.NodeClickedEvent;
-import ui.update.events.StartedEvent;
+import ltsa.ui.update.events.EndedEvent;
+import ltsa.ui.update.events.NodeClickedEvent;
+import ltsa.ui.update.events.StartedEvent;
 
 /**
  * Created by Victor Wjugow on 18/06/15.

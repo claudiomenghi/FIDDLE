@@ -16,13 +16,13 @@ import org.springframework.context.ApplicationContext;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ar.uba.dc.lafhis.enactment.BaseController;
-import ar.uba.dc.lafhis.enactment.TakeFirstController;
-import ar.uba.dc.lafhis.enactment.Enactor;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.BaseController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.TakeFirstController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.Enactor;
 
 import ltsa.lts.CompositeState;
-import ui.enactment.RunEnactorsWindow;
+import ltsa.ui.enactment.RunEnactorsWindow;
 
 /**
  * Setup and execute a MTSA Enactment simulation

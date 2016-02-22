@@ -1,6 +1,6 @@
-package exploration.strategy;
+package ltsa.exploration.strategy;
 
-import exploration.CycleDetector;
+import ltsa.exploration.CycleDetector;
 
 import java.util.List;
 

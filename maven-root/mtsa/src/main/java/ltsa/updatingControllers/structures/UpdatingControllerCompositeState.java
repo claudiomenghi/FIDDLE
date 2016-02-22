@@ -1,4 +1,4 @@
-package updatingControllers.structures;
+package ltsa.updatingControllers.structures;
 
 import java.util.List;
 import java.util.Set;
@@ -10,8 +10,8 @@ import ltsa.lts.Symbol;
 import ltsa.lts.util.MTSUtils;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
-import control.ControllerGoalDefinition;
-import controller.model.gr.GRControllerGoal;
+import ltsa.control.ControllerGoalDefinition;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
 
 public class UpdatingControllerCompositeState extends CompositeState {
 

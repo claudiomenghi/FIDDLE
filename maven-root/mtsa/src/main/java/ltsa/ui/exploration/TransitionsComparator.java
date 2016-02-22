@@ -1,10 +1,10 @@
-package ui.exploration;
+package ltsa.ui.exploration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import ui.Transition;
+import ltsa.ui.Transition;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;

@@ -1,4 +1,4 @@
-package ui.exploration;
+package ltsa.ui.exploration;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -8,15 +8,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
-import ui.Transition;
+import ltsa.ui.Transition;
 import ltsa.lts.Animator;
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
 import ltsa.lts.EventManager;
 import ltsa.lts.LTSEvent;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import controller.game.gr.StrategyState;
-import controller.game.util.GameStrategyToMTSBuilder;
+import MTSSynthesis.controller.game.gr.StrategyState;
+import MTSSynthesis.controller.game.util.GameStrategyToMTSBuilder;
 
 public class ExplorationAnimator implements Animator {
 		

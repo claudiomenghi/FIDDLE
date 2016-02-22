@@ -4,7 +4,7 @@ import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSSynthesis.ar.dc.uba.model.language.Symbol;
 import MTSSynthesis.ar.dc.uba.model.lsc.TriggeredScenario;
 import MTSSynthesis.ar.dc.uba.model.structure.SynthesizedState;
-import ar.dc.uba.synthesis.SynthesisVisitor;
+import MTSSynthesis.ar.dc.uba.synthesis.SynthesisVisitor;
 
 /**
  * Encapsulates the call to the synthesis algorithm.

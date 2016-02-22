@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import updatingControllers.UpdateConstants;
-import updatingControllers.structures.UpdatingControllerCompositeState;
-import updatingControllers.synthesis.UpdatingControllersUtils;
+import ltsa.updatingControllers.UpdateConstants;
+import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
+import ltsa.updatingControllers.synthesis.UpdatingControllersUtils;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
-import control.ControllerGoalDefinition;
-import controller.model.gr.GRControllerGoal;
+import ltsa.control.ControllerGoalDefinition;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
 
 public class UpdatingControllersDefinition extends CompositionExpression {
 

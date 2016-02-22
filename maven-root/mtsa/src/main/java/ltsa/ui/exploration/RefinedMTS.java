@@ -1,4 +1,4 @@
-package ui.exploration;
+package ltsa.ui.exploration;
 
 import java.util.ArrayList;
 import java.util.HashMap;

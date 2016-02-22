@@ -2,9 +2,9 @@ package ltsa.lts;
 
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.FormulaSyntax;
-import updatingControllers.UpdateConstants;
-import control.ControllerGoalDefinition;
-import controller.game.util.GeneralConstants;
+import ltsa.updatingControllers.UpdateConstants;
+import ltsa.control.ControllerGoalDefinition;
+import MTSSynthesis.controller.game.util.GeneralConstants;
 
 public class UpdatingControllersGoalsMaker {
 

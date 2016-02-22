@@ -1,4 +1,4 @@
-package exploration.strategy;
+package ltsa.exploration.strategy;
 
 import java.util.HashSet;
 

@@ -28,6 +28,27 @@
     <orderEntry type="library" name="Maven: jfree:jcommon:1.0.16" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:12.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:1.3.9" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-algorithms:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: colt:colt:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: concurrent:concurrent:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-visualization:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-beans:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-aop:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: aopalliance:aopalliance:1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-core:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-expression:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: com.jgoodies:forms:1.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphics2d:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsbase:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-io:2.2.2" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-pdf:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-tests:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-ps:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-svg:2.4" level="project" />
+    <orderEntry type="library" name="Maven: jfree:jfreechart:1.0.13" level="project" />
     <orderEntry type="module-library">
       <library name="Maven: jadrone:jadrone:0.32">
         <CLASSES>
@@ -59,6 +80,24 @@
       <library name="Maven: com.microsoft:z3:1.0">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/com/microsoft/z3/1.0/z3-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: synoptic:synoptic:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/synoptic/synoptic/1.0/synoptic-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: jargs:jargs:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jargs/jargs/1.0/jargs-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

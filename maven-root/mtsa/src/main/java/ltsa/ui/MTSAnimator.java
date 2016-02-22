@@ -9,7 +9,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
-import updatingControllers.structures.UpdatingControllerCompositeState;
+import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 import ltsa.lts.Animator;
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
@@ -21,7 +21,7 @@ import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.impl.CompositionRuleApplier;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSMultipleComposer;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 
 
 

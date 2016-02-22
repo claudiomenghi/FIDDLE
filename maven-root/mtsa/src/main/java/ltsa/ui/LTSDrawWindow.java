@@ -44,8 +44,8 @@ import ltsa.lts.EventClient;
 import ltsa.lts.EventManager;
 import ltsa.lts.LTSCanvas;
 import ltsa.lts.LTSEvent;
-import dclap.Gr2PICT;
-import dispatcher.TransitionSystemDispatcher;
+import ltsa.dclap.Gr2PICT;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 
 public class LTSDrawWindow extends JSplitPane implements EventClient {
 

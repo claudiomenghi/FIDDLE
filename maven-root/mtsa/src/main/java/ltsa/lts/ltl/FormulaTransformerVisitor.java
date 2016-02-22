@@ -25,14 +25,14 @@ import MTSSynthesis.ar.dc.uba.model.language.Symbol;
  */
 public class FormulaTransformerVisitor implements FormulaVisitor {
 
-	private ar.dc.uba.model.condition.Formula transformedFormula;
+	private MTSSynthesis.ar.dc.uba.model.condition.Formula transformedFormula;
 	private Set<Fluent> involvedFluents = new HashSet<Fluent>();
 	
 	public Set<Fluent> getInvolvedFluents() {
 		return this.involvedFluents;
 	}
 	
-	public ar.dc.uba.model.condition.Formula getTransformedFormula() {
+	public MTSSynthesis.ar.dc.uba.model.condition.Formula getTransformedFormula() {
 		return this.transformedFormula;
 	}
 	
@@ -40,8 +40,8 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.True)
 	 */
 	@Override
-	public lts.ltl.Formula visit(True t) {
-		this.transformedFormula = ar.dc.uba.model.condition.Formula.TRUE_FORMULA;
+	public ltsa.lts.ltl.Formula visit(True t) {
+		this.transformedFormula = MTSSynthesis.ar.dc.uba.model.condition.Formula.TRUE_FORMULA;
 		return null;
 	}
 
@@ -49,8 +49,8 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.False)
 	 */
 	@Override
-	public lts.ltl.Formula visit(False f) {
-		this.transformedFormula = ar.dc.uba.model.condition.Formula.FALSE_FORMULA;
+	public ltsa.lts.ltl.Formula visit(False f) {
+		this.transformedFormula = MTSSynthesis.ar.dc.uba.model.condition.Formula.FALSE_FORMULA;
 		return null;
 	}
 	
@@ -58,7 +58,7 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.Proposition)
 	 */
 	@Override
-	public lts.ltl.Formula visit(Proposition p) {
+	public ltsa.lts.ltl.Formula visit(Proposition p) {
 		Fluent fluent = this.createFluent(p);
 		this.involvedFluents.add(fluent);
 		
@@ -70,7 +70,7 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.Not)
 	 */
 	@Override
-	public lts.ltl.Formula visit(Not n) {
+	public ltsa.lts.ltl.Formula visit(Not n) {
 		// transform the n formula
 		n.getNext().accept(this);
 		// negate the formula and set it to the transformer
@@ -82,7 +82,7 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.And)
 	 */
 	@Override
-	public lts.ltl.Formula visit(And a) {
+	public ltsa.lts.ltl.Formula visit(And a) {
 		a.getLeft().accept(this);
 		Formula left = this.getTransformedFormula();
 		
@@ -97,7 +97,7 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.Or)
 	 */
 	@Override
-	public lts.ltl.Formula visit(Or o) {
+	public ltsa.lts.ltl.Formula visit(Or o) {
 		o.getLeft().accept(this);
 		Formula left = this.getTransformedFormula();
 		
@@ -112,7 +112,7 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.Until)
 	 */
 	@Override
-	public lts.ltl.Formula visit(Until u) {
+	public ltsa.lts.ltl.Formula visit(Until u) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -120,7 +120,7 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.Release)
 	 */
 	@Override
-	public lts.ltl.Formula visit(Release r) {
+	public ltsa.lts.ltl.Formula visit(Release r) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -128,7 +128,7 @@ public class FormulaTransformerVisitor implements FormulaVisitor {
 	 * @see lts.ltl.FormulaVisitor#visit(lts.ltl.Next)
 	 */
 	@Override
-	public lts.ltl.Formula visit(Next n) {
+	public ltsa.lts.ltl.Formula visit(Next n) {
 		throw new UnsupportedOperationException();		
 	}
 

@@ -1,8 +1,8 @@
-package exploration.strategy;
+package ltsa.exploration.strategy;
 
-import controller.model.gr.GRControllerGoal;
-import exploration.Synthesis;
-import exploration.knowledge.Knowledge;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import ltsa.exploration.Synthesis;
+import ltsa.exploration.knowledge.Knowledge;
 
 import java.util.HashSet;
 

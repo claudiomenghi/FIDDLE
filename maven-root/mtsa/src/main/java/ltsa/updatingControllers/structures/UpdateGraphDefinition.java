@@ -1,4 +1,4 @@
-package updatingControllers.structures;
+package ltsa.updatingControllers.structures;
 
 import ltsa.lts.Symbol;
 

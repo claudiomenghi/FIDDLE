@@ -1,11 +1,11 @@
 package ltsa.ui;
 
-import jung.LTSGraph;
-import jung.LTSJUNGCanvas;
-import jung.LTSJUNGCanvas.EnumLayout;
-import jung.LTSJUNGCanvas.EnumMode;
-import jung.StateVertex;
-import jung.TransitionEdge;
+import ltsa.jung.LTSGraph;
+import ltsa.jung.LTSJUNGCanvas;
+import ltsa.jung.LTSJUNGCanvas.EnumLayout;
+import ltsa.jung.LTSJUNGCanvas.EnumMode;
+import ltsa.jung.StateVertex;
+import ltsa.jung.TransitionEdge;
 import ltsa.lts.*;
 import org.freehep.graphics2d.VectorGraphics;
 import org.freehep.graphicsio.pdf.PDFGraphics2D;

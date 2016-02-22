@@ -1,4 +1,4 @@
-package updatingControllers.synthesis;
+package ltsa.updatingControllers.synthesis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,19 +15,19 @@ import ltsa.lts.LTSOutput;
 
 import org.apache.commons.collections15.map.HashedMap;
 
-import updatingControllers.UpdateConstants;
-import updatingControllers.structures.MappingStructure;
+import ltsa.updatingControllers.UpdateConstants;
+import ltsa.updatingControllers.structures.MappingStructure;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSImpl;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentUtils;
-import control.util.ControllerUtils;
-import controller.game.util.FluentStateValuation;
-import dispatcher.TransitionSystemDispatcher;
+import ltsa.control.util.ControllerUtils;
+import MTSSynthesis.controller.game.util.FluentStateValuation;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 
 public class UpdatingEnvironmentGenerator {
 

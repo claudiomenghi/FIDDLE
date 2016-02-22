@@ -1,4 +1,4 @@
-package ui.update;
+package ltsa.ui.update;
 
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.layout.mxIGraphLayout;
@@ -6,14 +6,14 @@ import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import org.apache.commons.collections15.BidiMap;
 import org.apache.commons.collections15.bidimap.DualHashBidiMap;
-import ui.update.events.EndedEvent;
-import ui.update.events.NodeClickedEvent;
-import ui.update.events.StartedEvent;
-import ui.update.events.UpdateGraphEvent;
-import ui.update.utilities.NonEditableGraphView;
-import updatingControllers.structures.graph.UpdateGraph;
-import updatingControllers.structures.graph.UpdateNode;
-import updatingControllers.structures.graph.UpdateTransition;
+import ltsa.ui.update.events.EndedEvent;
+import ltsa.ui.update.events.NodeClickedEvent;
+import ltsa.ui.update.events.StartedEvent;
+import ltsa.ui.update.events.UpdateGraphEvent;
+import ltsa.ui.update.utilities.NonEditableGraphView;
+import ltsa.updatingControllers.structures.graph.UpdateGraph;
+import ltsa.updatingControllers.structures.graph.UpdateNode;
+import ltsa.updatingControllers.structures.graph.UpdateTransition;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;

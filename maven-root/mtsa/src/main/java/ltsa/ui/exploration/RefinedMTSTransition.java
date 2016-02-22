@@ -1,4 +1,4 @@
-package ui.exploration;
+package ltsa.ui.exploration;
 
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 

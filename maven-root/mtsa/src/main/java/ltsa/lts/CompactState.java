@@ -14,8 +14,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ar.dc.uba.util.MTS2FSP;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import MTSSynthesis.ar.dc.uba.util.MTS2FSP;
 import ltsa.lts.util.MTSUtils;
 
 public class CompactState implements Automata {

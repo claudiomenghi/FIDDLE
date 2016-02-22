@@ -1,4 +1,4 @@
-package updatingControllers.synthesis;
+package ltsa.updatingControllers.synthesis;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,8 +19,8 @@ import ltsa.lts.ltl.AssertDefinition;
 
 import org.apache.commons.collections15.map.HashedMap;
 
-import updatingControllers.UpdateConstants;
-import updatingControllers.structures.UpdatingControllerCompositeState;
+import ltsa.updatingControllers.UpdateConstants;
+import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
@@ -28,31 +28,31 @@ import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSAdapter;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSImpl;
 import MTSTools.ac.ic.doc.mtstools.model.operations.TauRemoval;
-import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
-import ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentUtils;
 import MTSSynthesis.ar.dc.uba.model.condition.Formula;
-import control.ControllerGoalDefinition;
-import control.util.ControllerUtils;
-import controller.game.gr.GRGameSolver;
-import controller.game.gr.GRRankSystem;
-import controller.game.gr.StrategyState;
-import controller.game.gr.knowledge.KnowledgeGRGame;
-import controller.game.gr.knowledge.KnowledgeGRGameSolver;
-import controller.game.gr.perfect.PerfectInfoGRGameSolver;
-import controller.game.model.Assume;
-import controller.game.model.Assumptions;
-import controller.game.model.Guarantee;
-import controller.game.model.Guarantees;
-import controller.game.model.Strategy;
-import controller.game.util.FluentStateValuation;
-import controller.game.util.GRGameBuilder;
-import controller.game.util.GameStrategyToMTSBuilder;
-import controller.game.util.SubsetConstructionBuilder;
-import controller.model.gr.GRControllerGoal;
-import controller.model.gr.GRGame;
-import controller.model.gr.GRGoal;
+import ltsa.control.ControllerGoalDefinition;
+import ltsa.control.util.ControllerUtils;
+import MTSSynthesis.controller.game.gr.GRGameSolver;
+import MTSSynthesis.controller.game.gr.GRRankSystem;
+import MTSSynthesis.controller.game.gr.StrategyState;
+import MTSSynthesis.controller.game.gr.knowledge.KnowledgeGRGame;
+import MTSSynthesis.controller.game.gr.knowledge.KnowledgeGRGameSolver;
+import MTSSynthesis.controller.game.gr.perfect.PerfectInfoGRGameSolver;
+import MTSSynthesis.controller.game.model.Assume;
+import MTSSynthesis.controller.game.model.Assumptions;
+import MTSSynthesis.controller.game.model.Guarantee;
+import MTSSynthesis.controller.game.model.Guarantees;
+import MTSSynthesis.controller.game.model.Strategy;
+import MTSSynthesis.controller.game.util.FluentStateValuation;
+import MTSSynthesis.controller.game.util.GRGameBuilder;
+import MTSSynthesis.controller.game.util.GameStrategyToMTSBuilder;
+import MTSSynthesis.controller.game.util.SubsetConstructionBuilder;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import MTSSynthesis.controller.model.gr.GRGame;
+import MTSSynthesis.controller.model.gr.GRGoal;
 
 /**
  * Created by Victor Wjugow on 10/06/15.
@@ -227,7 +227,7 @@ public class UpdatingControllerSynthesizer {
 	private static MTS<Long, String> applySafety( ControllerGoalDefinition newGoalDef, MTS<Long, String> metaEnvironment, FluentStateValuation<Long> fluentStateValuation) {
 		Set<Fluent> safetyFluents = new HashSet<Fluent>();
 		List<Formula> safetyFormulas = new ArrayList<Formula>();
-		for (lts.Symbol safetyDefinition : newGoalDef.getSafetyDefinitions()) {
+		for (ltsa.lts.Symbol safetyDefinition : newGoalDef.getSafetyDefinitions()) {
 			AssertDefinition def = AssertDefinition
 					.getConstraint(safetyDefinition.getName());
 			if (def != null) {

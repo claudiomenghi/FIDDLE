@@ -20,11 +20,11 @@ import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSSimulationSemantics;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
-import control.util.GoalDefToControllerGoal;
-import controller.model.gr.GRControllerGoal;
-import dispatcher.TransitionSystemDispatcher;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ltsa.control.util.GoalDefToControllerGoal;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 
 public class ControlStackSynthesiser
 {  

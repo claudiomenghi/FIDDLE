@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
-import dispatcher.TransitionSystemDispatcher;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;

@@ -1,6 +1,6 @@
 package ltsa.lts;
 
-import static lts.util.MTSUtils.*;
+import static ltsa.lts.util.MTSUtils.*;
 
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -11,15 +11,15 @@ import java.util.Vector;
 import org.apache.commons.lang.Validate;
 
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 
-import control.ControllerGoalDefinition;
-import control.util.GoalDefToControllerGoal;
-import controller.model.ControllerGoal;
+import ltsa.control.ControllerGoalDefinition;
+import ltsa.control.util.GoalDefToControllerGoal;
+import MTSSynthesis.controller.model.ControllerGoal;
 
 import ltsa.lts.ltl.AssertDefinition;
-import dispatcher.TransitionSystemDispatcher;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 
 class StateMachine {
 

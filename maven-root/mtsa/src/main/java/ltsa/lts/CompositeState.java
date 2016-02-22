@@ -1,13 +1,13 @@
 package ltsa.lts;
 
-import static lts.util.MTSUtils.computeHiddenAlphabet;
+import static ltsa.lts.util.MTSUtils.computeHiddenAlphabet;
 
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import controller.model.gr.GRControllerGoal;
-import dispatcher.TransitionSystemDispatcher;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 
 public class CompositeState{
 
@@ -488,13 +488,13 @@ public class CompositeState{
     }
 	}
 
-	private lts.ltl.FluentTrace tracer;
+	private ltsa.lts.ltl.FluentTrace tracer;
 
-	public void setFluentTracer(lts.ltl.FluentTrace ft) {
+	public void setFluentTracer(ltsa.lts.ltl.FluentTrace ft) {
 		tracer = ft;
 	}
 
-	public lts.ltl.FluentTrace getFluentTracer() {
+	public ltsa.lts.ltl.FluentTrace getFluentTracer() {
 		return tracer;
 	}
 

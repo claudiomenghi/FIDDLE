@@ -1,4 +1,4 @@
-package exploration.model;
+package ltsa.exploration.model;
 
 import ltsa.lts.CompactState;
 import ltsa.lts.EventState;

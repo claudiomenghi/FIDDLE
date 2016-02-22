@@ -15,8 +15,8 @@ import ltsa.lts.Symbol;
 import ltsa.lts.chart.util.MTSSynthesiserFacade;
 import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
-import ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
 import MTSSynthesis.ar.dc.uba.model.lsc.LocationNamingStrategyImpl;
 import MTSSynthesis.ar.dc.uba.model.lsc.TriggeredScenario;
 import MTSSynthesis.ar.dc.uba.model.structure.SynthesizedState;
@@ -58,8 +58,7 @@ public abstract class TriggeredScenarioDefinition {
     /**
      * Transforms this triggered scenario to a triggered scenario that 
      * can be an input for the synthesis algorithm
-     * @param locationNamingStrategyImpl 
-     * @param definition 
+     * @param locationNamingStrategyImpl
      * @return
      * @throws TriggeredScenarioTransformationException 
      */
@@ -137,13 +136,13 @@ public abstract class TriggeredScenarioDefinition {
 		output.outln(triggeredScenario.toString());
 		
 		// Synthesise the MTS from the triggered scenario
-		MTS<SynthesizedState, ar.dc.uba.model.language.Symbol> synthesisedMTS = 
+		MTS<SynthesizedState, MTSSynthesis.ar.dc.uba.model.language.Symbol> synthesisedMTS =
 			MTSSynthesiserFacade.getInstance().synthesise(triggeredScenario);
 		
 		// First convert the MTS to a <Long, String> MTS. 
 		// That is the states are long and the transitions are strings
-		GenericMTSToLongStringMTSConverter<SynthesizedState, ar.dc.uba.model.language.Symbol> toLongStringMTSConverter = 
-			new GenericMTSToLongStringMTSConverter<SynthesizedState, ar.dc.uba.model.language.Symbol>();
+		GenericMTSToLongStringMTSConverter<SynthesizedState, MTSSynthesis.ar.dc.uba.model.language.Symbol> toLongStringMTSConverter =
+			new GenericMTSToLongStringMTSConverter<SynthesizedState, MTSSynthesis.ar.dc.uba.model.language.Symbol>();
 		
 		// Use the converter from MTS<Long,String> to CompactState
 		return MTSToAutomataConverter.getInstance().convert(toLongStringMTSConverter.transform(synthesisedMTS), 

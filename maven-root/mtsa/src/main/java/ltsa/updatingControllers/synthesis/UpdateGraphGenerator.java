@@ -1,21 +1,21 @@
-package updatingControllers.synthesis;
+package ltsa.updatingControllers.synthesis;
 
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MarkedMTS;
-import control.util.ControlConstants;
-import dispatcher.TransitionSystemDispatcher;
+import ltsa.control.util.ControlConstants;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.CompositionExpression;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSException;
 import ltsa.lts.LTSOutput;
 import ltsa.lts.Symbol;
-import updatingControllers.structures.UpdateGraphDefinition;
-import updatingControllers.structures.UpdatingControllerCompositeState;
+import ltsa.updatingControllers.structures.UpdateGraphDefinition;
+import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 import ltsa.lts.UpdatingControllersDefinition;
-import updatingControllers.structures.graph.UpdateGraph;
-import updatingControllers.structures.graph.UpdateNode;
-import updatingControllers.structures.graph.UpdateTransition;
+import ltsa.updatingControllers.structures.graph.UpdateGraph;
+import ltsa.updatingControllers.structures.graph.UpdateNode;
+import ltsa.updatingControllers.structures.graph.UpdateTransition;
 
 import java.text.ParseException;
 import java.util.HashMap;

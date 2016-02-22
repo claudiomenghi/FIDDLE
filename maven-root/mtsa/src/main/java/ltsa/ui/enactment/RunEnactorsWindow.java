@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ui.enactment;
+package ltsa.ui.enactment;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -12,10 +12,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
-import ar.uba.dc.lafhis.enactment.BaseController;
-import ar.uba.dc.lafhis.enactment.TakeFirstController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.BaseController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.TakeFirstController;
 
-import ar.uba.dc.lafhis.enactment.gui.GraphVisualizer;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.gui.GraphVisualizer;
 
 import javax.swing.JSplitPane;
 import java.awt.Color;

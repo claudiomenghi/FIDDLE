@@ -1,4 +1,4 @@
-package ui.update;
+package ltsa.ui.update;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,12 +8,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 import ltsa.lts.util.LTSUtils;
-import ui.update.events.EndedEvent;
-import ui.update.events.NodeClickedEvent;
-import ui.update.events.StartedEvent;
-import updatingControllers.structures.graph.UpdateNode;
-import updatingControllers.structures.graph.UpdateTransition;
-import updatingControllers.synthesis.UpdatingControllersUtils;
+import ltsa.ui.update.events.EndedEvent;
+import ltsa.ui.update.events.NodeClickedEvent;
+import ltsa.ui.update.events.StartedEvent;
+import ltsa.updatingControllers.structures.graph.UpdateNode;
+import ltsa.updatingControllers.structures.graph.UpdateTransition;
+import ltsa.updatingControllers.synthesis.UpdatingControllersUtils;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
@@ -22,11 +22,11 @@ import MTSTools.ac.ic.doc.mtstools.model.impl.MTSQuickClone;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MarkedMTS;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentUtils;
-import ar.uba.dc.lafhis.enactment.BaseController;
-import ar.uba.dc.lafhis.enactment.ITransitionEventListener;
-import ar.uba.dc.lafhis.enactment.TransitionEvent;
-import controller.game.util.FluentStateValuation;
-import enactment.SchedulerFactory;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.BaseController;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.ITransitionEventListener;
+import MTSAEnactment.ar.uba.dc.lafhis.enactment.TransitionEvent;
+import MTSSynthesis.controller.game.util.FluentStateValuation;
+import ltsa.enactment.SchedulerFactory;
 
 /**
  * Created by Victor Wjugow on 18/06/15.

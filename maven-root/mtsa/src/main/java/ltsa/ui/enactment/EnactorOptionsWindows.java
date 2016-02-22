@@ -1,4 +1,4 @@
-package ui.enactment;
+package ltsa.ui.enactment;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -13,9 +13,9 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.factories.FormFactory;
 
-import enactment.EnactmentOptions;
-import enactment.EnactorFactory;
-import enactment.SchedulerFactory;
+import ltsa.enactment.EnactmentOptions;
+import ltsa.enactment.EnactorFactory;
+import ltsa.enactment.SchedulerFactory;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
@@ -25,7 +25,7 @@ import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.ListSelectionModel;
 
-import ui.HPWindow;
+import ltsa.ui.HPWindow;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

@@ -1,7 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0eed6a81-a9b9-42fe-b032-d18e13488839" name="Default" comment="" />
+    <list default="true" id="0eed6a81-a9b9-42fe-b032-d18e13488839" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/CompactState.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/CompactState.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/CompositeState.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/CompositeState.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/CompositionExpression.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/CompositionExpression.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/control/ControlStackSynthesiser.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/control/ControlStackSynthesiser.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionAlgorithmDefaultImpl.java" afterPath="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionAlgorithmDefaultImpl.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/enactment/EnactorFactory.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/enactment/EnactorFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/EnactorOptionsWindows.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/EnactorOptionsWindows.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/events/EndedEvent.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/events/EndedEvent.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/EnvironmentModel.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/EnvironmentModel.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/EnvironmentView.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/EnvironmentView.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/ExplorationAnimator.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/ExplorationAnimator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/Explorer.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/Explorer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/FormulaTransformerVisitor.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/FormulaTransformerVisitor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/chart/util/FormulaUtils.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/chart/util/FormulaUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/HPWindow.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/HPWindow.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/knowledge/Knowledge.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/knowledge/Knowledge.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/LTSABatch.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/LTSABatch.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/LTSCompiler.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/LTSCompiler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/LTSDrawWindow.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/LTSDrawWindow.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/LTSLayoutWindow.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/LTSLayoutWindow.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/jung/LTSViewer.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/jung/LTSViewer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/jung/LTSViewerPluggableMouse.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/jung/LTSViewerPluggableMouse.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/LoggerAppender.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/LoggerAppender.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/enactment/MTSAEnactmentSimulation.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/enactment/MTSAEnactmentSimulation.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/MTSAnimator.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/MTSAnimator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverter.java" afterPath="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/chart/util/MTSSynthesiserFacade.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/chart/util/MTSSynthesiserFacade.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/util/MTSUtils.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/util/MTSUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/MappingStructure.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/MappingStructure.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/MarkedCompactState.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/MarkedCompactState.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/model/Model.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/model/Model.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/events/NodeClickedEvent.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/events/NodeClickedEvent.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/utilities/NonEditableGraphView.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/utilities/NonEditableGraphView.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/ProgressCheck.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/ProgressCheck.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/RefinedMTS.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/RefinedMTS.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/RefinedMTSState.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/RefinedMTSState.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/RefinedMTSTransition.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/RefinedMTSTransition.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/RunEnactorsWindow.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/RunEnactorsWindow.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/enactment/SchedulerFactory.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/enactment/SchedulerFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/SpringUtilities.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/SpringUtilities.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/events/StartedEvent.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/events/StartedEvent.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/knowledge/StateEquivalence.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/knowledge/StateEquivalence.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/StateMachine.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/StateMachine.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/Strategy.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/Strategy.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/StrategyManager.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/StrategyManager.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/StrategyNewAction.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/StrategyNewAction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/StrategySynthesis.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/StrategySynthesis.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/StrategySynthesisNewAction.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/strategy/StrategySynthesisNewAction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/Synthesis.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/Synthesis.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/dispatcher/TransitionSystemDispatcher.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/dispatcher/TransitionSystemDispatcher.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/TransitionsComparator.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/exploration/TransitionsComparator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/chart/TriggeredScenarioDefinition.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/chart/TriggeredScenarioDefinition.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/graph/UpdateGraph.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/graph/UpdateGraph.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphBidirectionalManager.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphBidirectionalManager.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/UpdateGraphDefinition.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/UpdateGraphDefinition.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/events/UpdateGraphEvent.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/events/UpdateGraphEvent.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphEventDispatcher.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphEventDispatcher.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphEventListener.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphEventListener.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphGUI.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphGUI.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdateGraphGenerator.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdateGraphGenerator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphSimulation.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphSimulation.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphWindow.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphWindow.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/utilities/UpdateGraphWindowListener.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/ui/update/utilities/UpdateGraphWindowListener.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/graph/UpdateNode.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/graph/UpdateNode.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/graph/UpdateTransition.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/graph/UpdateTransition.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/UpdatingControllerCompositeState.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/UpdatingControllerCompositeState.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllerHandler.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllerHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllerSynthesizer.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllerSynthesizer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/UpdatingControllersDefinition.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/UpdatingControllersDefinition.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/lts/UpdatingControllersGoalsMaker.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/lts/UpdatingControllersGoalsMaker.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllersUtils.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllersUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingEnvironmentGenerator.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingEnvironmentGenerator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/view/View.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/view/View.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/view/ViewNextConfiguration.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/view/ViewNextConfiguration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/view/ViewNextConfigurationRandom.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/view/ViewNextConfigurationRandom.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/ltsa/exploration/view/ViewNextConfigurationTrace.java" afterPath="$PROJECT_DIR$/src/main/java/ltsa/exploration/view/ViewNextConfigurationTrace.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mtsa.iml" afterPath="$PROJECT_DIR$/mtsa.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mtsa.ipr" afterPath="$PROJECT_DIR$/mtsa.ipr" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mtsa.iws" afterPath="$PROJECT_DIR$/mtsa.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../pom.xml" afterPath="$PROJECT_DIR$/../../pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../ltsa/pom.xml" afterPath="$PROJECT_DIR$/../../ltsa/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../ltsa/.idea/workspace.xml" afterPath="$PROJECT_DIR$/../../ltsa/.idea/workspace.xml" />
+    </list>
     <ignored path="mtsa.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/out/" />
@@ -23,61 +107,31 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="MyHashProg.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/MyHashProg.java">
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="28" column="13" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="13" />
+            <state vertical-scroll-proportion="0.61538464">
+              <caret line="160" column="21" selection-start-line="160" selection-start-column="21" selection-end-line="160" selection-end-column="21" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EnactorOptionsWindows.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/EnactorOptionsWindows.java">
+      <file leaf-file-name="RobotRun.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/RobotRun.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="35" column="13" selection-start-line="35" selection-start-column="13" selection-end-line="35" selection-end-column="13" />
+              <caret line="15" column="41" selection-start-line="15" selection-start-column="29" selection-end-line="15" selection-end-column="41" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UpdateGraph.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/graph/UpdateGraph.java">
+      <file leaf-file-name="ActionRun.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/ActionRun.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="14" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="27" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MappingStructure.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/MappingStructure.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ControllerUtils.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/control/util/ControllerUtils.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="33" column="52" selection-start-line="33" selection-start-column="52" selection-end-line="33" selection-end-column="52" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GoalDefToControllerGoal.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/control/util/GoalDefToControllerGoal.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="60" column="84" selection-start-line="60" selection-start-column="84" selection-end-line="60" selection-end-column="84" />
+              <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -85,44 +139,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AssertDefinition.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/AssertDefinition.java">
+      <file leaf-file-name="ClientProject.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/ClientProject.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="23" column="12" selection-start-line="23" selection-start-column="12" selection-end-line="23" selection-end-column="12" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Converter.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/Converter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
+              <caret line="265" column="31" selection-start-line="265" selection-start-column="20" selection-end-line="265" selection-end-column="31" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="FluentTrace.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/FluentTrace.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.03253796">
-              <caret line="2" column="26" selection-start-line="2" selection-start-column="26" selection-end-line="2" selection-end-column="26" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ControllerDefinition.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/control/ControllerDefinition.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -140,43 +164,14 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/TransitionEvent.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/UIController.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/test/TestDrone.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/test/TestImageListener.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/robot/UIRobot.java" />
-        <option value="$PROJECT_DIR$/src/test/java/MTSAEnactment/robot/CommandAcceptedMessageTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/gui/ControllerCircularView.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/model/PerfectInfoGRControlProblem.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/model/AlphabetDistribution.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionAlgorithmDefaultImpl.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionAlgorithm.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/DistributionFacade.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/AndFormula.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ac/ic/doc/distribution/model/DistributionFeedbackOnModalityMismatch.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/FluentUtils.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/Fluent.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/FluentImpl.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/Chart.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/NotFormula.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/lsc/ExistentialTriggeredScenario.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/MTSFromETriggeredScenarioSynthesiser.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/util/SynthesiserHelper.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/MTSFromTriggeredScenarioSynthesiser.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/synthesis/SynthesisVisitor.java" />
-        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gr/knowledge/KnowledgeGRGameSolver.java" />
-        <option value="$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/model/condition/ZetaFunctionTest.java" />
-        <option value="$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/game/gr/GameSolverSimpleNegativeTests.java" />
         <option value="$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/bgr/BGRGameSolverTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ontroller/game/bgr/BGRGameSolver.java" />
         <option value="$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/PowerSetTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/bgr/BGRGameBuilder.java" />
         <option value="$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/lsc/ChartTest.java" />
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/ActionRun.java" />
         <option value="$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/ClientProject.java" />
         <option value="$PROJECT_DIR$/src/test/java/RobotProtocolClient/ar/uba/dc/lafhis/enactment/RandomSchedulerTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/CompactState.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/AutomataToMDPConverter.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/MDPToAutomataConverter.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/MTSToAutomataConverter.java" />
@@ -184,13 +179,42 @@
         <option value="$PROJECT_DIR$/src/main/java/ltsa/control/util/ControlConstants.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/control/ControllerGoalDefinition.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/dclap/Gr2PICT.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ltsa/dispatcher/TransitionSystemDispatcher.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/enactment/EnactmentOptions.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/EnactorOptionsWindows.java" />
-        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/MappingStructure.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/control/util/ControllerUtils.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/control/util/GoalDefToControllerGoal.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/AssertDefinition.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/AutomataToMTSConverter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/CompactState.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/util/MTS2FSP.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/chart/TriggeredScenarioDefinition.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/jung/LTSViewerPluggableMouse.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/CompositeState.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/ProgressCheck.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/util/MTSUtils.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/StateMachine.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/CompositionExpression.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/PlusOperatorApplier.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/UpdatingControllerCompositeState.java" />
+        <option value="$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gr/GRGameSolver.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllerHandler.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdateGraphGenerator.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/UpdateGraphDefinition.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllerSynthesizer.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/chart/util/FormulaUtils.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/FormulaTransformerVisitor.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllersUtils.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingEnvironmentGenerator.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/MappingStructure.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/EnactorOptionsWindows.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/ui/HPWindow.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/exploration/knowledge/Knowledge.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/lts/EventManager.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/dispatcher/TransitionSystemDispatcher.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/ui/LTSDrawWindow.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/ui/LTSLayoutWindow.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/enactment/MTSAEnactmentSimulation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphSimulation.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>
@@ -242,10 +266,10 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1439" />
+    <option name="x" value="-1" />
     <option name="y" value="27" />
-    <option name="width" value="1922" />
-    <option name="height" value="1054" />
+    <option name="width" value="1368" />
+    <option name="height" value="742" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -270,8 +294,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -301,58 +323,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="test" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="enactment" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="test" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -456,7 +426,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="uba" />
+              <option name="myItemId" value="controller" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -486,11 +456,15 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="uba" />
+              <option name="myItemId" value="controller" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="model" />
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="util" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -520,15 +494,37 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="uba" />
+              <option name="myItemId" value="controller" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="model" />
+              <option name="myItemId" value="game" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mtsa" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="condition" />
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="enactment" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -584,7 +580,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="updatingControllers" />
+              <option name="myItemId" value="ui" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -614,49 +610,11 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="updatingControllers" />
+              <option name="myItemId" value="ui" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="structures" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ltsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="updatingControllers" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="structures" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="graph" />
+              <option name="myItemId" value="update" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -686,67 +644,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="lts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ltsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="lts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ltl" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mtsa" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ltsa" />
+              <option name="myItemId" value="ui" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -780,7 +678,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="dispatcher" />
+              <option name="myItemId" value="exploration" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -810,7 +708,11 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="control" />
+              <option name="myItemId" value="exploration" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="knowledge" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -840,17 +742,15 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="control" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="util" />
+              <option name="myItemId" value="enactment" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="Scratches" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -863,6 +763,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="true" />
     <property name="FullScreen" value="false" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RunManager">
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
@@ -1053,32 +954,32 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1439" y="27" width="1922" height="1054" extended-state="6" />
+    <frame x="-1" y="27" width="1368" height="742" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5441176" sideWeight="0.50416666" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3296875" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
+      <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5441176" sideWeight="0.50416666" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.290625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21212122" sideWeight="0.5103093" order="4" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2881356" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2901515" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.48969072" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32037815" sideWeight="0.49583334" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -1103,440 +1004,46 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ontroller/game/bgr/BGRGameSolver.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/chart/UniversalTriggeredScenarioDefinition.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34035656">
-          <caret line="14" column="47" selection-start-line="14" selection-start-column="47" selection-end-line="14" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/bgr/BGRGameSolverTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.24311183">
-          <caret line="10" column="52" selection-start-line="10" selection-start-column="39" selection-end-line="10" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/mtstools/model/operations/impl/MTSPropertyToBuchiConverterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.38897893">
-          <caret line="24" column="28" selection-start-line="24" selection-start-column="28" selection-end-line="24" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/PowerSetTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="57" column="39" selection-start-line="57" selection-start-column="39" selection-end-line="57" selection-end-column="39" />
-          <folding>
-            <element signature="e#443#451#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/controller/game/game/gr/GameSolverSimpleNegativeTests.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.39045554">
-          <caret line="24" column="62" selection-start-line="24" selection-start-column="62" selection-end-line="24" selection-end-column="62" />
+        <state vertical-scroll-proportion="-0.23214285">
+          <caret line="11" column="3" selection-start-line="11" selection-start-column="3" selection-end-line="11" selection-end-column="3" />
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/MTSTools/ac/ic/doc/commons/collections/TestHierarchicalMap.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/chart/TriggeredScenarioDefinition.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.06507592">
-          <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/FluentStateValuation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21149674">
-          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+        <state vertical-scroll-proportion="0.73214287">
+          <caret line="146" column="66" selection-start-line="146" selection-start-column="66" selection-end-line="146" selection-end-column="66" />
           <folding>
             <element signature="imports" expanded="false" />
+            <element signature="e#5783#5847#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/GenericLTSStrategyStateToStateConverter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21149674">
-          <caret line="22" column="13" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/MTSSynthesis/ar/dc/uba/lsc/ChartTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25476992">
-          <caret line="433" column="126" selection-start-line="433" selection-start-column="126" selection-end-line="433" selection-end-column="126" />
-          <folding>
-            <element signature="e#976#986#0" expanded="false" />
-            <element signature="e#1211#1221#0" expanded="false" />
-            <element signature="e#1454#1464#0" expanded="false" />
-            <element signature="e#1900#1910#0" expanded="false" />
-            <element signature="e#2703#2713#0" expanded="false" />
-            <element signature="e#3605#3615#0" expanded="false" />
-            <element signature="e#4674#4684#0" expanded="false" />
-            <element signature="e#5647#5657#0" expanded="false" />
-            <element signature="e#6531#6541#0" expanded="false" />
-            <element signature="e#7302#7312#0" expanded="false" />
-            <element signature="e#7919#7929#0" expanded="false" />
-            <element signature="e#11295#11305#0" expanded="false" />
-            <element signature="e#12882#12892#0" expanded="false" />
-            <element signature="e#14689#14699#0" expanded="false" />
-            <element signature="e#15401#15411#0" expanded="false" />
-            <element signature="e#16028#16038#0" expanded="false" />
-            <element signature="e#18697#18707#0" expanded="false" />
-            <element signature="e#19701#19711#0" expanded="false" />
-            <element signature="e#21639#21649#0" expanded="false" />
-            <element signature="e#23908#23918#0" expanded="false" />
-            <element signature="e#26012#26022#0" expanded="false" />
-            <element signature="e#27967#27977#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/bgr/BGRGameBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3253796">
-          <caret line="20" column="13" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mtsa.ipr">
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/language/Symbol.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mtsa.iws">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="160" column="0" selection-start-line="160" selection-start-column="0" selection-end-line="160" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/MTS.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="16" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/TakeFirstController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="21" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/NXTClientProject.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="44" column="20" selection-start-line="44" selection-start-column="7" selection-end-line="44" selection-end-column="20" />
-          <folding />
+          <caret line="0" column="20" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/CompactState.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
+        <state vertical-scroll-proportion="0.91071427">
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="29" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/ActionRun.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="31" column="8" selection-start-line="31" selection-start-column="8" selection-end-line="31" selection-end-column="8" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/RobotProtocolClient/ar/uba/dc/lafhis/enactment/RandomSchedulerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="29" column="34" selection-start-line="29" selection-start-column="34" selection-end-line="29" selection-end-column="34" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/ClientProject.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="59" column="13" selection-start-line="59" selection-start-column="13" selection-end-line="59" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/AutomataToMDPConverter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="40" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/MDPToAutomataConverter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="23" selection-start-line="14" selection-start-column="23" selection-end-line="14" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/ModelConverterUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/com/cloudgarden/layout/AnchorLayout.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="24" column="13" selection-start-line="24" selection-start-column="13" selection-end-line="24" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/control/util/ControlConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/AutomataToMTSConverter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="16" column="13" selection-start-line="16" selection-start-column="13" selection-end-line="16" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/com/cloudgarden/layout/AnchorConstraint.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="7" selection-start-line="10" selection-start-column="7" selection-end-line="10" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ac/ic/doc/mtstools/util/fsp/MTSToAutomataConverter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="108" column="47" selection-start-line="108" selection-start-column="47" selection-end-line="108" selection-end-column="47" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/ar/dc/uba/model/condition/Fluent.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="20" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/control/ControllerGoalDefinition.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="28" column="45" selection-start-line="28" selection-start-column="45" selection-end-line="28" selection-end-column="45" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/StandardOutput.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/custom/AnimationAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="17" selection-start-line="3" selection-start-column="17" selection-end-line="3" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/dclap/Gr2PICT.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="38" column="1" selection-start-line="38" selection-start-column="1" selection-end-line="38" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/dispatcher/TransitionSystemDispatcher.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="1" column="0" selection-start-line="0" selection-start-column="13" selection-end-line="0" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/enactment/EnactmentOptions.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="4" column="0" selection-start-line="3" selection-start-column="13" selection-end-line="3" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/chart/util/FormulaUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/distribution/DistributionDefinition.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="25" column="13" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/distribution/DistributionTransformationException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/FormulaVisitor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/util/AnimatorDecorator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="16" column="13" selection-start-line="16" selection-start-column="13" selection-end-line="16" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/EmptyLTSOuput.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/MyHashProg.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="28" column="13" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/EnactorOptionsWindows.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="13" selection-start-line="35" selection-start-column="13" selection-end-line="35" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/graph/UpdateGraph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="14" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/MappingStructure.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/control/util/ControllerUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="52" selection-start-line="33" selection-start-column="52" selection-end-line="33" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/control/ControllerDefinition.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/control/util/GoalDefToControllerGoal.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="60" column="84" selection-start-line="60" selection-start-column="84" selection-end-line="60" selection-end-column="84" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/AssertDefinition.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="12" selection-start-line="23" selection-start-column="12" selection-end-line="23" selection-end-column="12" />
+          <caret line="6" column="44" selection-start-line="6" selection-start-column="44" selection-end-line="6" selection-end-column="44" />
           <folding />
         </state>
       </provider>
@@ -1544,17 +1051,417 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/Converter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
+          <caret line="3" column="32" selection-start-line="3" selection-start-column="32" selection-end-line="3" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/jung/LTSViewerPluggableMouse.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7920792">
+          <caret line="20" column="70" selection-start-line="20" selection-start-column="46" selection-end-line="20" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/model/ControllerGoal.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="20" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/CompositionExpression.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="19.851484">
+          <caret line="477" column="19" selection-start-line="477" selection-start-column="19" selection-end-line="477" selection-end-column="19" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/StateMachine.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2970297">
+          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/util/MTSUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.24752475">
+          <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ProgressCheck.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2970297">
+          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/CompositeState.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.23432343">
+          <caret line="371" column="47" selection-start-line="371" selection-start-column="47" selection-end-line="371" selection-end-column="47" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/model/gr/GRControllerGoal.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="20" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSTools/ac/ic/doc/mtstools/model/impl/PlusOperatorApplier.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="8" column="37" selection-start-line="8" selection-start-column="37" selection-end-line="8" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/FormulaTransformerVisitor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="4.2318435">
+          <caret line="128" column="7" selection-start-line="128" selection-start-column="7" selection-end-line="128" selection-end-column="7" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1176#1177#0" expanded="false" />
+            <element signature="e#1213#1214#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllersUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7960894">
+          <caret line="175" column="5" selection-start-line="175" selection-start-column="5" selection-end-line="175" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1502#1548#0" expanded="false" />
+            <element signature="e#1632#1678#0" expanded="false" />
+            <element signature="e#1769#1815#0" expanded="false" />
+            <element signature="e#1900#1946#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/chart/util/FormulaUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.66480446">
+          <caret line="28" column="52" selection-start-line="28" selection-start-column="52" selection-end-line="28" selection-end-column="52" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllerSynthesizer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7094972">
+          <caret line="233" column="57" selection-start-line="233" selection-start-column="57" selection-end-line="233" selection-end-column="57" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#8138#8180#0" expanded="false" />
+            <element signature="e#8294#8336#0" expanded="false" />
+            <element signature="e#10203#10241#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingControllerHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdateGraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33519554">
+          <caret line="20" column="25" selection-start-line="20" selection-start-column="25" selection-end-line="20" selection-end-column="25" />
+          <folding>
+            <element signature="e#1099#1130#0" expanded="false" />
+            <element signature="e#1195#1216#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/UpdateGraphDefinition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.083798885">
+          <caret line="4" column="22" selection-start-line="4" selection-start-column="22" selection-end-line="4" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/synthesis/UpdatingEnvironmentGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.131285">
+          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#8807#8815#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/gr/GRGameSolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.62849164">
+          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/UpdatingControllerCompositeState.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.07821229">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/updatingControllers/structures/MappingStructure.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="13" column="36" selection-start-line="13" selection-start-column="36" selection-end-line="13" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/EnactorOptionsWindows.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="29" column="37" selection-start-line="29" selection-start-column="37" selection-end-line="29" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/chart/BasicChartDefinition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/chart/ConditionDefinition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/AnimArrangedWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="31" column="13" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/EventManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="11" selection-start-line="11" selection-start-column="11" selection-end-line="11" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/HPWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.8231292">
+          <caret line="10" column="22" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/dispatcher/TransitionSystemDispatcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.4557823">
+          <caret line="2017" column="0" selection-start-line="2017" selection-start-column="0" selection-end-line="2017" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/FindDialog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="24" column="22" selection-start-line="24" selection-start-column="22" selection-end-line="24" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/AlphabetWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="37" column="13" selection-start-line="37" selection-start-column="13" selection-end-line="37" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/Transition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.37414965">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/LTSABatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.06802721">
+          <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/LTSLayoutWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.42307693">
+          <caret line="11" column="46" selection-start-line="11" selection-start-column="46" selection-end-line="11" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/LTSDrawWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.1923077">
+          <caret line="45" column="25" selection-start-line="45" selection-start-column="25" selection-end-line="45" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/enactment/SchedulerFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="2.0769231">
+          <caret line="62" column="18" selection-start-line="62" selection-start-column="18" selection-end-line="62" selection-end-column="18" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/lts/ltl/FluentTrace.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/enactment/MTSAEnactmentSimulation.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.03253796">
-          <caret line="2" column="26" selection-start-line="2" selection-start-column="26" selection-end-line="2" selection-end-column="26" />
+        <state vertical-scroll-proportion="8.615385">
+          <caret line="230" column="33" selection-start-line="230" selection-start-column="33" selection-end-line="230" selection-end-column="33" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1243#1266#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/exploration/knowledge/Knowledge.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.26923078">
+          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/enactment/RunEnactorsWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.9230769">
+          <caret line="52" column="32" selection-start-line="52" selection-start-column="32" selection-end-line="52" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/update/UpdateGraphSimulation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.15384616">
+          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSSynthesis/controller/game/util/GeneralConstants.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="8" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/MTSAEnactment/ar/uba/dc/lafhis/enactment/BaseController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.03846154">
+          <caret line="3" column="21" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/NXTClientProject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.15384616">
+          <caret line="58" column="13" selection-start-line="58" selection-start-column="13" selection-end-line="58" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/ClientProject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="265" column="31" selection-start-line="265" selection-start-column="20" selection-end-line="265" selection-end-column="31" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/RobotRun.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="15" column="41" selection-start-line="15" selection-start-column="29" selection-end-line="15" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/RobotProtocolClient/robotProtocolClient/ActionRun.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.61538464">
+          <caret line="160" column="21" selection-start-line="160" selection-start-column="21" selection-end-line="160" selection-end-column="21" />
           <folding />
         </state>
       </provider>

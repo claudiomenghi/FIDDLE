@@ -1,7 +1,7 @@
 package ltsa.exploration;
 
-import controller.model.gr.GRControllerGoal;
-import dispatcher.TransitionSystemDispatcher;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
 import ltsa.lts.EmptyLTSOuput;
