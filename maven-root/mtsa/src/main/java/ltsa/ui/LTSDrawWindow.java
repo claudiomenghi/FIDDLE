@@ -15,9 +15,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
 
@@ -71,8 +74,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 	Font f3 = new Font("SansSerif", Font.PLAIN, 12);
 	Font f4 = new Font("SansSerif", Font.BOLD, 16);
 
-	ImageIcon drawIcon = new ImageIcon(this.getClass().getResource(
-			"icon/draw.gif"));
+	ImageIcon drawIcon;
 
 	public LTSDrawWindow(CompositeState cs, EventManager eman) {
 		super();
@@ -100,13 +102,13 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		JToolBar tools = new JToolBar();
 		tools.setOrientation(JToolBar.VERTICAL);
 		fortools.add("West", tools);
-		tools.add(createTool("icon/stretchHorizontal.gif",
+		tools.add(createTool("src/main/java/ltsa/ui/icon/stretchHorizontal.gif",
 				"Stretch Horizontal", new HStretchAction(10)));
-		tools.add(createTool("icon/compressHorizontal.gif",
+		tools.add(createTool("src/main/java/ltsa/ui/icon/compressHorizontal.gif",
 				"Compress Horizontal", new HStretchAction(-10)));
-		tools.add(createTool("icon/stretchVertical.gif", "Stretch Vertical",
+		tools.add(createTool("src/main/java/ltsa/ui/icon/stretchVertical.gif", "Stretch Vertical",
 				new VStretchAction(10)));
-		tools.add(createTool("icon/compressVertical.gif", "Compress Vertical",
+		tools.add(createTool("src/main/java/ltsa/ui/icon/compressVertical.gif", "Compress Vertical",
 				new VStretchAction(-10)));
 		if (eman != null)
 			eman.addClient(this);
@@ -118,6 +120,11 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		validate();
 		output.addKeyListener(new KeyPress());
 		output.addMouseListener(new MyMouse());
+		try {
+			drawIcon = new ImageIcon(new URL("file://src/main/java/ltsa/ui/icon/draw.gif"));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setCurrentState(int[] currentStateNumbers)
@@ -302,8 +309,14 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 	// ------------------------------------------------------------------------
 
 	protected JButton createTool(String icon, String tip, ActionListener act) {
+		URL url = null;
+		try {
+			url = 	new File(icon).toURI().toURL();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
 		JButton b = new JButton(
-				new ImageIcon(this.getClass().getResource(icon))) {
+				new ImageIcon(url)) {
 			public float getAlignmentY() {
 				return 0.5f;
 			}

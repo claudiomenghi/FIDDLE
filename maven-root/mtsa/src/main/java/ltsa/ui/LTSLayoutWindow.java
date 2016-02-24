@@ -25,6 +25,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -65,10 +67,17 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
     Font f3 = new Font("SansSerif",Font.PLAIN,12);
     Font f4 = new Font("SansSerif",Font.BOLD,16);
     
-    ImageIcon drawIcon = new ImageIcon(this.getClass().getResource("icon/draw.gif"));
+    ImageIcon drawIcon;
     
     public LTSLayoutWindow (CompositeState cs,EventManager eman) {
+
 		super();
+		try {
+			drawIcon = new ImageIcon(new URL("file://src/main/java/ltsa/ui/icon/draw.gif"));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+
 		this.eman = eman;
 		if (eman!=null) {
 			eman.addClient(this);

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -719,30 +720,30 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		// toolbar
 		tools = new JToolBar();
 		tools.setFloatable(false);
-		tools.add(newFileTool = createTool("icon/new.gif", "New file",
+		tools.add(newFileTool = createTool("src/main/java/ltsa/ui/icon/new.gif", "New file",
 				new NewFileAction()));
-		tools.add(openFileTool = createTool("icon/open.gif", "Open file",
+		tools.add(openFileTool = createTool("src/main/java/ltsa/ui/icon/open.gif", "Open file",
 				new OpenFileAction()));
-		tools.add(saveFileTool = createTool("icon/save.gif", "Save File",
+		tools.add(saveFileTool = createTool("src/main/java/ltsa/ui/icon/save.gif", "Save File",
 				new SaveFileAction()));
 		tools.addSeparator();
-		tools.add(cutTool = createTool("icon/cut.gif", "Cut",
+		tools.add(cutTool = createTool("src/main/java/ltsa/ui/icon/cut.gif", "Cut",
 				new EditCutAction()));
-		tools.add(createTool("icon/copy.gif", "Copy", new EditCopyAction()));
-		tools.add(pasteTool = createTool("icon/paste.gif", "Paste",
+		tools.add(createTool("src/main/java/ltsa/ui/icon/copy.gif", "Copy", new EditCopyAction()));
+		tools.add(pasteTool = createTool("src/main/java/ltsa/ui/icon/paste.gif", "Paste",
 				new EditPasteAction()));
-		tools.add(undoTool = createTool("icon/undo.gif", "Undo",
+		tools.add(undoTool = createTool("src/main/java/ltsa/ui/icon/undo.gif", "Undo",
 				new UndoAction()));
-		tools.add(redoTool = createTool("icon/redo.gif", "Redo",
+		tools.add(redoTool = createTool("src/main/java/ltsa/ui/icon/redo.gif", "Redo",
 				new RedoAction()));
 		tools.addSeparator();
-		tools.add(parseTool = createTool("icon/parse.gif", "Parse",
+		tools.add(parseTool = createTool("src/main/java/ltsa/ui/icon/parse.gif", "Parse",
 				new DoAction(DO_parse)));
-		tools.add(compileTool = createTool("icon/compile.gif", "Compile",
+		tools.add(compileTool = createTool("src/main/java/ltsa/ui/icon/compile.gif", "Compile",
 				new DoAction(DO_compile)));
-		tools.add(composeTool = createTool("icon/compose.gif", "Compose",
+		tools.add(composeTool = createTool("src/main/java/ltsa/ui/icon/compose.gif", "Compose",
 				new DoAction(DO_doComposition)));
-		tools.add(minimizeTool = createTool("icon/minimize.gif", "Minimize",
+		tools.add(minimizeTool = createTool("src/main/java/ltsa/ui/icon/minimize.gif", "Minimize",
 				new DoAction(DO_minimiseComposition)));
 		// status field used to name the composition we are wrking on
 		targetChoice = new JComboBox();
@@ -753,25 +754,25 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		targetChoice.addActionListener(new TargetAction());
 		tools.add(targetChoice);
 		tools.addSeparator();
-		tools.add(safetyTool = createTool("icon/safety.gif", "Check safety",
+		tools.add(safetyTool = createTool("src/main/java/ltsa/ui/icon/safety.gif", "Check safety",
 				new DoAction(DO_safety)));
-		tools.add(progressTool = createTool("icon/progress.gif",
+		tools.add(progressTool = createTool("src/main/java/ltsa/ui/icon/progress.gif",
 				"Check Progress", new DoAction(DO_progress)));
-		// tools.add(stopTool = createTool("icon/stop.gif", "Stop",
+		// tools.add(stopTool = createTool("src/main/java/ltsa/ui/icon/stop.gif", "Stop",
 		// new StopAction()));
 		// stopTool.setEnabled(false);
 		tools.addSeparator();
-		tools.add(createTool("icon/alphabet.gif", "Run Arranged Animation", new DoAction(DO_ARRANGED_ANIMATOR)));
+		tools.add(createTool("src/main/java/ltsa/ui/icon/alphabet.gif", "Run Arranged Animation", new DoAction(DO_ARRANGED_ANIMATOR)));
 		tools.addSeparator();
-		tools.add(createTool("icon/exploration.gif", "Do Exploration", new DoAction(DO_EXPLORATION)));
-		tools.add(createTool("icon/manual.png", "Manual", new DoAction(DO_EXPLORATION_MANUAL)));
+		tools.add(createTool("src/main/java/ltsa/ui/icon/exploration.gif", "Do Exploration", new DoAction(DO_EXPLORATION)));
+		tools.add(createTool("src/main/java/ltsa/ui/icon/manual.png", "Manual", new DoAction(DO_EXPLORATION_MANUAL)));
 		tools.add(stepscount = createTextBox());
-		tools.add(createTool("icon/stepover.png", "Step Over", new DoAction(DO_EXPLORATION_STEPOVER)));
-		tools.add(createTool("icon/resume.png", "Resume", new DoAction(DO_EXPLORATION_RESUME)));
+		tools.add(createTool("src/main/java/ltsa/ui/icon/stepover.png", "Step Over", new DoAction(DO_EXPLORATION_STEPOVER)));
+		tools.add(createTool("src/main/java/ltsa/ui/icon/resume.png", "Resume", new DoAction(DO_EXPLORATION_RESUME)));
 
 		getContentPane().add("North", tools);
 		tools.addSeparator();
-		tools.add(createTool("icon/blanker.gif", "Blank Screen",
+		tools.add(createTool("src/main/java/ltsa/ui/icon/blanker.gif", "Blank Screen",
 				new BlankAction()));
 
 		// >>> AMES: Text Search
@@ -829,8 +830,16 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	// -----------------------------------------------------------------------
 	protected JButton createTool(String icon, String tip, ActionListener act) {
+		URL url = null;
+		try {
+			url = 	new File(icon).toURI().toURL();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+
+
 		JButton b = new JButton(
-				new ImageIcon(this.getClass().getResource(icon))) {
+				new ImageIcon(url)) {
 			public float getAlignmentY() {
 				return 0.5f;
 			}
