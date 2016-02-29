@@ -9,7 +9,7 @@
     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
    <context:annotation-config/>
-   
+
    <!-- Enactors -->
    
    
@@ -216,8 +216,9 @@
 	
 	
 	<!-- Scheduler Factory -->
-	<bean id="schedullerFactory" class="ltsa.enactment.SchedulerFactory"/>
-	
+	<bean id="SchedulerFactory" class="ltsa.enactment.SchedulerFactory">
+		<property name="name" value="SchedulerFactory" />
+	</bean>
 	
 	
 </beans>

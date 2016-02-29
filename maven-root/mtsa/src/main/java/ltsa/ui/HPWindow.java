@@ -129,6 +129,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import ltsa.ui.enactment.EnactorOptionsWindows;
 import ltsa.ui.LTSLayoutWindow;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -287,7 +288,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 		//Try to load Spring ltsa-context.xml file
 		try {
-			applicationContext = new ClassPathXmlApplicationContext("ltsa-context.xml");
+			applicationContext = new ClassPathXmlApplicationContext("src/main/java/ltsa/ltsa-context.xml");
 		} catch (Exception e)
 		{
 			applicationContext = new FileSystemXmlApplicationContext("src/main/java/ltsa/ltsa-context.xml");

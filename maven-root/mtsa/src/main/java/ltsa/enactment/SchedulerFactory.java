@@ -57,7 +57,7 @@ public class SchedulerFactory<State, Action> {
 
 	public SchedulerFactory()
 	{
-		
+
 	}
 	
 	public BaseController<State, Action> getScheduler(String scheduler, LTS<State, Action> lts, Set<Action> controllableActions) throws Exception
@@ -80,6 +80,6 @@ public class SchedulerFactory<State, Action> {
 		
 		throw new Exception("Scheduler not found");
 	}
-	
-	
+
+
 }
