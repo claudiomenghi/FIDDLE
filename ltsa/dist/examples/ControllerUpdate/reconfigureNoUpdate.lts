@@ -1,8 +1,8 @@
 // ---------------------------ENVIRONMENTS-----------------------------
-set ControllableActions = {startMission,endMission,go,form4,form2[0..1],passivate,dismiss4,dismiss2[0..1]}
-set A = {ControllableActions, form4Ok[0..1], dismiss4Ok[0..1], form2Ok[0..1][0..1], dismiss2Ok[0..1][0..1]}
+set ControllableActions = {startMission,endMission,go,form4,form2[0..1],passivate,dismiss4,dismiss2[0..1], form4Ok[0..1], dismiss4Ok[0..1], form2Ok[0..1][0..1], dismiss2Ok[0..1][0..1]}
+//set A = {ControllableActions, form4Ok[0..1], dismiss4Ok[0..1], form2Ok[0..1][0..1], dismiss2Ok[0..1][0..1]}
 
-//Old Environment
+//Environment
 	PLAN = ( startMission -> STARTED),
 	STARTED = (go -> STARTED | endMission -> PLAN).
 	
@@ -22,24 +22,31 @@ set A = {ControllableActions, form4Ok[0..1], dismiss4Ok[0..1], form2Ok[0..1][0..
 
 //Fluents declaration
 fluent MissionStarted = <startMission,endMission>
-fluent Formed = <form4Ok[1],{dismissOk[1],passivate}>
-fluent Dismissed = <dismissOk[1], form4Ok[1]>
+fluent Formed4 = <form4Ok[1],{dismiss4Ok[1],passivate}>
+fluent Formed1 = <form2Ok[1][1],{dismiss2Ok[1][1],passivate}>
+fluent Formed2 = <form2Ok[1][2],{dismiss2Ok[1][2],passivate}>
+fluent Dismissed4 = <dismiss4Ok[1], form4Ok[1]>
+fluent Dismissed1 = <dismiss2Ok[1][1], form2Ok[1][1]>
+fluent Dismissed2 = <dismiss2Ok[1][2], form2Ok[1][2]>
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 
-assert FlyFormed = (go -> Formed)
-assert FormIfMissionStarted = (form4 -> MissionStarted)
-assert DissmissBeforeEnd = (endMission -> Dismissed)
+assert FORMED2 = (Formed1 && Formed2)
+assert DISMISSED2 = (Dismissed1 && Dismissed2)
 
-ltl_property P_FlyFormed = []FlyFormed
-ltl_property P_FormIfMissionStarted = []FormIfMissionStarted
-ltl_property P_DissmissBeforeEnd = []DissmissBeforeEnd
+assert FLY_FORMED = (go -> (Formed4 || FORMED2))
+assert FORM_IF_MISSION_STARTED= ((form4 || form2[1..2]) -> MissionStarted)
+assert DISSMIS_BEFORE_END = (endMission -> (Dismissed4 || DISMISSED2))
+
+ltl_property P_FLY_FORMED = []FLY_FORMED
+ltl_property P_FORM_IF_MISSION_STARTED = []FORM_IF_MISSION_STARTED
+ltl_property P_DISSMIS_BEFORE_END = []DISSMIS_BEFORE_END
 
 controller ||Controller = Environment~{Spec}.
 ||EnvironmentAndController = (Environment || Controller).
 
 controllerSpec Spec = {
-    safety = {P_FlyFormed, P_DissmissBeforeEnd, P_FormIfMissionStarted}
+    safety = {P_FLY_FORMED, P_DISSMIS_BEFORE_END, P_FORM_IF_MISSION_STARTED}
     controllable = {ControllableActions}
 }
 /*
