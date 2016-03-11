@@ -25,9 +25,9 @@ fluent MissionStarted = <startMission,endMission>
 fluent Formed4 = <form4Ok[1],{dismiss4Ok[1],passivate}>
 fluent Formed1 = <form2Ok[1][1],{dismiss2Ok[1][1],passivate}>
 fluent Formed2 = <form2Ok[1][2],{dismiss2Ok[1][2],passivate}>
-fluent Dismissed4 = <dismiss4Ok[1], form4Ok[1]>
-fluent Dismissed1 = <dismiss2Ok[1][1], form2Ok[1][1]>
-fluent Dismissed2 = <dismiss2Ok[1][2], form2Ok[1][2]>
+fluent Dismissed4 = <{dismiss4Ok[1],passivate}, form4Ok[1]> initially 1
+fluent Dismissed1 = <{dismiss2Ok[1][1],passivate}, form2Ok[1][1]> initially 1
+fluent Dismissed2 = <{dismiss2Ok[1][2],passivate}, form2Ok[1][2]> initially 1
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 
@@ -36,11 +36,13 @@ assert DISMISSED2 = (Dismissed1 && Dismissed2)
 
 assert FLY_FORMED = (go -> (Formed4 || FORMED2))
 assert FORM_IF_MISSION_STARTED= ((form4 || form2[1..2]) -> MissionStarted)
-assert DISSMIS_BEFORE_END = (endMission -> (Dismissed4 || DISMISSED2))
+assert ONLY4ROBOTS = (form4 -> DISMISSED2)
+assert DISSMIS_BEFORE_END = (endMission -> (Dismissed4 && DISMISSED2))
 assert T = (FORMED2 -> passivate)
 
 ltl_property P_FLY_FORMED = []FLY_FORMED
 ltl_property P_FORM_IF_MISSION_STARTED = []FORM_IF_MISSION_STARTED
+ltl_property P_ONLY4ROBOTS = []ONLY4ROBOTS
 ltl_property P_DISSMIS_BEFORE_END = []DISSMIS_BEFORE_END
 ltl_property P_T = []T
 
@@ -48,53 +50,10 @@ controller ||Controller = Environment~{Spec}.
 ||EnvironmentAndController = (Environment || Controller).
 
 controllerSpec Spec = {
-    safety = {P_FLY_FORMED, P_DISSMIS_BEFORE_END, P_FORM_IF_MISSION_STARTED, P_T}
+    safety = {P_FLY_FORMED, P_ONLY4ROBOTS, P_DISSMIS_BEFORE_END, P_FORM_IF_MISSION_STARTED, P_T}
     controllable = {ControllableActions}
 }
 /*
-// ---------------------------NEW CONTROLLER SPEC-----------------------------
-
-fluent Formed0 = <form2[1][0],{dismiss[1][0]}>
-
-assert FlyFormed = (go[0] -> Formed)
-assert FormIfMissionStarted = (form4 -> MissionStarted)
-assert DissmissBeforeEnd = (endMission -> Dismissed)
-
-ltl_property P_FlyFormed = []FlyFormed
-ltl_property P_FormIfMissionStarted = []FormIfMissionStarted
-ltl_property P_DissmissBeforeEnd = []DissmissBeforeEnd
-
-controller ||NewController = NewEnvironment~{NewSpec}.
-
-controllerSpec NewSpec= {
-    safety = {P_PHI_}
-    controllable = {NewControllableActions}
-}
-
-
-// ---------------------------UPDATING CONTROLLER SPEC-----------------------------
-//Updating controller fluents
-fluent InTransition = <stopOldSpec, startNewSpec> 
-fluent StopOldSpec = <stopOldSpec, beginUpdate>
-fluent StartNewSpec= <startNewSpec, beginUpdate>
-fluent Reconfigure = <reconfigure, beginUpdate>
-
-ltl_property T = ()
-
-updatingController UpdCont = {
-    oldController = EnvironmentAndController,
-    oldEnvironment = OldEnvironment,
-    hatEnvironment = OldEnvironment,
-    newEnvironment = NewEnvironment,
-    oldGoal = OldSpec, 
-    newGoal = NewSpec,
-    // T = True is executed if no transition requirement is set
-	//transition = T,
-	nonblocking,
-    updateFluents = {}
-}
-
-||UPDATE_CONTROLLER = UpdCont.
 
 // ---------------------------TEST AND RESULTS-----------------------------
 assert S_OLD = ()
