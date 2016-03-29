@@ -1,34 +1,52 @@
 // ---------------------------ENVIRONMENTS-----------------------------
-set ControllableActions = {a,b}
+set OldControllableActions = {initA,sendTOR,sendDSD1,sendQA,sendGF1,endA}
 set NewControllableActions = {a,b}
-set OldA = {OldControllableActions, c}
+set OldA = {OldControllableActions, torOk[0..1], dsd1Ok[0..1], qaOk[0..1], adjustGF1, approveGF1, cancelGF1}
 set NewA = {NewControllableActions, c}
 
 //Environments
+ASSESSMENT = (initA -> endA -> ASSESSMENT).
+TOR = (sendTOR -> torOk[0..1] -> TOR).
+DSD1 = (sendDSD1 -> dsd1Ok[0..1] -> DSD1).
+QA = (sendQA -> qaOk[0..1] -> QA).
+GATEFORM1 = (sendGF1 -> RESPONSE),
+RESPONSE = ({adjustGF1,approveGF1,cancelGF1} -> GATEFORM1).
 
-//FSP
-
-//||OldEnvironment = ().
+||OldEnvironment = (ASSESSMENT || TOR || DSD1 || QA || GATEFORM1).
 //||NewEnvironment = ().
 
 //Fluents declaration
-fluent f = <a,b>
+fluent Initiated = <initA,endA>
+fluent TORDone = <torOk[1],endA>
+fluent DSD1Done = <dsd1Ok[1],endA>
+fluent QADone = <qaOk[1],endA>
+fluent Finished = <{approveGF1,cancelGF1},initA>
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 
-assert PHI= ()
+assert INIT_POLICY = ((sendTOR || sendDSD1 || sendQA || sendGF1) -> Initiated)
+assert TOR_POLICY = ((sendDSD1 || sendQA || sendGF1) -> TORDone)
+assert DSD1_POLICY = ((sendQA || sendGF1) -> DSD1Done)
+assert QA_POLICY = (sendGF1 -> QADone)
+assert END_POLICY = (endA -> Finished)
+assert DO_NOT_SEND_TWICE = ((TORDone -> !sendTOR) && (DSD1Done -> !sendDSD1) && (QADone -> !sendQA))
 
-ltl_property P_PHI = []PHI
 
+ltl_property P_INIT_POLICY = []INIT_POLICY
+ltl_property P_TOR_POLICY = []TOR_POLICY
+ltl_property P_DSD1_POLICY = []DSD1_POLICY
+ltl_property P_QA_POLICY = []QA_POLICY
+ltl_property P_END_POLICY = []END_POLICY
+ltl_property P_DO_NOT_SEND_TWICE = []DO_NOT_SEND_TWICE
 
 controller ||OldController = OldEnvironment~{OldSpec}.
 ||EnvironmentAndController = (OldEnvironment || OldController).
 
 controllerSpec OldSpec = {
-    safety = {P_PHI}
-    controllable = {ControllableActions}
+    safety = {P_INIT_POLICY, P_TOR_POLICY, P_DSD1_POLICY, P_QA_POLICY, P_END_POLICY, P_DO_NOT_SEND_TWICE}
+    controllable = {OldControllableActions}
 }
-
+/*
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
 assert PHI_ = ()
@@ -76,3 +94,4 @@ assert S_NEW = ()
 assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
 assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
 assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+*/

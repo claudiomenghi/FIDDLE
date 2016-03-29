@@ -38,19 +38,24 @@ assert FLY_FORMED = (go -> (Formed4 || FORMED2))
 assert FORM_IF_MISSION_STARTED= ((form4 || form2[1..2]) -> MissionStarted)
 assert ONLY4ROBOTS = (form4 -> DISMISSED2)
 assert DISSMIS_BEFORE_END = (endMission -> (Dismissed4 && DISMISSED2))
-assert T = (FORMED2 -> passivate)
+//assert T = (FORMED2 -> (passivate W Formed4))
+
+T = (form4Ok[1] -> dismiss4Ok[1] -> passivate -> PASSIVATED),
+PASSIVATED = (form2Ok[1][1] -> FORMED1 | form2Ok[1][2] -> FORMED2),
+FORMED1 = (form2Ok[1][2] -> passivate -> T),
+FORMED2 = (form2Ok[1][1] -> passivate -> T).
 
 ltl_property P_FLY_FORMED = []FLY_FORMED
 ltl_property P_FORM_IF_MISSION_STARTED = []FORM_IF_MISSION_STARTED
 ltl_property P_ONLY4ROBOTS = []ONLY4ROBOTS
 ltl_property P_DISSMIS_BEFORE_END = []DISSMIS_BEFORE_END
-ltl_property P_T = []T
+//ltl_property P_T = []T
 
 controller ||Controller = Environment~{Spec}.
 ||EnvironmentAndController = (Environment || Controller).
 
 controllerSpec Spec = {
-    safety = {P_FLY_FORMED, P_ONLY4ROBOTS, P_DISSMIS_BEFORE_END, P_FORM_IF_MISSION_STARTED, P_T}
+    safety = {P_FLY_FORMED, P_ONLY4ROBOTS, P_DISSMIS_BEFORE_END, P_FORM_IF_MISSION_STARTED, T}
     controllable = {ControllableActions}
 }
 /*
