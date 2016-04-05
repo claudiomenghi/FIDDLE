@@ -1,27 +1,29 @@
 // ---------------------------ENVIRONMENTS-----------------------------
-set OldControllableActions = {initA,sendTOR,sendDSD1,sendQA,sendGF1,endA}
-set NewControllableActions = {OldControllableActions, sendTORQA}
-set OldA = {OldControllableActions, torOk[0..1], dsd1Ok[0..1], qaOk[0..1], adjustGF1, approveGF1, cancelGF1}
+set OldControllableActions = {initA,validateTOR, validateDSD1, validateQA, validateGF1,
+							 reviewTOR, reviewDSD1, readyTOR,  readyDSD1,  readyQA, endA}
+set NewControllableActions = {OldControllableActions, receiveTORQA}
+set OldA = {OldControllableActions, receiveTOR, receiveDSD1, receiveGF1, torOk[0..1], dsd1Ok[0..1], qaOk[0..1], adjustGF1, approveGF1, cancelGF1}
 set NewA = {NewControllableActions, torQaOk[0..1]}
 
 //Environments
-ASSESSMENT = (initA -> endA -> ASSESSMENT).
+ASSESSMENT = (initA -> receiveTOR -> receiveDSD1 -> receiveGF1 -> endA -> ASSESSMENT).
 
-OLDTOR = (sendTOR -> torOk[0..1] -> OLDTOR).
+OLDTOR = (receiveTOR -> validateTOR -> RESPONSE),
+RESPONSE = (torOk[0] -> reviewTOR -> RESPONSE | torOk[1] -> readyTOR -> OLDTOR).
 
-DSD1 = (sendDSD1 -> DSD1RESPONSE),
-DSD1RESPONSE = (dsd1Ok[0] -> DSD1 | dsd1Ok[1] -> QA),
-QA = (sendQA -> QARESPONSE),
-QARESPONSE = (qaOk[0..1] -> DSD1).
+DSD1 = (receiveDSD1 -> validateDSD1 -> DSD1RESPONSE),
+DSD1RESPONSE = (dsd1Ok[0] -> reviewDSD1 -> DSD1 | dsd1Ok[1] -> readyDSD1 -> QA),
+QA = (validateQA -> QARESPONSE),
+QARESPONSE = (qaOk[0] -> reviewDSD1 -> DSD1 | qaOk[1] -> readyQA -> DSD1).
 
-GATEFORM1 = (sendGF1 -> GF1RESPONSE),
+GATEFORM1 = (receiveGF1 -> validateGF1 -> GF1RESPONSE),
 GF1RESPONSE = ({adjustGF1,approveGF1,cancelGF1} -> GATEFORM1).
 
 ||OldEnvironment = (ASSESSMENT || OLDTOR || DSD1 || GATEFORM1).
 
-NEWTOR = (sendTOR -> RESPONSETOR),
+NEWTOR = (receiveTOR -> RESPONSETOR),
 RESPONSETOR = (torOk[0] -> NEWTOR | torOk[1] -> QA),
-QA = (sendTORQA -> QARESPONSE),
+QA = (receiveTORQA -> QARESPONSE),
 QARESPONSE = (torQaOk[0..1] -> NEWTOR).
 
 ||NewEnvironment = (ASSESSMENT || NEWTOR || DSD1 || GATEFORM1).
@@ -35,16 +37,22 @@ fluent Finished = <{approveGF1,cancelGF1},initA>
 
 fluent NewTORDone = <torQaOk[1],endA>
 
-//actions fluents
+//actions fluents controllable
 fluent InitA_a = <initA,OldA\{initA}>
-fluent SendQA_a = <sendQA,OldA\{sendQA}>
-fluent SendTOR_a = <sendTOR,OldA\{sendTOR}>
-fluent SendDSD1_a = <sendDSD1,OldA\{sendDSD1}>
-fluent SendGF1_a = <sendGF1,OldA\{sendGF1}>
+fluent ValidateQA_a = <validateQA,OldA\{validateQA}>
+fluent ValidateTOR_a = <validateTOR,OldA\{validateTOR}>
+fluent ValidateDSD1_a = <validateDSD1,OldA\{validateDSD1}>
+fluent ValidateGF1_a = <validateGF1,OldA\{validateGF1}>
+fluent ReviewTOR_a = <reviewTOR,OldA\{reviewTOR}>
+fluent ReviewDSD1_a = <reviewDSD1,OldA\{reviewDSD1}>
+fluent ReadyTOR_a = <readyTOR,OldA\{readyTOR}> 
+fluent ReadyDSD1_a = <readyDSD1,OldA\{readyDSD1}> 
+fluent ReadyQA_a = <readyQA,OldA\{readyQA}>
 fluent EndA_a = <endA,OldA\{endA}>
-
-fluent SendTORQA_a = <sendTORQA, NewA\{sendTORQA}>
-
+//action fluents uncontrollable
+fluent ReceiveTOR_a = <receiveTOR,OldA\{receiveTOR}>
+fluent ReceiveDSD1_a = <receiveDSD1,OldA\{receiveDSD1}>
+fluent ReceiveGF1_a = <receiveGF1,OldA\{receiveGF1}>
 fluent TorOk0_a = <torOk[0],OldA\{torOk[0]}>
 fluent TorOk1_a = <torOk[1],OldA\{torOk[1]}>
 fluent Dsd1Ok0_a = <dsd1Ok[0], OldA\{dsd1Ok[0]}>
@@ -54,18 +62,21 @@ fluent QaOk1_a = <qaOk[1], OldA\{qaOk[1]}>
 fluent AdjustGF1_a = <adjustGF1,OldA\{adjustGF1}>
 fluent ApproveGF1_a = <approveGF1, OldA\{approveGF1}>
 fluent CancelGF1_a = <cancelGF1, OldA\{cancelGF1}>
+
+// new action fluents uncontrollable
+fluent ValidateTORQA_a = <validateTORQA, NewA\{validateTORQA}>
 fluent TorQaOk0_a = <torQaOk[0],NewA\{torQaOk[0]}>
 fluent TorQaOk1_a = <torQaOk[1],NewA\{torQaOk[1]}>
 
 
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 
-assert INIT_POLICY = ((SendTOR_a || SendDSD1_a || SendGF1_a) -> Initiated)
-assert OLD_TOR_POLICY = ((SendDSD1_a || SendGF1_a) -> OldTORDone)
-assert QA_POLICY = (SendGF1_a -> QADone)
+assert INIT_POLICY = ((ValidateTOR_a || ValidateDSD1_a || ValidateGF1_a) -> Initiated)
+assert OLD_TOR_POLICY = ((ValidateDSD1_a || ValidateGF1_a) -> OldTORDone)
+assert QA_POLICY = (ValidateGF1_a -> QADone)
 assert END_POLICY = (EndA_a -> Finished)
-assert OLD_DO_NOT_SEND_TWICE = ((OldTORDone -> !SendTOR_a) && 
-							(QADone -> !SendDSD1_a) && (Finished -> !SendGF1_a))
+assert OLD_DO_NOT_SEND_TWICE = ((OldTORDone -> !ValidateTOR_a) && 
+							(QADone -> !ValidateDSD1_a) && (Finished -> !ValidateGF1_a))
 
 ltl_property P_INIT_POLICY = []INIT_POLICY
 ltl_property P_OLD_TOR_POLICY = []OLD_TOR_POLICY
@@ -83,9 +94,9 @@ controllerSpec OldSpec = {
 
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
-assert NEW_TOR_POLICY = ((SendDSD1_a || SendGF1_a) -> NewTORDone)
-assert NEW_DO_NOT_SEND_TWICE = ((NewTORDone -> !SendTOR_a) &&
-					 (QADone -> !SendDSD1_a) && (Finished -> !SendGF1_a))
+assert NEW_TOR_POLICY = ((ValidateDSD1_a || ValidateGF1_a) -> NewTORDone)
+assert NEW_DO_NOT_SEND_TWICE = ((NewTORDone -> !ValidateTOR_a) &&
+					 (QADone -> !ValidateDSD1_a) && (Finished -> !ValidateGF1_a))
 
 ltl_property P_NEW_TOR_POLICY = []NEW_TOR_POLICY
 ltl_property P_NEW_DO_NOT_SEND_TWICE = []NEW_DO_NOT_SEND_TWICE
@@ -119,7 +130,7 @@ updatingController UpdCont = {
 	//transition = T,
 	nonblocking,
     updateFluents = {Initiated, OldTORDone, QADone, Finished, NewTORDone,
-		InitA_a, SendQA_a, SendTOR_a, SendDSD1_a, SendGF1_a, EndA_a, SendTORQA_a, TorQaOk0_a, TorQaOk1_a,
+		InitA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a, EndA_a, ValidateTORQA_a, TorQaOk0_a, TorQaOk1_a,
         TorOk0_a, TorOk1_a, Dsd1Ok0_a, Dsd1Ok1_a, QaOk0_a, QaOk1_a, AdjustGF1_a, ApproveGF1_a, CancelGF1_a}
 }
 
