@@ -1,41 +1,60 @@
 // ---------------------------ENVIRONMENTS-----------------------------
 set OldControllableActions = {initA,validateTOR, validateDSD1, validateQA, validateGF1,
 							 reviewTOR, reviewDSD1, readyTOR,  readyDSD1,  readyQA, endA}
-set NewControllableActions = {OldControllableActions, receiveTORQA}
+set NewControllableActions = {OldControllableActions, validateTORQA, readyTORQA}
 set OldA = {OldControllableActions, receiveTOR, receiveDSD1, receiveGF1, torOk[0..1], dsd1Ok[0..1], qaOk[0..1], adjustGF1, approveGF1, cancelGF1}
-set NewA = {NewControllableActions, torQaOk[0..1]}
+set NewA = {NewControllableActions, receiveTORQA, torQaOk[0..1]}
 
 //Environments
-ASSESSMENT = (initA -> receiveTOR -> receiveDSD1 -> receiveGF1 -> endA -> ASSESSMENT).
+ASSESSMENT = (initA -> endA -> ASSESSMENT).
 
-OLDTOR = (receiveTOR -> validateTOR -> RESPONSE),
+OLDTOR = (receiveTOR -> RECEIVED),
+RECEIVED = (validateTOR -> RESPONSE | endA -> OLDTOR),
 RESPONSE = (torOk[0] -> reviewTOR -> RESPONSE | torOk[1] -> readyTOR -> OLDTOR).
 
-DSD1 = (receiveDSD1 -> validateDSD1 -> DSD1RESPONSE),
+DSD1 = (receiveDSD1 -> RECEIVED),
+RECEIVED = (validateDSD1 -> DSD1RESPONSE | endA -> DSD1),
 DSD1RESPONSE = (dsd1Ok[0] -> reviewDSD1 -> DSD1 | dsd1Ok[1] -> readyDSD1 -> QA),
 QA = (validateQA -> QARESPONSE),
 QARESPONSE = (qaOk[0] -> reviewDSD1 -> DSD1 | qaOk[1] -> readyQA -> DSD1).
 
-GATEFORM1 = (receiveGF1 -> validateGF1 -> GF1RESPONSE),
+GATEFORM1 = (receiveGF1 -> RECEIVED),
+RECEIVED = (validateGF1 -> GF1RESPONSE | endA -> GATEFORM1),
 GF1RESPONSE = ({adjustGF1,approveGF1,cancelGF1} -> GATEFORM1).
 
 ||OldEnvironment = (ASSESSMENT || OLDTOR || DSD1 || GATEFORM1).
 
-NEWTOR = (receiveTOR -> RESPONSETOR),
-RESPONSETOR = (torOk[0] -> NEWTOR | torOk[1] -> QA),
-QA = (receiveTORQA -> QARESPONSE),
-QARESPONSE = (torQaOk[0..1] -> NEWTOR).
+NEWTOR = (receiveTOR -> RECEIVED),
+RECEIVED = (validateTOR -> RESPONSETOR | endA -> NEWTOR),
+RESPONSETOR = (torOk[0] -> reviewTOR -> NEWTOR | torOk[1] -> readyTOR -> QA),
+QA = (receiveTORQA -> validateTORQA -> QARESPONSE),
+QARESPONSE = (torQaOk[1] -> readyTORQA -> NEWTOR | torQaOk[0] -> reviewTOR -> NEWTOR).
 
 ||NewEnvironment = (ASSESSMENT || NEWTOR || DSD1 || GATEFORM1).
 
 //Fluents declaration
 fluent Initiated = <initA,endA>
-fluent OldTORDone = <torOk[1],endA>
-//fluent DSD1Done = <dsd1Ok[1],endA>
-fluent QADone = <qaOk[1],endA>
+
+fluent TorReceived = <receiveTOR, {endA,reviewTOR,readyTOR}>
+fluent Dsd1Received = <receiveDSD1, {endA,reviewDSD1,readyDSD1}>
+fluent QaReceived = <readyDSD1, {reviewDSD1,readyQA}>
+fluent Gf1Received = <receiveGF1, {endA,adjustGF1,approveGF1,cancelGF1}>
+
+fluent TorQaReceived = <receiveTORQA, {reviewTOR, readyTORQA}>
+
+fluent ValidatingTOR = <validateTOR,torOk[0..1]>
+fluent ValidatingDSD1 = <validateDSD1,dsd1Ok[0..1]>
+fluent ValidatingQA = <validateQA,qaOk[0..1]>
+fluent ValidatingGF1 = <validateGF1,torOk[0..1]>
+
+fluent ValidatingTORQA = <validateTORQA,torQaOk[0..1]>
+
+fluent OldTORDone = <readyTOR,endA>
+fluent DSD1Done = <readyDSD1,endA>
+fluent QADone = <readyQA,{adjustGF1,endA}>
 fluent Finished = <{approveGF1,cancelGF1},initA>
 
-fluent NewTORDone = <torQaOk[1],endA>
+fluent NewTORDone = <readyTORQA, endA>
 
 //actions fluents controllable
 fluent InitA_a = <initA,OldA\{initA}>
@@ -63,8 +82,11 @@ fluent AdjustGF1_a = <adjustGF1,OldA\{adjustGF1}>
 fluent ApproveGF1_a = <approveGF1, OldA\{approveGF1}>
 fluent CancelGF1_a = <cancelGF1, OldA\{cancelGF1}>
 
-// new action fluents uncontrollable
+// new action fluents controllable
 fluent ValidateTORQA_a = <validateTORQA, NewA\{validateTORQA}>
+fluent ReadyTORQA_a = <readyTORQA, NewA\{readyTORQA}>
+// new action fluents uncontrollable
+fluent ReceiveTORQA_a = <receiveTORQA,NewA\{receiveTORQA}>
 fluent TorQaOk0_a = <torQaOk[0],NewA\{torQaOk[0]}>
 fluent TorQaOk1_a = <torQaOk[1],NewA\{torQaOk[1]}>
 
@@ -129,9 +151,13 @@ updatingController UpdCont = {
     // T = True is executed if no transition requirement is set
 	//transition = T,
 	nonblocking,
-    updateFluents = {Initiated, OldTORDone, QADone, Finished, NewTORDone,
-		InitA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a, EndA_a, ValidateTORQA_a, TorQaOk0_a, TorQaOk1_a,
-        TorOk0_a, TorOk1_a, Dsd1Ok0_a, Dsd1Ok1_a, QaOk0_a, QaOk1_a, AdjustGF1_a, ApproveGF1_a, CancelGF1_a}
+    updateFluents = {Initiated, TorReceived, Dsd1Received, QaReceived, Gf1Received, TorQaReceived, 
+        ValidatingTOR, ValidatingDSD1, ValidatingQA, ValidatingGF1, ValidatingTORQA, OldTORDone, DSD1Done, QADone, Finished, NewTORDone,
+		InitA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a, ReviewTOR_a, ReviewDSD1_a,
+        ReadyTOR_a, ReadyDSD1_a, ReadyQA_a, EndA_a, 
+        ReceiveTOR_a, ReceiveDSD1_a, ReceiveGF1_a, 
+		TorOk0_a, TorOk1_a, Dsd1Ok0_a, Dsd1Ok1_a, QaOk0_a, QaOk1_a, AdjustGF1_a, ApproveGF1_a, CancelGF1_a,
+        ValidateTORQA_a, ReadyTORQA_a, ReceiveTORQA_a, TorQaOk0_a, TorQaOk1_a}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
