@@ -24,7 +24,7 @@ public class testParserLabelTest {
 	public void testPropertyInComposite() throws Exception {
 		int errors = 0;
 		File file;
-		String path = new File(".." + File.separator + "ltsa" + File.separator
+		String path = new File("../.." + File.separator + "ltsa" + File.separator
 				+ "dist" + File.separator + "examples" + File.separator
 				+ "ParserTests").getCanonicalPath();
 		File folder = new File(path);
