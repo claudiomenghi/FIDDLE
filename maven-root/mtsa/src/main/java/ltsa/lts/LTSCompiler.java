@@ -2294,11 +2294,11 @@ public class LTSCompiler {
 			current_is(Symbol.COMMA, ", expected");
 			next_symbol();
 		}
-		if (current.kind == Symbol.HAT_ENVIRONMENT) {
-			ucDefinition.setHatEnvironment(this.controllerSubUpdateController());
-			current_is(Symbol.COMMA, ", expected");
-			next_symbol();
-		}
+//		if (current.kind == Symbol.HAT_ENVIRONMENT) {
+//			ucDefinition.setHatEnvironment(this.controllerSubUpdateController());
+//			current_is(Symbol.COMMA, ", expected");
+//			next_symbol();
+//		}
 		if (current.kind == Symbol.NEW_ENVIRONMENT) {
 			ucDefinition.setNewEnvironment(this.controllerSubUpdateController());
 			current_is(Symbol.COMMA, ", expected");
@@ -2339,8 +2339,12 @@ public class LTSCompiler {
 			current_is(Symbol.COMMA, ", expected");
 			next_symbol();
 		}
-		if (current.kind == Symbol.UPDATE_FLUENTS) {
-			ucDefinition.setUpdFluents(this.controllerSubGoal());
+		if (current.kind == Symbol.OLD_PROPOSITIONS) {
+			ucDefinition.setOldPropositions(this.controllerSubGoal());
+		}
+		
+		if (current.kind == Symbol.NEW_PROPOSITIONS) {
+			ucDefinition.setNewPropositions(this.controllerSubGoal());
 		}
 		
 		if (current.kind == Symbol.UPDATE_DEBUG) {

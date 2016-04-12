@@ -93,12 +93,14 @@ public class SymbolTable {
 		keyword.put("updatingController", new Integer(Symbol.UPDATING_CONTROLLER));
 		keyword.put("oldController", new Integer(Symbol.OLD_CONTROLLER));
 		keyword.put("oldEnvironment", new Integer(Symbol.OLD_ENVIRONMENT));
-		keyword.put("hatEnvironment", new Integer(Symbol.HAT_ENVIRONMENT));
+		//keyword.put("hatEnvironment", new Integer(Symbol.HAT_ENVIRONMENT));
 		keyword.put("newEnvironment", new Integer(Symbol.NEW_ENVIRONMENT));
 		keyword.put("oldGoal", new Integer(Symbol.OLD_GOAL));
 		keyword.put("newGoal", new Integer(Symbol.NEW_GOAL));
 		keyword.put("transition", new Integer(Symbol.TRANSITION));
-		keyword.put("updateFluents", new Integer(Symbol.UPDATE_FLUENTS));
+		//keyword.put("updateFluents", new Integer(Symbol.UPDATE_FLUENTS));
+		keyword.put("oldPropositions", new Integer(Symbol.OLD_PROPOSITIONS));
+		keyword.put("newPropositions", new Integer(Symbol.NEW_PROPOSITIONS));
 		keyword.put("debug", new Integer(Symbol.UPDATE_DEBUG));
 		keyword.put("checkTrace", new Integer(Symbol.UPDATE_CHECK_TRACE));
 		keyword.put("graphUpdate", Symbol.GRAPH_UPDATE);

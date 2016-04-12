@@ -34,9 +34,11 @@ public class UpdatingEnvironmentGenerator {
 	private MTS<Pair<Long, Long>, String> oldPart;
 	private MTS<Long, String> oldController;
 	private MTS<Long, String> oldEnvironment;
-	private MTS<Long, String> hatEnvironment;
+//	private MTS<Long, String> hatEnvironment;
 	private MTS<Long, String> newEnvironment;
-	private List<Fluent> propositions;
+//	private List<Fluent> propositions;
+	private List<Fluent> oldPropositions;
+	private List<Fluent> newPropositions;
 	private MTS<Long, String> updatingEnvironment;
 	private Long lastState;
 	private Set<Long> eParallelCStates; // used for relabeling actions
@@ -44,14 +46,17 @@ public class UpdatingEnvironmentGenerator {
 	private MappingStructure mapping;
 	private HashMap<Long, Long> newEnvToThis;
 
-	public UpdatingEnvironmentGenerator(MTS<Long, String> oldController, MTS<Long, String> oldEnvironment, MTS<Long,
-		String> hatEnvironment, MTS<Long, String> newEnvironment, List<Fluent> propositions) {
+//	public UpdatingEnvironmentGenerator(MTS<Long, String> oldController, MTS<Long, String> oldEnvironment, MTS<Long,
+//		String> hatEnvironment, MTS<Long, String> newEnvironment, List<Fluent> propositions) {
+	public UpdatingEnvironmentGenerator(MTS<Long, String> oldController, MTS<Long, String> oldEnvironment,
+			MTS<Long, String> newEnvironment, List<Fluent> oldPropositions, List<Fluent> newPropositions) {
 
 		this.oldController = oldController;
 		this.oldEnvironment = oldEnvironment;
-		this.hatEnvironment = hatEnvironment;
+//		this.hatEnvironment = hatEnvironment;
 		this.newEnvironment = newEnvironment;
-		this.propositions = propositions;
+		this.oldPropositions = oldPropositions;
+		this.newPropositions = newPropositions;
 		this.mapping = null;
 		this.newEnvToThis = null;
 
@@ -69,20 +74,28 @@ public class UpdatingEnvironmentGenerator {
 		
 		this.removeTopStates();
 		this.generateOldPart();
-		this.completeWithHatEnvironment();
-		this.changePairsToLong();
-		mapping = new MappingStructure(updatingEnvironment, newEnvironment, propositions);
+//		this.completeWithHatEnvironment();
+		this.completeWithOldEnvironment();
+		this.changePairsToLong(); // should be an Util maybe it already exists
+//		mapping = new MappingStructure(updatingEnvironment, newEnvironment, propositions);
+		mapping = new MappingStructure(updatingEnvironment, newEnvironment, oldPropositions, newPropositions);
 		this.newEnvToThis = this.linkStatesWithSameFluentValues(mapping);
 		this.completeWithNewEnvironment(newEnvToThis);
 	}
 
 	private void removeTopStates() {
 		
-		hatEnvironment.addActions(newEnvironment.getActions());
-		newEnvironment.addActions(hatEnvironment.getActions());
+//		hatEnvironment.addActions(newEnvironment.getActions());
+//		newEnvironment.addActions(hatEnvironment.getActions());
+//		
+//		hatEnvironment = ControllerUtils.removeTopStates(hatEnvironment, propositions);
+//		newEnvironment = ControllerUtils.removeTopStates(newEnvironment, propositions);
 		
-		hatEnvironment = ControllerUtils.removeTopStates(hatEnvironment, propositions);
-		newEnvironment = ControllerUtils.removeTopStates(newEnvironment, propositions);
+		oldEnvironment.addActions(newEnvironment.getActions());
+		newEnvironment.addActions(oldEnvironment.getActions());
+		
+		oldEnvironment = ControllerUtils.removeTopStates(oldEnvironment, oldPropositions);
+		newEnvironment = ControllerUtils.removeTopStates(newEnvironment, newPropositions);
 		
 	}
 
@@ -95,8 +108,10 @@ public class UpdatingEnvironmentGenerator {
 
 		// BFS
 		Queue<Pair<Long, Long>> toVisit = new LinkedList<Pair<Long, Long>>();
-		Pair<Long, Long> firstState = new Pair<Long, Long>(oldController.getInitialState(), hatEnvironment
-			.getInitialState());
+//		Pair<Long, Long> firstState = new Pair<Long, Long>(oldController.getInitialState(), hatEnvironment
+//			.getInitialState());
+		Pair<Long, Long> firstState = new Pair<Long, Long>(oldController.getInitialState(), oldEnvironment
+				.getInitialState());
 		toVisit.add(firstState);
 		ArrayList<Pair<Long, Long>> discovered = new ArrayList<Pair<Long, Long>>();
 
@@ -117,8 +132,10 @@ public class UpdatingEnvironmentGenerator {
 
 		ArrayList<Pair<Long, Long>> toVisit = new ArrayList<Pair<Long, Long>>();
 
-		for (Pair<String, Long> action_toStateEnvironment : hatEnvironment.getTransitions(actual.getSecond(), MTS
-			.TransitionType.REQUIRED)) {
+//		for (Pair<String, Long> action_toStateEnvironment : hatEnvironment.getTransitions(actual.getSecond(), MTS
+//			.TransitionType.REQUIRED)) {
+		for (Pair<String, Long> action_toStateEnvironment : oldEnvironment.getTransitions(actual.getSecond(), MTS
+				.TransitionType.REQUIRED)) {
 
 			String action = action_toStateEnvironment.getFirst();
 			Long toState = action_toStateEnvironment.getSecond();
@@ -147,11 +164,28 @@ public class UpdatingEnvironmentGenerator {
 			.getSecond()));
 	}
 
-	private void completeWithHatEnvironment() {
+//	private void completeWithHatEnvironment() {
+//
+//		for (Long state : hatEnvironment.getStates()) {
+//
+//			for (Pair<String, Long> action_toState : hatEnvironment.getTransitions(state, TransitionType.REQUIRED)) {
+//
+//				String action = action_toState.getFirst();
+//				Long toState = action_toState.getSecond();
+//				Pair<Long, Long> newState = new Pair<Long, Long>(new Long(-1), toState);
+//				oldPart.addState(newState);
+//				oldPart.addAction(action);
+//				Pair<Long, Long> currentState = new Pair<Long, Long>(new Long(-1), state);
+//				oldPart.addState(currentState); // caution with this
+//				oldPart.addRequired(currentState, action, newState);
+//			}
+//		}
+//	}
+	
+	private void completeWithOldEnvironment() {
+		for (Long state : oldEnvironment.getStates()) {
 
-		for (Long state : hatEnvironment.getStates()) {
-
-			for (Pair<String, Long> action_toState : hatEnvironment.getTransitions(state, TransitionType.REQUIRED)) {
+			for (Pair<String, Long> action_toState : oldEnvironment.getTransitions(state, TransitionType.REQUIRED)) {
 
 				String action = action_toState.getFirst();
 				Long toState = action_toState.getSecond();
@@ -345,7 +379,9 @@ public class UpdatingEnvironmentGenerator {
 
 	public List<Fluent> getPropositions() {
 		
-		return propositions;
+		List<Fluent> result = oldPropositions;
+		result.addAll(newPropositions);
+		return result;
 	}
 	
 	public MTS<Long, String> getEprime() {

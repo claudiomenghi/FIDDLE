@@ -18,13 +18,15 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 
 	private Symbol oldController;
 	private Symbol oldEnvironment;
-	private Symbol hatEnvironment;
+	//private Symbol hatEnvironment;
 	private Symbol newEnvironment;
 	private Symbol oldGoal;
 	private Symbol newGoal;
 	private List<Symbol> safety;
 	private Boolean nonblocking;
-	private List<Symbol> updFluents;
+	//private List<Symbol> updFluents;
+	private List<Symbol> oldPropositions;
+	private List<Symbol> newPropositions;
 	private Boolean debugMode;
 	private ArrayList<Symbol> checkTrace;
 
@@ -33,11 +35,13 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		super.setName(current);
 		oldController = new Symbol();
 		oldEnvironment = new Symbol();
-		hatEnvironment = new Symbol();
+		//hatEnvironment = new Symbol();
 		newEnvironment = new Symbol();
 		safety = new ArrayList<Symbol>();
 		nonblocking = false;
-		updFluents = new ArrayList<Symbol>();
+		//updFluents = new ArrayList<Symbol>();
+		oldPropositions = new ArrayList<Symbol>();
+		newPropositions = new ArrayList<Symbol>();
 		debugMode = false;
 		checkTrace = new ArrayList<Symbol>();
 	}
@@ -63,8 +67,8 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		CompositionExpression oldEnvironment = LTSCompiler.getComposite(this.getOldEnvironment().toString());
 		CompositeState oldE = oldEnvironment.compose(null);
 		
-		CompositionExpression hatEnvironment = LTSCompiler.getComposite(this.getHatEnvironment().toString());
-		CompositeState hatE = hatEnvironment.compose(null);
+//		CompositionExpression hatEnvironment = LTSCompiler.getComposite(this.getHatEnvironment().toString());
+//		CompositeState hatE = hatEnvironment.compose(null);
 
 		CompositionExpression newEnvironment = LTSCompiler.getComposite(this.getNewEnvironment().toString());
 		CompositeState newE = newEnvironment.compose(null);
@@ -79,15 +83,19 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		ControllerGoalDefinition newGoal = UpdatingControllersUtils.generateSafetyGoalDef(this, oldGoalDef,
 			newGoalDef, controllableSetSymbol, output);
 
-		// MAPPING PROPERTIES
-		List<Fluent> properties = UpdatingControllersUtils.compileFluents(this.getUpdFluents());
+		// MAPPING PROPOSITIONS
+//		List<Fluent> properties = UpdatingControllersUtils.compileFluents(this.getUpdFluents());
+		List<Fluent> oldPropositions = UpdatingControllersUtils.compileFluents(this.getOldPropositions());
+		List<Fluent> newPropositions = UpdatingControllersUtils.compileFluents(this.getNewPropositions());
 
 		// DEBUG
 		Boolean debugMode = this.debugModelOn();
 		List<String> checkTrace = UpdatingControllersUtils.compileCheckTraces(this.getCheckTrace());
 
-		UpdatingControllerCompositeState ucce = new UpdatingControllerCompositeState(oldC, oldE, hatE, newE, newGoal,
-			grGoal, properties, debugMode, checkTrace, name.getName());
+//		UpdatingControllerCompositeState ucce = new UpdatingControllerCompositeState(oldC, oldE, hatE, newE, newGoal,
+//			grGoal, properties, debugMode, checkTrace, name.getName());
+		UpdatingControllerCompositeState ucce = new UpdatingControllerCompositeState(oldC, oldE, newE, newGoal,
+				grGoal, oldPropositions, newPropositions, debugMode, checkTrace, name.getName());
 		return ucce;
 	}
 
@@ -110,9 +118,9 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		this.oldEnvironment = oldEnvironment.get(0);
 	}
 	
-	public void setHatEnvironment(ArrayList<Symbol> hatEnvironment) {
-		this.hatEnvironment = hatEnvironment.get(0);
-	}
+//	public void setHatEnvironment(ArrayList<Symbol> hatEnvironment) {
+//		this.hatEnvironment = hatEnvironment.get(0);
+//	}
 
 	public void setNewEnvironment(ArrayList<Symbol> newEnvironment) {
 		this.newEnvironment = newEnvironment.get(0);
@@ -126,8 +134,18 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		this.nonblocking = true;
 	}
 
-	public void setUpdFluents(List<Symbol> updFluents) {
-		this.updFluents = updFluents;
+//	public void setUpdFluents(List<Symbol> updFluents) {
+//		this.updFluents = updFluents;
+//	}
+	
+	public void setOldPropositions(List<Symbol> input) {
+		this.oldPropositions = input;
+		
+	}
+	
+	public void setNewPropositions(List<Symbol> input) {
+		this.newPropositions = input;
+		
 	}
 
 	public void setDebugMode() {
@@ -146,9 +164,9 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		return oldEnvironment;
 	}
 	
-	public Symbol getHatEnvironment() {
-		return hatEnvironment;
-	}
+//	public Symbol getHatEnvironment() {
+//		return hatEnvironment;
+//	}
 
 	public Symbol getNewEnvironment() {
 		return newEnvironment;
@@ -162,9 +180,18 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		return nonblocking;
 	}
 
-	public List<Symbol> getUpdFluents() {
-		return updFluents;
+//	public List<Symbol> getUpdFluents() {
+//		return updFluents;
+//	}
+	
+	public List<Symbol> getOldPropositions() {
+		return oldPropositions;
 	}
+		
+	public List<Symbol> getNewPropositions() {
+		return newPropositions;
+	}
+	
 
 	public Boolean debugModelOn() {
 		return debugMode;
@@ -189,5 +216,7 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 	public void setOldGoal(Symbol oldGoal) {
 		this.oldGoal = oldGoal;
 	}
+
+
 
 }

@@ -1,5 +1,6 @@
 package ltsa.updatingControllers.structures;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -17,29 +18,37 @@ public class UpdatingControllerCompositeState extends CompositeState {
 
 	private CompositeState oldController;
 	private CompositeState oldEnvironment;
-	private CompositeState hatEnvironment;
+//	private CompositeState hatEnvironment;
 	private CompositeState newEnvironment;
 	private ControllerGoalDefinition newGoalDef;
 	private GRControllerGoal<String> newGoalGR;
 	private Set<String> controllableActions;
-	private List<Fluent> updProperties;
+//	private List<Fluent> updProperties;
+	private List<Fluent> oldPropositions;
+	private List<Fluent> newPropositions;
 	private Boolean debugMode;
 	private List<String> checkTrace;
 	private MTS<Long, String> updateEnvironment;
 
+//	public UpdatingControllerCompositeState(CompositeState oldController, CompositeState oldEnvironment,
+//						CompositeState hatEnvironment, CompositeState newEnvironment, ControllerGoalDefinition newGoal,
+//						GRControllerGoal<String> newGoalGR, List<Fluent> updFluents, Boolean debug, 
+//						List<String> checkTrace, String name) {
 	public UpdatingControllerCompositeState(CompositeState oldController, CompositeState oldEnvironment,
-						CompositeState hatEnvironment, CompositeState newEnvironment, ControllerGoalDefinition newGoal,
-						GRControllerGoal<String> newGoalGR, List<Fluent> updFluents, Boolean debug, 
-						List<String> checkTrace, String name) {
+			CompositeState newEnvironment, ControllerGoalDefinition newGoal, GRControllerGoal<String> newGoalGR, 
+			List<Fluent> oldPropositions, List<Fluent> newPropositions, Boolean debug, 
+			List<String> checkTrace, String name) {
 		super.setMachines(new Vector<CompactState>());
 		this.oldController = oldController;
 		this.oldEnvironment = oldEnvironment;
-		this.hatEnvironment = hatEnvironment;
+//		this.hatEnvironment = hatEnvironment;
 		this.newEnvironment = newEnvironment;
 		this.newGoalDef = newGoal;
 		this.newGoalGR = newGoalGR;
 		this.controllableActions = this.newGoalGR.getControllableActions();
-		this.updProperties = updFluents;
+//		this.updProperties = updFluents;
+		this.oldPropositions = oldPropositions;
+		this.newPropositions = newPropositions;
 		this.debugMode = debug;
 		this.checkTrace = checkTrace;
 		super.setCompositionType(Symbol.UPDATING_CONTROLLER);
@@ -58,9 +67,9 @@ public class UpdatingControllerCompositeState extends CompositeState {
 		return MTSUtils.getMTSComposition(oldEnvironment);
 	}
 	
-	public MTS<Long, String> getHatEnvironment() {
-		return MTSUtils.getMTSComposition(hatEnvironment);
-	}
+//	public MTS<Long, String> getHatEnvironment() {
+//		return MTSUtils.getMTSComposition(hatEnvironment);
+//	}
 
 	public MTS<Long, String> getNewEnvironment() {
 		return MTSUtils.getMTSComposition(newEnvironment);
@@ -70,8 +79,23 @@ public class UpdatingControllerCompositeState extends CompositeState {
 		return controllableActions;
 	}
 
-	public List<Fluent> getUpdProperties() {
-		return updProperties;
+//	public List<Fluent> getUpdProperties() {
+//		return updProperties;
+//	}
+	
+	public List<Fluent> getOldPropositions() {
+		return oldPropositions;
+	}
+	
+	public List<Fluent> getNewPropositions() {
+		return newPropositions;
+	}
+	
+	public List<Fluent> getAllPropositions() {
+		List<Fluent> result = new ArrayList<Fluent>();
+		result.addAll(oldPropositions);
+		result.addAll(newPropositions);
+		return result;
 	}
 
 	public Boolean debugModeOn() {
@@ -99,10 +123,14 @@ public class UpdatingControllerCompositeState extends CompositeState {
 	}
 
 	@Override
+//	public UpdatingControllerCompositeState clone() {
+//		UpdatingControllerCompositeState clone = new UpdatingControllerCompositeState(
+//				oldController, oldEnvironment, hatEnvironment, newEnvironment, newGoalDef,
+//				newGoalGR, updProperties, debugMode, checkTrace, name);
 	public UpdatingControllerCompositeState clone() {
 		UpdatingControllerCompositeState clone = new UpdatingControllerCompositeState(
-				oldController, oldEnvironment, hatEnvironment, newEnvironment, newGoalDef,
-				newGoalGR, updProperties, debugMode, checkTrace, name);
+				oldController, oldEnvironment, newEnvironment, newGoalDef,
+				newGoalGR, oldPropositions, newPropositions, debugMode, checkTrace, name);
 		clone.setCompositionType(getCompositionType());
 		clone.makeAbstract = makeAbstract;
 		clone.makeClousure = makeClousure;
@@ -121,4 +149,5 @@ public class UpdatingControllerCompositeState extends CompositeState {
 		clone.isProbabilistic = isProbabilistic;
 		return clone;
 	}
+
 }

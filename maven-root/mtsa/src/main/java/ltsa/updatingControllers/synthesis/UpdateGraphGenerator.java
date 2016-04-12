@@ -99,7 +99,7 @@ public class UpdateGraphGenerator {
 
 	private static UpdateTransition buildTransition(UpdatingControllerCompositeState updtControllerCS) {
 		UpdateTransition transition = new UpdateTransition();
-		transition.setFluents(updtControllerCS.getUpdProperties());
+		transition.setFluents(updtControllerCS.getAllPropositions());
 		MTS<Long, String> updateController = updtControllerCS.getUpdateController();
 		MarkedMTS<Long, String> marked = UpdatingControllersUtils.markCuTerminalSet(updateController);
 		transition.setUpdateController(marked);

@@ -72,10 +72,13 @@ public class UpdatingControllerSynthesizer {
 		// set environment
 		MTS<Long, String> oldC = uccs.getOldController();
 		MTS<Long, String> oldE = uccs.getOldEnvironment();
-		MTS<Long, String> hatE = uccs.getHatEnvironment();
+//		MTS<Long, String> hatE = uccs.getHatEnvironment();
 		MTS<Long, String> newE = uccs.getNewEnvironment();
-		List<Fluent> propositions = uccs.getUpdProperties();
-		UpdatingEnvironmentGenerator updEnvGenerator = new UpdatingEnvironmentGenerator(oldC, oldE, hatE, newE, propositions);
+//		List<Fluent> propositions = uccs.getUpdProperties();
+		List<Fluent> oldPropositions = uccs.getOldPropositions();
+		List<Fluent> newPropositions = uccs.getNewPropositions();
+//		UpdatingEnvironmentGenerator updEnvGenerator = new UpdatingEnvironmentGenerator(oldC, oldE, hatE, newE, propositions);
+		UpdatingEnvironmentGenerator updEnvGenerator = new UpdatingEnvironmentGenerator(oldC, oldE, newE, oldPropositions, newPropositions);
 		updEnvGenerator.generateEnvironment(contActions, output);
 
 		if (!uccs.debugModeOn() && uccs.getCheckTrace().isEmpty()) {
@@ -106,9 +109,11 @@ public class UpdatingControllerSynthesizer {
 		HashedMap<Long, ArrayList<Boolean>> valuation = rarePair.getFirst();
 		HashSet<Long> eParallelCStates = rarePair.getSecond();
 		
+		// This is the worst piece of code EVER!!
 		ArrayList<Fluent> propositions = (ArrayList<Fluent>) updEnvGenerator.getPropositions();
 		FluentStateValuation<Long> fluentStateValuation = buildFluentStateValuation(metaEnvironment, valuation, propositions);
-
+		//
+		
 		makeOldActionsUncontrollable(newGoalGR.getControllableActions(), eParallelCStates, metaEnvironment);
 		MTS<Long, String> safetyEnv = applySafety(newGoalDef, metaEnvironment, fluentStateValuation);
 

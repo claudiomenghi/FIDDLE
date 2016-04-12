@@ -241,8 +241,12 @@ public class Symbol {
 			return "new goal";
 		case TRANSITION:
 			return "transition";
-		case UPDATE_FLUENTS:
-			return "update fluents";
+//		case UPDATE_FLUENTS:
+//			return "update fluents";
+		case OLD_PROPOSITIONS:
+			return "old propositions";
+		case NEW_PROPOSITIONS:
+			return "new propositions";
 		case UPDATE_DEBUG:
 			return "debug mode";
 		case UPDATE_CHECK_TRACE:
@@ -557,12 +561,14 @@ public class Symbol {
 	public static final int OLD_GOAL = 3205;
 	public static final int NEW_GOAL = 3206;
 	public static final int TRANSITION = 3207; //transition T
-	public static final int UPDATE_FLUENTS = 3208;
+	//public static final int UPDATE_FLUENTS = 3208;
 	public static final int UPDATE_DEBUG = 3209; // debug
 	public static final int UPDATE_CHECK_TRACE = 3210; //checkTrace
 	public static final int GRAPH_UPDATE = 3211;
 	public static final int GRAPH_INITIAL_STATE = 3212;
 	public static final int GRAPH_TRANSITIONS = 3213;
+	public static final int OLD_PROPOSITIONS = 3214;
+	public static final int NEW_PROPOSITIONS = 3215;
 	// _______________________________________________________________________________________
 	// Expression symbols
 
@@ -690,7 +696,9 @@ public class Symbol {
 		blueSymbols.add(OLD_GOAL);
 		blueSymbols.add(NEW_GOAL);
 		blueSymbols.add(TRANSITION);
-		blueSymbols.add(UPDATE_FLUENTS);
+		//blueSymbols.add(UPDATE_FLUENTS);
+		blueSymbols.add(OLD_PROPOSITIONS);
+		blueSymbols.add(NEW_PROPOSITIONS);
 		blueSymbols.add(UPDATE_DEBUG);
 		blueSymbols.add(GRAPH_UPDATE);
 		blueSymbols.add(GRAPH_INITIAL_STATE);
