@@ -10,7 +10,7 @@ ASSESSMENT = (initA -> endA -> ASSESSMENT).
 
 OLDTOR = (receiveTOR -> RECEIVED),
 RECEIVED = (validateTOR -> RESPONSE | endA -> OLDTOR),
-RESPONSE = (torOk[0] -> reviewTOR -> RESPONSE | torOk[1] -> readyTOR -> OLDTOR).
+RESPONSE = (torOk[0] -> reviewTOR -> OLDTOR | torOk[1] -> readyTOR -> OLDTOR).
 
 DSD1 = (receiveDSD1 -> RECEIVED),
 RECEIVED = (validateDSD1 -> DSD1RESPONSE | endA -> DSD1),
@@ -144,20 +144,26 @@ fluent Reconfigure = <reconfigure, beginUpdate>
 updatingController UpdCont = {
     oldController = EnvironmentAndController,
     oldEnvironment = OldEnvironment,
-    hatEnvironment = OldEnvironment,
     newEnvironment = NewEnvironment,
     oldGoal = OldSpec, 
     newGoal = NewSpec,
     // T = True is executed if no transition requirement is set
 	//transition = T,
 	nonblocking,
-    updateFluents = {Initiated, TorReceived, Dsd1Received, QaReceived, Gf1Received, TorQaReceived, 
+	oldPropositions = {Initiated, TorReceived, Dsd1Received, QaReceived, Gf1Received, TorQaReceived, 
+			EndA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a,
+        ValidatingTOR, ValidatingDSD1, ValidatingQA, ValidatingGF1, ValidatingTORQA, OldTORDone, DSD1Done, QADone, Finished}
+	newPropositions = {Initiated, TorReceived, Dsd1Received, QaReceived, Gf1Received, TorQaReceived, 
+			EndA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a,
+        ValidatingTOR, ValidatingDSD1, ValidatingQA, ValidatingGF1, ValidatingTORQA, NewTORDone, DSD1Done, QADone, Finished}
+/*    updateFluents = {Initiated, TorReceived, Dsd1Received, QaReceived, Gf1Received, TorQaReceived, 
         ValidatingTOR, ValidatingDSD1, ValidatingQA, ValidatingGF1, ValidatingTORQA, OldTORDone, DSD1Done, QADone, Finished, NewTORDone,
 		InitA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a, ReviewTOR_a, ReviewDSD1_a,
         ReadyTOR_a, ReadyDSD1_a, ReadyQA_a, EndA_a, 
         ReceiveTOR_a, ReceiveDSD1_a, ReceiveGF1_a, 
 		TorOk0_a, TorOk1_a, Dsd1Ok0_a, Dsd1Ok1_a, QaOk0_a, QaOk1_a, AdjustGF1_a, ApproveGF1_a, CancelGF1_a,
         ValidateTORQA_a, ReadyTORQA_a, ReceiveTORQA_a, TorQaOk0_a, TorQaOk1_a}
+*/
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
