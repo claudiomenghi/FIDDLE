@@ -153,7 +153,6 @@ fluent Reconfigure = <reconfigure, beginUpdate>
 updatingController UpdCont = {
     oldController = EnvironmentAndController,
     oldEnvironment = OldEnvironment,
-	hatEnvironment = OldEnvironment,
     newEnvironment = NewEnvironment,
     oldGoal = OldSpec,
     newGoal = NewSpec,
@@ -163,7 +162,11 @@ updatingController UpdCont = {
 //    transition = T_NO_MOVE_WHILE_UPDATE,
     transition = T_NO_PICTURE_WHILE_UPDATE,
 	nonblocking,
-    updateFluents = {MissionStarted, FlyingHigh, FlyingMid, FlyingLow, SuspiciousActivityDetected, NewSuspiciousActivityDetected, NoBattery, ScanPending, 
+    oldPropositions = {MissionStarted, FlyingHigh, FlyingMid, FlyingLow, SuspiciousActivityDetected, NewSuspiciousActivityDetected, NoBattery, ScanPending, 
+					ScanFailed, PicturePending,Following, ZoneScaned, PictureSent, 
+					Scan_action, Move_action, Picture_action, Return2Base_action, Follow_action, Low_action, Mid_action, High_action, 
+					LowBattery_action, PictureOk0_action, PictureOk1_action, ScanVal0_action, ScanVal1_action}
+    newPropositions = {MissionStarted, FlyingHigh, FlyingMid, FlyingLow, SuspiciousActivityDetected, NewSuspiciousActivityDetected, NoBattery, ScanPending, 
 					ScanFailed, PicturePending,Following, ZoneScaned, PictureSent, 
 					Scan_action, Move_action, Picture_action, Return2Base_action, Follow_action, Low_action, Mid_action, High_action, 
 					LowBattery_action, PictureOk0_action, PictureOk1_action, ScanVal0_action, ScanVal1_action}

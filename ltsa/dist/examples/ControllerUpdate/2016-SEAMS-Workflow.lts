@@ -109,13 +109,19 @@ ltl_property T_PAY_THE_COST = ((StopOldSpec && !StartNewSpec) -> (Archive_action
 updatingController UpdCont = { 
     oldController = Concurrent,
     oldEnvironment = Environment,
-    hatEnvironment = Environment,
     newEnvironment = Environment,
     oldGoal = ConcurrentSpec,
     newGoal = SequentialSpec,
 //    transition = T_PAY_THE_COST,
     nonblocking,
-    updateFluents = { InventoryFinished, CreditFinished, ShippingFinished, BillingFinished, 
+	oldPropositions = { InventoryFinished, CreditFinished, ShippingFinished, BillingFinished, 
+        InventoryInitiated, CreditInitiated, ShippingInitiated, BillingInitiated,
+        OrderArrived, Archiving, EvalResponseDone, OrderApproved, EvalPending, RollbackDone,
+		Archive_action, Eval_action, InitInventory_action, InitCredit_action, InitShipping_action,
+		InitBilling_action, EndInventory_action, EndCredit_action, EndShipping_action, EndBilling_action,
+		Rollback_action
+    }
+    newPropositions = { InventoryFinished, CreditFinished, ShippingFinished, BillingFinished, 
         InventoryInitiated, CreditInitiated, ShippingInitiated, BillingInitiated,
         OrderArrived, Archiving, EvalResponseDone, OrderApproved, EvalPending, RollbackDone,
 		Archive_action, Eval_action, InitInventory_action, InitCredit_action, InitShipping_action,

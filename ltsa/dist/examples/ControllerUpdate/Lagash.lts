@@ -35,25 +35,35 @@ QARESPONSE = (torQaOk[1] -> readyTORQA -> NEWTOR | torQaOk[0] -> reviewTOR -> NE
 //Fluents declaration
 fluent Initiated = <initA,endA>
 
+// TOR FLUENTS
 fluent TorReceived = <receiveTOR, {endA,reviewTOR,readyTOR}>
-fluent Dsd1Received = <receiveDSD1, {endA,reviewDSD1,readyDSD1}>
-fluent QaReceived = <readyDSD1, {reviewDSD1,readyQA}>
-fluent Gf1Received = <receiveGF1, {endA,adjustGF1,approveGF1,cancelGF1}>
-
-fluent TorQaReceived = <receiveTORQA, {reviewTOR, readyTORQA}>
-
 fluent ValidatingTOR = <validateTOR,torOk[0..1]>
-fluent ValidatingDSD1 = <validateDSD1,dsd1Ok[0..1]>
-fluent ValidatingQA = <validateQA,qaOk[0..1]>
-fluent ValidatingGF1 = <validateGF1,torOk[0..1]>
-
-fluent ValidatingTORQA = <validateTORQA,torQaOk[0..1]>
-
+fluent TorDenied = <torOk[0],validateTOR>
+fluent ReviewingTOR = <reviewTOR,validateTOR>
+fluent TorAccepted = <torOk[1],endA>
 fluent OldTORDone = <readyTOR,endA>
-fluent DSD1Done = <readyDSD1,endA>
-fluent QADone = <readyQA,{adjustGF1,endA}>
-fluent Finished = <{approveGF1,cancelGF1},initA>
 
+//DSD1 FLUENTS
+fluent Dsd1Received = <receiveDSD1, {endA,reviewDSD1,readyDSD1}>
+fluent ValidatingDSD1 = <validateDSD1,dsd1Ok[0..1]>
+fluent Dsd1Denied = <dsd1Ok[0],validateDSD1>
+fluent ReviewingDSD1 = <reviewDSD1, validateDSD1>
+fluent Dsd1Accepted = <dsd1Ok[1],endA>
+fluent DSD1Done = <readyDSD1,endA>
+fluent ValidatingQA = <validateQA,qaOk[0..1]>
+fluent QADenied = <qaOk[0],validateQA>
+fluent QAAccepted = <qaOk[1],endA>
+fluent QADone = <readyQA,{adjustGF1,endA}>
+
+// GF1 FLUENTS
+fluent Gf1Received = <receiveGF1, {endA,adjustGF1,approveGF1,cancelGF1}>
+fluent ValidatingGF1 = <validateGF1,{adjustGF1,approveGF1,cancelGF1}>
+fluent Finished = <{approveGF1,cancelGF1},initA>
+fluent Adjusting = <adjustGF1,validateGF1>
+
+// New FLUENTS
+fluent ValidatingTORQA = <validateTORQA,torQaOk[0..1]>
+fluent TorQaReceived = <receiveTORQA, {reviewTOR, readyTORQA}>
 fluent NewTORDone = <readyTORQA, endA>
 
 //actions fluents controllable
@@ -150,13 +160,24 @@ updatingController UpdCont = {
     // T = True is executed if no transition requirement is set
 	//transition = T,
 	nonblocking,
-	oldPropositions = {Initiated, TorReceived, Dsd1Received, QaReceived, Gf1Received, TorQaReceived, 
+	oldPropositions = {Initiated, TorReceived, ValidatingTOR, TorDenied, ReviewingTOR, TorAccepted, 
+        OldTORDone, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done, 
+        ValidatingQA, QADone, Gf1Received, ValidatingGF1, Finished, Adjusting, ValidatingTORQA, 
+        TorQaReceived, NewTORDone, QAAccepted, QADenied, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a, EndA_a}
+    newPropositions = {Initiated, TorReceived, ValidatingTOR, TorDenied, ReviewingTOR, TorAccepted, 
+        OldTORDone, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done, 
+        ValidatingQA, QADone, Gf1Received, ValidatingGF1, Finished, Adjusting, ValidatingTORQA, 
+        TorQaReceived, NewTORDone, QAAccepted, QADenied, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a, EndA_a}
+
+
+/*
+    {Initiated, TorReceived, Dsd1Received, Gf1Received, TorQaReceived, 
 			EndA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a,
         ValidatingTOR, ValidatingDSD1, ValidatingQA, ValidatingGF1, ValidatingTORQA, OldTORDone, DSD1Done, QADone, Finished}
-	newPropositions = {Initiated, TorReceived, Dsd1Received, QaReceived, Gf1Received, TorQaReceived, 
+	newPropositions = {Initiated, TorReceived, Dsd1Received, Gf1Received, TorQaReceived, 
 			EndA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a,
         ValidatingTOR, ValidatingDSD1, ValidatingQA, ValidatingGF1, ValidatingTORQA, NewTORDone, DSD1Done, QADone, Finished}
-/*    updateFluents = {Initiated, TorReceived, Dsd1Received, QaReceived, Gf1Received, TorQaReceived, 
+    updateFluents = {Initiated, TorReceived, Dsd1Received, Gf1Received, TorQaReceived, 
         ValidatingTOR, ValidatingDSD1, ValidatingQA, ValidatingGF1, ValidatingTORQA, OldTORDone, DSD1Done, QADone, Finished, NewTORDone,
 		InitA_a, ValidateQA_a, ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a, ReviewTOR_a, ReviewDSD1_a,
         ReadyTOR_a, ReadyDSD1_a, ReadyQA_a, EndA_a, 
