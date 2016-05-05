@@ -1,4 +1,0 @@
-{methAppears|switchOff,switchOff|methAppears}
-{switchDLOn|methLeaves|switchDLOff}
-{methAppears,methLeaves,switchOn,switchOff,switchDLOn,switchDLOff}
-

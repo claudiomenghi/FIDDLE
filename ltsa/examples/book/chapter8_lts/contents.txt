@@ -1,2 +1,0 @@
-CruiseControl.lts
-RevisedCruiseControl.lts

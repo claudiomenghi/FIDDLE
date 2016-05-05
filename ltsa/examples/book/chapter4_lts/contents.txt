@@ -1,5 +1,0 @@
-Counter.lts
-Counter_lockvar.lts
-Display_Counter.lts
-Garden.lts
-Garden_lockvar.lts

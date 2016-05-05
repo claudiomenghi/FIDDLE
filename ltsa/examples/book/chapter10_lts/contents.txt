@@ -1,7 +1,0 @@
-AsynchMsgDemo.lts
-Port.lts
-Port_recursive.lts
-Port_recursive_overflow.lts
-RendezvousEntryDemo.lts
-SynchMsgAdditionallts.lts
-SynchmsgDemo.lts

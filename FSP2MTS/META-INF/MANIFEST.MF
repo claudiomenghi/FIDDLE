@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Sealed: true
-Class-Path: lib/commons-collections-3.1.jar lib/commons-lang-2.1.jar lib/ltsa.jar
-Main-Class: ac.ic.doc.mtstools.MTSChecker
-
