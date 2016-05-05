@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+  <hmsc>
+    <bmsc name="init" x="290" y="30" />
+    <bmsc name="Login" x="290" y="230" />
+    <bmsc name="FailedLogin" x="410" y="230" />
+    <transition>
+      <from>FailedLogin</from>
+      <to>FailedLogin</to>
+    </transition>
+    <transition>
+      <from>FailedLogin</from>
+      <to>Login</to>
+    </transition>
+    <bmsc name="SelectMessage" x="170" y="230" />
+    <transition>
+      <from>Login</from>
+      <to>SelectMessage</to>
+    </transition>
+    <bmsc name="CloseMsg" x="50" y="230" />
+    <transition>
+      <from>SelectMessage</from>
+      <to>CloseMsg</to>
+    </transition>
+    <transition>
+      <from>CloseMsg</from>
+      <to>SelectMessage</to>
+    </transition>
+    <bmsc name="KickOff" x="50" y="130" />
+    <transition>
+      <from>CloseMsg</from>
+      <to>KickOff</to>
+    </transition>
+    <transition>
+      <from>SelectMessage</from>
+      <to>KickOff</to>
+    </transition>
+    <transition>
+      <from>Login</from>
+      <to>KickOff</to>
+    </transition>
+    <bmsc name="EnableUser" x="290" y="130" />
+    <transition>
+      <from>init</from>
+      <to>EnableUser</to>
+    </transition>
+    <transition>
+      <from>EnableUser</from>
+      <to>Login</to>
+    </transition>
+    <transition>
+      <from>EnableUser</from>
+      <to>FailedLogin</to>
+    </transition>
+    <transition>
+      <from>KickOff</from>
+      <to>EnableUser</to>
+    </transition>
+    <transition>
+      <from>FailedLogin</from>
+      <to>KickOff</to>
+    </transition>
+    <transition>
+      <from>EnableUser</from>
+      <to>KickOff</to>
+    </transition>
+    <bmsc name="Logout" x="290" y="330" />
+    <transition>
+      <from>SelectMessage</from>
+      <to>Logout</to>
+    </transition>
+    <transition>
+      <from>Logout</from>
+      <to>Login</to>
+    </transition>
+    <transition>
+      <from>Logout</from>
+      <to>FailedLogin</to>
+    </transition>
+    <transition>
+      <from>Login</from>
+      <to>Logout</to>
+    </transition>
+    <transition>
+      <from>CloseMsg</from>
+      <to>Logout</to>
+    </transition>
+  </hmsc>
+  <bmsc name="init" />
+  <bmsc name="Login">
+    <instance name="u:User">
+      <output timeindex="1">
+        <name>u,s,enterPwd</name>
+        <to>s:Server</to>
+      </output>
+      <input timeindex="2">
+        <name>s,u,authenticate</name>
+        <from>s:Server</from>
+      </input>
+    </instance>
+    <instance name="s:Server">
+      <input timeindex="1">
+        <name>u,s,enterPwd</name>
+        <from>u:User</from>
+      </input>
+      <output timeindex="2">
+        <name>s,u,authenticate</name>
+        <to>u:User</to>
+      </output>
+    </instance>
+    <instance name="a:Admin" />
+  </bmsc>
+  <bmsc name="FailedLogin">
+    <instance name="u:User">
+      <output timeindex="1">
+        <name>u,s,enterPwd</name>
+        <to>s:Server</to>
+      </output>
+      <input timeindex="2">
+        <name>s,u,invalidPwd</name>
+        <from>s:Server</from>
+      </input>
+    </instance>
+    <instance name="s:Server">
+      <input timeindex="1">
+        <name>u,s,enterPwd</name>
+        <from>u:User</from>
+      </input>
+      <output timeindex="2">
+        <name>s,u,invalidPwd</name>
+        <to>u:User</to>
+      </output>
+    </instance>
+    <instance name="a:Admin" />
+  </bmsc>
+  <bmsc name="SelectMessage">
+    <instance name="u:User">
+      <output timeindex="1">
+        <name>u,s,selectMsg</name>
+        <to>s:Server</to>
+      </output>
+      <input timeindex="2">
+        <from>s:Server</from>
+        <name>s,u,sendMsg</name>
+      </input>
+    </instance>
+    <instance name="s:Server">
+      <input timeindex="1">
+        <name>u,s,selectMsg</name>
+        <from>u:User</from>
+      </input>
+      <output timeindex="2">
+        <to>u:User</to>
+        <name>s,u,sendMsg</name>
+      </output>
+    </instance>
+    <instance name="a:Admin" />
+  </bmsc>
+  <bmsc name="CloseMsg">
+    <instance name="u:User">
+      <output timeindex="1">
+        <name>u,s,closeMsg</name>
+        <to>s:Server</to>
+      </output>
+      <input timeindex="2">
+        <name>s,u,allSubjects</name>
+        <from>s:Server</from>
+      </input>
+    </instance>
+    <instance name="s:Server">
+      <input timeindex="1">
+        <name>u,s,closeMsg</name>
+        <from>u:User</from>
+      </input>
+      <output timeindex="2">
+        <name>s,u,allSubjects</name>
+        <to>u:User</to>
+      </output>
+    </instance>
+    <instance name="a:Admin" />
+  </bmsc>
+  <bmsc name="KickOff">
+    <instance name="u:User" />
+    <instance name="s:Server">
+      <input timeindex="1">
+        <from>a:Admin</from>
+        <name>a,s,disable</name>
+      </input>
+    </instance>
+    <instance name="a:Admin">
+      <output timeindex="1">
+        <to>s:Server</to>
+        <name>a,s,disable</name>
+      </output>
+    </instance>
+  </bmsc>
+  <bmsc name="EnableUser">
+    <instance name="u:User" />
+    <instance name="s:Server">
+      <input timeindex="1">
+        <name>a,s,enable</name>
+        <from>a:Admin</from>
+      </input>
+    </instance>
+    <instance name="a:Admin">
+      <output timeindex="1">
+        <name>a,s,enable</name>
+        <to>s:Server</to>
+      </output>
+    </instance>
+  </bmsc>
+  <bmsc name="Logout">
+    <instance name="u:User">
+      <output timeindex="2">
+        <name>u,s,logout</name>
+        <to>s:Server</to>
+      </output>
+    </instance>
+    <instance name="s:Server">
+      <input timeindex="2">
+        <name>u,s,logout</name>
+        <from>u:User</from>
+      </input>
+    </instance>
+    <instance name="a:Admin" />
+  </bmsc>
+</specification>
+

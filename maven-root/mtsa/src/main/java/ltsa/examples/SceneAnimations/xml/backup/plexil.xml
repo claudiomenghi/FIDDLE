@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<animation width="400" height="300">
+
+
+     <!-- Parent node + commands and events -->
+
+	<define id="node0">      
+		  <transform type="translate">
+			  <param name="translation" value="(0, -60)" /> 
+			  <include src="plexil-node.xml" id="node.0" />
+		  </transform>
+	</define>
+
+    <forall var="com" values = "inactive waiting executing finishing finished failing"> 
+		<command name="node.0.${com}">
+		  <invoke object="node.0" command="${com}"/>
+		</command>
+     </forall>
+	
+     <forall var="ev" values = "processing.end">   
+	   <event object="node.${0}" event="${ev}">
+	     <announce event="node.${0}.${ev}"/>
+	   </event>
+     </forall>     
+
+
+	<forall var = "i" values ="1 2">
+     
+     <!-- Remaining nodes + commands and events -->
+	 
+	<define id="node${i}">      
+		  <transform type="translate">
+			  <param name="translation" value="((150*(${i}-1)), 0)" /> 
+			  <include src="plexil-node.xml" id="node.${i}" />
+		  </transform>
+	</define>
+
+    <forall var="com" values = "inactive waiting executing finishing finished failing"> 
+		<command name="node.${i}.${com}">
+		  <invoke object="node.${i}" command="${com}"/>
+		</command>
+     </forall>
+     
+     <forall var="ev" values = "processing.end">   
+	   <event object="node.${i}" event="${ev}">
+	     <announce event="node.${i}.${ev}"/>
+	   </event>
+     </forall>     
+	
+
+</forall>
+
+
+ <define id="title">
+    <transform type="translate">
+	  <param name="translation" value="(10,30)" />
+      <primitive type="text">
+        <param name="text" value = "Plexil Plan Execution"/>
+      </primitive>
+	</transform>
+</define> 
+
+
+<draw>
+  <transform type="translate">
+      <param name="translation" value="(100,200)" /> 
+	  <paste object="node0"/>
+	  <paste object="node1"/>
+	  <paste object="node2"/>
+  </transform>
+  <paste object="title"/>
+</draw>
+
+</animation>

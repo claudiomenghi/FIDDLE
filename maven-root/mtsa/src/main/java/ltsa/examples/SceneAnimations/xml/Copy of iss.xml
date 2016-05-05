@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+
+<animation width="512" height="512">
+
+<behaviour id="shuttle_fly" algorithm="track" event="finished">
+<param name="pointCount" value="2"/>
+<param name="point" index="0" value="(50,630)"/>
+<param name="duration" index="0" value="4"/>
+<param name="point" index="1" value="(200, 300)"/>
+</behaviour>
+
+
+ <define id="shuttle">
+	 <transform type="translate">
+	 <param name="translation" value = "(50,630)" />
+	  <animate param="translation" behaviour="shuttle_fly"/>
+
+
+     <transform type="scale">
+        <param name="x" value="0.75" />
+ 	     <param name="y" value="0.75" />
+     
+	  <primitive type = "sprite">
+ 	   <param name = "src" value ="image/shuttle.jpeg"/>
+	   <param name = "hotspot" value ="(50,240)"/>
+	   </primitive>
+	</transform>
+
+	</transform> 
+
+</define>
+
+ <define id="ISS">
+    <transform type="scale">
+       <param name="x" value="0.7" />
+      <param name="y" value="0.7" />
+      
+      <transform type="translate">
+	 <param name="translation" value = "(270,50)" />
+      
+    <primitive type = "sprite">
+ 	   <param name = "src" value ="image/ISS.jpeg"/>
+	</primitive>
+     </transform>
+</transform>
+
+</define>
+
+ <define id="title">
+    <transform type="translate">
+	  <param name="translation" value="(10,30)" />
+      <primitive type="text">
+        <param name="text" value = "Autonomous Rendezvous and Docking"/>
+      </primitive>
+	</transform>
+</define>
+
+
+
+<draw>
+	  <paste object="shuttle"/>
+	  <paste object="ISS"/>
+  <paste object="title"/>
+</draw>
+
+
+
+<command name="flight.start">
+  <reset behaviour="shuttle_fly" />
+  <start behaviour="shuttle_fly" />
+</command>
+
+
+<event object="shuttle_fly" event="finished">
+  <stop behaviour="shuttle_fly" />
+</event>
+
+</animation>

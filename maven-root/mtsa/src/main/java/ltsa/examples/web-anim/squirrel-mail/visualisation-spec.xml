@@ -1,0 +1,206 @@
+<fluentspec>
+
+  <role name="admin">
+
+    <controlled>
+      <action>a.s.endSession</action>
+      <action>a.s.disable</action>
+      <action>a.s.enable</action>
+    </controlled>
+
+	<header>
+	  <display>
+       <center><img src="sm_logo.png" align="center" /></center>
+       <p>Admin View</p>
+       <hr />
+	  </display>
+	</header>	
+
+	<footer>
+	  <display>
+       <br />
+        <center><hr width="75%" /></center>
+	   <br />
+	  </display>
+	</footer>
+
+    <showwhen>
+      <expression>
+        <holds>REGISTERED</holds>
+      </expression>
+      <display>
+
+      <p><button>a.s.disable</button></p>
+
+      </display>
+    </showwhen>
+
+    <showwhen>
+      <expression>
+        <not><holds>REGISTERED</holds></not>
+      </expression>
+      <display>
+
+      <p><button>a.s.enable</button></p>
+
+      </display>
+    </showwhen>
+  </role>
+
+  <role name="user">
+  
+    <controlled>
+      <action>u.s.enterPwd</action>
+      <action>u.s.selectMsg</action>
+      <action>u.s.closeMsg</action>
+      <action>u.s.logout</action>
+    </controlled>
+
+	<header>
+	  <display>
+       <center><img src="sm_logo.png" align="center" /></center>
+       <br />
+       <hr />
+	  </display>
+	</header>	
+
+	<footer>
+	  <display>
+       <br />
+        <center><hr width="75%" /></center>
+	   <br />
+	  </display>
+	</footer>
+
+    <showwhen>
+      <expression>
+        <not>
+          <holds>LOGGEDIN</holds>
+        </not>
+      </expression>
+
+      <display>
+
+        <!-- username and password boxes -->   
+		<center>
+        <table><tr>
+        <td width="200"><input type="text"     name="userid" width="10" /></td>
+        <td width="200"><input type="password" name="pwd"    width="10" /></td>
+        <td width="200"><button>u.s.enterPwd</button></td>
+		</tr></table>
+		</center>
+
+      </display>
+    </showwhen>
+
+
+    <showwhen>
+      <expression>
+        <holds>LOGGEDIN</holds>
+      </expression>
+      <display>
+
+      <!-- greet user -->
+
+      <p>
+        Hello <value name="userid" />, welcome to webmail.   
+      </p>
+
+      </display>
+    </showwhen>
+
+    <showwhen>
+      <expression>
+        <and>
+          <holds>LOGGEDIN</holds>
+          <not><holds>MESSAGESELECTED</holds></not>
+        </and>
+      </expression>
+
+      <display>
+
+       <p>
+         <table>
+           <tr><td>
+           <link>
+             <action>u.s.selectMsg</action>
+             <content>Your diploma has arrived</content>
+           </link>
+           </td></tr>
+           <tr><td>
+           <link>
+             <action>u.s.selectMsg</action>
+             <content>Notification of award</content>
+           </link>
+           </td></tr>
+           <tr><td>
+           <link>
+             <action>u.s.selectMsg</action>
+             <content>Increase your salary now...</content>
+           </link>
+           </td></tr>
+         </table>
+       </p>
+
+      </display>
+    </showwhen>
+
+    <showwhen>
+      <expression>
+        <and>
+          <holds>LOGGEDIN</holds>
+          <holds>MESSAGESELECTED</holds>
+        </and>
+      </expression>
+
+      <display>
+
+       <p>
+	   The text of the message goes here...
+       </p>
+       <p>
+       <button>u.s.closeMsg</button>
+       </p>
+
+      </display>
+    </showwhen>
+
+  </role>
+
+
+  <action name="s.u.authenticate">
+    <conditions>
+      <and>
+        <equal key="userid" value="demo" />
+        <equal key="pwd" value="demo" />
+	  </and>
+	</conditions>
+  </action>
+
+  <action name="s.u.invalidPwd">
+    <conditions>
+      <not>
+        <and>
+          <equal key="userid" value="demo" />
+          <equal key="pwd" value="demo" />
+	    </and>
+      </not>
+    </conditions>
+  </action>
+
+</fluentspec>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
