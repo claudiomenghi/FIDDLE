@@ -1,10 +1,23 @@
 package MTSSynthesis.controller;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
+import MTSSynthesis.ar.dc.uba.model.language.Symbol;
+import MTSSynthesis.controller.game.gr.GRGameSolver;
+import MTSSynthesis.controller.game.gr.StrategyState;
+import MTSSynthesis.controller.game.gr.lazy.LazyGRGameSolver;
+import MTSSynthesis.controller.game.model.GameSolver;
+import MTSSynthesis.controller.game.model.Strategy;
+import MTSSynthesis.controller.game.util.GRGameBuilder;
+import MTSSynthesis.controller.game.util.GameStrategyToMTSBuilder;
+import MTSSynthesis.controller.gr.time.*;
+import MTSSynthesis.controller.gr.time.model.Activity;
+import MTSSynthesis.controller.gr.time.model.ActivityDefinitions;
+import MTSSynthesis.controller.model.GRGameControlProblem;
+import MTSSynthesis.controller.model.gr.ConcurrencyControlProblem;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import MTSSynthesis.controller.model.gr.GRGame;
+import MTSSynthesis.controller.model.gr.TransientControlProblem;
+import MTSSynthesis.controller.model.gr.concurrency.GRCGame;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
@@ -12,106 +25,13 @@ import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSAdapter;
 import MTSTools.ac.ic.doc.mtstools.model.operations.ParallelComposer;
-import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
-import MTSSynthesis.ar.dc.uba.model.language.Symbol;
-import MTSSynthesis.controller.game.gr.GRGameSolver;
-import MTSSynthesis.controller.game.gr.GRRankSystem;
-import MTSSynthesis.controller.game.gr.StrategyState;
-import MTSSynthesis.controller.game.gr.lazy.LazyGRGameSolver;
-import MTSSynthesis.controller.game.model.GameSolver;
-import MTSSynthesis.controller.game.model.Strategy;
-import MTSSynthesis.controller.game.util.GRGameBuilder;
-import MTSSynthesis.controller.game.util.GameStrategyToMTSBuilder;
-import MTSSynthesis.controller.gr.time.GR1toReachability;
-import MTSSynthesis.controller.gr.time.GenericChooser;
-import MTSSynthesis.controller.gr.time.LatencyNotPresetEvaluator;
-import MTSSynthesis.controller.gr.time.SchedulerGenerator;
-import MTSSynthesis.controller.gr.time.Translator;
-import MTSSynthesis.controller.gr.time.TranslatorPair;
-import MTSSynthesis.controller.gr.time.model.Activity;
-import MTSSynthesis.controller.gr.time.model.ActivityDefinitions;
-import MTSSynthesis.controller.model.GRGameControlProblem;
-import MTSSynthesis.controller.model.PerfectInfoGRControlProblem;
-import MTSSynthesis.controller.model.gr.ConcurrencyControlProblem;
-import MTSSynthesis.controller.model.gr.ConcurrencyGRControlProblem;
-import MTSSynthesis.controller.model.gr.ConcurrencyLazyGRControlProblem;
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
-import MTSSynthesis.controller.model.gr.GRGame;
-import MTSSynthesis.controller.model.gr.TransientControlProblem;
-import MTSSynthesis.controller.model.gr.TransientGRControlProblem;
-import MTSSynthesis.controller.model.gr.TransientLazyGRControlProblem;
-import MTSSynthesis.controller.model.gr.concurrency.GRCGame;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class HeuristicControllerSynthesiser<S,A>{
-	
-	public MTS<StrategyState<S, Integer>, A> synthesiseGR(MTS<S, A> plant, GRControllerGoal<A> goal, MTS<S, A> env) {
-
-		boolean CONCURRENCY_DEFINED = !goal.getConcurrencyFluents().isEmpty();
-		GameSolver<S, Integer> solver;
-		GRGameSolver<S> gSolver;
-		
-		int maxLazyness = goal.getLazyness();
-		
-		if(CONCURRENCY_DEFINED || goal.isNonTransient()){ 
-			MTS<StrategyState<S, Integer>, A> result;
-			LTS<S,A> safeEnvironment = new LTSAdapter<S,A>(plant,TransitionType.REQUIRED);
-			LTS<S,A> realEnvironment = new LTSAdapter<S,A>(env,TransitionType.REQUIRED);
-			
-			GRGameControlProblem<S,A,Integer> controlProblem = null;
-			
-			if(CONCURRENCY_DEFINED){
-				if(maxLazyness>0){
-					controlProblem = new ConcurrencyLazyGRControlProblem<S,A,Integer>(safeEnvironment, goal);
-					result = new MTSAdapter<StrategyState<S, Integer>, A>(controlProblem.rawSolve());
-					return result;
-				}else{
-					controlProblem = new ConcurrencyGRControlProblem<S,A,Integer>(safeEnvironment, goal);
-					result = new MTSAdapter<StrategyState<S, Integer>, A>(controlProblem.rawSolve());
-				}
-			}else{
-				if(maxLazyness>0){
-					controlProblem = new TransientLazyGRControlProblem<S,A,Integer>(safeEnvironment, goal);
-					result = new MTSAdapter<StrategyState<S, Integer>, A>(controlProblem.rawSolve());
-					return result;
-				}else{
-					controlProblem = new TransientGRControlProblem<S,A,Integer>(safeEnvironment, goal);
-					result = new MTSAdapter<StrategyState<S, Integer>, A>(controlProblem.rawSolve());
-				}
-			}
-			
-			doTest(goal, safeEnvironment, realEnvironment, controlProblem);
-			return result;
-		}
-		
-		GRGame<S> nGame = new GRGameBuilder<S, A>().buildGRCGameFrom(plant, goal);
-		GRRankSystem<S> nSystem = new GRRankSystem<S>(nGame.getStates(), nGame.getGoal().getGuarantees(), nGame.getGoal().getAssumptions(), nGame.getGoal().getFailures());
-		gSolver = new LazyGRGameSolver<S>(nGame, nSystem, maxLazyness);
-		solver = gSolver;
-		
-		solver.solveGame();
-		
-		if (solver.isWinning(plant.getInitialState())) {
-
-			MTS<StrategyState<S, Integer>, A> maximalControllerUsingGR1 = getResult(plant, gSolver, gSolver);
-			return maximalControllerUsingGR1;
-			
-		} else {
-			return null;
-		}
-	}
-	
-	private void doTest(GRControllerGoal<A> goal, LTS<S, A> safeEnvironment, LTS<S, A> realEnvironment, GRGameControlProblem<S, A, Integer> controlProblem) {
-		PerfectInfoGRControlProblem<S, A> perfectControlProblem = new PerfectInfoGRControlProblem<S, A>(safeEnvironment, goal);
-		
-		LTS<S,A> heuristicSolution =  controlProblem.solve();
-		LTS<S,A> perfectSolution = perfectControlProblem.solve();
-		
-		Set<S> heuristicFinalStates = controlProblem.getGRGame().getGoal().getGuarantee(1).getStateSet();
-		Set<S> perfectFinalStates = perfectControlProblem.getGRGame().getGoal().getGuarantee(1).getStateSet();
-		
-		compareControllers(goal, realEnvironment, heuristicSolution, perfectSolution, heuristicFinalStates, perfectFinalStates);
-	}
-
 
 	public MTS<S, A> applyHeuristics(MTS<S, A> controller, MTS<S, A> env, GRControllerGoal<A> goal) {
 		LTS<S,A> realEnvironment = new LTSAdapter<S,A>(env,TransitionType.REQUIRED);
@@ -180,14 +100,15 @@ public class HeuristicControllerSynthesiser<S,A>{
 		
 		pruneRealEnvironment(perfectComposition,realEnvironment);
 
-//		Set<GenericChooser<S, A, Pair<S, S>>> schedulers = generateSchedulers(goal.getMaxSchedulers()-1,realEnvironment,controllableActions,activityDefinitions);
-//		LatencyPresetEvaluator<Pair<S,S>,A,S> evaluator = new LatencyPresetEvaluator<Pair<S,S>,A,S>(
-//								new MTSAdapter<Pair<S,S>,A>(heuristicComposition),
-//								new MTSAdapter<Pair<S,S>,A>(perfectComposition),
-//								heuristicComposedFinalStates, perfectComposedFinalStates,
-//								activityDefinitions, translator,
-//						        goal.getControllableActions(), 
-//						        schedulers, goal.getMaxSchedulers()-1);
+		//@ezecastellano: Uncomment this if you want to use the same set of schedulers from every pair of controllers.
+		//Set<GenericChooser<S, A, Pair<S, S>>> schedulers = generateSchedulers(goal.getMaxSchedulers()-1,realEnvironment,controllableActions,activityDefinitions);
+		//LatencyPresetEvaluator<Pair<S,S>,A,S> evaluator = new LatencyPresetEvaluator<Pair<S,S>,A,S>(
+		//new MTSAdapter<Pair<S,S>,A>(heuristicComposition),
+		//new MTSAdapter<Pair<S,S>,A>(perfectComposition),
+		//heuristicComposedFinalStates, perfectComposedFinalStates,
+		//activityDefinitions, translator,
+		//goal.getControllableActions(),
+		//schedulers, goal.getMaxSchedulers()-1);
 		LatencyNotPresetEvaluator<S,A> evaluator = new LatencyNotPresetEvaluator<S,A>(
 				new MTSAdapter<Pair<S,S>,A>(heuristicComposition),
 				new MTSAdapter<Pair<S,S>,A>(perfectComposition),
@@ -197,7 +118,20 @@ public class HeuristicControllerSynthesiser<S,A>{
 		        realEnvironment,goal.getMaxSchedulers()-1);
 		evaluator.evaluateLatency(goal.getMaxControllers()-1);
 	}
-	
+
+//	private Set<GenericChooser<S, A, Pair<S, S>>> generateSchedulers(Integer maxSchedulers, LTS<S, A> realEnvironment, Set<A> controllableActions, ActivityDefinitions<A> activityDefinitions) {
+//		SchedulerGenerator<S, A> schedulerGenerator = new SchedulerGenerator<S,A>(realEnvironment, controllableActions, activityDefinitions);
+//		System.out.println("Estimation: " + schedulerGenerator.getEstimation());
+//
+//		GenericChooser<S, A, Pair<S,S>> scheduler = schedulerGenerator.next();
+//		int i = 0;
+//		while(scheduler!=null && i< maxSchedulers){
+//			scheduler = schedulerGenerator.next();
+//			i++;
+//		}
+//		return schedulerGenerator.getGenerated();
+//	}
+
 	private void pruneRealEnvironment(LTS<Pair<S, S>, A> perfectComposition, LTS<S, A> realEnvironment) {
 		Map<S,Set<Pair<A,S>>> transitionsToRemove = new HashMap<S,Set<Pair<A,S>>>();
 		Set<S> finalStates = new HashSet<S>();
@@ -239,21 +173,9 @@ public class HeuristicControllerSynthesiser<S,A>{
 				}
 			}
 		}
-		realEnvironment.removeUnreachableStates();
-	}
+		realEnvironment.removeUnreachableStates();}
 
-	private Set<GenericChooser<S, A, Pair<S, S>>> generateSchedulers(Integer maxSchedulers, LTS<S, A> realEnvironment, Set<A> controllableActions, ActivityDefinitions<A> activityDefinitions) {
-		SchedulerGenerator<S, A> schedulerGenerator = new SchedulerGenerator<S,A>(realEnvironment, controllableActions, activityDefinitions);
-		System.out.println("Estimation: " + schedulerGenerator.getEstimation());
-		
-		GenericChooser<S, A, Pair<S,S>> scheduler = schedulerGenerator.next();
-		int i = 0;
-		while(scheduler!=null && i< maxSchedulers){
-			scheduler = schedulerGenerator.next();
-			i++;
-		}
-		return schedulerGenerator.getGenerated();
-	}
+
 
 
 	private LTS<Pair<S, S>, A> transformToReachability1(
