@@ -2,45 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0eed6a81-a9b9-42fe-b032-d18e13488839" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/0.1/ev3classes-0.1.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../locallib/ev3classes.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/AutoAdjustFilter.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/CaseStudy.fsp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/CaseStudy.queries" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/EV3Robot.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/EV3RobotDriver.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/LTSAJarExport.jardesc" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/ac/ic/doc/mtstools/MTSChecker.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/ac/ic/doc/mtstools/MTSChecker2.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/MTSCheckerJarExport.jardesc" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/Robot.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/RobotDriverComm.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/RobotDriverCommCommands.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/RobotLostException.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/TwoWheelsRobot.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/counterexamples.fsp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/counterexamples.queries" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/0.1/ev3classes-0.1.jar.md5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/0.1/ev3classes-0.1.jar.sha1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/0.1/ev3classes-0.1.pom.md5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/0.1/ev3classes-0.1.pom.sha1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/0.1/ev3classes-0.1.pom" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/example.fsp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/example.mts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/example.queries" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/experimentation.lts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/experimentation.mts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/exploration.fsp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/exploration.queries" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/maven-metadata-local.xml.md5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/maven-metadata-local.xml.sha1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/ev3classes/ev3classes/maven-metadata-local.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/testStress.fsp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/FSP2MTS/testStress.queries" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mtsa.iml" afterPath="$PROJECT_DIR$/mtsa.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mtsa.ipr" afterPath="$PROJECT_DIR$/mtsa.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mtsa.iws" afterPath="$PROJECT_DIR$/mtsa.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/MTSATests/parser/testParserLabelTest.java" afterPath="$PROJECT_DIR$/src/test/java/MTSATests/parser/testParserLabelTest.java" />
     </list>
     <ignored path="mtsa.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -63,11 +25,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-12.6182575">
-              <caret line="73" column="10" selection-start-line="73" selection-start-column="10" selection-end-line="73" selection-end-column="10" />
+            <state vertical-scroll-proportion="-9.642858">
+              <caret line="18" column="20" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -115,11 +77,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="testParserLabelTest.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="testParserLabelTest.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/MTSATests/parser/testParserLabelTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="39" column="13" selection-start-line="39" selection-start-column="13" selection-end-line="39" selection-end-column="13" />
+            <state vertical-scroll-proportion="0.2768595">
+              <caret line="25" column="32" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
               <folding />
             </state>
           </provider>
@@ -175,7 +137,6 @@
         <option value="$PROJECT_DIR$/src/main/java/ltsa/ltsa-context.xml" />
         <option value="$PROJECT_DIR$/src/main/resources/log4j.properties" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/enactment/SchedulerFactory.java" />
-        <option value="$PROJECT_DIR$/src/test/java/MTSATests/parser/testParserLabelTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/ltsa/ui/HPWindow.java" />
         <option value="$PROJECT_DIR$/src/main/resources/ltsa-context.xml" />
         <option value="$PROJECT_DIR$/src/main/java/FSP2MTS/ac/ic/doc/mtstools/MTSChecker2.java" />
@@ -189,6 +150,7 @@
         <option value="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/EV3RobotDriver.java" />
         <option value="$PROJECT_DIR$/src/main/java/EV3MTSARobotDriver/ar/uba/dc/lafhis/enactment/robot/ev3/driver/EV3Robot.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/test/java/MTSATests/parser/testParserLabelTest.java" />
       </list>
     </option>
   </component>
@@ -272,9 +234,10 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="117" />
-    <option name="width" value="1440" />
-    <option name="height" value="901" />
+    <option name="x" value="1440" />
+    <option name="y" value="26" />
+    <option name="width" value="1920" />
+    <option name="height" value="1054" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -548,7 +511,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Maven.mtsa [exec:java]">
+  <component name="RunManager" selected="JUnit.testParserLabelTest">
     <configuration default="false" name="HPWindow" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -598,6 +561,32 @@
       <method>
         <option name="Make" enabled="false" />
       </method>
+    </configuration>
+    <configuration default="false" name="testParserLabelTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="MTSATests.parser.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="mtsa" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="MTSATests.parser" />
+      <option name="MAIN_CLASS_NAME" value="MTSATests.parser.testParserLabelTest" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
     </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
@@ -825,16 +814,18 @@
       </MavenSettings>
       <method />
     </configuration>
-    <list size="4">
+    <list size="5">
       <item index="0" class="java.lang.String" itemvalue="JUnit.BasicTomAndJerryTest" />
       <item index="1" class="java.lang.String" itemvalue="Maven.mtsa [exec:java]" />
       <item index="2" class="java.lang.String" itemvalue="Application.HPWindow" />
       <item index="3" class="java.lang.String" itemvalue="JUnit.RefinementBetweenStatesTest" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.testParserLabelTest" />
     </list>
     <recent_temporary>
-      <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="Application.HPWindow" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.RefinementBetweenStatesTest" />
+      <list size="3">
+        <item index="0" class="java.lang.String" itemvalue="JUnit.testParserLabelTest" />
+        <item index="1" class="java.lang.String" itemvalue="Application.HPWindow" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.RefinementBetweenStatesTest" />
       </list>
     </recent_temporary>
   </component>
@@ -861,29 +852,29 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="117" width="1440" height="901" extended-state="6" />
-    <editor active="true" />
+    <frame x="1440" y="26" width="1920" height="1054" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.6110381" sideWeight="0.704578" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30306345" sideWeight="0.7055378" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26548672" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.6110381" sideWeight="0.29542202" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4310722" sideWeight="0.686901" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.44091904" sideWeight="0.34717786" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39606127" sideWeight="0.64962727" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29256082" sideWeight="0.5103093" order="4" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1171459" sideWeight="0.5103093" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23032904" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.44091904" sideWeight="0.5202343" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.171459" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.44091904" sideWeight="0.65282214" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.37631184" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32037815" sideWeight="0.49583334" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.48969072" order="2" side_tool="false" content_ui="combo" />
@@ -933,8 +924,14 @@
           <properties />
           <option name="timeStamp" value="30" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/MTSATests/parser/testParserLabelTest.java</url>
+          <line>27</line>
+          <properties />
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="33" />
+      <option name="time" value="36" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="JUnit">
@@ -1290,14 +1287,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/MTSATests/parser/testParserLabelTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="39" column="13" selection-start-line="39" selection-start-column="13" selection-end-line="39" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ltsa/ui/HPWindow.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1316,8 +1305,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-12.6182575">
-          <caret line="73" column="10" selection-start-line="73" selection-start-column="10" selection-end-line="73" selection-end-column="10" />
+        <state vertical-scroll-proportion="-9.642858">
+          <caret line="18" column="20" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/MTSATests/parser/testParserLabelTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2768595">
+          <caret line="25" column="32" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
           <folding />
         </state>
       </provider>
