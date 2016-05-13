@@ -34,5 +34,23 @@ public class ControllerChoicesBuilder<S,A> extends ChoicesBuilder<S,A> {
         return choices;
     }
 
+    //@ezecastellano: We are generating controllers with one or zero controllable actions enabled in each state.
+    protected List<Choice<A>> getChoices(Set<A> controllableActions, Set<A> uncontrollableActions){
+        List<Choice<A>> choices = new ArrayList<Choice<A>>();
+
+        for (A c : controllableActions) {
+            Set<A> choice  = new HashSet<A>();
+            choice.add(c);
+            choice.addAll(uncontrollableActions);
+            choices.add(new Choice<A>(choice));
+        }
+
+        if(!uncontrollableActions.isEmpty()){
+            choices.add(new Choice<A>(uncontrollableActions));
+        }
+
+        return choices;
+    }
+
 
 }

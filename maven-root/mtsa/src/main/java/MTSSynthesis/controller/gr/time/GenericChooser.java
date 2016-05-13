@@ -1,13 +1,13 @@
 package MTSSynthesis.controller.gr.time;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import MTSSynthesis.controller.gr.time.model.Choice;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSImpl;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class GenericChooser<S,A,D> {
 	
@@ -29,8 +29,6 @@ public abstract class GenericChooser<S,A,D> {
 		this.choices.put(s, c);
 	}
 
-	protected abstract Set<A> getUncontrollableActions();
-	
 	protected abstract Set<A> getControllableActions();
 	
 	public Choice<A> getChoice(S s){

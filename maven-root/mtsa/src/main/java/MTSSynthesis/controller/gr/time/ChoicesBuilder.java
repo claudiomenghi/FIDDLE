@@ -50,23 +50,6 @@ public abstract class ChoicesBuilder<S, A> {
 
     public abstract List<Choice<A>> generateChoices(S state);
 
-    //@ezecastellano: We are generating controllers with one or zero controllable actions enabled in each state.
-    protected List<Choice<A>> getChoices(Set<A> controllableActions, Set<A> uncontrollableActions){
-        List<Choice<A>> choices = new ArrayList<Choice<A>>();
-
-        for (A c : controllableActions) {
-            Set<A> choice  = new HashSet<A>();
-            choice.add(c);
-            choice.addAll(uncontrollableActions);
-            choices.add(new Choice<A>(choice));
-        }
-
-        if(!uncontrollableActions.isEmpty()){
-            choices.add(new Choice<A>(uncontrollableActions));
-        }
-
-        return choices;
-    }
 
     public Map<S , List<Choice<A>>> getAllChoices(){
         Map<S , List<Choice<A>>>  result = new HashMap<S , List<Choice<A>>>();

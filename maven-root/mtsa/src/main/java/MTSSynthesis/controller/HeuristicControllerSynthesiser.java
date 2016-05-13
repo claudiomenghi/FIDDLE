@@ -10,8 +10,7 @@ import MTSSynthesis.controller.game.model.Strategy;
 import MTSSynthesis.controller.game.util.GRGameBuilder;
 import MTSSynthesis.controller.game.util.GameStrategyToMTSBuilder;
 import MTSSynthesis.controller.gr.time.*;
-import MTSSynthesis.controller.gr.time.model.Activity;
-import MTSSynthesis.controller.gr.time.model.ActivityDefinitions;
+import MTSSynthesis.controller.gr.time.model.*;
 import MTSSynthesis.controller.model.GRGameControlProblem;
 import MTSSynthesis.controller.model.gr.ConcurrencyControlProblem;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
@@ -26,10 +25,7 @@ import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSAdapter;
 import MTSTools.ac.ic.doc.mtstools.model.operations.ParallelComposer;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class HeuristicControllerSynthesiser<S,A>{
 
@@ -37,15 +33,17 @@ public class HeuristicControllerSynthesiser<S,A>{
 		LTS<S,A> realEnvironment = new LTSAdapter<S,A>(env,TransitionType.REQUIRED);
 		LTS<S,A> perfectSolution =  new LTSAdapter<S,A>(controller, TransitionType.REQUIRED);
 		LTS<S,A> heuristicSolution = null;
-		GRGameControlProblem<S,A,Integer> cp ;
+		GRGameControlProblem<S,A,Integer> cp = null;
 		
 		if(goal.isNonTransient()){
 			cp = new TransientControlProblem<S, A, Integer>(perfectSolution, goal);
-		}else{
+			heuristicSolution =  cp.solve();
+		}else if (goal.getConcurrencyFluents() != null && !goal.getConcurrencyFluents().isEmpty()){
 			cp = new ConcurrencyControlProblem<S, A, Integer>(perfectSolution, goal);
+			heuristicSolution =  cp.solve();
+		}else {
+			heuristicSolution = generateBestController(perfectSolution,realEnvironment,getActivityDefinition(goal.getActivityFluents()), getFinalStates(goal,perfectSolution), goal.getControllableActions());
 		}
-		
-		heuristicSolution =  cp.solve();
 		
 		if(goal.isTestLatency()){
 			compareControllers(goal, realEnvironment, heuristicSolution, perfectSolution);
@@ -57,22 +55,19 @@ public class HeuristicControllerSynthesiser<S,A>{
 		return new MTSAdapter<S,A>(heuristicSolution);
 	}
 	
-	public MTS<S, A> applyReachabilityPrunning(MTS<S, A> controller, GRControllerGoal<A> goal) {
+	public MTS<S, A> applyReachabilityPruning(MTS<S, A> controller, GRControllerGoal<A> goal) {
 		GRCGame<S> cgame = new GRGameBuilder<S, A>().buildGRCGameFrom(controller, goal);
 		GR1toReachability.transform(new LTSAdapter<S,A>(controller, TransitionType.REQUIRED), cgame.getGoal().getGuarantee(1).getStateSet());
 		return controller;
 	}
 
-	
-	
 	private void compareControllers(GRControllerGoal<A> goal,
 			LTS<S, A> realEnvironment, LTS<S, A> heuristicSolution,
 			LTS<S, A> perfectSolution){
 		Set<S> perfectFinalStates = getFinalStates(goal, perfectSolution);
 		Set<S> heuristicFinalStates = getFinalStates(goal, heuristicSolution);
-		compareControllers(goal, realEnvironment, heuristicSolution, perfectSolution, heuristicFinalStates, perfectFinalStates);
+		compareControllers(goal, realEnvironment, heuristicSolution, perfectSolution, heuristicFinalStates, perfectFinalStates, false);
 	}
-
 
 	private Set<S> getFinalStates(GRControllerGoal<A> goal, LTS<S, A> heuristicSolution) {
 		GRGame<S> heuristicGRGame = new GRGameBuilder<S,A>().buildGRGameFrom(new MTSAdapter<S,A>(heuristicSolution), goal);
@@ -83,7 +78,7 @@ public class HeuristicControllerSynthesiser<S,A>{
 	private void compareControllers(GRControllerGoal<A> goal,
 			LTS<S, A> realEnvironment, LTS<S, A> heuristicSolution,
 			LTS<S, A> perfectSolution, Set<S> heuristicFinalStates,
-			Set<S> perfectFinalStates) {
+			Set<S> perfectFinalStates, boolean sameControllers) {
 		
 		LTS<Pair<S, S>, A> heuristicComposition = transformToReachability1(realEnvironment, heuristicSolution, heuristicFinalStates);
 		LTS<Pair<S, S>, A> perfectComposition = transformToReachability1(realEnvironment, perfectSolution, perfectFinalStates);
@@ -100,37 +95,52 @@ public class HeuristicControllerSynthesiser<S,A>{
 		
 		pruneRealEnvironment(perfectComposition,realEnvironment);
 
-		//@ezecastellano: Uncomment this if you want to use the same set of schedulers from every pair of controllers.
-		//Set<GenericChooser<S, A, Pair<S, S>>> schedulers = generateSchedulers(goal.getMaxSchedulers()-1,realEnvironment,controllableActions,activityDefinitions);
-		//LatencyPresetEvaluator<Pair<S,S>,A,S> evaluator = new LatencyPresetEvaluator<Pair<S,S>,A,S>(
-		//new MTSAdapter<Pair<S,S>,A>(heuristicComposition),
-		//new MTSAdapter<Pair<S,S>,A>(perfectComposition),
-		//heuristicComposedFinalStates, perfectComposedFinalStates,
-		//activityDefinitions, translator,
-		//goal.getControllableActions(),
-		//schedulers, goal.getMaxSchedulers()-1);
+		if(sameControllers)
+			compareWithTheSameSchedulers(goal, realEnvironment, heuristicComposition, perfectComposition, controllableActions, activityDefinitions, translator, heuristicComposedFinalStates, perfectComposedFinalStates);
+		else
+			compareWithParticularSchedulers(goal, realEnvironment, heuristicComposition, perfectComposition, controllableActions, activityDefinitions, translator, heuristicComposedFinalStates, perfectComposedFinalStates);
+	}
+
+
+	/*@ezecastellano: This method allows to use the same set of schedulers from every pair of controllers.
+    It might be useful when you cannot explore all the schedulers.*/
+	private void compareWithTheSameSchedulers(GRControllerGoal<A> goal, LTS<S, A> realEnvironment, LTS<Pair<S, S>, A> heuristicComposition, LTS<Pair<S, S>, A> perfectComposition, Set<A> controllableActions, ActivityDefinitions<A> activityDefinitions, Translator<S, Pair<S, S>> translator, Set<Pair<S, S>> heuristicComposedFinalStates, Set<Pair<S, S>> perfectComposedFinalStates) {
+		Set<GenericChooser<S, A, Pair<S, S>>> schedulers = generateSchedulers(goal.getMaxSchedulers()-1,realEnvironment,controllableActions,activityDefinitions);
+		LatencyPresetEvaluator<Pair<S,S>,A,S> evaluator = new LatencyPresetEvaluator<Pair<S,S>,A,S>(
+		new MTSAdapter<Pair<S,S>,A>(heuristicComposition),
+		new MTSAdapter<Pair<S,S>,A>(perfectComposition),
+		heuristicComposedFinalStates, perfectComposedFinalStates,
+		activityDefinitions, translator,
+		goal.getControllableActions(),
+		schedulers, realEnvironment, goal.getMaxSchedulers()-1);
+	}
+
+	/*@ezecastellano: This method generates a subset of schedulers for each particular pair of controllers, generating
+	schedulers for the subset of reachable states.*/
+	private void compareWithParticularSchedulers(GRControllerGoal<A> goal, LTS<S, A> realEnvironment, LTS<Pair<S, S>, A> heuristicComposition, LTS<Pair<S, S>, A> perfectComposition, Set<A> controllableActions, ActivityDefinitions<A> activityDefinitions, Translator<S, Pair<S, S>> translator, Set<Pair<S, S>> heuristicComposedFinalStates, Set<Pair<S, S>> perfectComposedFinalStates) {
 		LatencyNotPresetEvaluator<S,A> evaluator = new LatencyNotPresetEvaluator<S,A>(
 				new MTSAdapter<Pair<S,S>,A>(heuristicComposition),
 				new MTSAdapter<Pair<S,S>,A>(perfectComposition),
 				heuristicComposedFinalStates, perfectComposedFinalStates,
 				activityDefinitions, translator,
-		        controllableActions, 
+		        controllableActions,
 		        realEnvironment,goal.getMaxSchedulers()-1);
 		evaluator.evaluateLatency(goal.getMaxControllers()-1);
 	}
 
-//	private Set<GenericChooser<S, A, Pair<S, S>>> generateSchedulers(Integer maxSchedulers, LTS<S, A> realEnvironment, Set<A> controllableActions, ActivityDefinitions<A> activityDefinitions) {
-//		SchedulerGenerator<S, A> schedulerGenerator = new SchedulerGenerator<S,A>(realEnvironment, controllableActions, activityDefinitions);
-//		System.out.println("Estimation: " + schedulerGenerator.getEstimation());
-//
-//		GenericChooser<S, A, Pair<S,S>> scheduler = schedulerGenerator.next();
-//		int i = 0;
-//		while(scheduler!=null && i< maxSchedulers){
-//			scheduler = schedulerGenerator.next();
-//			i++;
-//		}
-//		return schedulerGenerator.getGenerated();
-//	}
+	private Set<GenericChooser<S, A, Pair<S, S>>> generateSchedulers(Integer maxSchedulers, LTS<S, A> realEnvironment, Set<A> controllableActions, ActivityDefinitions<A> activityDefinitions) {
+		SchedulerGenerator<S, A> schedulerGenerator = new SchedulerGenerator<S, A>(realEnvironment, controllableActions, activityDefinitions);
+		System.out.println("Estimation: " + schedulerGenerator.getEstimation());
+
+		GenericChooser<S, A, Pair<S, S>> scheduler = schedulerGenerator.next();
+		int i = 0;
+		while (scheduler != null && i < maxSchedulers) {
+			scheduler = schedulerGenerator.next();
+			i++;
+		}
+		return schedulerGenerator.getGenerated();
+	}
+
 
 	private void pruneRealEnvironment(LTS<Pair<S, S>, A> perfectComposition, LTS<S, A> realEnvironment) {
 		Map<S,Set<Pair<A,S>>> transitionsToRemove = new HashMap<S,Set<Pair<A,S>>>();
@@ -234,6 +244,135 @@ public class HeuristicControllerSynthesiser<S,A>{
 			activities.add(new Activity<A>(fluent.getName(),initiatingActions,terminatingActions)); 
 		}
 		return new ActivityDefinitions<A>(activities);
+	}
+
+
+
+	private LTS<S,A> generateBestController(LTS<S,A> controller, LTS<S,A> environment, ActivityDefinitions<A> activityDefinitions, Set<S> finalStates, Set<A> controllableActions){
+		DoubleLinkedLTS<S,A> bestController = new DoubleLinkedLTS<S, A>(controller);
+		//TODO: Think about changing the implementation to use Pair<S,S> as state, so we can use the comparison framework straight.
+		LTS<Pair<S,S>, A> composed = transformToReachability1(environment,controller,finalStates);
+		Set<S> visited = new HashSet<S>();
+		Queue<S> pruningCandidates = new LinkedList<S>();
+		pruningCandidates.addAll(finalStates);
+		ControllerChoicesBuilder<S,A> builder = new ControllerChoicesBuilder<S,A>(bestController,controllableActions, finalStates);
+		Map<S,List<Choice<A>>> choices=  builder.getAllChoices();
+		while(!pruningCandidates.isEmpty()){
+			S state = pruningCandidates.poll();
+			if( !visited.contains(state)
+				&& isReachable(bestController, bestController.getInitialState(), state) &&
+				isReachable(bestController, state, finalStates) && hasChoices(state,choices)){
+				Choice<A> choice = getAChoice(bestController, environment, choices, state);
+				removeOtherTransitions(state,bestController,choice);
+			}
+			addNonVisitedStates(state, bestController, pruningCandidates,visited);
+		}
+		bestController.removeUnreachableStates();
+		return bestController;
+	}
+
+	private void addNonVisitedStates(S state, DoubleLinkedLTS<S,A> controller, Queue<S> pruningCandidates, Set<S> visited){
+		for(S predecessor: controller.getPredecessors(state)){
+			if(!visited.contains(predecessor)){
+				pruningCandidates.add(predecessor);
+			}
+		}
+
+	}
+
+	private Choice<A> getAChoice(LTS<S, A> controller, LTS<S, A> environment, Map<S, List<Choice<A>>> choices, S state) {
+		List<Choice<A>> alternatives = choices.get(state);
+		Ranking ranking = new Ranking(alternatives);
+		for(int i=0; i < alternatives.size(); i++){
+            Choice<A> aChoice  = alternatives.get(i);
+            for(int j = i+1; j < alternatives.size(); j++) {
+                Choice<A> otherChoice = alternatives.get(j);
+                Result result = partialComparison(state, aChoice, otherChoice, controller, environment);
+                //@ezecastellano: We are considering a tie as zero points.
+				//Should we consider it as something positive?
+                if (result.equals(Result.BETTER)) {
+                    ranking.increase(aChoice);
+                }else if (result.equals(Result.WORSE)){
+                    ranking.increase(otherChoice);
+                }
+            }
+        }
+		Set<Choice<A>> bestChoices = ranking.best();
+		return choose(bestChoices);
+	}
+
+	private void removeOtherTransitions(S state, DoubleLinkedLTS<S,A> controller, Choice<A> choice){
+		for(Pair<A,S> transition : controller.getTransitions(state)){
+			if(choice.getAvailableLabels().contains(transition.getFirst())){
+				controller.removeTransition(state,transition.getFirst(),transition.getSecond());
+			}
+		}
+	}
+
+
+	private Choice<A> choose(Set<Choice<A>> choices){
+		//@ezecastellano: I choose one of them randomly.
+		//Should I consider all of them while analysing the ancestors?
+		for(Choice<A> choice: choices) {
+			return choice;
+		}
+		return null;
+	}
+
+	private Result partialComparison(S state, Choice<A> aChoice, Choice<A> otherChoice, LTS<S,A> controller, LTS<S,A> environment){
+		//TODO: Implement this method.
+		return null;
+	}
+
+	private boolean isReachable(DoubleLinkedLTS<S,A> lts, S source, S sink){
+		return lts.getReachableStatesBy(source).contains(sink);
+	}
+
+	private boolean hasChoices(S state, Map<S,List<Choice<A>>> choices){
+		return choices.get(state).size()>1;
+	}
+
+	private boolean isReachable(DoubleLinkedLTS<S,A> lts, S source, Set<S> sinks){
+		for (S sink: sinks) {
+			if(isReachable(lts, source, sink)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private class Ranking {
+		Map<Choice<A>, Integer> ranking = new HashMap<Choice<A>,Integer>();
+		private Ranking(List<Choice<A>> choices){
+			for(Choice<A> choice: choices){
+				ranking.put(choice,0);
+			}
+		}
+
+		private void increase(Choice<A> choice){
+			ranking.put(choice, (ranking.get(choice)+1));
+		}
+
+		private Set<Choice<A>> best(){
+			Integer maxRank = getMaxRank();
+			Set<Choice<A>> bestChoices = new HashSet<Choice<A>>();
+			for (Choice<A> choice: ranking.keySet()) {
+				if(ranking.get(choice).equals(maxRank)){
+					bestChoices.add(choice);
+				}
+			}
+			return  bestChoices;
+		}
+
+		private Integer getMaxRank(){
+			Integer maxRank = 0;
+			for(Integer rank : ranking.values()){
+				if(maxRank < rank)
+					maxRank = rank;
+			}
+			return maxRank;
+		}
+
 	}
 	
 }

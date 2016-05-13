@@ -1,23 +1,19 @@
 package MTSSynthesis.controller.gr.time;
 
-import java.util.HashMap;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import MTSTools.ac.ic.doc.mtstools.model.LTS;
-import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
-import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
-
-import com.microsoft.z3.BoolExpr;
-import com.microsoft.z3.Z3Exception;
-
 import MTSSynthesis.controller.gr.time.comparator.ControllerComparator;
 import MTSSynthesis.controller.gr.time.model.ActivityDefinitions;
 import MTSSynthesis.controller.gr.time.model.Chooser;
 import MTSSynthesis.controller.gr.time.model.ComparatorPool;
 import MTSSynthesis.controller.gr.time.model.Result;
+import MTSTools.ac.ic.doc.mtstools.model.LTS;
+import MTSTools.ac.ic.doc.mtstools.model.MTS;
+import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
+import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
+import com.microsoft.z3.BoolExpr;
+import com.microsoft.z3.Z3Exception;
+
+import java.util.HashMap;
+import java.util.Set;
 
 public abstract class LatencyEvaluator<P,A,S>{
 
@@ -82,7 +78,7 @@ public abstract class LatencyEvaluator<P,A,S>{
 		        System.out.println("Finished all threads");
 				System.out.println(stats.toString());
 				System.out.println("Warnings: Eq " + warningEq + " - Better" + warningBetter + " - Worse "+ warningWorse);
-				System.out.println("#Controllers: " + controllerGenerator.generated.size());
+				System.out.println("#Controllers: " + controllerGenerator.getGenerated().size());
 				System.gc();
 				doo = false;
 			}catch(Exception e){

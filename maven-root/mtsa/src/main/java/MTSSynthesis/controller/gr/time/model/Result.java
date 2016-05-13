@@ -5,11 +5,11 @@ public enum Result {
 	
 	private boolean warning;
 	
-	private Result() {
+	Result() {
 		this.warning = false;
 	}
 	
-	private Result(boolean warning) {
+	Result(boolean warning) {
 		this.warning = warning;
 	}
 	
