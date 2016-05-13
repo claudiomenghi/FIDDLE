@@ -1,16 +1,15 @@
 package MTSATests.parser;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
+import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.junit.Test;
-
-import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * This class tests for every file in ltsa/dist/examples/ParserTest compile the
@@ -24,9 +23,7 @@ public class testParserLabelTest {
 	public void testPropertyInComposite() throws Exception {
 		int errors = 0;
 		File file;
-		String path = new File("../.." + File.separator + "ltsa" + File.separator
-				+ "dist" + File.separator + "examples" + File.separator
-				+ "ParserTests").getCanonicalPath();
+		String path = new File("src/test/java/ltsa/dist/examples/ParserTests").getCanonicalPath();
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
 		for (int i = 0; i < listOfFiles.length; i++) {
