@@ -379,8 +379,14 @@ public class UpdatingEnvironmentGenerator {
 
 	public List<Fluent> getPropositions() {
 		
-		List<Fluent> result = oldPropositions;
-		result.addAll(newPropositions);
+		List<Fluent> result = new ArrayList<Fluent>();
+		result.addAll(oldPropositions);
+		for (Fluent fluent : newPropositions) {
+			if (!result.contains(fluent)) {
+				result.add(fluent);
+			}
+		} 
+		
 		return result;
 	}
 	

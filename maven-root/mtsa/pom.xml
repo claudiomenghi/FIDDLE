@@ -12,8 +12,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -21,6 +21,8 @@
                 <artifactId>maven-surefire-report-plugin</artifactId>
                 <version>2.19.1</version>
                 <configuration>
+                    <argLine>-Xmx10G</argLine>
+                    <argLine>-Xms2G</argLine>
                     <outputDirectory>${basedir}/target/newsite</outputDirectory>
                 </configuration>
             </plugin>
