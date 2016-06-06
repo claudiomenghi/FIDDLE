@@ -102,8 +102,8 @@ controllerSpec OldSpec = {
 
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
-assert NEW_TOR_POLICY = (ValidateGF1_a -> TORDone)
-assert NEW_QA_POLICY = ((ValidateDSD1_a || ValidateGF1_a) -> QADone)
+assert NEW_TOR_POLICY = ((ValidateTOR_a || ) -> TORDone)
+assert NEW_QA_POLICY = (ValidateTOR_a -> QADone)
 
 ltl_property P_NEW_TOR_POLICY = []NEW_TOR_POLICY
 ltl_property P_NEW_QA_POLICY = []NEW_QA_POLICY
