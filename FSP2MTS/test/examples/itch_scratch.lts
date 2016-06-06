@@ -1,9 +1,0 @@
-/** Concurrency: State Models and Java Programs
- *             Jeff Magee and Jeff Kramer
- *  
- */
-
-ITCH  = (scratch->STOP).
-CONVERSE = (think->talk->STOP).
-
-||CONVERSE_ITCH = (ITCH || CONVERSE).

@@ -1,4 +1,0 @@
-{methLeaves|switchDLOn|highWater,methLeaves|highWater|switchDLOn,highWater|methLeaves|switchDLOn,highWater|switchDLOn|methLeaves,switchDLOn|highWater|methLeaves,switchDLOn|methLeaves|highWater,methLeaves|switchDLOn|medWater,methLeaves|medWater|switchDLOn,medWater|methLeaves|switchDLOn,medWater|switchDLOn|methLeaves,switchDLOn|medWater|methLeaves,switchDLOn|methLeaves|medWater}
-{switchDLOff|methAppears|switchDLOn}
-{methAppears,methLeaves,lowWater,highWater,medWater,switchDLOn,switchDLOff}
-

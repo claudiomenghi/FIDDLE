@@ -1,19 +1,17 @@
 package MTSSynthesis.controller.gr.time.model;
 
-import java.util.Set;
-
 import MTSSynthesis.controller.gr.time.GenericChooser;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
+
+import java.util.Set;
 
 public class EnvScheduler<S,A> extends GenericChooser<S,A,Pair<S,S>> {
 
 	Set<A> controllableActions; 
-	Set<A> uncontrollableActions;
-	
-	public EnvScheduler(Set<A> controllableActions, Set<A> uncontrollableActions) {
+
+	public EnvScheduler(Set<A> controllableActions) {
 		super();
 		this.controllableActions = controllableActions;
-		this.uncontrollableActions = uncontrollableActions;
 	}
 	
 	
@@ -26,18 +24,11 @@ public class EnvScheduler<S,A> extends GenericChooser<S,A,Pair<S,S>> {
 	public boolean equals(Object obj) {
 		if(obj instanceof EnvScheduler<?, ?>){
 			EnvScheduler<?, ?> gc = (EnvScheduler<?, ?>) obj;
-			return this.controllableActions.equals(gc.controllableActions) 
-					&& this.uncontrollableActions.equals(gc.uncontrollableActions)
+			return this.controllableActions.equals(gc.controllableActions)
 					&& super.equals(gc);
 		}
 		else
 			return false;	
-	}
-	
-
-	@Override
-	protected Set<A> getUncontrollableActions() {
-		return uncontrollableActions;
 	}
 
 	@Override

@@ -1627,7 +1627,7 @@ public class TransitionSystemDispatcher {
 				plainController = synthesiser.applyHeuristics(temp, env, goal);
 			}else {
 				System.out.println("Applying Reachability Prunning!");
-				plainController = synthesiser.applyReachabilityPrunning(temp, goal);
+				plainController = synthesiser.applyReachabilityPruning(temp, goal);
 			}
 			synthesiseController = MTSToAutomataConverter.getInstance().convert(plainController, compositeState.getName());
 		}

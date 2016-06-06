@@ -1,40 +1,23 @@
 package MTSSynthesis.controller.gr.time;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-
+import MTSSynthesis.controller.gr.time.model.Choice;
+import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import org.apache.commons.lang.math.RandomUtils;
 
-import MTSTools.ac.ic.doc.mtstools.model.LTS;
-import MTSSynthesis.controller.gr.time.model.Choice;
+import java.util.*;
 
-public class ControllerGenerator<S,A> {
-	LTS<S,A> controller;
-	Set<GenericChooser<S, A, S>> generated;
-	Set<A> controllableActions;
-	Set<A> uncontrollableActions;
-	Set<A> endActions;
-	Map<S , List<Choice<A>>> choices;
-	int limit;
-	ControllerChooser<S, A> result;
-	Set<ControllerChooser<S,A>> lasts;
+public class ControllerGenerator<S,A> extends Generator<S,A>{
+	private Set<GenericChooser<S, A, S>> generated;
+	private ControllerChooser<S, A> result;
+	private Set<ControllerChooser<S,A>> lasts;
 	
 	public ControllerGenerator(LTS<S,A> controller, Set<A> controllableActions, Set<S> finalStates) {
-		this.controller = controller;
+		super(controller,controllableActions);
 		this.generated = new HashSet<GenericChooser<S, A, S>>();
-		this.controllableActions = controllableActions;
-		ControllerChoicesGenerator<S,A> choiceGenerator = new ControllerChoicesGenerator<S,A>(controller, controllableActions, finalStates);
-		this.uncontrollableActions = choiceGenerator.getUncontrollableActions();
-		this.endActions = choiceGenerator.getEndActions();
-		this.choices = choiceGenerator.getChoices();
-		this.limit = 2048;
+		ChoicesBuilder<S,A> choicesBuilder = new ControllerChoicesBuilder<S,A>(controller,controllableActions,finalStates);
+		this.choices = choicesBuilder.getAllChoices();
 	}
 
-	
 	public Set<ControllerChooser<S,A>> getLasts(){
 		return this.lasts;
 	}
@@ -57,8 +40,8 @@ public class ControllerGenerator<S,A> {
 		int i = 0;
 		result = null; 
 		while(i < limit){
-			result = new ControllerChooser<S,A>(controllableActions,uncontrollableActions);
-			chooseActions(result,controller.getInitialState(), new HashSet<S>());
+			result = new ControllerChooser<S,A>(actions.getControllableActions());
+			chooseActions(result,lts.getInitialState(), new HashSet<S>());
 			if(generated.contains(result)){
 				i++;
 				result = null;
@@ -89,23 +72,11 @@ public class ControllerGenerator<S,A> {
 			if(!choices.isEmpty()){
 				Choice<A> choice = choices.get(RandomUtils.nextInt(choices.size()));
 				scheduler.setChoice(state, choice);
-				addSuccesors(state, added, pending, choice);
+				this.addSuccessors(state, added, pending, choice);
 			}
 		}
 	}
 
-	private void addSuccesors(S state, Set<S> added, Queue<S> pending,
-			Choice<A> choice) {
-		for (A label : choice.getAvailableLabels()) {
-			for(S succ : controller.getTransitions(state).getImage(label)){
-				if(!added.contains(succ)){
-					pending.add(succ);
-					added.add(succ);
-				}
-			}
-		}
-	}
-	
 	private List<Choice<A>> getChoices(S state) {
 		return choices.get(state);
 	}

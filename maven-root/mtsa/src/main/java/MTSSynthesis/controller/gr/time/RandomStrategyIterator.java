@@ -1,16 +1,10 @@
 package MTSSynthesis.controller.gr.time;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
 import MTSSynthesis.controller.gr.time.model.Choice;
 import MTSSynthesis.controller.gr.time.model.Scheduler;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
+
+import java.util.*;
 
 
 public abstract class RandomStrategyIterator<S, A> extends StrategyIterator<S, A> {
@@ -19,9 +13,10 @@ public abstract class RandomStrategyIterator<S, A> extends StrategyIterator<S, A
 	static private int SEED_UID = 34496723;
 	MTS<S, A> mts;
 	Set<Map<S,Integer>> choosed;
-	Map<S,Integer> actualChoice;
+	Map<S,Integer> currentChoice;
 	protected RandomStrategyIterator(){}
 	public RandomStrategyIterator(MTS<S, A> mts, Set<A> controllableActions, Set<S> finalState, ArrayList<Set<A>> relatedActions) {
+		//TODO: Check why we are not using related actions.
 		this.depth = new HashMap<S, Integer>();
 		init(mts, controllableActions, finalState);
 	}
@@ -35,7 +30,7 @@ public abstract class RandomStrategyIterator<S, A> extends StrategyIterator<S, A
 	
 	@Override
 	protected List<Scheduler<S,A>> generate(MTS<S, A> mts){
-		this.actualChoice = new HashMap<S, Integer>();
+		this.currentChoice = new HashMap<S, Integer>();
 		return generate(mts,mts.getInitialState());
 	}
 	
@@ -60,12 +55,12 @@ public abstract class RandomStrategyIterator<S, A> extends StrategyIterator<S, A
 	public void generateNext(){
 		int tries = 2000;
 		//this is the previous choice
-		choosed.add(actualChoice);
+		choosed.add(currentChoice);
 		List<Scheduler<S,A>> schedulers = null;
 		do{
 			schedulers = generate(this.mts);
 			tries--;
-		}while(choosed.contains(actualChoice) && tries > 0);
+		}while(choosed.contains(currentChoice) && tries > 0);
 		
 		if(tries > 0){
 			this.schedulers = schedulers;
@@ -87,15 +82,15 @@ public abstract class RandomStrategyIterator<S, A> extends StrategyIterator<S, A
 	@Override
 	protected List<Choice<A>> getChoices(S st) {
 		int choice;
-		if (actualChoice.containsKey(st)){
-			choice = actualChoice.get(st);
+		if (currentChoice.containsKey(st)){
+			choice = currentChoice.get(st);
 		}else{
 			if(this.choices.get(st).size()>1){
 				choice = random.nextInt(this.choices.get(st).size());
 			}else{
 				choice = 0;
 			}
-			actualChoice.put(st, choice);
+			currentChoice.put(st, choice);
 		}
 		return super.getChoices(st).subList(choice, choice+1);
 	}

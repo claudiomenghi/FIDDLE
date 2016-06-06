@@ -1,28 +1,21 @@
 package MTSSynthesis.controller.gr.time;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import MTSSynthesis.controller.gr.time.model.Choice;
-import MTSSynthesis.controller.gr.time.model.ChoiceType;
 import MTSSynthesis.controller.gr.time.model.Scheduler;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
-import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
+import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
+
+import java.util.*;
 
 public abstract class StrategyIterator<S,A>{
-	Map<S, Set<A>> controllable;
-	Map<S, Set<A>> uncontrollable;
-	Map<S, Set<A>> ends;
-	List<Scheduler<S,A>> schedulers;
-	private Set<A> controllableActions;
-	private Set<A> uncontrollableActions;
-	Map<S , List<Choice<A>>>  choices;
+	protected List<Scheduler<S,A>> schedulers;
+	protected Set<S> finalStates;
+	protected Set<A> controllableActions;
+	protected Set<A> uncontrollableActions;
+	protected Map<S , List<Choice<A>>>  choices;
+	protected ChoicesBuilder<S,A> choicesBuilder;
 	int iter;
 	
 	public int getIter() {
@@ -31,48 +24,24 @@ public abstract class StrategyIterator<S,A>{
 	
 	protected StrategyIterator() {}
 	
-	public StrategyIterator(MTS<S, A> mts, Set<A> controllableActions2, Set<S> finalStates) {
-		init(mts, controllableActions2, finalStates);
+	public StrategyIterator(MTS<S, A> mts, Set<A> controllableActions, Set<S> finalStates) {
+		init(mts, controllableActions, finalStates);
 	}
 
-	protected void init(MTS<S, A> mts,
-			Set<A> controllableActions2, Set<S> finalStates) {
-		this.controllable = new HashMap<S, Set<A>>();
-		this.uncontrollable = new HashMap<S, Set<A>>();
-		this.ends = new HashMap<S, Set<A>>();
-		this.setUncontrollableActions(new HashSet<A>());
+	protected void init(MTS<S, A> mts,Set<A> controllableActions, Set<S> finalStates) {
 		iter = 0;
-		this.setControllableActions(controllableActions2);
-		for(S state : mts.getStates()){
-			identifyTransitionType(mts.getTransitions(state, TransitionType.REQUIRED), controllableActions2, state);
+		this.controllableActions = controllableActions;
+		this.choicesBuilder = new ControllerChoicesBuilder<S,A>(new LTSAdapter(mts, MTS.TransitionType.REQUIRED), controllableActions, finalStates);
+		this.choices = choicesBuilder.getAllChoices();
+		this.uncontrollableActions = new HashSet<A>();
+		this.finalStates = finalStates;
+		for(A action : mts.getActions()){
+			if(!this.controllableActions.contains(action))
+				this.uncontrollableActions.add(action);
 		}
-		this.choices = this.getChoices(finalStates);
 		this.schedulers = this.generate(mts);
 	}
 
-	private void identifyTransitionType(BinaryRelation<A, S> stateTransitions, Set<A> cActions, S state) {
-		Set<A> controllable = new HashSet<A>();
-		Set<A> uncontrollable = new HashSet<A>();
-		Set<A> ends = new HashSet<A>();
-		for(Pair<A, S> transition : stateTransitions){
-			A label = transition.getFirst();
-			SchedulerUtils<A> su = new SchedulerUtils<A>();
-			ChoiceType type = su.getChoiceType(label, cActions);
-			if(type.equals(ChoiceType.CONTROLLABLE))
-				controllable.add(label);
-			else if(type.equals(ChoiceType.UNCONTROLLABLE)){
-				uncontrollable.add(label);
-				getUncontrollableActions().add(label);
-			}else if(type.equals(ChoiceType.ENDS))
-				ends.add(label);
-			else 
-				throw new RuntimeException();
-		}
-		this.controllable.put(state,controllable);
-		this.uncontrollable.put(state,uncontrollable);
-		this.ends.put(state,ends);
-	}
-	
 	protected  List<Scheduler<S,A>> generate(MTS<S, A> mts){
 		return this.generate(mts, mts.getInitialState());
 	}
@@ -104,9 +73,9 @@ public abstract class StrategyIterator<S,A>{
 					}
 				}
 				List<Scheduler<S,A>> cs = cartesiano(Ss,new HashSet<A>(Ss.keySet()));
-				for (Scheduler<S, A> scheduller : cs) {
-					scheduller.setChoice(st, c);
-					res.add(scheduller);
+				for (Scheduler<S, A> scheduler : cs) {
+					scheduler.setChoice(st, c);
+					res.add(scheduler);
 				}
 			}
 			return res;
@@ -165,7 +134,7 @@ public abstract class StrategyIterator<S,A>{
 		return sched;
 	}
 
-	protected abstract Map<S , List<Choice<A>>> getChoices(Set<S> finalStates);
+	protected abstract Map<S , List<Choice<A>>> getChoices();
 
 	public boolean hasNext(){
 		 return  iter < this.schedulers.size(); 
@@ -195,15 +164,7 @@ public abstract class StrategyIterator<S,A>{
 		return uncontrollableActions;
 	}
 
-	public void setUncontrollableActions(Set<A> uncontrollableActions) {
-		this.uncontrollableActions = uncontrollableActions;
-	}
-
 	public Set<A> getControllableActions() {
 		return controllableActions;
-	}
-
-	public void setControllableActions(Set<A> controllableActions) {
-		this.controllableActions = controllableActions;
 	}
 }
