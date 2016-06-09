@@ -87,14 +87,14 @@ ltl_property LeavesPumpOn = ((StopOldSpec && !StartNewSpec) -> (EndProcedure_act
 updatingController UpdCont = {
     oldController = EnvironmentAndController,
     oldEnvironment = OldEnvironment,
-    hatEnvironment = OldEnvironment,
     newEnvironment = NewEnvironment,
     oldGoal = OldSpec, 
     newGoal = NewSpec,
     // T = True is executed if no transition requirement is set
 	//transition = LeavesPumpOn,
 	nonblocking,
-    updateFluents = {RequestPending, PumpOff, MainteinanceFinished, PendingOk, StopPump_action, EndProcedure_action, Procedure_action}
+    oldPropositions = {RequestPending, PumpOff, MainteinanceFinished, PendingOk, StopPump_action, EndProcedure_action, Procedure_action}
+    newPropositions = {RequestPending, PumpOff, MainteinanceFinished, PendingOk, StopPump_action, EndProcedure_action, Procedure_action}
 }
 
 ||UPDATE_CONTROLLER = UpdCont.
