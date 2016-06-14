@@ -90,6 +90,7 @@ import ltsa.lts.RunMenu;
 import ltsa.lts.SuperTrace;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.FormulaFactory;
+import ltsa.lts.util.LTSUtils;
 import ltsa.lts.util.MTSUtils;
 
 import org.springframework.context.ApplicationContext;
@@ -209,6 +210,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JMenuItem check_safe;
 	JMenuItem check_progress;
 	JMenuItem check_reachable; // check_stop,
+	JMenuItem check_deterministic;
 	JMenuItem build_parse;
 	JMenuItem build_compile;
 	JMenuItem build_compose;
@@ -461,6 +463,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		check_reachable = new JMenuItem("Supertrace");
 		check_reachable.addActionListener(new DoAction(DO_reachable));
 		check.add(check_reachable);
+
+		check_deterministic = new JMenuItem("is Deterministic");
+		check_deterministic.addActionListener(new DoAction(DO_deterministic));
+		check.add(check_deterministic);
+
 		// check_stop = new JMenuItem("Stop");
 		// check_stop.addActionListener(new StopAction());
 		// check_stop.setEnabled(false);
@@ -915,6 +922,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	static final int DO_EXPLORATION_STEPOVER = 25;
 	static final int DO_EXPLORATION_RESUME = 23;
 	static final int DO_EXPLORATION_MANUAL = 24;
+	static final int DO_deterministic = 999;
 	// Naha
 
 	private static final int DO_RUNENACTORS = 17;
@@ -982,6 +990,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				showOutput();
 				reachable();
 				break;
+			case DO_deterministic:
+				showOutput();
+				checkDeterministic();
+				break;
 			case DO_compile:
 				showOutput();
 				compile();
@@ -1045,6 +1057,21 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		menuEnable(true);
 		// check_stop.setEnabled(false);
 		// stopTool.setEnabled(false);
+	}
+
+	private void checkDeterministic() {
+
+		if (current == null) {
+			outln("*** Compile an LTS before checking determinism");
+
+		}else{
+			CompactState currentCS = current.getComposition();
+			if (currentCS.isNonDeterministic()){
+				outln("This is a non deterministic LTS");
+			} else {
+				outln("This is a deterministic LTS");
+			}
+		}
 	}
 
 	private void doGraphUpdate() {

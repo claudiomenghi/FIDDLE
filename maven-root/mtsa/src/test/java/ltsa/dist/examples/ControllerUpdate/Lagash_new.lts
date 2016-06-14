@@ -26,23 +26,25 @@ fluent ValidatingTOR = <validateTOR,torOk[0..1]>
 fluent TorDenied = <torOk[0],validateTOR>
 fluent ReviewingTOR = <reviewTOR,validateTOR>
 fluent TorAccepted = <torOk[1],validateTOR>
+fluent TORDone_ = <readyTOR,{torOk[0..1]}>
 fluent TORDone = <readyTOR,{approveGF1,cancelGF1}>
 
 //DSD1 FLUENTS
 fluent Dsd1Received = <receiveDSD1, {reviewDSD1,readyDSD1}>
-fluent ValidatingDSD1 = <validateDSD1,dsd1Ok[0..1]>
-fluent Dsd1Denied = <dsd1Ok[0],validateDSD1>
+fluent ValidatingDSD1 = <validateDSD1,{reviewDSD1,readyDSD1}>
+fluent Dsd1Denied = <dsd1Ok[0],{reviewDSD1,readyDSD1}>
 fluent ReviewingDSD1 = <reviewDSD1, validateDSD1>
-fluent Dsd1Accepted = <dsd1Ok[1],{approveGF1,cancelGF1}>
-fluent ValidatingQA = <validateQA,qaOk[0..1]>
-fluent QADenied = <qaOk[0],validateQA>
-fluent QAAccepted = <qaOk[1],{approveGF1,cancelGF1}>
+fluent Dsd1Accepted = <dsd1Ok[1],{reviewDSD1,readyDSD1}>
+fluent ValidatingQA = <validateQA,{reviewDSD1,readyDSD1}>
+fluent QADenied = <qaOk[0],{reviewDSD1,readyDSD1}>
+fluent QAAccepted = <qaOk[1],{reviewDSD1,readyDSD1}>
+fluent DSD1Done_ = <readyDSD1,dsd1Ok[0..1]>
 fluent DSD1Done = <readyDSD1,{approveGF1,cancelGF1}>
 
 // GF1 FLUENTS
 fluent Gf1Received = <receiveGF1, {adjustGF1,approveGF1,cancelGF1}>
 fluent ValidatingGF1 = <validateGF1,{adjustGF1,approveGF1,cancelGF1}>
-fluent Finished = <{approveGF1,cancelGF1},{validateTOR,validateDSD1,validateGF1}>
+fluent Finished = <{approveGF1,cancelGF1},{validateTOR,validateDSD1,validateGF1}> initially 1
 fluent Adjusting = <adjustGF1,validateGF1>
 
 //actions fluents controllable
@@ -111,7 +113,7 @@ fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent StartNewSpec= <startNewSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
 
-//ltl_property T = ()
+ltl_property T = (StartNewSpec -> Finished)
 
 updatingController UpdCont = {
     oldController = EnvironmentAndController,
@@ -120,15 +122,15 @@ updatingController UpdCont = {
     oldGoal = OldSpec, 
     newGoal = NewSpec,
     // T = True is executed if no transition requirement is set
-	//transition = T,
+//	transition = T,
 	nonblocking,
 	oldPropositions = {TorReceived, ValidatingTOR, TorDenied, ReviewingTOR, TorAccepted, 
-        TORDone, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done, 
+        TORDone_, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done_, 
         ValidatingQA, QAAccepted, QADenied, Gf1Received, ValidatingGF1, Finished, Adjusting, 
 		ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a}
 
     newPropositions = {TorReceived, ValidatingTOR, TorDenied, ReviewingTOR, TorAccepted, 
-        TORDone, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done, 
+        TORDone_, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done_, 
         ValidatingQA, QAAccepted, QADenied, Gf1Received, ValidatingGF1, Finished, Adjusting,
 		ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a}
 

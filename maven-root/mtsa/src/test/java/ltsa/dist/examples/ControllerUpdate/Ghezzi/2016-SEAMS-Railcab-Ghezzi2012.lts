@@ -167,7 +167,7 @@ ltl_property T_NO_TP = (AnyAction -> (!((StopOldSpec && !StartNewSpec)  || (Star
 updatingController UpdCont = {
     oldController = HatEnvironmentAndController,
     oldEnvironment = OldEnvironment,
-	hatEnvironment = HatEnvironment,
+//	hatEnvironment = HatEnvironment,
     newEnvironment = NewEnvironment,
     oldGoal = OldSpec,
     newGoal = NewSpec,
@@ -175,7 +175,11 @@ updatingController UpdCont = {
 	//transition = T_NO_TP,
 	//transition = T_BRAKE,
 	nonblocking,
-    updateFluents = { EndOfTS, LastBrake, TooLateToBrake, TooLateToEmergencyBrake, EnterCrossingMade, BrakeMade, 
+    oldPropositions = { EndOfTS, LastBrake, TooLateToBrake, TooLateToEmergencyBrake, EnterCrossingMade, BrakeMade, 
+				RequestedOnce, ResponsePending, ResponseRecieve, AskedWorkingOnce, WhoShouldPlay,
+				CantEnter, NotWorking, ApproachingCrossingHappen, Brake_action, EmergencyBrake_action, CheckCrossingStatus_action,
+				NoReturn_action}
+    newPropositions = { EndOfTS, LastBrake, TooLateToBrake, TooLateToEmergencyBrake, EnterCrossingMade, BrakeMade, 
 				RequestedOnce, ResponsePending, ResponseRecieve, AskedWorkingOnce, WhoShouldPlay,
 				CantEnter, NotWorking, ApproachingCrossingHappen, Brake_action, EmergencyBrake_action, CheckCrossingStatus_action,
 				NoReturn_action}

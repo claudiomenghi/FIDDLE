@@ -1,8 +1,31 @@
-Process:
-	UPDATE_CONTROLLER
-States:
-	14539
-Transitions:
+set ControllableActions = {validateTOR, validateDSD1, validateQA, validateGF1, reviewTOR, reviewDSD1, readyTOR,  readyDSD1}
+set A = {ControllableActions, receiveTOR, receiveDSD1, receiveGF1, torOk[0..1], dsd1Ok[0..1], qaOk[0..1], adjustGF1, approveGF1, cancelGF1}
+
+fluent TORDone = <readyTOR,{approveGF1,cancelGF1}>
+fluent DSD1Done = <readyDSD1,{approveGF1,cancelGF1}>
+fluent Finished = <{approveGF1,cancelGF1},{validateTOR,validateDSD1,validateGF1}>
+fluent ValidateTOR_a = <validateTOR,A\{validateTOR}>
+fluent ValidateDSD1_a = <validateDSD1,A\{validateDSD1}>
+fluent ValidateGF1_a = <validateGF1,A\{validateGF1}>
+fluent StopOldSpec = <stopOldSpec, beginUpdate>
+fluent StartNewSpec= <startNewSpec, beginUpdate>
+
+assert TOR_POLICY = ((ValidateDSD1_a || ValidateGF1_a) -> TORDone)
+assert DSD1_POLICY = (ValidateGF1_a -> DSD1Done)
+assert DO_NOT_SEND_TWICE = ((TORDone -> !ValidateTOR_a) && 
+							(DSD1Done -> !ValidateDSD1_a) && (Finished -> !ValidateGF1_a))
+assert S_OLD = (TOR_POLICY && DSD1_POLICY && DO_NOT_SEND_TWICE)
+
+assert NEW_TOR_POLICY = (ValidateGF1_a -> TORDone)
+assert NEW_DSD1_POLICY = ((ValidateTOR_a || ValidateGF1_a ) -> DSD1Done)
+assert S_NEW = (NEW_TOR_POLICY && NEW_DSD1_POLICY && DO_NOT_SEND_TWICE)
+
+assert TEST_FORMULA1 = [](!StopOldSpec -> S_OLD)
+assert TEST_FORMULA2 = [](StartNewSpec -> S_NEW)
+assert TEST_FORMULA3 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+
+||LAGASH_TRUE = UPDATE_CONTROLLER.
+
 	UPDATE_CONTROLLER = Q0,
 	Q0	= (beginUpdate -> Q1
 		  |receiveTOR -> Q4250

@@ -136,14 +136,17 @@ ltl_property T_REMOVE_POLISHED = ((StopOldSpec && !StartNewSpec) -> (S_NEW || (O
 updatingController UpdCont = {
     oldController = DrillPolishClean,
     oldEnvironment = OLD_ENV,
-    hatEnvironment = OLD_ENV,
+
     newEnvironment = NEW_ENV,
     oldGoal = DRILL_POLISH_CLEAN,
     newGoal = CLEAN_PAINT_DRILL,
     transition = T_REMOVE_POLISHED,
 	//transition = T_UPDATE_WHILE_EMPTY,
     nonblocking,
-    updateFluents = {Drilled, Polished, Painted, Cleaned, Faulty, Processing, DrillPending, PolishPending, PaintPending, 
+    oldPropositions = {Drilled, Polished, Painted, Cleaned, Faulty, Processing, DrillPending, PolishPending, PaintPending, 
+		CleanPending, FaultyPending, OutDone, Out_action, Old_Out_action, New_Out_action, Old_Drill_action, New_Drill_action,
+		Polish_action, Paint_action, Old_Clean_action, New_Clean_action, Old_Stamp_action, New_Stamp_action}
+    newPropositions = {Drilled, Polished, Painted, Cleaned, Faulty, Processing, DrillPending, PolishPending, PaintPending, 
 		CleanPending, FaultyPending, OutDone, Out_action, Old_Out_action, New_Out_action, Old_Drill_action, New_Drill_action,
 		Polish_action, Paint_action, Old_Clean_action, New_Clean_action, Old_Stamp_action, New_Stamp_action}
 
