@@ -44,7 +44,7 @@ fluent DSD1Done = <readyDSD1,{approveGF1,cancelGF1}>
 // GF1 FLUENTS
 fluent Gf1Received = <receiveGF1, {adjustGF1,approveGF1,cancelGF1}>
 fluent ValidatingGF1 = <validateGF1,{adjustGF1,approveGF1,cancelGF1}>
-fluent Finished = <{approveGF1,cancelGF1},{validateTOR,validateDSD1,validateGF1}> initially 1
+fluent Finished = <{approveGF1,cancelGF1},{validateTOR,validateDSD1,validateGF1}>
 fluent Adjusting = <adjustGF1,validateGF1>
 
 //actions fluents controllable
@@ -73,7 +73,7 @@ fluent CancelGF1_a = <cancelGF1, A\{cancelGF1}>
 // ---------------------------OLD CONTROLLER SPEC-----------------------------
 
 assert TOR_POLICY = ((ValidateDSD1_a || ValidateGF1_a) -> TORDone)
-assert DSD1_POLICY = (ValidateGF1_a -> DSD1Done)
+assert DSD1_POLICY = ((ValidateGF1_a -> DSD1Done) && (DSD1Done -> !ValidateTOR_a))
 assert DO_NOT_SEND_TWICE = ((TORDone -> !ValidateTOR_a) && 
 							(DSD1Done -> !ValidateDSD1_a) && (Finished -> !ValidateGF1_a))
 
@@ -91,7 +91,7 @@ controllerSpec OldSpec = {
 
 // ---------------------------NEW CONTROLLER SPEC-----------------------------
 
-assert NEW_TOR_POLICY = (ValidateGF1_a -> TORDone)
+assert NEW_TOR_POLICY = ((ValidateGF1_a -> TORDone) && (TORDone -> !ValidateDSD1_a))
 assert NEW_DSD1_POLICY = ((ValidateTOR_a || ValidateGF1_a ) -> DSD1Done)
 
 ltl_property P_NEW_TOR_POLICY = []NEW_TOR_POLICY
@@ -113,7 +113,7 @@ fluent StopOldSpec = <stopOldSpec, beginUpdate>
 fluent StartNewSpec= <startNewSpec, beginUpdate>
 fluent Reconfigure = <reconfigure, beginUpdate>
 
-ltl_property T = (StartNewSpec -> Finished)
+ltl_property T = (StopOldSpec -> Finished)
 
 updatingController UpdCont = {
     oldController = EnvironmentAndController,
@@ -125,12 +125,12 @@ updatingController UpdCont = {
 //	transition = T,
 	nonblocking,
 	oldPropositions = {TorReceived, ValidatingTOR, TorDenied, ReviewingTOR, TorAccepted, 
-        TORDone_, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done_, 
+        TORDone_, TORDone, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done_, DSD1Done,
         ValidatingQA, QAAccepted, QADenied, Gf1Received, ValidatingGF1, Finished, Adjusting, 
 		ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a}
 
     newPropositions = {TorReceived, ValidatingTOR, TorDenied, ReviewingTOR, TorAccepted, 
-        TORDone_, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done_, 
+        TORDone_, TORDone, Dsd1Received, ValidatingDSD1, Dsd1Denied, ReviewingDSD1, Dsd1Accepted, DSD1Done_, DSD1Done,
         ValidatingQA, QAAccepted, QADenied, Gf1Received, ValidatingGF1, Finished, Adjusting,
 		ValidateTOR_a, ValidateDSD1_a, ValidateGF1_a}
 
