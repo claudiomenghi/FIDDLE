@@ -8,108 +8,101 @@ import java.util.Map;
 import ltsa.lts.util.LTSUtils;
 
 public class ProbabilisticTransition extends Transition {
-    int probBundle;
-    BigDecimal prob;
-    
-    public static final int NO_BUNDLE= -1;
-    public static final int BUNDLE_ERROR= -2;
-    
-    private static int lastProbBundle= NO_BUNDLE;
-    private static Map composedBundles= new HashMap();
-    
-    ProbabilisticTransition() {
-    }
 
-    ProbabilisticTransition(int from) {
-    	this.from = from;
-    }
+	public static final int NO_BUNDLE = -1;
+	public static final int BUNDLE_ERROR = -2;
 
-    ProbabilisticTransition(int from, Symbol event, int to) {
-        this.from =from;
-        this.to = to;
-        this.event = event; 
-    }
-    
-    ProbabilisticTransition(int from, Symbol event, int to, BigDecimal prob) {
-        this.from =from;
-        this.to = to;
-        this.event = event;
-        this.prob= prob; 
-    }
+	private static int lastProbBundle = NO_BUNDLE;
+	
+	int probBundle;
+	BigDecimal prob;
 
-    ProbabilisticTransition(int from, Symbol event, int to, BigDecimal prob, int probBundle) {
-        this.from =from;
-        this.to = to;
-        this.event = event;
-        this.prob= prob;
-        this.probBundle= probBundle;
-    }
 
-    public void setProbability(BigDecimal prob) {
-    	this.prob= prob;
-    }
-    
-    public BigDecimal getProbability() {
-    	return prob;
-    }
-    
-    public void setBundle(int bundle) {
-    	this.probBundle= bundle;
-    }
-    
-    public int getBundle() {
-    	return probBundle;
-    }
-    
-    public static int getLastProbBundle() {
-    	return lastProbBundle;
-    }
-    
-    public static int getNextProbBundle() {
-    	return ++lastProbBundle;
-    }
-    
-    public static void setLastProbBundle(int bundle) {
-    	lastProbBundle= bundle;
-    }
+	private static Map<String, Map<String, Integer>> composedBundles = new HashMap<>();
 
-    public String toString() {
-        return "" + from + " --{" + event + "," + probBundle + "} " + prob.toString() + "--> " + to;
-    }
-    
-    public static int composeBundles(int[] sourceStates, int[] bundles) {
-    	int[] sortedBundles= LTSUtils.myclone(bundles);
-    	int composedBundle;
-    	Arrays.sort(sortedBundles);
-    	String bundlesStr= Arrays.toString(sortedBundles);
-    	String stateStr= Arrays.toString(sourceStates);
-    	Object bundlesForStates= composedBundles.get(stateStr);
-    	if (bundlesForStates == null) {
-    		bundlesForStates= new HashMap();
-    		composedBundles.put(stateStr, bundlesForStates);
-    	}
+	ProbabilisticTransition(int from, Symbol event, int to) {
+		super(from, event, to);
+	}
 
-    	Object bundle= ((Map) bundlesForStates).get(bundlesStr);
-    	if (bundle == null) {
-    		composedBundle= ++lastProbBundle;
-    		// composedBundles.put(arrayStr, composedBundle);
-    		((Map) bundlesForStates).put(bundlesStr, composedBundle);
-    	} else {
-    		composedBundle= ((Integer) bundle).intValue();
-    	}
+	ProbabilisticTransition(int from, Symbol event, int to, BigDecimal prob) {
+		super(from, event, to);
+		this.prob = prob;
+	}
 
-    	return composedBundle;
-    }
+	ProbabilisticTransition(int from, Symbol event, int to, BigDecimal prob,
+			int probBundle) {
+		super(from, event, to);
+		this.prob = prob;
+		this.probBundle = probBundle;
+	}
 
-    public static BigDecimal composeProbs(BigDecimal[] probs) {
-    	BigDecimal prob= BigDecimal.ONE;
-    	for (BigDecimal srcProb : probs) {
-    		if (srcProb != null) {
-    			// may be null if internal / not shared
-    			prob= prob.multiply(srcProb);
-    		}
-    	}
-    	
-    	return prob;
-    }
+	public void setProbability(BigDecimal prob) {
+		this.prob = prob;
+	}
+
+	public BigDecimal getProbability() {
+		return prob;
+	}
+
+	public void setBundle(int bundle) {
+		this.probBundle = bundle;
+	}
+
+	public int getBundle() {
+		return probBundle;
+	}
+
+	public static int getLastProbBundle() {
+		return lastProbBundle;
+	}
+
+	public static int getNextProbBundle() {
+		return ++lastProbBundle;
+	}
+
+	public static void setLastProbBundle(int bundle) {
+		lastProbBundle = bundle;
+	}
+
+	@Override
+	public String toString() {
+		return Integer.toString(this.getFrom()) + " --{" + this.getEvent()
+				+ "," + probBundle + "} " + prob.toString() + "--> "
+				+ this.getTo();
+	}
+
+	public static int composeBundles(int[] sourceStates, int[] bundles) {
+		int[] sortedBundles = LTSUtils.myclone(bundles);
+		int composedBundle;
+		Arrays.sort(sortedBundles);
+		String bundlesStr = Arrays.toString(sortedBundles);
+		String stateStr = Arrays.toString(sourceStates);
+		Map<String, Integer> bundlesForStates = composedBundles.get(stateStr);
+		if (bundlesForStates == null) {
+			bundlesForStates = new HashMap<>();
+			composedBundles.put(stateStr, bundlesForStates);
+		}
+
+		Integer bundle = bundlesForStates.get(bundlesStr);
+		if (bundle == null) {
+			composedBundle = ++lastProbBundle;
+			bundlesForStates.put(bundlesStr, composedBundle);
+		} else {
+			composedBundle = bundle.intValue();
+		}
+
+		return composedBundle;
+	}
+
+	public static BigDecimal composeProbs(BigDecimal[] probs) {
+		BigDecimal prob = BigDecimal.ONE;
+		for (BigDecimal srcProb : probs) {
+			if (srcProb != null) {
+				// may be null if internal / not shared
+				prob = prob.multiply(srcProb);
+			}
+		}
+
+		return prob;
+	}
 }
