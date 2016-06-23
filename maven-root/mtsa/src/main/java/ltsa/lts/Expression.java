@@ -13,7 +13,7 @@ import ltsa.lts.util.LTSUtils;
 public class Expression {
 	// TODO EPAVESE get rid of the precision constant and/or make it configurable
 	private static MathContext mathCtx= new MathContext(20, RoundingMode.HALF_EVEN);
-    static Hashtable constants;
+    public static Hashtable constants;
 
     private static String labelVar(Stack s, Hashtable locals, Hashtable globals) {
         if (s==null) return null;

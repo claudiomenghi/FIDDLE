@@ -12,6 +12,10 @@ import ltsa.lts.StateMap;
 
 public class CompositionEngineCommon {
 
+	private CompositionEngineCommon(){
+		
+	}
+	
 	/**
 	 * for lack of a better name :(
 	 */

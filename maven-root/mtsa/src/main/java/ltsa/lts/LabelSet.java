@@ -8,10 +8,10 @@ import java.util.Vector;
 
 public class LabelSet {
     boolean isConstant=false;
-    Vector labels;     // list of unevaluates ActionLabelss, null if this is a constant set
+    public Vector labels;     // list of unevaluates ActionLabelss, null if this is a constant set
     Vector<String> actions;    // list of action names for an evaluated constant set
 
-    static Hashtable constants; // hashtable of constant sets, <string,LabelSet>
+    public static Hashtable constants; // hashtable of constant sets, <string,LabelSet>
 
     public LabelSet(Symbol s, Vector<ActionLabels> lbs) {
         labels = lbs;

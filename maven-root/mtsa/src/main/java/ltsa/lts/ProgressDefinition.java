@@ -7,13 +7,13 @@ import java.util.Vector;
 
 /* -----------------------------------------------------------------------*/
 
-class ProgressDefinition {
-    Symbol name;
-    ActionLabels pactions;
-    ActionLabels cactions; //if P then C
-    ActionLabels range;    //range of tests
+public class ProgressDefinition {
+	public Symbol name;
+	public ActionLabels pactions;
+	public ActionLabels cactions; //if P then C
+	public ActionLabels range;    //range of tests
 
-    static Hashtable definitions;
+    public static Hashtable definitions;
 
     public static void compile(){
         ProgressTest.init();

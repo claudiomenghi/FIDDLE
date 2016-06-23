@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import ltsa.lts.operations.compiler.LTSCompiler;
 import ltsa.updatingControllers.UpdateConstants;
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 import ltsa.updatingControllers.synthesis.UpdatingControllersUtils;
@@ -60,7 +61,7 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 	}
 
 	@Override
-	protected CompositeState compose(Vector<Value> actuals) {
+	public CompositeState compose(Vector<Value> actuals) {
 		CompositionExpression oldController = LTSCompiler.getComposite(this.getOldController().toString());
 		CompositeState oldC = oldController.compose(null);
 

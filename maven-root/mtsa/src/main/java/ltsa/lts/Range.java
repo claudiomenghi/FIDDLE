@@ -3,11 +3,10 @@ package ltsa.lts;
 import java.util.Hashtable;
 import java.util.Stack;
 
-
 /* -----------------------------------------------------------------------*/
 
-class Range extends Declaration {
-    static Hashtable ranges;
-    Stack low;
-    Stack high;
+public class Range extends Declaration {
+	public static Hashtable ranges;
+	public Stack low;
+	public Stack high;
 }

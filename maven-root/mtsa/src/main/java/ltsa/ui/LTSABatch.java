@@ -19,10 +19,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import ltsa.dispatcher.TransitionSystemDispatcher;
-
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
-import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSError;
 import ltsa.lts.LTSException;
 import ltsa.lts.LTSInput;
@@ -33,6 +31,7 @@ import ltsa.lts.LabelSet;
 import ltsa.lts.Options;
 import ltsa.lts.SymbolTable;
 import ltsa.lts.Options.CompositionStrategy;
+import ltsa.lts.operations.compiler.LTSCompiler;
 
 public class LTSABatch 
 implements LTSManager, LTSInput, LTSOutput, LTSError {

@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import ltsa.lts.CompositeState;
-import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSInput;
 import ltsa.lts.LTSInputString;
 import ltsa.lts.LTSOutput;
+import ltsa.lts.operations.compiler.LTSCompiler;
 import ltsa.ui.FileInput;
 import ltsa.ui.StandardOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;

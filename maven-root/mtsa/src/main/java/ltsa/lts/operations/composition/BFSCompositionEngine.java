@@ -31,6 +31,7 @@ public class BFSCompositionEngine implements CompositionEngine {
 		maxStateGeneration= Options.getMaxStatesGeneration();
 	}
 	
+	@Override
 	public void setOutput(LTSOutput output) {
 		this.output= output;
 	}

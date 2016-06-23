@@ -8,11 +8,11 @@ import java.util.Vector;
 
 /* -----------------------------------------------------------------------*/
 
-class RelabelDefn {
-    ActionLabels newlabel;
-    ActionLabels oldlabel;
-    ActionLabels range;
-    Vector defns;
+public class RelabelDefn {
+	public  ActionLabels newlabel;
+	public ActionLabels oldlabel;
+	public ActionLabels range;
+	public Vector defns;
 
     public void makeRelabels(Hashtable constants, Relation relabels) {
         Hashtable locals = new Hashtable();

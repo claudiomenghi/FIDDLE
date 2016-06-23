@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
-import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSError;
 import ltsa.lts.LTSException;
 import ltsa.lts.LTSInput;
@@ -16,6 +15,7 @@ import ltsa.lts.LTSManager;
 import ltsa.lts.LTSOutput;
 import ltsa.lts.LabelSet;
 import ltsa.lts.SymbolTable;
+import ltsa.lts.operations.compiler.LTSCompiler;
 
 public class MinimalManager implements LTSManager {
 	

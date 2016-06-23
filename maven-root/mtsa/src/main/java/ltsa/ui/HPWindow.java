@@ -72,7 +72,6 @@ import ltsa.lts.Diagnostics;
 import ltsa.lts.EmptyLTSOuput;
 import ltsa.lts.EventManager;
 import ltsa.lts.LTSCanvas;
-import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSError;
 import ltsa.lts.LTSEvent;
 import ltsa.lts.LTSException;
@@ -124,12 +123,16 @@ import ltsa.jung.LTSJUNGCanvas.EnumLayout;
 import ltsa.lts.*;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.FormulaFactory;
+import ltsa.lts.operations.compiler.LTSCompiler;
 import ltsa.lts.util.MTSUtils;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+
 import ltsa.ui.enactment.EnactorOptionsWindows;
 import ltsa.ui.LTSLayoutWindow;
+
 import org.springframework.core.io.DefaultResourceLoader;
 
 import javax.swing.*;
@@ -138,6 +141,7 @@ import javax.swing.event.*;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 /* -------------------------------------------------------------------------------*/
 
-class Value {
+public class Value {
     private BigDecimal val;
     private String sval;
     private boolean sonly;
@@ -31,6 +31,7 @@ class Value {
         }
     }
 
+    @Override
     public String toString() {
         return sval;
     }

@@ -8,13 +8,13 @@ import java.util.Vector;
 /* -----------------------------------------------------------------------*/
 
 public class MenuDefinition {
-    Symbol name;
-    ActionLabels actions;
-    Symbol params;
-    Symbol target;
-    Vector actionMapDefn;
-    Vector controlMapDefn;
-    Vector animations;
+	public Symbol name;
+	public ActionLabels actions;
+	public Symbol params;
+	public Symbol target;
+    public  Vector actionMapDefn;
+    public Vector controlMapDefn;
+    public Vector animations;
 
     public static Hashtable definitions;
 

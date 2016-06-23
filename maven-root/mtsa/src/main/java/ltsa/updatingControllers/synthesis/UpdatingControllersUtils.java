@@ -10,7 +10,6 @@ import MTSSynthesis.ar.dc.uba.model.language.SingleSymbol;
 import ltsa.control.ControllerGoalDefinition;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSOutput;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MarkedMTS;
 import ltsa.lts.Symbol;
@@ -18,6 +17,7 @@ import ltsa.lts.UpdatingControllersGoalsMaker;
 import ltsa.lts.chart.util.FormulaUtils;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.PredicateDefinition;
+import ltsa.lts.operations.compiler.LTSCompiler;
 import ltsa.updatingControllers.UpdateConstants;
 import ltsa.lts.UpdatingControllersDefinition;
 

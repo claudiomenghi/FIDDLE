@@ -1,10 +1,12 @@
 package ltsa.ui.update;
 
 import MTSSynthesis.controller.game.util.GeneralConstants;
-import ltsa.lts.LTSCompiler;
 import ltsa.lts.LTSException;
 import ltsa.lts.LTSOutput;
+import ltsa.lts.operations.compiler.LTSCompiler;
+
 import org.apache.commons.lang.mutable.MutableInt;
+
 import ltsa.ui.HPWindow;
 import ltsa.ui.update.utilities.UpdateGraphWindowListener;
 import ltsa.updatingControllers.structures.graph.UpdateGraph;
@@ -20,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;

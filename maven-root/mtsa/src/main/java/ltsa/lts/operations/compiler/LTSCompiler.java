@@ -1,4 +1,4 @@
-package ltsa.lts;
+package ltsa.lts.operations.compiler;
 
 import static ltsa.lts.util.MTSUtils.getMaybeAction;
 import static ltsa.lts.util.MTSUtils.getOpositeActionLabel;
@@ -17,8 +17,48 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import ltsa.control.ControlStackDefinition;
+import ltsa.control.ControlTierDefinition;
+import ltsa.control.ControllerDefinition;
+import ltsa.control.ControllerGoalDefinition;
+import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.exploration.ExplorerDefinition;
-import MTSSynthesis.controller.game.util.GeneralConstants;
+import ltsa.lts.ActionExpr;
+import ltsa.lts.ActionLabels;
+import ltsa.lts.ActionName;
+import ltsa.lts.ActionRange;
+import ltsa.lts.ActionSet;
+import ltsa.lts.ActionSetExpr;
+import ltsa.lts.ActionVarRange;
+import ltsa.lts.ActionVarSet;
+import ltsa.lts.AutCompactState;
+import ltsa.lts.ChoiceElement;
+import ltsa.lts.CompactState;
+import ltsa.lts.CompositeBody;
+import ltsa.lts.CompositeState;
+import ltsa.lts.CompositionExpression;
+import ltsa.lts.Def;
+import ltsa.lts.Diagnostics;
+import ltsa.lts.Expression;
+import ltsa.lts.LTSInput;
+import ltsa.lts.LTSOutput;
+import ltsa.lts.LabelSet;
+import ltsa.lts.Lex;
+import ltsa.lts.MenuDefinition;
+import ltsa.lts.ProbabilisticChoiceElement;
+import ltsa.lts.ProbabilisticTransition;
+import ltsa.lts.ProcessRef;
+import ltsa.lts.ProcessSpec;
+import ltsa.lts.ProgressDefinition;
+import ltsa.lts.Range;
+import ltsa.lts.RelabelDefn;
+import ltsa.lts.SeqProcessRef;
+import ltsa.lts.StateDefn;
+import ltsa.lts.StateExpr;
+import ltsa.lts.StateMachine;
+import ltsa.lts.Symbol;
+import ltsa.lts.UpdatingControllersDefinition;
+import ltsa.lts.Value;
 import ltsa.lts.chart.BasicChartDefinition;
 import ltsa.lts.chart.ConditionDefinition;
 import ltsa.lts.chart.ConditionLocation;
@@ -37,21 +77,17 @@ import ltsa.lts.ltl.FormulaTransformerVisitor;
 import ltsa.lts.ltl.NamedFPLFormula;
 import ltsa.lts.ltl.PredicateDefinition;
 import ltsa.lts.util.LTSUtils;
+import ltsa.updatingControllers.structures.UpdateGraphDefinition;
+import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.PredicateUtils;
 
-import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
 import MTSSynthesis.ar.dc.uba.model.condition.Formula;
-import ltsa.control.ControlStackDefinition;
-import ltsa.control.ControlTierDefinition;
-import ltsa.control.ControllerDefinition;
-import ltsa.control.ControllerGoalDefinition;
-import ltsa.dispatcher.TransitionSystemDispatcher;
-import ltsa.updatingControllers.structures.UpdateGraphDefinition;
-import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
+import MTSSynthesis.controller.game.util.GeneralConstants;
+import MTSTools.ac.ic.doc.commons.relations.Pair;
 
 public class LTSCompiler {
 
@@ -60,9 +96,9 @@ public class LTSCompiler {
 	private String currentDirectory;
 	private Symbol current;
 
-	static Hashtable<String,ProcessSpec> processes;
-	static Hashtable<String,CompactState> compiled;
-	static Hashtable<String,CompositionExpression> composites;
+	public static Hashtable<String,ProcessSpec> processes;
+	public static Hashtable<String,CompactState> compiled;
+	public static Hashtable<String,CompositionExpression> composites;
 	static Hashtable<String,ExplorerDefinition> explorers;
 	private static Hashtable<String,CompositionExpression> allComposites;
 	
@@ -3050,7 +3086,7 @@ public class LTSCompiler {
 		return instances;
 	}
 
-	static Symbol saveControllableSet(Set<String> controllableSet, String name) {
+	public static Symbol saveControllableSet(Set<String> controllableSet, String name) {
 		Symbol updateControllableSetSymbol = new Symbol(Symbol.SET, "controller_update_" + name + "_controllable_set");
 		Vector<ActionLabels> vector = new Vector();
 		for (String action : controllableSet) {
