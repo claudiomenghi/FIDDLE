@@ -34,7 +34,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 		maxStateGeneration= Options.getMaxStatesGeneration();
 	}
 	
-	// @Override
+	@Override
 	public void initialize() {
 	}
 	
@@ -43,12 +43,12 @@ public class DFSCompositionEngine implements CompositionEngine {
 	}
 
 	
-	// @Override
+	@Override
 	public void teardown() {
 		analysed= null;
 	}
 	
-	// @Override
+	@Override
 	public StackCheck getStackChecker() {
 		if (analysed instanceof StackCheck)
 			return (StackCheck) analysed;
@@ -56,37 +56,37 @@ public class DFSCompositionEngine implements CompositionEngine {
 			return null;
 	}
 	
-	// @Override
+	@Override
 	public StateMap getExploredStates() {
 		return analysed;
 	}
 	
-	// @Override
+	@Override
 	public void add(byte[] state) {
 		analysed.add(state);
 	}
 	
-	// @Override
+	@Override
 	public void add(byte[] state, int depth) {
 		analysed.add(state, depth);
 	}
 	
-	// @Override
+	@Override
 	public byte[] getNextState() {
 		return analysed.getNextState();
 	}
 	
-	// @Override
+	@Override
 	public boolean nextStateIsMarked() {
 		return analysed.nextStateIsMarked();
 	}
 	
-	// @Override
+	@Override
 	public void removeNextState() {
 		analysed.removeNextState();
 	}
 	
-	// @Override
+	@Override
 	public boolean deadlockDetected() {
 		return deadlockDetected;
 	}
@@ -118,27 +118,27 @@ public class DFSCompositionEngine implements CompositionEngine {
 		return "";
 	}
 	
-	// @Override
+	@Override
 	public void setModelExplorerContext(ModelExplorerContext ctx) {
 		this.ctx= ctx;
 	}
 	
-	// @Override
+	@Override
 	public ModelExplorerContext getModelExplorerContext() {
 		return ctx;
 	}
 	
-	// @Override
+	@Override
 	public void setMaxStateGeneration(long maxStates) {
 		maxStateGeneration= maxStates;
 	}
 	
-	// @Override
+	@Override
 	public long getMaxStateGeneration() {
 		return maxStateGeneration;
 	}
 	
-	// @Override
+	@Override
 	public void pruneUnfinishedStates() {
 		// TODO can be improved.
 		int tauIndex= 0;
