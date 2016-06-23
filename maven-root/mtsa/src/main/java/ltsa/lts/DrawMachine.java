@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.math.BigDecimal;
 import java.util.BitSet;
 
 import javax.swing.JPanel;

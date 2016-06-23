@@ -9,18 +9,18 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 /* -----------------------------------------------------------------------*/
 
 public abstract class Declaration {
-	public final static int TAU = 0;
-	public final static int TAU_MAYBE = 1;
-	public final static int ERROR = -1;
-	public final static int STOP = 0;
-	public final static int SUCCESS = 1;
+	public static final int TAU = 0;
+	public static final int TAU_MAYBE = 1;
+	public static final int ERROR = -1;
+	public static final int STOP = 0;
+	public static final int SUCCESS = 1;
 
 	public void explicitStates(StateMachine m) {
 	};
@@ -119,6 +119,7 @@ class ProcessSpec extends Declaration {
 		}
 	}
 
+	@Override
 	public void transition(StateMachine m) {
 		Enumeration<StateDefn> e = stateDefns.elements();
 		while (e.hasMoreElements()) {
@@ -166,12 +167,14 @@ class StateDefn extends Declaration {
 	StateExpr stateExpr;
 
 	private void check_put(String s, StateMachine m) {
-		if (m.explicit_states.containsKey(s))
+		if (m.getStates().contains(s)) {
 			Diagnostics.fatal("duplicate definition -" + name, name);
-		else
-			m.explicit_states.put(s, m.stateLabel.label());
+		} else {
+			m.addState(s);
+		}
 	}
 
+	@Override
 	public void explicitStates(StateMachine m) {
 		if (range == null) {
 			String s = name.toString();
@@ -191,31 +194,38 @@ class StateDefn extends Declaration {
 	private void crunchAlias(StateExpr st, String n, Hashtable locals,
 			StateMachine m) {
 		String s = st.evalName(locals, m);
-		Integer i = (Integer) m.explicit_states.get(s);
-		if (i == null) {
+		Integer i;
+		if (m.getStates().contains(s)) {
+			i = m.getStateIndex(s);
+		} else {
 			if (s.equals("STOP")) {
-				m.explicit_states.put("STOP", i = m.stateLabel.label());
+				m.addState("STOP");
+				i = m.getStateIndex("STOP");
 			} else if (s.equals("ERROR")) {
-				m.explicit_states.put("ERROR", i = new Integer(
-						Declaration.ERROR));
+				m.addState("ERROR");
+				i = m.getStateIndex("END");
 			} else if (s.equals("END")) {
-				m.explicit_states.put("END", i = m.stateLabel.label());
+				m.addState("END");
+				i = m.getStateIndex("END");
 			} else {
-				m.explicit_states.put("ERROR", i = new Integer(
-						Declaration.ERROR));
+				m.addState("ERROR");
+				i = m.getStateIndex("END");
 				Diagnostics.warning(s + " defined to be ERROR",
 						"definition not found- " + s, st.name);
 			}
-		}
+	}
 		CompactState mach = null;
-		if (st.processes != null)
+		if (st.processes != null) {
 			mach = st.makeInserts(locals, m);
-		if (mach != null)
-			m.preAddSequential((Integer) m.explicit_states.get(n), i, mach);
-		else
-			m.aliases.put(m.explicit_states.get(n), i);
+		}
+		if (mach != null) {
+			m.preAddSequential(m.getStateIndex(n), i, mach);
+		} else {
+			m.aliases.put(m.getStateIndex(n), i);
+		}
 	}
 
+	@Override
 	public void crunch(StateMachine m) {
 		if (stateExpr.name == null && stateExpr.boolexpr == null)
 			return;
@@ -247,25 +257,27 @@ class StateDefn extends Declaration {
 		}
 	}
 
+	@Override
 	public void transition(StateMachine m) {
-		int from;
-		if (stateExpr.name != null)
-			return; // this is an alias definition
+		if (stateExpr.name != null) {
+			return;
+		}
+		// this is an alias definition
 		Hashtable locals = new Hashtable();
+		int from;
 		if (range == null) {
-			from = ((Integer) m.explicit_states.get("" + name)).intValue();
+			from = m.getStateIndex("" + name);
 			stateExpr.firstTransition(from, locals, m);
 			if (accept) {
 				if (!m.getAlphabet().contains("@"))
 					m.addEvent("@");
 				Symbol e = new Symbol(Symbol.IDENTIFIER, "@");
-				m.transitions.addElement(new Transition(from, e, from));
+				m.addTransition(new Transition(from, e, from));
 			}
 		} else {
 			range.initContext(locals, m.constants);
 			while (range.hasMoreNames()) {
-				from = ((Integer) m.explicit_states.get("" + name + "."
-						+ range.nextName())).intValue();
+				from = m.getStateIndex("" + name + "." + range.nextName());
 				stateExpr.firstTransition(from, locals, m);
 			}
 			range.clearContext();
@@ -448,19 +460,22 @@ class StateExpr extends Declaration {
 		} else {
 			Integer to;
 			if (name != null) {
-				to = (Integer) m.explicit_states.get(evalName(locals, m));
-				if (to == null) {
+				if (m.getStates().contains(evalName(locals, m))) {
+					to = m.getStateIndex(evalName(locals, m));
+				} else {
 					if (evalName(locals, m).equals("STOP")) {
-						m.explicit_states
-								.put("STOP", to = m.stateLabel.label());
+						m.addState("STOP");
+						to = m.getStateIndex("STOP");
+
 					} else if (evalName(locals, m).equals("ERROR")) {
-						m.explicit_states.put("ERROR", to = new Integer(
-								Declaration.ERROR));
+						m.addState("ERROR");
+						to = m.getStateIndex("ERROR");
 					} else if (evalName(locals, m).equals("END")) {
-						m.explicit_states.put("END", to = m.stateLabel.label());
+						m.addState("END");
+						to = m.getStateIndex("END");
 					} else {
-						m.explicit_states.put(evalName(locals, m),
-								to = new Integer(Declaration.ERROR));
+						m.addState("ERROR");
+						to = m.getStateIndex("ERROR");
 						Diagnostics.warning(evalName(locals, m)
 								+ " defined to be ERROR",
 								"definition not found- " + evalName(locals, m),
@@ -470,12 +485,12 @@ class StateExpr extends Declaration {
 				to = instantiate(to, locals, m);
 				// m.transitions.addElement(new
 				// Transition(from,event,to.intValue()));
-				m.transitions.addElement(new ProbabilisticTransition(from,
-						event, to.intValue(), prob, bundle));
+				m.addTransition(new ProbabilisticTransition(from, event, to
+						.intValue(), prob, bundle));
 			} else {
 				to = m.stateLabel.label();
-				m.transitions.addElement(new ProbabilisticTransition(from,
-						event, to.intValue(), prob, bundle));
+				m.addTransition(new ProbabilisticTransition(from, event, to
+						.intValue(), prob, bundle));
 				addTransition(to.intValue(), locals, m);
 			}
 		}
@@ -491,19 +506,21 @@ class StateExpr extends Declaration {
 		} else {
 			Integer to;
 			if (name != null) {
-				to = (Integer) m.explicit_states.get(evalName(locals, m));
-				if (to == null) {
+				if (m.getStates().contains(evalName(locals, m))) {
+					to = m.getStateIndex(evalName(locals, m));
+				} else {
 					if (evalName(locals, m).equals("STOP")) {
-						m.explicit_states
-								.put("STOP", to = m.stateLabel.label());
+						m.addState("STOP");
+						to = m.getStateIndex("STOP");
 					} else if (evalName(locals, m).equals("ERROR")) {
-						m.explicit_states.put("ERROR", to = new Integer(
-								Declaration.ERROR));
+						m.addState("ERROR");
+						to = m.getStateIndex("ERROR");
 					} else if (evalName(locals, m).equals("END")) {
-						m.explicit_states.put("END", to = m.stateLabel.label());
+						m.addState("END");
+						to = m.getStateIndex("END");
 					} else {
-						m.explicit_states.put(evalName(locals, m),
-								to = new Integer(Declaration.ERROR));
+						m.addState(evalName(locals, m));
+						to = m.getStateIndex(evalName(locals, m));
 						Diagnostics.warning(evalName(locals, m)
 								+ " defined to be ERROR",
 								"definition not found- " + evalName(locals, m),
@@ -511,12 +528,10 @@ class StateExpr extends Declaration {
 					}
 				}
 				to = instantiate(to, locals, m);
-				m.transitions.addElement(new Transition(from, event, to
-						.intValue()));
+				m.addTransition(new Transition(from, event, to.intValue()));
 			} else {
 				to = m.stateLabel.label();
-				m.transitions.addElement(new Transition(from, event, to
-						.intValue()));
+				m.addTransition(new Transition(from, event, to.intValue()));
 				addTransitions(to.intValue(), locals, m);
 			}
 		}
@@ -542,7 +557,7 @@ class StateExpr extends Declaration {
 		se.name = name;
 		se.expr = expr; // expressions are cloned when used
 		if (choices != null) {
-			se.choices = new Vector<ChoiceElement>();
+			se.choices = new Vector<>();
 			Enumeration<ChoiceElement> e = choices.elements();
 			while (e.hasMoreElements())
 				se.choices.addElement(e.nextElement().myclone());
@@ -605,8 +620,8 @@ class ChoiceElement extends Declaration {
 
 /* ----------------------------------------------------------------------- */
 class ProbabilisticChoiceElement extends ChoiceElement {
-	Map<BigDecimal, List<StateExpr>> probabilisticChoices = new HashMap<BigDecimal, List<StateExpr>>(); // Map<BigDecimal,
-																										// StateExpr>
+	Map<BigDecimal, List<StateExpr>> probabilisticChoices = new HashMap<>(); // Map<BigDecimal,
+																				// StateExpr>
 	int bundle = ProbabilisticTransition.NO_BUNDLE;
 
 	public ProbabilisticChoiceElement(ChoiceElement elem) {

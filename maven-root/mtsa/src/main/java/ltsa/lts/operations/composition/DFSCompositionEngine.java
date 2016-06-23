@@ -1,34 +1,47 @@
-package ltsa.lts;
+package ltsa.lts.operations.composition;
 
 import java.util.List;
 
+import ltsa.lts.CompositionEngineCommon;
+import ltsa.lts.LTSConstants;
+import ltsa.lts.LTSOutput;
+import ltsa.lts.ModelExplorer;
+import ltsa.lts.ModelExplorerContext;
+import ltsa.lts.MyHashStack;
+import ltsa.lts.Options;
+import ltsa.lts.StackCheck;
+import ltsa.lts.StateCodec;
+import ltsa.lts.StateMap;
+import ltsa.lts.util.LTSUtils;
+
 /**
- * BFS Composition Strategy
+ * DFS Composition Strategy
  * @author epavese
  *
  */
-public class BFSCompositionEngine implements CompositionEngine {
+public class DFSCompositionEngine implements CompositionEngine {
 	private StateMap analysed;
 	private StateCodec coder;
 	private ModelExplorerContext ctx;
 	private boolean deadlockDetected;
 	private long maxStateGeneration;
-	private LTSOutput output;
+	LTSOutput output;
 	
-	public BFSCompositionEngine(StateCodec coder) {
+	public DFSCompositionEngine(StateCodec coder) {
 		this.coder= coder;
-		analysed= new MyHashQueue(100001);
+		analysed= new MyHashStack(100001);
 		// maxStateGeneration= LTSConstants.NO_MAX_STATE_GENERATION;
 		maxStateGeneration= Options.getMaxStatesGeneration();
-	}
-	
-	public void setOutput(LTSOutput output) {
-		this.output= output;
 	}
 	
 	// @Override
 	public void initialize() {
 	}
+	
+	public void setOutput(LTSOutput output) {
+		this.output= output;
+	}
+
 	
 	// @Override
 	public void teardown() {
@@ -72,13 +85,12 @@ public class BFSCompositionEngine implements CompositionEngine {
 	public void removeNextState() {
 		analysed.removeNextState();
 	}
-
+	
 	// @Override
 	public boolean deadlockDetected() {
 		return deadlockDetected;
 	}
 	
-	// @Override
 	public void processNextState() {
 		int[] state = coder.decode(getNextState());
 		analysed.markNextState(ctx.stateCount++);
@@ -128,6 +140,37 @@ public class BFSCompositionEngine implements CompositionEngine {
 	
 	// @Override
 	public void pruneUnfinishedStates() {
+		// TODO can be improved.
+		int tauIndex= 0;
+		for (int i= 0; i < ctx.actionName.length; i++) {
+			if (ctx.actionName[i].equals("tau")) {
+				tauIndex= i;
+				break;
+			}
+		}
 
+		ctx.stateCount++;
+		int[] trapState= null;
+		byte[] trapStateCode= null;
+		while (!analysed.empty()) {
+			if (!analysed.nextStateIsMarked()) {
+				if (analysed.getNextStateNumber() == -1) {
+					analysed.markNextState(ctx.stateCount++);
+				}
+
+				if (trapState == null) {
+					byte[] nextState= analysed.getNextState();
+					trapState= LTSUtils.myclone(coder.decode(nextState));
+					for (int i= 0; i < trapState.length; i++) {
+						trapState[i]= LTSConstants.TRAP_STATE;
+					}
+					
+					trapStateCode= coder.encode(trapState);
+				}
+				
+				ctx.compTrans.add(analysed.getNextStateNumber(), trapStateCode, tauIndex);
+			}
+			analysed.removeNextState();
+		}
 	}
 }

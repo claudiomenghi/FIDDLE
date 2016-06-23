@@ -36,7 +36,7 @@ public class AutomataToMTSConverter {
 
 	public MTS<Long, String> convert(CompactState automata) {
 		// TODO this isn't converting anything about the probabilistic transitions yet. 
-		this.mts = new MTSImpl<Long,String>(modelConverterUtils.rank(automata.START()));
+		this.mts = new MTSImpl<>(modelConverterUtils.rank(automata.START()));
 		
 		indexToAction = new String[automata.getAlphabet().length];
 		indexToTransitionType = new TransitionType[automata.getAlphabet().length];
@@ -54,7 +54,7 @@ public class AutomataToMTSConverter {
 	 */
 	private void addActions(CompactState automata) {
 		String[] alphabet = automata.getAlphabet();
-		Map<String,Integer> reverseMap = new HashMap<String,Integer>();
+		Map<String,Integer> reverseMap = new HashMap<>();
 
 		for(int i = 0; i<alphabet.length; i++) {
 			String action = MTSUtils.getAction(alphabet[i]);

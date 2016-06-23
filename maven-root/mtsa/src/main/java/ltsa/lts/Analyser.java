@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import ltsa.lts.ltl.FluentTrace;
+import ltsa.lts.operations.composition.CompositionEngine;
 import ltsa.lts.util.LTSUtils;
 
 public class Analyser implements Animator, Automata {
@@ -136,7 +137,8 @@ public class Analyser implements Animator, Automata {
 		Counter newLabel = new Counter(0);
 		for (int i = 0; i < sm.length; i++) {
 			for (int j = 0; j < sm[i].alphabet.length; j++) {
-				if (!sm[i].alphabet[j].contains("?")) { // omit the maybe actions
+				if (!sm[i].alphabet[j].contains("?")) { // omit the maybe
+														// actions
 					// compute sets of labels for term and non-terminating
 					// processes
 					if (sm[i].endseq > 0)
@@ -244,29 +246,34 @@ public class Analyser implements Animator, Automata {
 	private MyList compTrans; // list of transitions
 
 	public CompactState compose() {
-		return private_compose(true);
+		return privateCompose(true);
 	}
 
 	public CompactState composeNoHide() {
-		return private_compose(false);
+		return privateCompose(false);
 	}
 
-	private CompactState private_compose(boolean dohiding) {
+	/**
+	 * it performs the composition of LTS
+	 * 
+	 * @param dohiding
+	 * @return
+	 */
+	private CompactState privateCompose(boolean dohiding) {
 		output.outln("Composing...");
 		long start = System.currentTimeMillis();
-		//TODO (for epavese) why this is not being used? 
-		int ret = newState_compose();
+		// TODO (for epavese) why this is not being used?
+		int ret = newStateCompose();
 		CompactState c = new CompactState(explorerContext.stateCount, cs.name,
 				compositionEngine.getExploredStates(), compTrans, actionName,
 				explorerContext.endSequence);
-		if (dohiding) {
-			if (cs.hidden != null) {
-				if (!cs.exposeNotHide)
-					c.conceal(cs.hidden);
-				else
-					c.expose(cs.hidden);
-			}
+		if (dohiding && cs.hidden != null) {
+			if (!cs.exposeNotHide)
+				c.conceal(cs.hidden);
+			else
+				c.expose(cs.hidden);
 		}
+
 		long finish = System.currentTimeMillis();
 		outStatistics(explorerContext.stateCount, compTrans.size());
 		output.outln("Composed in " + (finish - start) + "ms");
@@ -540,7 +547,12 @@ public class Analyser implements Animator, Automata {
 
 	private int endSequence = LTSConstants.NO_SEQUENCE_FOUND;
 
-	private int newState_compose() {
+	/**
+	 * performs the composition of LTS
+	 * 
+	 * @return the composition of LTS
+	 */
+	private int newStateCompose() {
 		System.gc(); // garbage collect before start
 
 		compositionEngine = CompositionEngineFactory.createCompositionEngine(

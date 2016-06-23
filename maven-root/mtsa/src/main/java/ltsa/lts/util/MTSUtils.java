@@ -1,30 +1,24 @@
 package ltsa.lts.util;
 
-import static ltsa.lts.util.MTSUtils.getAction;
-import static ltsa.lts.util.MTSUtils.getMaybeAction;
-import static ltsa.lts.util.MTSUtils.getOpositeActionLabel;
-import static ltsa.lts.util.MTSUtils.isMaybe;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
 import ltsa.lts.MyList;
+
+import org.apache.commons.lang.StringUtils;
+
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;
 import MTSTools.ac.ic.doc.mtstools.model.impl.CompositionRuleApplier;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSMultipleComposer;
-import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 
 /**
  * This class consists exclusively of static methods that operate on or return
@@ -250,7 +244,7 @@ public class MTSUtils {
 
 	public static MTS<Long, String> getMTSComposition(CompositeState compositeState) {
 		if (compositeState.composition == null) {
-			List<MTS<Long, String>> toCompose = new ArrayList<MTS<Long, String>>();
+			List<MTS<Long, String>> toCompose = new ArrayList<>();
 			for (CompactState compactState : (Vector<CompactState>) compositeState.getMachines()) {
 				MTS<Long, String> convert = AutomataToMTSConverter.getInstance().convert(compactState);
 				toCompose.add(convert);

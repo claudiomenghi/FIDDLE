@@ -9,14 +9,14 @@ import java.util.Vector;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 
-public class CompositeState{
+public class CompositeState {
 
 	public static boolean reduceFlag = true;
 
 	public String name;
-	public CompactState env; //CompactState 
+	public CompactState env; // CompactState
 	public Vector<CompactState> machines; // set of CompactState from which this
-										// can be composed
+											// can be composed
 	public CompactState composition; // the result of a composition;
 	public Vector<String> hidden; // set of actions concealed in composed
 									// version
@@ -40,11 +40,11 @@ public class CompositeState{
 	public boolean makeMDP = false;
 	public boolean makeEnactment = false;
 	public boolean makeControlStack = false;
-	
-	public Hashtable<String,Object> controlStackEnvironments;
+
+	public Hashtable<String, Object> controlStackEnvironments;
 	public int controlStackSpecificTier = -1;
 	public List<String> enactmentControlled;
-	    
+
 	public boolean isProbabilistic = false;
 	private int compositionType = -1;
 	public Vector<String> priorityLabels; // set of actions given priority
@@ -66,10 +66,10 @@ public class CompositeState{
 	 */
 	private Vector<String> componentAlphabet;
 
-	public CompositeState(){
-		
+	public CompositeState() {
+
 	}
-	
+
 	public boolean isMakeComponent() {
 		return makeComponent;
 	}
@@ -103,7 +103,7 @@ public class CompositeState{
 
 	public void setErrorTrace(List<String> ll) {
 		if (ll != null) {
-			errorTrace = new Vector<String>();
+			errorTrace = new Vector<>();
 			errorTrace.addAll(ll);
 		}
 	}
@@ -113,9 +113,9 @@ public class CompositeState{
 	}
 
 	public void compose(LTSOutput output, boolean ignoreAsterisk) {
-		if (machines != null && machines.size() > 0) {
-			for (Object o : machines) {
-				if (isProbabilisticMachine((CompactState) o)) {
+		if (machines != null && !machines.isEmpty()) {
+			for (CompactState o : machines) {
+				if (isProbabilisticMachine(o)) {
 					isProbabilistic = true;
 					break;
 				}
@@ -140,21 +140,6 @@ public class CompositeState{
 			applyHiding();
 		}
 
-		/*if (isProperty) //restored by das05, and removed in merge ***
-        {
-          TransitionSystemDispatcher.makeProperty(this, output);
-          applyHiding();
-        }*/
-
-		// if (makeDeterministic) {
-		// applyHiding();
-		// TransitionSystemDispatcher.determinise(this, output);
-		// } else if (makeMinimal) {
-		// applyHiding();
-		// TransitionSystemDispatcher.minimise(this, output);
-		// } else {
-		// applyHiding();
-		// }
 	}
 
 	public void applyOperations(LTSOutput output) {
@@ -194,16 +179,10 @@ public class CompositeState{
 			TransitionSystemDispatcher.synthesiseSyncController(this, output);
 			applyHiding();
 		}
-        if (makeControlStack) {
-        	TransitionSystemDispatcher.synthesiseControlStack(this, output);
-        	applyHiding();
-        }
-        
-        /*if (isProperty) //removed in merge ***
-        {
-          TransitionSystemDispatcher.makeProperty(this, output);
-          applyHiding();
-        }*/
+		if (makeControlStack) {
+			TransitionSystemDispatcher.synthesiseControlStack(this, output);
+			applyHiding();
+		}
 
 		if (isStarEnv) {
 			TransitionSystemDispatcher.makeStarEnv(this, output);
@@ -214,7 +193,8 @@ public class CompositeState{
 			applyHiding();
 		}
 		if (isControlledDet) {
-			TransitionSystemDispatcher.makeControlledDeterminisation(this, output);
+			TransitionSystemDispatcher.makeControlledDeterminisation(this,
+					output);
 			applyHiding();
 		}
 		if (isProperty) {
@@ -223,12 +203,10 @@ public class CompositeState{
 		}
 		if (checkCompatible) {
 			TransitionSystemDispatcher.checkCompatible(this, output);
-			applyHiding();		
+			applyHiding();
 		} else {
 			applyHiding();
 		}
-		
-		
 	}
 
 	public void applyOperationsNoText(LTSOutput output) {
@@ -273,11 +251,11 @@ public class CompositeState{
 			applyHiding();
 		}
 
-        /*if (isProperty) //removed in merge ***
-        {
-          TransitionSystemDispatcher.makeProperty(this, output);
-          applyHiding();
-        }*/
+		/*
+		 * if (isProperty) //removed in merge *** {
+		 * TransitionSystemDispatcher.makeProperty(this, output); applyHiding();
+		 * }
+		 */
 
 		if (isStarEnv) {
 			TransitionSystemDispatcher.makeStarEnv(this, output);
@@ -288,7 +266,8 @@ public class CompositeState{
 			applyHiding();
 		}
 		if (isControlledDet) {
-			TransitionSystemDispatcher.makeControlledDeterminisation(this, output);
+			TransitionSystemDispatcher.makeControlledDeterminisation(this,
+					output);
 			applyHiding();
 		}
 		if (isProperty) {
@@ -301,7 +280,6 @@ public class CompositeState{
 		} else {
 			applyHiding();
 		}
-
 
 	}
 
@@ -416,32 +394,34 @@ public class CompositeState{
 	 * prefix all constituent machines
 	 */
 	public void prefixLabels(String prefix) {
-    name = prefix+":"+name;
-    alphaStop.prefixLabels(prefix);
-    for (CompactState mm : machines) {
-        mm.prefixLabels(prefix);
-    }
-}
+		name = prefix + ":" + name;
+		alphaStop.prefixLabels(prefix);
+		for (CompactState mm : machines) {
+			mm.prefixLabels(prefix);
+		}
+	}
 
 	/*
 	 * add prefix set to all constitutent machines
 	 */
 	public void addAccess(Vector<String> pset) {
-    int n = pset.size();
-    if (n==0) return;
-    String s = "{";
-    int i =0;
-    for (String prefix : pset) {
-        s = s + prefix;
-        i++;
-        if (i<n) s = s+",";
-    }
-    //new name
-    name = s+"}::"+name;
-    alphaStop.addAccess(pset);
-    for (CompactState mm : machines) {
-        mm.addAccess(pset);
-    }
+		int n = pset.size();
+		if (n == 0)
+			return;
+		String s = "{";
+		int i = 0;
+		for (String prefix : pset) {
+			s = s + prefix;
+			i++;
+			if (i < n)
+				s = s + ",";
+		}
+		// new name
+		name = s + "}::" + name;
+		alphaStop.addAccess(pset);
+		for (CompactState mm : machines) {
+			mm.addAccess(pset);
+		}
 	}
 
 	/*
@@ -450,42 +430,44 @@ public class CompositeState{
 	 * is formed before relabelling is applied
 	 */
 	public CompactState relabel(Relation oldtonew, LTSOutput output) {
-    alphaStop.relabel(oldtonew);
-    if (alphaStop.relabelDuplicates() && machines.size()>1) {
-        // we have to do the composition, before relabelling
-        TransitionSystemDispatcher.applyComposition(this, output);
-        composition.relabel(oldtonew);
-        return composition;
-    } else {
-        for (CompactState mm : machines) {
-            mm.relabel(oldtonew);
-        }
-    }
-    return null;
+		alphaStop.relabel(oldtonew);
+		if (alphaStop.relabelDuplicates() && machines.size() > 1) {
+			// we have to do the composition, before relabelling
+			TransitionSystemDispatcher.applyComposition(this, output);
+			composition.relabel(oldtonew);
+			return composition;
+		} else {
+			for (CompactState mm : machines) {
+				mm.relabel(oldtonew);
+			}
+		}
+		return null;
 	}
 
 	/*
 	 * initialise the alphaStop process
 	 */
 	protected void initAlphaStop() {
-    alphaStop = new CompactState();
-    alphaStop.name = name;
-    alphaStop.maxStates = 1;
-    alphaStop.states = new EventState[alphaStop.maxStates]; // statespace for STOP process
-    alphaStop.states[0] = null;
-    // now define alphabet as union of constituents
-    Hashtable<String,String> alpha = new Hashtable<String,String>();
-    for (CompactState m  : machines) {
-        for (int i=1; i<m.alphabet.length; ++i)
-            alpha.put(m.alphabet[i],m.alphabet[i]);
-    }
-    alphaStop.alphabet = new String[alpha.size()+1];
-    alphaStop.alphabet[0] = "tau";
-    int j =1;
-    for (String s : alpha.keySet()) {
-        alphaStop.alphabet[j] = s;
-        ++j;
-    }
+		alphaStop = new CompactState();
+		alphaStop.name = name;
+		alphaStop.maxStates = 1;
+		alphaStop.states = new EventState[alphaStop.maxStates]; // statespace
+																// for STOP
+																// process
+		alphaStop.states[0] = null;
+		// now define alphabet as union of constituents
+		Hashtable<String, String> alpha = new Hashtable<String, String>();
+		for (CompactState m : machines) {
+			for (int i = 1; i < m.alphabet.length; ++i)
+				alpha.put(m.alphabet[i], m.alphabet[i]);
+		}
+		alphaStop.alphabet = new String[alpha.size() + 1];
+		alphaStop.alphabet[0] = "tau";
+		int j = 1;
+		for (String s : alpha.keySet()) {
+			alphaStop.alphabet[j] = s;
+			++j;
+		}
 	}
 
 	private ltsa.lts.ltl.FluentTrace tracer;
@@ -541,45 +523,39 @@ public class CompositeState{
 	}
 
 	@Override
-	public CompositeState clone()
-	{
-	  CompositeState c = new CompositeState(getName(), machines);
-	  c.setCompositionType(getCompositionType());
-	  c.makeAbstract = makeAbstract;
-    c.makeClousure = makeClousure;
-    c.makeCompose = makeCompose;
-    c.makeDeterministic = makeDeterministic;
-    c.makeMinimal = makeMinimal;
-    c.makeControlStack = makeControlStack;
-    c.makeOptimistic = makeOptimistic;
-    c.makePessimistic = makePessimistic;
-    c.makeController = makeController;
-    c.setMakeComponent(isMakeComponent());
-    c.setComponentAlphabet(getComponentAlphabet());
-    c.goal = goal;
-    c.controlStackEnvironments = controlStackEnvironments;
-    c.controlStackSpecificTier = controlStackSpecificTier;
-    c.isProbabilistic= isProbabilistic;
-	  return c;
+	public CompositeState clone() {
+		CompositeState c = new CompositeState(getName(), machines);
+		c.setCompositionType(getCompositionType());
+		c.makeAbstract = makeAbstract;
+		c.makeClousure = makeClousure;
+		c.makeCompose = makeCompose;
+		c.makeDeterministic = makeDeterministic;
+		c.makeMinimal = makeMinimal;
+		c.makeControlStack = makeControlStack;
+		c.makeOptimistic = makeOptimistic;
+		c.makePessimistic = makePessimistic;
+		c.makeController = makeController;
+		c.setMakeComponent(isMakeComponent());
+		c.setComponentAlphabet(getComponentAlphabet());
+		c.goal = goal;
+		c.controlStackEnvironments = controlStackEnvironments;
+		c.controlStackSpecificTier = controlStackSpecificTier;
+		c.isProbabilistic = isProbabilistic;
+		return c;
 	}
-	
-	/*//was being used as a clone
-	public void setFlags(CompositeState cs) {
-		this.makeAbstract = cs.makeAbstract;
-		this.makeClousure = cs.makeClousure;
-		this.makeCompose = cs.makeCompose;
-		this.makeDeterministic = cs.makeDeterministic;
-		this.makeMinimal = cs.makeMinimal;
-		this.makeControlStack = cs.makeControlStack;
-		this.makeOptimistic = cs.makeOptimistic;
-		this.makePessimistic = cs.makePessimistic;
-		this.makeController = cs.makeController;
-		this.makeSyncController = cs.makeSyncController;
-		this.setMakeComponent(cs.isMakeComponent());
-		this.setComponentAlphabet(cs.getComponentAlphabet());
-		this.goal = cs.goal;
-		this.isProbabilistic = cs.isProbabilistic;
-		this.controlStackEnvironments = cs.controlStackEnvironments;
-		this.controlStackSpecificTier = cs.controlStackSpecificTier;
-	}*/
+
+	/*
+	 * //was being used as a clone public void setFlags(CompositeState cs) {
+	 * this.makeAbstract = cs.makeAbstract; this.makeClousure = cs.makeClousure;
+	 * this.makeCompose = cs.makeCompose; this.makeDeterministic =
+	 * cs.makeDeterministic; this.makeMinimal = cs.makeMinimal;
+	 * this.makeControlStack = cs.makeControlStack; this.makeOptimistic =
+	 * cs.makeOptimistic; this.makePessimistic = cs.makePessimistic;
+	 * this.makeController = cs.makeController; this.makeSyncController =
+	 * cs.makeSyncController; this.setMakeComponent(cs.isMakeComponent());
+	 * this.setComponentAlphabet(cs.getComponentAlphabet()); this.goal =
+	 * cs.goal; this.isProbabilistic = cs.isProbabilistic;
+	 * this.controlStackEnvironments = cs.controlStackEnvironments;
+	 * this.controlStackSpecificTier = cs.controlStackSpecificTier; }
+	 */
 }

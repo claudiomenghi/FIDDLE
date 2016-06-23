@@ -1,44 +1,51 @@
-package ltsa.lts;
+package ltsa.lts.operations.composition;
 
 import java.util.List;
 
-import ltsa.lts.util.LTSUtils;
+import ltsa.lts.CompositionEngineCommon;
+import ltsa.lts.LTSOutput;
+import ltsa.lts.ModelExplorer;
+import ltsa.lts.ModelExplorerContext;
+import ltsa.lts.MyHashQueue;
+import ltsa.lts.Options;
+import ltsa.lts.StackCheck;
+import ltsa.lts.StateCodec;
+import ltsa.lts.StateMap;
 
 /**
- * DFS Composition Strategy
+ * BFS Composition Strategy
  * @author epavese
  *
  */
-public class DFSCompositionEngine implements CompositionEngine {
+public class BFSCompositionEngine implements CompositionEngine {
 	private StateMap analysed;
 	private StateCodec coder;
 	private ModelExplorerContext ctx;
 	private boolean deadlockDetected;
 	private long maxStateGeneration;
-	LTSOutput output;
+	private LTSOutput output;
 	
-	public DFSCompositionEngine(StateCodec coder) {
+	public BFSCompositionEngine(StateCodec coder) {
 		this.coder= coder;
-		analysed= new MyHashStack(100001);
+		analysed= new MyHashQueue(100001);
 		// maxStateGeneration= LTSConstants.NO_MAX_STATE_GENERATION;
 		maxStateGeneration= Options.getMaxStatesGeneration();
-	}
-	
-	// @Override
-	public void initialize() {
 	}
 	
 	public void setOutput(LTSOutput output) {
 		this.output= output;
 	}
-
 	
-	// @Override
+	@Override
+	public void initialize() {
+	}
+	
+	@Override
 	public void teardown() {
 		analysed= null;
 	}
 	
-	// @Override
+	@Override
 	public StackCheck getStackChecker() {
 		if (analysed instanceof StackCheck)
 			return (StackCheck) analysed;
@@ -46,41 +53,42 @@ public class DFSCompositionEngine implements CompositionEngine {
 			return null;
 	}
 	
-	// @Override
+	@Override
 	public StateMap getExploredStates() {
 		return analysed;
 	}
 	
-	// @Override
+	@Override
 	public void add(byte[] state) {
 		analysed.add(state);
 	}
 	
-	// @Override
+	@Override
 	public void add(byte[] state, int depth) {
 		analysed.add(state, depth);
 	}
 	
-	// @Override
+	@Override
 	public byte[] getNextState() {
 		return analysed.getNextState();
 	}
 	
-	// @Override
+	@Override
 	public boolean nextStateIsMarked() {
 		return analysed.nextStateIsMarked();
 	}
 	
-	// @Override
+	@Override
 	public void removeNextState() {
 		analysed.removeNextState();
 	}
-	
-	// @Override
+
+	@Override
 	public boolean deadlockDetected() {
 		return deadlockDetected;
 	}
 	
+	@Override
 	public void processNextState() {
 		int[] state = coder.decode(getNextState());
 		analysed.markNextState(ctx.stateCount++);
@@ -108,59 +116,28 @@ public class DFSCompositionEngine implements CompositionEngine {
 		return "";
 	}
 	
-	// @Override
+	@Override
 	public void setModelExplorerContext(ModelExplorerContext ctx) {
 		this.ctx= ctx;
 	}
 	
-	// @Override
+	@Override
 	public ModelExplorerContext getModelExplorerContext() {
 		return ctx;
 	}
 	
-	// @Override
+	@Override
 	public void setMaxStateGeneration(long maxStates) {
 		maxStateGeneration= maxStates;
 	}
 	
-	// @Override
+	@Override
 	public long getMaxStateGeneration() {
 		return maxStateGeneration;
 	}
 	
-	// @Override
+	@Override
 	public void pruneUnfinishedStates() {
-		// TODO can be improved.
-		int tauIndex= 0;
-		for (int i= 0; i < ctx.actionName.length; i++) {
-			if (ctx.actionName[i].equals("tau")) {
-				tauIndex= i;
-				break;
-			}
-		}
 
-		ctx.stateCount++;
-		int[] trapState= null;
-		byte[] trapStateCode= null;
-		while (!analysed.empty()) {
-			if (!analysed.nextStateIsMarked()) {
-				if (analysed.getNextStateNumber() == -1) {
-					analysed.markNextState(ctx.stateCount++);
-				}
-
-				if (trapState == null) {
-					byte[] nextState= analysed.getNextState();
-					trapState= LTSUtils.myclone(coder.decode(nextState));
-					for (int i= 0; i < trapState.length; i++) {
-						trapState[i]= LTSConstants.TRAP_STATE;
-					}
-					
-					trapStateCode= coder.encode(trapState);
-				}
-				
-				ctx.compTrans.add(analysed.getNextStateNumber(), trapStateCode, tauIndex);
-			}
-			analysed.removeNextState();
-		}
 	}
 }

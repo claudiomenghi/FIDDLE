@@ -3,6 +3,7 @@ package ltsa.lts;
 import java.util.Iterator;
 import java.util.List;
 
+import ltsa.lts.operations.composition.CompositionEngine;
 import ltsa.lts.util.LTSUtils;
 
 public class RandomCompositionEngine implements CompositionEngine {

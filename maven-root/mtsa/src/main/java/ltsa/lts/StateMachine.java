@@ -7,47 +7,45 @@ import static ltsa.lts.util.MTSUtils.getAlphabetWithMaybes;
 import static ltsa.lts.util.MTSUtils.getMaybeAction;
 import static ltsa.lts.util.MTSUtils.isMTSRepresentation;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import com.google.common.base.Preconditions;
-
 import ltsa.dispatcher.TransitionSystemDispatcher;
+
+import com.google.common.base.Preconditions;
 
 public class StateMachine {
 
 	private final String name;
 	private final String kludgeName;
-	private Hashtable<String, Integer> alphabet = new Hashtable<>();
+	private Map<String, Integer> alphabet = new HashMap<>();
 	Vector<String> hidden;
 	Relation relabels;
-	Hashtable<String, Integer> explicit_states = new Hashtable<>();
+	private Map<String, Integer> explicitStates = new HashMap<>();
 	Hashtable constants; // a bit of a kludge, should not be here
 	Counter eventLabel = new Counter(0);
 	Counter stateLabel = new Counter(0);
 
-	Vector<Transition> transitions = new Vector<>();
+	private List<Transition> transitions = new ArrayList<>();
 	private boolean isProperty = false;
-	boolean isMinimal = false;
-	boolean isDeterministic = false;
-	boolean isOptimistic = false;
+	private boolean isMinimal = false;
+	private boolean isDeterministic = false;
+	private boolean isOptimistic = false;
 
-	boolean isPessimistic = false;
-	boolean isAbstract = false;
-	boolean isClousure = false;
-	boolean exposeNotHide = false;
-	boolean isController = false;
-
-	boolean isProbabilistic = false;
-	boolean isStarEnv = false;
-	boolean isPlant = false;
-	boolean isControlledDet = false;
-	boolean isMDP = false;
+	private boolean isPessimistic = false;
+	private boolean isAbstract = false;
+	private boolean isClousure = false;
+	private boolean exposeNotHide = false;
+	private boolean isStarEnv = false;
 
 	Symbol goal;
-	Hashtable<Integer, CompactState> sequentialInserts;
+	private HashMap<Integer, CompactState> sequentialInserts;
 	Hashtable<Integer, Integer> preInsertsLast;
 	Hashtable<Integer, CompactState> preInsertsMach;
 	Hashtable<Integer, Integer> aliases = new Hashtable<>();
@@ -96,10 +94,6 @@ public class StateMachine {
 		isAbstract = spec.isAbstract;
 		isClousure = spec.isClousure;
 		exposeNotHide = spec.exposeNotHide;
-		isController = spec.isController;
-
-		isProbabilistic = spec.isProbabilistic;
-		isMDP = spec.isMDP;
 		isStarEnv = spec.isStarEnv;
 		goal = spec.goal;
 	}
@@ -108,13 +102,12 @@ public class StateMachine {
 		CompactState c = new CompactState();
 		c.name = kludgeName;
 		c.maxStates = stateLabel.lastLabel().intValue();
-		Integer ii = (Integer) explicit_states.get("END");
+		Integer ii = explicitStates.get("END");
 		if (ii != null)
 			c.endseq = ii.intValue();
 		c.alphabet = new String[alphabet.size()];
-		Enumeration e = alphabet.keys();
-		while (e.hasMoreElements()) {
-			String s = (String) e.nextElement();
+		Set<String> elements = alphabet.keySet();
+		for (String s : elements) {
 			int j = ((Integer) alphabet.get(s)).intValue();
 			if (s.equals("@"))
 				s = "@" + c.name;
@@ -122,8 +115,6 @@ public class StateMachine {
 		}
 		if (!isProperty) {
 			c.alphabet = getAlphabetWithMaybes(c.getAlphabet());
-			// THIS IS WHERE THE SIN OCCURS ***
-			// c.alphabet = buildAlphabet(c.getAlphabet());
 		} else {
 			c.alphabet = addTauMaybeAlphabet(c.getAlphabet());
 		}
@@ -132,14 +123,12 @@ public class StateMachine {
 			alphabet.put(c.getAlphabet()[i], i);
 		}
 		c.states = new EventState[c.maxStates];
-		e = transitions.elements();
-		while (e.hasMoreElements()) {
-			Transition t = (Transition) e.nextElement();
+		for (Transition t : transitions) {
 			String action = "" + t.getEvent();
 			if (action.contains(MAYBE_MARK)) {
 				action = getMaybeAction(action);
 			}
-			int ev = ((Integer) alphabet.get(action)).intValue();
+			int ev = alphabet.get(action).intValue();
 			EventState evSt = EventStateFactory.createEventState(ev, t);
 			c.states[t.getFrom()] = EventStateUtils.add(c.states[t.getFrom()],
 					evSt);
@@ -194,8 +183,8 @@ public class StateMachine {
 
 	// is the first state = ERROR ie P = ERROR?
 	void check_for_ERROR(CompactState c) {
-		Integer I = (Integer) explicit_states.get(name);
-		if (I.intValue() == Declaration.ERROR) {
+		Integer i = explicitStates.get(name);
+		if (i.intValue() == Declaration.ERROR) {
 			c.states = new EventState[1];
 			c.maxStates = 1;
 			c.states[0] = EventStateUtils.add(c.states[0], new EventState(
@@ -205,7 +194,7 @@ public class StateMachine {
 
 	void addSequential(Integer state, CompactState mach) {
 		if (sequentialInserts == null)
-			sequentialInserts = new Hashtable<>();
+			sequentialInserts = new HashMap<>();
 		sequentialInserts.put(state, mach);
 	}
 
@@ -281,41 +270,35 @@ public class StateMachine {
 		// create offset insert sequential processes
 		insertSequential(map);
 		// renumber state/local process lookip table
-		e = explicit_states.keys();
-		while (e.hasMoreElements()) {
-			String s = (String) e.nextElement();
-			Integer ii = (Integer) explicit_states.get(s);
+		Set<String> states = explicitStates.keySet();
+		for (String s : states) {
+			Integer ii = explicitStates.get(s);
 			if (ii.intValue() >= 0)
-				explicit_states.put(s, new Integer(map[ii.intValue()]));
+				explicitStates.put(s, new Integer(map[ii.intValue()]));
 		}
 		stateLabel = newLabel;
 	}
 
 	public void print(LTSOutput output) {
 		Preconditions.checkNotNull(output, "The output cannot be null");
-		// print name
+		// print the process name
 		output.outln("PROCESS: " + name);
 		// print alphabet
 		output.outln("ALPHABET:");
-		Enumeration e = alphabet.keys();
-		while (e.hasMoreElements()) {
-			String s = (String) e.nextElement();
-			output.outln("\t" + alphabet.get(s) + "\t" + s);
-		}
+		alphabet.keySet().stream()
+				.forEach(s -> output.outln("\t" + alphabet.get(s) + "\t" + s));
 		// print states
 		output.outln("EXPLICIT STATES:");
-		e = explicit_states.keys();
-		while (e.hasMoreElements()) {
-			String s = (String) e.nextElement();
-			output.outln("\t" + explicit_states.get(s) + "\t" + s);
-		}
+
+		explicitStates
+				.keySet()
+				.stream()
+				.forEach(
+						s -> output.outln("\t" + explicitStates.get(s) + "\t"
+								+ s));
 		// print transitions
 		output.outln("TRANSITIONS:");
-		e = transitions.elements();
-		while (e.hasMoreElements()) {
-			Transition t = (Transition) e.nextElement();
-			output.outln("\t" + t);
-		}
+		transitions.forEach(t -> output.outln("\t" + t));
 	}
 
 	static String paramString(Vector<Value> v) {
@@ -338,20 +321,88 @@ public class StateMachine {
 	 * adds the event to the alphabet of the automaton
 	 * 
 	 * @param event
-	 *            the event to be added
+	 *            the event to be added (if the event is already in the alphabet
+	 *            its index is updated
 	 * @throws NullPointerException
 	 *             if the event is null
-	 * @throws IllegalArgumentException
-	 *             if the event is already contained into the set of the events
-	 *             of the state machine
 	 */
 	public void addEvent(String event) {
 		Preconditions.checkNotNull(event,
 				"The event to be considered cannot be null");
-		Preconditions.checkArgument(this.alphabet.containsKey(event),
-				"The event is already contained into the alphabet");
 		alphabet.put(event, eventLabel.label());
 
+	}
+
+	/**
+	 * adds a transition to the LTS
+	 * 
+	 * @param transition
+	 *            the transition to be added
+	 */
+	public void addTransition(Transition transition) {
+		Preconditions.checkNotNull(transition,
+				"The transition to be considered cannot be null");
+		this.transitions.add(transition);
+	}
+
+	/**
+	 * returns the states of the StateMachine
+	 * 
+	 * @return the states of the state machine
+	 */
+	public Set<String> getStates() {
+		return this.explicitStates.keySet();
+	}
+
+	/**
+	 * adds the state and the corresponding id
+	 * 
+	 * @param state
+	 *            the state to be added
+	 * @param id
+	 *            the id of the state
+	 * @throws NullPointerException
+	 *             if the state is null
+	 */
+	@Deprecated
+	public void addState(String state, int id) {
+		Preconditions.checkNotNull(state,
+				"The state to be considered cannot be null");
+		this.explicitStates.put(state, id);
+	}
+
+	/**
+	 * adds the state to the state machine
+	 * 
+	 * @param state
+	 *            the state to be added
+	 * @throws NullPointerException
+	 *             if the state is null
+	 */
+	public void addState(String state) {
+		Preconditions.checkNotNull(state,
+				"The state to be considered cannot be null");
+
+		if (state.equals("ERROR")) {
+			this.explicitStates.put("ERROR", new Integer(Declaration.ERROR));
+		}
+
+		this.explicitStates.put(state, stateLabel.label());
+	}
+
+	/**
+	 * returns the index associated with the state
+	 * 
+	 * @param state
+	 *            the state to be considered
+	 * @return the id associated with the state
+	 * @throws NullPointerException
+	 *             if the state is null
+	 */
+	public Integer getStateIndex(String state) {
+		Preconditions.checkNotNull(state,
+				"The state to be considered cannot be null");
+		return this.explicitStates.get(state);
 	}
 
 	/**

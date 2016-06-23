@@ -1,12 +1,11 @@
 package ltsa.lts;
-import org.apache.commons.lang.ArrayUtils;
-
-import java.io.PrintStream;
 import java.util.BitSet;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
+import org.apache.commons.lang.ArrayUtils;
 
 // records transitions in the CompactState class
 

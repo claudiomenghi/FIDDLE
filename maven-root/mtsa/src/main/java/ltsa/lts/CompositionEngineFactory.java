@@ -3,6 +3,8 @@ package ltsa.lts;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import ltsa.lts.operations.composition.CompositionEngine;
+
 public class CompositionEngineFactory {
 	public static CompositionEngine createCompositionEngine(String engineClassName, StateCodec coder) {
 		Object obj= null;

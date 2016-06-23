@@ -299,14 +299,14 @@ class PrefixTree {
         }
     }
 
-    static private boolean isOneRange(int a[]) {
+    private static  boolean isOneRange(int a[]) {
         for (int i=0; i<a.length-1; ++i) {
             if ( a[i+1]-a[i]!=1 ) return false;
         }
         return true;
     }
 
-    static private void sort(int a[]) {  //simple shell sort
+    private static  void sort(int a[]) {  //simple shell sort
         int min;
         for (int i = 0; i<a.length-1; i++) {
             min = i;

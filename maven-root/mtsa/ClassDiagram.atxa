@@ -1,0 +1,201 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix atxa-jdt: <http://www.architexa.com/rdf/jdt#> .
+@prefix atxa-rse-eclipse: <http://www.architexa.com/rdf/rse-eclipse#> .
+@prefix atxa-core: <http://www.architexa.com/rdf/core#> .
+@prefix atxa: <http://www.architexa.com/rdf/> .
+@prefix atxa-jdt-wkspc: <http://www.architexa.com/rdf/jdt-wkspc#> .
+
+<http://www.architexa.com/rdf/rse-eclipse#ClassDiagram.atxa> a atxa-core:reloFile .
+
+atxa:DetailNode atxa-core:detailLevel "0" .
+
+atxa-core:docRoot atxa-core:browseModel "com.architexa.diagrams.relo.jdt/com.architexa.diagrams.relo.jdt.browse.ClassStrucBrowseModel" ;
+	atxa-core:contains _:node1alu5tducx1 .
+
+_:node1alu5tducx1 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts> ;
+	atxa-core:posX "83" ;
+	atxa-core:posY "-35" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$StateCodec> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Animator> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$CompositionEngine> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$DFSCompositionEngine> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser> .
+
+_:node1alu5tducx1 atxa-core:contains _:node1alu5tducx2 .
+
+_:node1alu5tducx2 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$StateCodec> ;
+	atxa-core:posX "324" ;
+	atxa-core:posY "269" .
+
+_:node1alu5tducx1 atxa-core:contains _:node1als191rcx1253 .
+
+_:node1als191rcx1253 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Animator> ;
+	atxa-core:posX "529" ;
+	atxa-core:posY "-10" .
+
+_:node1alu5tducx1 atxa-core:contains _:node1als191rcx1254 .
+
+_:node1als191rcx1254 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$CompositionEngine> ;
+	atxa-core:posX "549" ;
+	atxa-core:posY "459" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$CompositionEngine> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$CompositionEngine.processNextState()> .
+
+_:node1als191rcx1254 atxa-core:contains _:node1als191rcx1255 .
+
+_:node1als191rcx1255 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$CompositionEngine.processNextState()> ;
+	atxa-core:posX "550" ;
+	atxa-core:posY "477" .
+
+_:node1alu5tducx1 atxa-core:contains _:node1als191rcx1256 .
+
+_:node1als191rcx1256 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$DFSCompositionEngine> ;
+	atxa-core:posX "413" ;
+	atxa-core:posY "573" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$DFSCompositionEngine> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$DFSCompositionEngine.getExploredStates()> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$DFSCompositionEngine.processNextState()> .
+
+_:node1als191rcx452 a atxa-core:link ;
+	atxa-core:model atxa-jdt:inherits ;
+	rdf:subject _:node1als191rcx1256 ;
+	rdf:object _:node1als191rcx1254 ;
+	atxa-core:bendpoint _:node1als191rcx1257 .
+
+_:node1als191rcx1257 atxa-core:bpLocation "535,514" ;
+	atxa-core:bpIndex "0" .
+
+_:node1als191rcx452 atxa-core:bendpoint _:node1als191rcx1258 .
+
+_:node1als191rcx1258 atxa-core:bpLocation "637,514" ;
+	atxa-core:bpIndex "1" .
+
+_:node1als191rcx1256 atxa-core:contains _:node1als191rcx1259 .
+
+_:node1als191rcx1259 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$DFSCompositionEngine.getExploredStates()> ;
+	atxa-core:posX "414" ;
+	atxa-core:posY "591" .
+
+_:node1als191rcx1256 atxa-core:contains _:node1als191rcx1260 .
+
+_:node1als191rcx1260 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$DFSCompositionEngine.processNextState()> ;
+	atxa-core:posX "414" ;
+	atxa-core:posY "607" .
+
+_:node1alu5tducx1 atxa-core:contains _:node1als191rcx1261 .
+
+_:node1als191rcx1261 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser> ;
+	atxa-core:posX "89" ;
+	atxa-core:posY "315" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser.compose()> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser.private_compose(boolean,)> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser.newState_compose()> .
+
+_:node1als191rcx184 a atxa-core:link ;
+	atxa-core:model atxa-jdt:inherits ;
+	rdf:subject _:node1als191rcx1261 ;
+	rdf:object _:node1als191rcx1253 ;
+	atxa-core:bendpoint _:node1als191rcx1262 .
+
+_:node1als191rcx1262 atxa-core:bpLocation "240,42" ;
+	atxa-core:bpIndex "0" .
+
+_:node1als191rcx184 atxa-core:bendpoint _:node1als191rcx1263 .
+
+_:node1als191rcx1263 atxa-core:bpLocation "573,42" ;
+	atxa-core:bpIndex "1" .
+
+_:node1als191rcx1261 atxa-core:contains _:node1als191rcx1264 .
+
+_:node1als191rcx1264 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser.compose()> ;
+	atxa-core:posX "90" ;
+	atxa-core:posY "333" .
+
+_:node1als191rcx309 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1als191rcx1264 ;
+	rdf:object _:node1als191rcx1265 .
+
+_:node1als191rcx1261 atxa-core:contains _:node1als191rcx1265 .
+
+_:node1als191rcx1265 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser.private_compose(boolean,)> ;
+	atxa-core:posX "90" ;
+	atxa-core:posY "349" .
+
+_:node1als191rcx1210 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1als191rcx1265 ;
+	rdf:object _:node1als191rcx1266 .
+
+_:node1als191rcx1261 atxa-core:contains _:node1als191rcx1266 .
+
+_:node1als191rcx1266 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts$Analyser.newState_compose()> ;
+	atxa-core:posX "90" ;
+	atxa-core:posY "365" .
+
+_:node1als191rcx843 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1als191rcx1266 ;
+	rdf:object _:node1als191rcx1255 .
+
+atxa-core:docRoot atxa-core:contains _:node1als191rcx1267 .
+
+_:node1als191rcx1267 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.util> ;
+	atxa-core:posX "414" ;
+	atxa-core:posY "153" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.util> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.util$AnimatorDecorator> .
+
+_:node1als191rcx1267 atxa-core:contains _:node1als191rcx1268 .
+
+_:node1als191rcx1268 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.util$AnimatorDecorator> ;
+	atxa-core:posX "420" ;
+	atxa-core:posY "178" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.util$AnimatorDecorator> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.util$AnimatorDecorator.compose()> .
+
+_:node1als191rcx183 a atxa-core:link ;
+	atxa-core:model atxa-jdt:inherits ;
+	rdf:subject _:node1als191rcx1268 ;
+	rdf:object _:node1als191rcx1253 ;
+	atxa-core:bendpoint _:node1als191rcx1269 .
+
+_:node1als191rcx1269 atxa-core:bpLocation "530,42" ;
+	atxa-core:bpIndex "0" .
+
+_:node1als191rcx183 atxa-core:bendpoint _:node1als191rcx1270 .
+
+_:node1als191rcx1270 atxa-core:bpLocation "573,42" ;
+	atxa-core:bpIndex "1" .
+
+_:node1als191rcx1268 atxa-core:contains _:node1als191rcx1271 .
+
+_:node1als191rcx1271 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.util$AnimatorDecorator.compose()> ;
+	atxa-core:posX "421" ;
+	atxa-core:posY "196" .
+
+_:node1als191rcx179 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1als191rcx1271 ;
+	rdf:object _:node1als191rcx1264 .
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix atxa-jdt: <http://www.architexa.com/rdf/jdt#> .
+@prefix atxa-rse-eclipse: <http://www.architexa.com/rdf/rse-eclipse#> .
+@prefix atxa-core: <http://www.architexa.com/rdf/core#> .
+@prefix atxa: <http://www.architexa.com/rdf/> .
+@prefix atxa-jdt-wkspc: <http://www.architexa.com/rdf/jdt-wkspc#> .
+
+<http://www.architexa.com/rdf/rse-eclipse#ClassDiagram.atxa> a atxa-core:reloFile ;
+	atxa-core:contains _:node1alu5tducx2 , _:node1als191rcx1253 , _:node1als191rcx1255 , _:node1als191rcx1254 , _:node1als191rcx1259 , _:node1als191rcx1260 , _:node1als191rcx1256 , _:node1als191rcx1264 , _:node1als191rcx1265 , _:node1als191rcx1266 , _:node1als191rcx1261 , _:node1alu5tducx1 , _:node1als191rcx1271 , _:node1als191rcx1268 , _:node1als191rcx1267 , atxa-core:docRoot , _:node1alu5tducx2 , _:node1als191rcx1253 , _:node1als191rcx1255 , _:node1als191rcx1254 , _:node1als191rcx1259 , _:node1als191rcx1260 , _:node1als191rcx1256 , _:node1als191rcx1264 , _:node1als191rcx1265 , _:node1als191rcx1266 , _:node1als191rcx1261 , _:node1alu5tducx1 , _:node1als191rcx1271 , _:node1als191rcx1268 , _:node1als191rcx1267 , atxa-core:docRoot , _:node1als191rcx452 , _:node1als191rcx184 , _:node1als191rcx309 , _:node1als191rcx1210 , _:node1als191rcx843 , _:node1als191rcx183 , _:node1als191rcx179 , _:node1als191rcx452 , _:node1als191rcx184 , _:node1als191rcx309 , _:node1als191rcx1210 , _:node1als191rcx843 , _:node1als191rcx183 , _:node1als191rcx179 .
+

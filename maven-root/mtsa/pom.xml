@@ -12,8 +12,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -286,25 +286,19 @@
             <systemPath>${project.basedir}/lib/javacv/javacv/1.0/javacv-1.0.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>scenebeans</groupId>
-            <artifactId>scenebeans</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/scenebeans/scenebeans/1.0/scenebeans-1.0.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>lejos</groupId>
-            <artifactId>nxt</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/lejos/nxt/1.0/nxt-1.0.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>ev3classes</groupId>
             <artifactId>ev3classes</artifactId>
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/ev3classes/ev3classes/0.1/ev3classes-0.1.jar</systemPath>
+        </dependency>
+        
+        <dependency>
+            <groupId>scenebeans</groupId>
+            <artifactId>scenebeans</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/scenebeans/scenebeans/1.0/scenebeans-1.0.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
