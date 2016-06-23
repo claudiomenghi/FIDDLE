@@ -18,10 +18,10 @@ import ltsa.lts.CompositeState;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.EmptyLTSOuput;
 import ltsa.lts.LTSOutput;
-import ltsa.lts.Minimiser;
 import ltsa.lts.Symbol;
 import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.distribution.DistributionTransformationException;
+import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.lts.util.MTSUtils;
 
 import org.apache.commons.collections15.CollectionUtils;

@@ -19,8 +19,8 @@ import ltsa.lts.CompositeState;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.LTSOutput;
 import ltsa.lts.LabelSet;
-import ltsa.lts.Minimiser;
 import ltsa.lts.Symbol;
+import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 
 /* -----------------------------------------------------------------------*/

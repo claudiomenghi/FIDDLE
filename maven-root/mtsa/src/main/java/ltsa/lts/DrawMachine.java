@@ -148,17 +148,17 @@ public class DrawMachine {
           while (p!=null) {
               EventState tr = p;
               while(tr!=null) {
-                  if (tr.next==(m.maxStates-1)) {
+                  if (tr.getNext()==(m.maxStates-1)) {
                     if (largestEndLabel == null) {
-                      largestEndLabel = m.alphabet[tr.event];
+                      largestEndLabel = m.alphabet[tr.getEvent()];
                     } else {
-                      String s = m.alphabet[tr.event];
+                      String s = m.alphabet[tr.getEvent()];
                       if (s.length()>largestEndLabel.length()) largestEndLabel = s;
                     }
                   }
-                  tr=tr.nondet;
+                  tr=tr.getNondet();
               }
-              p=p.list;
+              p=p.getList();
           }
         } else 
            largestEndLabel = labels[m.maxStates][m.maxStates];
@@ -195,15 +195,15 @@ public class DrawMachine {
                 while (p!=null) {
                     EventState tr = p;
                     while(tr!=null) {
-                        ntrans[tr.next+1]++;
-                        int diff = tr.next - i;
-                        if (diff>maxFwd || (diff==maxFwd && ntrans[tr.next+1] > maxFwdLabels)) 
-                          {maxFwd = diff; fwdToState = tr.next+1; fwd = true; }
-                        if (diff<maxBwd || (diff==maxBwd && ntrans[tr.next+1] > maxBwdLabels))  
-                          {maxBwd = diff; bwdToState = tr.next+1; bwd = true; }                
-                        tr=tr.nondet;
+                        ntrans[tr.getNext()+1]++;
+                        int diff = tr.getNext() - i;
+                        if (diff>maxFwd || (diff==maxFwd && ntrans[tr.getNext()+1] > maxFwdLabels)) 
+                          {maxFwd = diff; fwdToState = tr.getNext()+1; fwd = true; }
+                        if (diff<maxBwd || (diff==maxBwd && ntrans[tr.getNext()+1] > maxBwdLabels))  
+                          {maxBwd = diff; bwdToState = tr.getNext()+1; bwd = true; }                
+                        tr=tr.getNondet();
                     }
-                    p=p.list;
+                    p=p.getList();
                 }
                 if (fwd) maxFwdLabels = newLabelFormat?1:ntrans[fwdToState];
                 if (bwd) maxBwdLabels = newLabelFormat?1:ntrans[bwdToState];
@@ -267,26 +267,26 @@ public class DrawMachine {
                 EventState p = m.states[i];
                 while (p!=null) {
                     EventState tr = p;
-                    String  event = m.alphabet[tr.event];
+                    String  event = m.alphabet[tr.getNext()];
                     if (event.charAt(0)!='@')
                     while(tr!=null) {
-                        ntrans[tr.next+1]++;
+                        ntrans[tr.getNext()+1]++;
                         // drawTransition(g,i,tr.next,event,ntrans[tr.next+1],
                         //               i==lastselected && tr.next==selected && lastaction!=null,false);
-                        drawTransition(g, i, tr, event, ntrans[tr.next+1],
-                                i==lastselected && tr.next==selected && lastaction!=null, false);
+                        drawTransition(g, i, tr, event, ntrans[tr.getNext()+1],
+                                i==lastselected && tr.getNext()==selected && lastaction!=null, false);
                         if (tr instanceof ProbabilisticEventState) {
                         	ProbabilisticEventState probTr= (ProbabilisticEventState) ((ProbabilisticEventState) tr).probTr;
                         	while (probTr != null) {
-                        		ntrans[probTr.next+1]++;
-                        		drawTransition(g, i, probTr, event, ntrans[probTr.next+1],
-                                        i==lastselected && probTr.next==selected && lastaction!=null, false);
+                        		ntrans[probTr.getNext()+1]++;
+                        		drawTransition(g, i, probTr, event, ntrans[probTr.getNext()+1],
+                                        i==lastselected && probTr.getNext()==selected && lastaction!=null, false);
                         		probTr= (ProbabilisticEventState) probTr.probTr;
                         	}
                         }
-                        tr=tr.nondet;
+                        tr=tr.getNondet();
                     }
-                    p=p.list;
+                    p=p.getList();
                 }
             }
             //draw transitions - text
@@ -295,46 +295,46 @@ public class DrawMachine {
                 EventState p = m.states[i];
                 while (p!=null) {
                     EventState tr = p;
-                    String  event = m.alphabet[tr.event];
+                    String  event = m.alphabet[tr.getEvent()];
                     if (event.charAt(0)!='@')
                     while(tr!=null) {
-                        ntrans[tr.next+1]++;
+                        ntrans[tr.getNext()+1]++;
                         if (!newLabelFormat) {
                           // drawTransition(g,i,tr.next,event,ntrans[tr.next+1],
                           //               i==lastselected && tr.next==selected,true);
-                        	drawTransition(g, i, tr, event, ntrans[tr.next+1], i==lastselected && tr.next==selected, true);
+                        	drawTransition(g, i, tr, event, ntrans[tr.getNext()+1], i==lastselected && tr.getNext()==selected, true);
                             if (tr instanceof ProbabilisticEventState) {
                             	ProbabilisticEventState probTr= (ProbabilisticEventState) ((ProbabilisticEventState) tr).probTr;
                             	while (probTr != null) {
-                            		ntrans[probTr.next+1]++;
-                            		drawTransition(g, i, probTr, event, ntrans[probTr.next+1],
-                                            i==lastselected && probTr.next==selected, true);
+                            		ntrans[probTr.getNext()+1]++;
+                            		drawTransition(g, i, probTr, event, ntrans[probTr.getNext()+1],
+                                            i==lastselected && probTr.getNext()==selected, true);
                             		probTr= (ProbabilisticEventState) probTr.probTr;
                             	}
                             }
                         } else {
-								if (ntrans[tr.next + 1] == 1) {
+								if (ntrans[tr.getNext() + 1] == 1) {
 									// drawTransition(g,i,tr.next,labels[i+1][tr.next+1],ntrans[tr.next+1],
 									// i==lastselected && tr.next==selected &&
 									// lastaction!=null,true);
-									drawTransition(g, i, tr, labels[i + 1][tr.next + 1], ntrans[tr.next + 1],
-												   i == lastselected && tr.next == selected && lastaction != null, true);
+									drawTransition(g, i, tr, labels[i + 1][tr.getNext() + 1], ntrans[tr.getNext() + 1],
+												   i == lastselected && tr.getNext() == selected && lastaction != null, true);
 									if (tr instanceof ProbabilisticEventState) {
 										ProbabilisticEventState probTr= (ProbabilisticEventState) ((ProbabilisticEventState) tr).probTr;
 										while (probTr != null) {
-											ntrans[probTr.next + 1]++;
-											if (ntrans[probTr.next + 1] == 1) {
-												drawTransition(g, i, probTr, labels[i+1][probTr.next+1], ntrans[probTr.next + 1],
-															   i == lastselected && probTr.next == selected && lastaction != null, true);
+											ntrans[probTr.getNext() + 1]++;
+											if (ntrans[probTr.getNext() + 1] == 1) {
+												drawTransition(g, i, probTr, labels[i+1][probTr.getNext()+1], ntrans[probTr.getNext() + 1],
+															   i == lastselected && probTr.getNext() == selected && lastaction != null, true);
 											}
 											probTr= (ProbabilisticEventState) probTr.probTr;
 										}
 									}
 								}
                         }
-                        tr=tr.nondet;
+                        tr=tr.getNondet();
                     }
-                    p=p.list;
+                    p=p.getList();
                 }
             }
 
@@ -374,7 +374,7 @@ public class DrawMachine {
 
 //     private void drawTransition(Graphics g,int from, int to, String s, int n, boolean highlight, boolean dotext) {
     private void drawTransition(Graphics g, int from, EventState toState, String s, int n, boolean highlight, boolean dotext) {
-    	int to= toState.next;
+    	int to= toState.getNext();
 
         if (highlight)
             g.setColor(Color.red);
@@ -461,8 +461,8 @@ public class DrawMachine {
           while (current != null) {
             String[] events = EventState.eventsToNextNoAccept(current,mach.alphabet);
             Alphabet a = new Alphabet(events);
-            labels[i+1][current.next+1] = a.toString();
-            current = current.list;
+            labels[i+1][current.getNext()+1] = a.toString();
+            current = current.getList();
           }
       }
     }

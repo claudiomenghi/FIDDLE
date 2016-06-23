@@ -2,7 +2,7 @@ Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
 Initialized StandardEnvironment with PropertySources [systemProperties,systemEnvironment]
-Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@61a52fbd: startup date [Thu Jun 23 09:53:35 CEST 2016]; root of context hierarchy
+Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@61a52fbd: startup date [Thu Jun 23 11:20:53 CEST 2016]; root of context hierarchy
 Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
@@ -12,7 +12,7 @@ Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
 Initialized StandardEnvironment with PropertySources [systemProperties,systemEnvironment]
-Refreshing org.springframework.context.support.FileSystemXmlApplicationContext@7085bdee: startup date [Thu Jun 23 09:53:35 CEST 2016]; root of context hierarchy
+Refreshing org.springframework.context.support.FileSystemXmlApplicationContext@7085bdee: startup date [Thu Jun 23 11:20:53 CEST 2016]; root of context hierarchy
 Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence

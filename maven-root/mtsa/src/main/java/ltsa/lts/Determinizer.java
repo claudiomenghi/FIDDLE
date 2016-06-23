@@ -76,26 +76,26 @@ public class Determinizer {
             }
 			*/
 			// change for Dimitra
-            if (action.next!=Declaration.ERROR)
-                newState.set(action.next);
+            if (action.getNext()!=Declaration.ERROR)
+                newState.set(action.getNext());
             else
                 errorState = true;
-            EventState nd = action.nondet;
+            EventState nd = action.getNondet();
             while (nd!=null) {
-                if(nd.next!=Declaration.ERROR) {
-                    newState.set(nd.next);
+                if(nd.getNext()!=Declaration.ERROR) {
+                    newState.set(nd.getNext());
                     //errorState = false;
                 } else 
 				    errorState = true;
-                nd=nd.nondet;
+                nd=nd.getNondet();
             }
             int newStateId;
             if (errorState)
                 newStateId = Declaration.ERROR;
             else
                 newStateId = addState(newState);
-            newtr = EventStateUtils.add(newtr,new EventState(action.event,newStateId));
-            action = action.list;
+            newtr = EventStateUtils.add(newtr,new EventState(action.getEvent(),newStateId));
+            action = action.getList();
         }
         newStates.addElement(newtr);
     }

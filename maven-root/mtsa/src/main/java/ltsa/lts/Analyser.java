@@ -14,6 +14,7 @@ import java.util.Vector;
 
 import ltsa.lts.ltl.FluentTrace;
 import ltsa.lts.operations.composition.CompositionEngine;
+import ltsa.lts.operations.composition.CompositionEngineFactory;
 import ltsa.lts.util.LTSUtils;
 
 public class Analyser implements Animator, Automata {
@@ -215,15 +216,15 @@ public class Analyser implements Animator, Automata {
 				EventState p = sm[i].states[j];
 				while (p != null) {
 					EventState tr = p;
-					tr.machine = i;
-					tr.event = ((Integer) actionMap
-							.get(sm[i].alphabet[tr.event])).intValue();
-					while (tr.nondet != null) {
-						tr.nondet.event = tr.event;
-						tr.nondet.machine = tr.machine;
-						tr = tr.nondet;
+					tr.setMachine(i);
+					tr.setEvent(((Integer) actionMap.get(sm[i].alphabet[tr
+							.getEvent()])).intValue());
+					while (tr.getNondet() != null) {
+						tr.getNondet().setEvent(tr.getEvent());
+						tr.getNondet().setMachine(tr.getMachine());
+						tr = tr.getNondet();
 					}
-					p = p.list;
+					p = p.getList();
 				}
 			}
 		// compute visible set
@@ -391,17 +392,17 @@ public class Analyser implements Animator, Automata {
 			EventState p = sm[i].states[state[i]];
 			while (p != null) { // foreach transition
 				EventState tr = p;
-				tr.path = trs[tr.event];
-				trs[tr.event] = tr;
-				ac[tr.event]--;
-				if (tr.event != 0 && ac[tr.event] == 0) {
+				tr.setPath(trs[tr.getEvent()]);
+				trs[tr.getEvent()] = tr;
+				ac[tr.getEvent()]--;
+				if (tr.getEvent() != 0 && ac[tr.getEvent()] == 0) {
 					nsucc++; // ignoring tau, this transition is possible
 					// bugfix 26-mar-04 to handle asterisk + priority
-					if (highAction != null && highAction.get(tr.event)
-							&& tr.event != asteriskEvent)
+					if (highAction != null && highAction.get(tr.getEvent())
+							&& tr.getEvent() != asteriskEvent)
 						++highs;
 				}
-				p = p.list;
+				p = p.getList();
 			}
 		}
 		if (nsucc == 0 && trs[0] == null)
@@ -430,19 +431,19 @@ public class Analyser implements Animator, Automata {
 				EventState tr = trs[actionNo];
 				boolean nonDeterministic = false;
 				while (tr != null) { // test for non determinism
-					if (tr.nondet != null) {
+					if (tr.getNondet() != null) {
 						nonDeterministic = true;
 						break;
 					}
-					tr = tr.path;
+					tr = tr.getPath();
 				}
 				tr = trs[actionNo];
 				if (!nonDeterministic) {
 					int[] next = LTSUtils.myclone(state);
 					next[Nmach] = actionNo;
 					while (tr != null) {
-						next[tr.machine] = tr.next;
-						tr = tr.path;
+						next[tr.getMachine()] = tr.getNext();
+						tr = tr.getPath();
 					}
 					if (actionNo != asteriskEvent)
 						transitions.add(next);
@@ -470,12 +471,12 @@ public class Analyser implements Animator, Automata {
 			EventState across = down;
 			while (across != null) {
 				int[] next = LTSUtils.myclone(state);
-				next[across.machine] = across.next;
+				next[across.getMachine()] = across.getNext();
 				next[Nmach] = 0; // tau
 				v.add(next);
-				across = across.nondet;
+				across = across.getNondet();
 			}
-			down = down.path;
+			down = down.getPath();
 		}
 	}
 
@@ -483,14 +484,14 @@ public class Analyser implements Animator, Automata {
 		EventState tr = first;
 		while (tr != null) {
 			int[] next = LTSUtils.myclone(state);
-			next[tr.machine] = tr.next;
-			if (first.path != null)
-				computeNonDetTransitions(first.path, next, v);
+			next[tr.getMachine()] = tr.getNext();
+			if (first.getPath() != null)
+				computeNonDetTransitions(first.getPath(), next, v);
 			else {
-				next[Nmach] = first.event;
+				next[Nmach] = first.getEvent();
 				v.add(next);
 			}
-			tr = tr.nondet;
+			tr = tr.getNondet();
 		}
 	}
 

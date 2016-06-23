@@ -3,7 +3,7 @@ package ltsa.lts;
 public class Counter {
     int count;
 
-    Counter(int i){
+    public Counter(int i){
         count = i;
     }
 

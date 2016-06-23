@@ -45,17 +45,17 @@ public class ModelExplorer {
 			EventState p = ctx.sm[i].states[state[i]];
 			while (p != null) { // foreach transition
 				EventState tr = p;
-				tr.path = trs[tr.event];
-				trs[tr.event] = tr;
-				ac[tr.event]--;
-				if (tr.event != 0 && ac[tr.event] == 0) {
+				tr.setPath(trs[tr.getEvent()]);
+				trs[tr.getEvent()] = tr;
+				ac[tr.getEvent()]--;
+				if (tr.getEvent() != 0 && ac[tr.getEvent()] == 0) {
 					nsucc++; // ignoring tau, this transition is possible
 					// bugfix 26-mar-04 to handle asterisk + priority
-					if (ctx.highAction != null && ctx.highAction.get(tr.event)
-							&& tr.event != ctx.asteriskEvent)
+					if (ctx.highAction != null && ctx.highAction.get(tr.getEvent())
+							&& tr.getEvent() != ctx.asteriskEvent)
 						++highs;
 				}
-				p = p.list;
+				p = p.getList();
 			}
 		}
 		if (nsucc == 0 && trs[0] == null)
@@ -83,7 +83,7 @@ public class ModelExplorer {
 				boolean probabilistic= false;
 				while (tr != null) { // test for non determinism or probabilistic transitions
 					// tr.path holds all tr (EventStates) that synchronise to make this transition 
-					if (tr.nondet != null) {
+					if (tr.getNondet() != null) {
 						nonDeterministic = true;
 					}
 					if (tr instanceof ProbabilisticEventState) {
@@ -96,15 +96,15 @@ public class ModelExplorer {
 					if (nonDeterministic || probabilistic)
 						break;
 
-					tr = tr.path;
+					tr = tr.getPath();
 				}
 				tr = trs[actionNo];
 				if (!nonDeterministic && !probabilistic) {
 					int[] next = LTSUtils.myclone(state);
 					next[ctx.Nmach] = actionNo;
 					while (tr != null) {
-						next[tr.machine] = tr.next;
-						tr = tr.path;
+						next[tr.getMachine()] = tr.getNext();
+						tr = tr.getPath();
 					}
 					if (actionNo != ctx.asteriskEvent)
 						transitions.add(next);
@@ -139,12 +139,12 @@ public class ModelExplorer {
 			EventState across = down;
 			while (across != null) {
 				int[] next = LTSUtils.myclone(state);
-				next[across.machine] = across.next;
+				next[across.getMachine()] = across.getNext();
 				next[ctx.Nmach] = 0; // tau
 				v.add(next);
-				across = across.nondet;
+				across = across.getNondet();
 			}
-			down = down.path;
+			down = down.getPath();
 		}
 	}
 	
@@ -152,15 +152,15 @@ public class ModelExplorer {
 		EventState tr = first;
 		while (tr != null) {
 			int[] next = LTSUtils.myclone(state);
-			next[tr.machine] = tr.next;
-			if (first.path != null) {
+			next[tr.getMachine()] = tr.getNext();
+			if (first.getPath() != null) {
 				// generate the tree of possible nondet combinations.
-				computeNonDetTransitions(ctx, first.path, next, v);
+				computeNonDetTransitions(ctx, first.getPath(), next, v);
 			} else {
-				next[ctx.Nmach] = first.event;
+				next[ctx.Nmach] = first.getEvent();
 				v.add(next);
 			}
-			tr = tr.nondet;
+			tr = tr.getNondet();
 		}
 	}
 	
@@ -193,16 +193,16 @@ public class ModelExplorer {
 					probs= new BigDecimal[ctx.Nmach];
 
 				int[] next= LTSUtils.myclone(state);
-				next[tr.machine]= probTr.next;
-				bundles[tr.machine]= probTr.getBundle();
-				probs[tr.machine]= probTr.getProbability();
+				next[tr.getMachine()]= probTr.getNext();
+				bundles[tr.getMachine()]= probTr.getBundle();
+				probs[tr.getMachine()]= probTr.getProbability();
 
-				if (first.path != null) {
-					computeProbabilisticTransitions(ctx, sourceStates, first.path, next, bundles, probs, v);
+				if (first.getPath() != null) {
+					computeProbabilisticTransitions(ctx, sourceStates, first.getPath(), next, bundles, probs, v);
 				} else {
 					// last machine
 					ProbabilisticEligibleTransition probNext= new ProbabilisticEligibleTransition();
-					next[ctx.Nmach]= first.event;
+					next[ctx.Nmach]= first.getEvent();
 					probNext.next= next;
 					probNext.sourceBundles= LTSUtils.myclone(bundles);
 					probNext.sourceProbs= LTSUtils.myclone(probs);
@@ -213,7 +213,7 @@ public class ModelExplorer {
 				probTr= (ProbabilisticEventState) probTr.probTr;
 			}
 
-			tr= (ProbabilisticEventState) tr.nondet;
+			tr= (ProbabilisticEventState) tr.getNondet();
 		}
 	}
 	

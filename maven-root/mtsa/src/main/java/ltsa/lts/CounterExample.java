@@ -32,11 +32,11 @@ public class CounterExample {
             break;
         case Declaration.STOP:
            output.outln("Trace to DEADLOCK:");
-           errorTrace = EventState.getPath(trace.path,mach.composition.alphabet);
+           errorTrace = EventState.getPath(trace.getPath(),mach.composition.alphabet);
            printPath(output,errorTrace);
            break;
         case Declaration.ERROR:
-           errorTrace = EventState.getPath(trace.path,mach.composition.alphabet);
+           errorTrace = EventState.getPath(trace.getPath(),mach.composition.alphabet);
            String name = findComponent(errorTrace);
            output.outln("Trace to property violation in "+name+":");
            printPath(output,errorTrace);

@@ -1,8 +1,18 @@
-package ltsa.lts;
+package ltsa.lts.operations.minimization;
 
 import java.util.BitSet;
 import java.util.Hashtable;
 import java.util.Map;
+
+import ltsa.lts.CompactState;
+import ltsa.lts.CompositeState;
+import ltsa.lts.Counter;
+import ltsa.lts.Declaration;
+import ltsa.lts.Determinizer;
+import ltsa.lts.EventState;
+import ltsa.lts.EventStateUtils;
+import ltsa.lts.LTSOutput;
+import ltsa.lts.MarkedCompactState;
 
 public class Minimiser {
 
@@ -170,26 +180,26 @@ public class Minimiser {
             EventState tr = p;
             while (tr!=null) {
                 if (!findSuccessor(j,tr)) return false;
-                tr=tr.nondet;
+                tr=tr.getNondet();
             }
-            p=p.list;
+            p=p.getList();
         }
         return true;
     }
 
     private boolean findSuccessor(int j,EventState tr) {
         EventState p = machine.states[j];  //find event
-        while(p.event!=tr.event) p=p.list;
+        while(p.getEvent()!=tr.getEvent()) p=p.getList();
         while (p!=null) {
-            if (tr.next<0) {
-                if (p.next<0) return true;
+            if (tr.getNext()<0) {
+                if (p.getNext()<0) return true;
             } else {
-                if (p.next>=0) {
+                if (p.getNext()>=0) {
                     //pregunto en la matriz de las maybes si tiene transiciones al reves
-                    if (E[tr.next].get(p.next))return true;
+                    if (E[tr.getNext()].get(p.getNext()))return true;
                 }
             }
-            p=p.nondet;
+            p=p.getNondet();
         }
         return false;
     }

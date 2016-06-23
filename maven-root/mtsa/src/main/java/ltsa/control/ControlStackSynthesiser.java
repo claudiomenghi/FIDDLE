@@ -13,7 +13,7 @@ import ltsa.lts.CompactState;
 import ltsa.lts.CompositeState;
 import ltsa.lts.CompositionExpression;
 import ltsa.lts.LTSOutput;
-import ltsa.lts.Minimiser;
+import ltsa.lts.operations.minimization.Minimiser;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;

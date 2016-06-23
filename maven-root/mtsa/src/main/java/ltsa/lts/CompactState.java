@@ -743,13 +743,13 @@ public class CompactState implements Automata {
 				EventState p = sm[i].states[j];
 				while (p != null) {
 					EventState tr = p;
-					tr.event = actionMap.get(sm[i].alphabet[tr.event])
-							.intValue();
-					while (tr.nondet != null) {
-						tr.nondet.event = tr.event;
-						tr = tr.nondet;
+					tr.setEvent(actionMap.get(sm[i].alphabet[tr.getEvent()])
+							.intValue());
+					while (tr.getNondet() != null) {
+						tr.getNondet().setEvent(tr.getEvent());
+						tr = tr.getNondet();
 					}
-					p = p.list;
+					p = p.getList();
 				}
 			}
 		}
@@ -803,7 +803,7 @@ public class CompactState implements Automata {
 			for (Enumeration<?> e = states[state].elements(); e
 					.hasMoreElements();) {
 				EventState t = (EventState) e.nextElement();
-				tr.add(state, encode(t.next), t.event);
+				tr.add(state, encode(t.getNext()), t.getEvent());
 			}
 		return tr;
 	}
@@ -817,7 +817,7 @@ public class CompactState implements Automata {
 		EventState trace = new EventState(0, 0);
 		int result = EventState.search(trace, states, decode(from), decode(to),
 				-123456);
-		return EventState.getPath(trace.path, alphabet);
+		return EventState.getPath(trace.getPath(), alphabet);
 	}
 
 	// return the number of the END state

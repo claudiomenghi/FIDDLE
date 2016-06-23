@@ -1,7 +1,14 @@
-package ltsa.lts;
+package ltsa.lts.operations.composition;
 
 import java.util.List;
 import java.util.Iterator;
+
+import ltsa.lts.Diagnostics;
+import ltsa.lts.ModelExplorerContext;
+import ltsa.lts.ProbabilisticEligibleTransition;
+import ltsa.lts.ProbabilisticTransition;
+import ltsa.lts.StateCodec;
+import ltsa.lts.StateMap;
 
 public class CompositionEngineCommon {
 

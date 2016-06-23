@@ -51,8 +51,8 @@ public class PrintTransitions {
         	  int evCnt= 0;
         	  for (String evt : events) {
         		  ProbabilisticEventState probCurr= (ProbabilisticEventState) current;
-        		  while (!sm.alphabet[probCurr.event].equals(evt) && probCurr != null) {
-        			  probCurr= (ProbabilisticEventState) probCurr.nondet;
+        		  while (!sm.alphabet[probCurr.getEvent()].equals(evt) && probCurr != null) {
+        			  probCurr= (ProbabilisticEventState) probCurr.getNondet();
         		  }
         		  
         		  if (probCurr == null)
@@ -60,10 +60,10 @@ public class PrintTransitions {
 
         		  output.out(evt + " -> ");
         		  output.out("{" + probCurr.getBundle() + ":" + probCurr.getProbability() + "} ");
-                  if (current.next<0) 
+                  if (current.getNext()<0) 
                       output.out("ERROR"); 
                     else 
-                      output.out("Q"+current.next);
+                      output.out("Q"+current.getNext());
 
                   evCnt++;
         		  if (evCnt != events.length) {
@@ -72,12 +72,12 @@ public class PrintTransitions {
         	  }
           } else {
               output.out(a.toString() + " -> ");
-              if (current.next<0) 
+              if (current.getNext()<0) 
                   output.out("ERROR"); 
                 else 
-                  output.out("Q"+current.next);
+                  output.out("Q"+current.getNext());
           }
-          current = current.list;
+          current = current.getList();
 
           if (current==null) {
             if (i<sm.maxStates-1) 

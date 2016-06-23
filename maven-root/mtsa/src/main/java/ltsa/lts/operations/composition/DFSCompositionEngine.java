@@ -2,7 +2,6 @@ package ltsa.lts.operations.composition;
 
 import java.util.List;
 
-import ltsa.lts.CompositionEngineCommon;
 import ltsa.lts.LTSConstants;
 import ltsa.lts.LTSOutput;
 import ltsa.lts.ModelExplorer;
@@ -91,6 +90,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 		return deadlockDetected;
 	}
 	
+	@Override
 	public void processNextState() {
 		int[] state = coder.decode(getNextState());
 		analysed.markNextState(ctx.stateCount++);

@@ -2,7 +2,6 @@ package ltsa.lts.operations.composition;
 
 import java.util.List;
 
-import ltsa.lts.CompositionEngineCommon;
 import ltsa.lts.LTSOutput;
 import ltsa.lts.ModelExplorer;
 import ltsa.lts.ModelExplorerContext;

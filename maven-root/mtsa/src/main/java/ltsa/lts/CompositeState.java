@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.dispatcher.TransitionSystemDispatcher;
+import ltsa.lts.operations.minimization.Minimiser;
 
 public class CompositeState {
 
