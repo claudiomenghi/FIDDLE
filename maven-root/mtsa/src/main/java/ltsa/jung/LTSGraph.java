@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.EventState;
+import ltsa.lts.lts.EventState;
+import ltsa.lts.ltscomposition.CompactState;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.picking.PickedState;
@@ -142,7 +142,7 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 	}
 	
 	public LTSGraph(CompactState lts) {
-		this(lts.name);
+		this(lts.getName());
 		mixed = false;
 		
 		HashMap<Integer,StateVertex> stateByNumber =
@@ -152,7 +152,7 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 
 		//Convert all states to vertices in the output graph
 		for (int currentState=0; currentState < lts.maxStates; currentState++) {
-			final StateVertex js = new StateVertex(currentState,lts.name);
+			final StateVertex js = new StateVertex(currentState,lts.getName());
 			addVertex(js);
 			stateByNumber.put(currentState, js);
 
@@ -174,7 +174,7 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 		}
 
 		//temporarily add the error state
-		final StateVertex jserror = new StateVertex(-1, lts.name);
+		final StateVertex jserror = new StateVertex(-1, lts.getName());
 		addVertex(jserror);
 		stateByNumber.put(-1, jserror);
 

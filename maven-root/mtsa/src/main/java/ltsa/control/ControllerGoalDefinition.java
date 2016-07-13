@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import ltsa.lts.Diagnostics;
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Symbol;
 
 import org.apache.commons.lang.Validate;
 

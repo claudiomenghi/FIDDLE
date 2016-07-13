@@ -1,7 +1,7 @@
 package ltsa.lts.ltl;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.Lex;
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Lex;
+import ltsa.lts.parser.Symbol;
 
 public class LTLparser {
 	
@@ -16,17 +16,19 @@ public class LTLparser {
 		
   public FormulaFactory parse() {
   	   current = modify(lex.current());
-  	   if (current==null) next_symbol();
+  	   if (current==null) {
+  		   next_symbol();
+  	   }
   	   fac.setFormula(ltl_unary());
   	   return fac;
   }
   
   private Symbol next_symbol () {
-    	return (current = modify(lex.next_symbol()));
+    	return (current = modify(lex.nextSymbol()));
   }
 
   private void push_symbol () {
-     lex.push_symbol();
+     lex.pushSymbol();
   }
 
   private void current_is (int kind, String errorMsg) {
@@ -36,7 +38,9 @@ public class LTLparser {
   
   // do not want X and U to be keywords outside of LTL expressions
   private Symbol modify(Symbol s) {
-  	  if (s.kind!=Symbol.UPPERIDENT) return s;
+  	  if (s.kind!=Symbol.UPPERIDENT) {
+  		  return s;
+  	  }
   	  if (s.toString().equals("X")) {
   	  	   Symbol nx = new Symbol(s);
   	  	   nx.kind = Symbol.NEXTTIME;

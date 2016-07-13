@@ -3,6 +3,11 @@ package ltsa.lts;
 import java.io.PrintStream;
 import java.util.Hashtable;
 
+import ltsa.lts.csp.Declaration;
+import ltsa.lts.lts.EventState;
+import ltsa.lts.lts.ProbabilisticEventState;
+import ltsa.lts.util.collections.MyIntHash;
+
 /**
  * Carried away EventState class specific methods from EventState to account for
  * subclasses
@@ -28,7 +33,8 @@ public class EventStateUtils {
 									((ProbabilisticEventState) q)
 											.getProbability(),
 									((ProbabilisticEventState) q).getBundle()));
-					ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q).probTr;
+					ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q)
+							.getProbTr();
 					while (probSt != null) {
 						next = probSt.getNext() < 0 ? Declaration.ERROR
 								: ((Integer) oldtonew.get(new Integer(probSt
@@ -41,7 +47,7 @@ public class EventStateUtils {
 												.getProbability(),
 										((ProbabilisticEventState) probSt)
 												.getBundle()));
-						probSt = (ProbabilisticEventState) probSt.probTr;
+						probSt = (ProbabilisticEventState) probSt.getProbTr();
 					}
 				} else {
 					newhead = EventStateUtils.add(newhead,
@@ -69,7 +75,8 @@ public class EventStateUtils {
 									((ProbabilisticEventState) q)
 											.getProbability(),
 									((ProbabilisticEventState) q).getBundle()));
-					ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q).probTr;
+					ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q)
+							.getProbTr();
 					while (probSt != null) {
 						next = probSt.getNext() < 0 ? Declaration.ERROR
 								: oldtonew.get(probSt.getNext());
@@ -81,7 +88,7 @@ public class EventStateUtils {
 												.getProbability(),
 										((ProbabilisticEventState) probSt)
 												.getBundle()));
-						probSt = (ProbabilisticEventState) probSt.probTr;
+						probSt = (ProbabilisticEventState) probSt.getProbTr();
 					}
 				} else {
 					newhead = EventStateUtils.add(newhead,
@@ -119,13 +126,15 @@ public class EventStateUtils {
 							stack = EventState.push(stack, q);
 
 						if (q instanceof ProbabilisticEventState) {
-							ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q).probTr;
+							ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q)
+									.getProbTr();
 							while (probSt != null) {
 								if (probSt.getNext() >= 0
 										&& !visited.containsKey(probSt
 												.getNext()))
 									stack = EventState.push(stack, probSt);
-								probSt = (ProbabilisticEventState) probSt.probTr;
+								probSt = (ProbabilisticEventState) probSt
+										.getProbTr();
 							}
 						}
 
@@ -154,13 +163,14 @@ public class EventStateUtils {
 							probQ.getBundle());
 					res = EventStateUtils.add(res, evSt);
 
-					ProbabilisticEventState probSt = (ProbabilisticEventState) probQ.probTr;
+					ProbabilisticEventState probSt = (ProbabilisticEventState) probQ
+							.getProbTr();
 					while (probSt != null) {
 						evSt = new ProbabilisticEventState(probSt.getEvent(),
 								probSt.getNext(), probSt.getProbability(),
 								probSt.getBundle());
 						res = EventStateUtils.add(res, evSt);
-						probSt = (ProbabilisticEventState) probSt.probTr;
+						probSt = (ProbabilisticEventState) probSt.getProbTr();
 					}
 				} else {
 					evSt = new EventState(q.getEvent(), q.getNext());
@@ -208,8 +218,8 @@ public class EventStateUtils {
 
 					if (newP != null) {
 						// it is a known bundle
-						newTr.probTr = newP.probTr;
-						newP.probTr = newTr;
+						newTr.setProbTr(newP.getProbTr());
+						newP.setProbTr(newTr);
 					} else {
 						// is a new bundle, a nondet transition on event
 						newTr.setNondet(p.getNondet());
@@ -221,12 +231,14 @@ public class EventStateUtils {
 			} else {
 				// add to nondet
 				EventState q = p;
-				if (q.getNext() == tr.getNext())
+				if (q.getNext() == tr.getNext()){
 					return head;
+				}
 				while (q.getNondet() != null) {
 					q = q.getNondet();
-					if (q.getNext() == tr.getNext())
+					if (q.getNext() == tr.getNext()){
 						return head;
+					}
 				}
 				q.setNondet(tr);
 			}
@@ -257,7 +269,7 @@ public class EventStateUtils {
 										probQ.getEvent(), probQ
 												.getProbability(), probQ
 												.getBundle()));
-						probQ = (ProbabilisticEventState) probQ.probTr;
+						probQ = (ProbabilisticEventState) probQ.getProbTr();
 					} while (probQ != null);
 				} else {
 					res = EventStateUtils.add(res, new EventState(q.getNext(),
@@ -277,12 +289,12 @@ public class EventStateUtils {
 				q.setEvent(n);
 				if (q instanceof ProbabilisticEventState) {
 					ProbabilisticEventState probQ = (ProbabilisticEventState) q;
-					probQ = (ProbabilisticEventState) probQ.probTr;
+					probQ = (ProbabilisticEventState) probQ.getProbTr();
 					while (probQ != null) {
 						n = probQ.getNext();
 						probQ.setNext(probQ.getEvent());
 						probQ.setEvent(n);
-						probQ = (ProbabilisticEventState) probQ.probTr;
+						probQ = (ProbabilisticEventState) probQ.getProbTr();
 					}
 				}
 				q = q.getNondet();
@@ -307,7 +319,7 @@ public class EventStateUtils {
 								+ "{" + probP.getBundle() + ":"
 								+ probP.getProbability() + "},"
 								+ probP.getNext() + ")\n");
-						probP = (ProbabilisticEventState) probP.probTr;
+						probP = (ProbabilisticEventState) probP.getProbTr();
 					}
 
 				} else {
@@ -329,10 +341,10 @@ public class EventStateUtils {
 				n++;
 				if (q instanceof ProbabilisticEventState) {
 					ProbabilisticEventState probP = (ProbabilisticEventState) q;
-					probP = (ProbabilisticEventState) probP.probTr;
+					probP = (ProbabilisticEventState) probP.getProbTr();
 					while (probP != null) {
 						n++;
-						probP = (ProbabilisticEventState) probP.probTr;
+						probP = (ProbabilisticEventState) probP.getProbTr();
 					}
 				}
 				q = q.getNondet();

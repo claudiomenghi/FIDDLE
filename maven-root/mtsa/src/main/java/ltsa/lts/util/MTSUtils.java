@@ -7,9 +7,9 @@ import java.util.Set;
 import java.util.Vector;
 
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.MyList;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.util.collections.MyList;
 
 import org.apache.commons.lang.StringUtils;
 

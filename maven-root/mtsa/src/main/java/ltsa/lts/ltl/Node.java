@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import ltsa.lts.LTSOutput;
+import ltsa.lts.parser.LTSOutput;
 
 
 public class Node implements Comparable {

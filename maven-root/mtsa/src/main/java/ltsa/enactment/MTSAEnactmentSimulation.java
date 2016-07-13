@@ -20,8 +20,7 @@ import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import MTSAEnactment.ar.uba.dc.lafhis.enactment.BaseController;
 import MTSAEnactment.ar.uba.dc.lafhis.enactment.TakeFirstController;
 import MTSAEnactment.ar.uba.dc.lafhis.enactment.Enactor;
-
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.ui.enactment.RunEnactorsWindow;
 
 /**

@@ -1,7 +1,7 @@
 package ltsa.exploration.model;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.EventState;
+import ltsa.lts.lts.EventState;
+import ltsa.lts.ltscomposition.CompactState;
 
 public class Model
 {

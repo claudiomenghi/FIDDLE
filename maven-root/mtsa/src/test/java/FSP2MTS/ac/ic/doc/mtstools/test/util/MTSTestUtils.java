@@ -4,9 +4,9 @@ import java.util.Collections;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSOutput;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.impl.WeakSemantics;
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;

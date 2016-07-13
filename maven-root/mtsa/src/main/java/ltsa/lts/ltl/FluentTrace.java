@@ -3,7 +3,7 @@ package ltsa.lts.ltl;
 import java.util.Iterator;
 import java.util.List;
 
-import ltsa.lts.LTSOutput;
+import ltsa.lts.parser.LTSOutput;
 
 /* -----------------------------------------------------------------------*/
 
@@ -13,7 +13,7 @@ public class FluentTrace {
 
 	int[] state;
 
-	public FluentTrace(PredicateDefinition f[]) {
+	public FluentTrace(PredicateDefinition[] f) {
 		if (f != null) {
 			fluents = f;
 			state = new int[fluents.length];
@@ -40,7 +40,7 @@ public class FluentTrace {
 	private String fluentString() {
 		if (state == null)
 			return "";
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		buf.append("\t\t");
 		boolean first = true;
 		for (int i = 0; i < state.length; ++i) {
@@ -54,15 +54,14 @@ public class FluentTrace {
 		return buf.toString();
 	}
 
-	// bugfix - init parameter 26-mar-04
 	public void print(LTSOutput out, List trace, boolean init) {
 		if (trace == null)
 			return;
 		if (init)
 			initialise();
-		Iterator I = trace.iterator();
-		while (I.hasNext()) {
-			String act = (String) I.next();
+		Iterator traceIterator = trace.iterator();
+		while (traceIterator.hasNext()) {
+			String act = (String) traceIterator.next();
 			update(act);
 			out.outln("\t" + act + fluentString());
 		}

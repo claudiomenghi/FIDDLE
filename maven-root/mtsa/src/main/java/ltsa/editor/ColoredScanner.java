@@ -6,9 +6,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Segment;
 
-import ltsa.lts.LTSInput;
-import ltsa.lts.Lex;
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Lex;
+import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.ltsinput.LTSInput;
 
 public class ColoredScanner implements LTSInput {
 	private Document         doc;   //current document

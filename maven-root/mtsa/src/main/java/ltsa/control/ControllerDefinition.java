@@ -3,7 +3,7 @@ package ltsa.control;
 import java.util.Hashtable;
 
 import ltsa.lts.Diagnostics;
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Symbol;
 
 public class ControllerDefinition {
 	

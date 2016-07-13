@@ -1,6 +1,6 @@
 package ltsa.lts.operations.composition;
 
-import ltsa.lts.StateCodec;
+import ltsa.lts.animator.StateCodec;
 
 public class CompositionEngineFactory {
 

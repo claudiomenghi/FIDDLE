@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import ltsa.lts.LTSInput;
+import ltsa.lts.parser.ltsinput.LTSInput;
 
 /**
  * An implementation of LTSInput which is convinient for command-line execution.

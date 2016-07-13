@@ -1,46 +1,46 @@
 package ltsa.updatingControllers.synthesis;
 
-import MTSTools.ac.ic.doc.commons.relations.Pair;
-import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import MTSTools.ac.ic.doc.mtstools.utils.GraphUtils;
-import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
-import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
-import MTSSynthesis.ar.dc.uba.model.condition.FluentPropositionalVariable;
-import MTSSynthesis.ar.dc.uba.model.language.SingleSymbol;
-import ltsa.control.ControllerGoalDefinition;
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
-import ltsa.lts.Diagnostics;
-import ltsa.lts.LTSOutput;
-import MTSTools.ac.ic.doc.mtstools.model.impl.MarkedMTS;
-import ltsa.lts.Symbol;
-import ltsa.lts.UpdatingControllersGoalsMaker;
-import ltsa.lts.chart.util.FormulaUtils;
-import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltl.PredicateDefinition;
-import ltsa.lts.operations.compiler.LTSCompiler;
-import ltsa.updatingControllers.UpdateConstants;
-import ltsa.lts.UpdatingControllersDefinition;
+import static ltsa.updatingControllers.UpdateConstants.BEGIN_UPDATE;
+import static ltsa.updatingControllers.UpdateConstants.RECONFIGURE;
+import static ltsa.updatingControllers.UpdateConstants.START_NEW_SPEC;
+import static ltsa.updatingControllers.UpdateConstants.STOP_OLD_SPEC;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ltsa.updatingControllers.UpdateConstants.*;
+import ltsa.control.ControllerGoalDefinition;
+import ltsa.lts.Diagnostics;
+import ltsa.lts.chart.util.FormulaUtils;
+import ltsa.lts.ltl.AssertDefinition;
+import ltsa.lts.lts.UpdatingControllersDefinition;
+import ltsa.lts.parser.LTSCompiler;
+import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.parser.Symbol;
+import ltsa.updatingControllers.UpdateConstants;
+import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
+import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
+import MTSSynthesis.ar.dc.uba.model.condition.FluentPropositionalVariable;
+import MTSSynthesis.ar.dc.uba.model.language.SingleSymbol;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import MTSTools.ac.ic.doc.mtstools.model.MTS;
+import MTSTools.ac.ic.doc.mtstools.model.impl.MarkedMTS;
+import MTSTools.ac.ic.doc.mtstools.utils.GraphUtils;
 
 public class UpdatingControllersUtils {
 
-	public static final Set<Fluent> UPDATE_FLUENTS = new HashSet<Fluent>();
+	public static final Set<Fluent> UPDATE_FLUENTS = new HashSet<>();
 	public static final Fluent beginFluent;
 	public static final Fluent stopFluent;
 	public static final Fluent reconFluent;
 	public static final Fluent startFluent;
 
 	static {
-		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> beginAction = new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>();
-		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> stopAction = new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>();
-		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> reconfigureAction = new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>();
-		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> startAction = new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>();
+		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> beginAction = new HashSet<>();
+		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> stopAction = new HashSet<>();
+		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> reconfigureAction = new HashSet<>();
+		HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol> startAction = new HashSet<>();
 		beginAction.add(new SingleSymbol(UpdateConstants.BEGIN_UPDATE));
 		stopAction.add(new SingleSymbol(UpdateConstants.STOP_OLD_SPEC));
 		reconfigureAction.add(new SingleSymbol(UpdateConstants.RECONFIGURE));
@@ -75,9 +75,9 @@ public class UpdatingControllersUtils {
 		return compiledDef;
 	}
 
-	public static ArrayList<String> compileCheckTraces(ArrayList<Symbol> checkTraceDef) {
+	public static List<String> compileCheckTraces(List<Symbol> checkTraceDef) {
 
-		ArrayList<String> compiledDef = new ArrayList<String>();
+		ArrayList<String> compiledDef = new ArrayList<>();
 
 		for (Symbol symbolAction : checkTraceDef) {
 			compiledDef.add(symbolAction.toString());
@@ -163,7 +163,7 @@ public class UpdatingControllersUtils {
 		// TODO: refactor, code copied from GoalDefToControllerGoal.
 		// Check with dipi. we are not sure if this will work as expected
 		Set<Fluent> fluentsInFaults = new HashSet<Fluent>();
-		for (ltsa.lts.Symbol faultsDefinition : controllerGoalDefinition.getFaultsDefinitions()) {
+		for (ltsa.lts.parser.Symbol faultsDefinition : controllerGoalDefinition.getFaultsDefinitions()) {
 			AssertDefinition def = AssertDefinition.getDefinition(faultsDefinition.getName());
 			if (def != null) {
 				grcg.addFault(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), fluentsInFaults));

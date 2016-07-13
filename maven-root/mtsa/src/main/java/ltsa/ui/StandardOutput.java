@@ -1,6 +1,7 @@
 package ltsa.ui;
 
-import ltsa.lts.LTSOutput;
+import ltsa.lts.parser.LTSOutput;
+
 
 /**
  * An implementation of LTSOutput which is convenient for command-line

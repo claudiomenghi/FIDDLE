@@ -1,6 +1,6 @@
 package ltsa.updatingControllers.structures;
 
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Symbol;
 
 import java.util.List;
 

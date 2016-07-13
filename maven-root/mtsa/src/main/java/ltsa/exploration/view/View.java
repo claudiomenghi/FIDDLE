@@ -1,8 +1,10 @@
 package ltsa.exploration.view;
 
 import MTSTools.ac.ic.doc.commons.relations.Pair;
+
 import com.google.common.primitives.Ints;
-import ltsa.lts.CompactState;
+
+import ltsa.lts.ltscomposition.CompactState;
 
 import java.util.ArrayList;
 import java.util.HashSet;

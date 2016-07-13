@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSInput;
-import ltsa.lts.Symbol;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.operations.compiler.LTSCompiler;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSCompiler;
+import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.ui.FileInput;
 import ltsa.ui.StandardOutput;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;

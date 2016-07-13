@@ -1,7 +1,7 @@
 package ltsa.exploration.knowledge;
 
-import ltsa.lts.EventState;
-import ltsa.lts.CompactState;
+import ltsa.lts.lts.EventState;
+import ltsa.lts.ltscomposition.CompactState;
 
 import java.util.*;
 

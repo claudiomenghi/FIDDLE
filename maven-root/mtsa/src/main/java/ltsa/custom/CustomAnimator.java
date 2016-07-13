@@ -3,8 +3,8 @@ package ltsa.custom;
 import java.awt.Frame;
 import java.io.File;
 
-import ltsa.lts.Animator;
-import ltsa.lts.Relation;
+import ltsa.lts.animator.Animator;
+import ltsa.lts.csp.Relation;
 
 public abstract class CustomAnimator extends Frame {
 

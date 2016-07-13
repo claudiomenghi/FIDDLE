@@ -7,8 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.Vector;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

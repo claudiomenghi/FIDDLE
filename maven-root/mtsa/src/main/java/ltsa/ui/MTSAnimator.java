@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.Vector;
 
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
-import ltsa.lts.Animator;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.EventManager;
-import ltsa.lts.LTSEvent;
+import ltsa.lts.animator.Animator;
+import ltsa.lts.gui.EventManager;
+import ltsa.lts.lts.LTSEvent;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.util.MTSUtils;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;

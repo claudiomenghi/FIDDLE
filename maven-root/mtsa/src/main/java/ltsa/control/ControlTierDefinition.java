@@ -2,7 +2,7 @@ package ltsa.control;
 
 import java.util.List;
 
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Symbol;
 
 public class ControlTierDefinition
 {

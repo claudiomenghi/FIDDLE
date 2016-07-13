@@ -3,7 +3,7 @@
  */
 package FSP2MTS.ac.ic.doc.mtstools.test.util;
 
-import ltsa.lts.LTSOutput;
+import ltsa.lts.parser.LTSOutput;
 
 
 public class TestLTSOuput implements LTSOutput {

@@ -15,8 +15,8 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
@@ -103,7 +103,7 @@ public class MTSChecker {
 		Map<String,MTS<Long,String>> MTSs = new HashMap<String,MTS<Long,String>>();
 		for(CompactState automata:(Vector<CompactState>)state.getMachines()) {
 			MTS<Long,String> mts = converter.convert(automata);
-			MTSs.put(automata.name,mts);
+			MTSs.put(automata.getName(),mts);
 		}
 		
 		return MTSs;

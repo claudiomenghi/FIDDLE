@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompositeState;
 
 import org.junit.Test;
 

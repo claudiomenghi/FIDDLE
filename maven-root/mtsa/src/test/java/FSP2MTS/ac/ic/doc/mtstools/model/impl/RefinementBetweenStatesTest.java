@@ -4,9 +4,9 @@ import java.util.Collections;
 
 import MTSTools.ac.ic.doc.mtstools.model.impl.BaseSemanticsByRelation;
 import MTSTools.ac.ic.doc.mtstools.model.impl.WeakSemantics;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSOutput;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.LTSATestUtils;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.MTSTestBase;

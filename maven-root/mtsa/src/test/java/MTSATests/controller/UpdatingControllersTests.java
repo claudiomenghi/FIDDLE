@@ -14,12 +14,12 @@ import java.util.Set;
 import java.util.Vector;
 
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSSimulationSemantics;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSInput;
-import ltsa.lts.LTSOutput;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.operations.compiler.LTSCompiler;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSCompiler;
+import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.parser.ltsinput.LTSInput;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

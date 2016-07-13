@@ -4,7 +4,7 @@ package MTSATests.controller;
 import java.util.Collections;
 
 import junit.framework.TestCase;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.ui.StandardOutput;
 import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;

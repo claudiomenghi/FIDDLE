@@ -7,6 +7,12 @@ import ltsa.jung.LTSJUNGCanvas.EnumMode;
 import ltsa.jung.StateVertex;
 import ltsa.jung.TransitionEdge;
 import ltsa.lts.*;
+import ltsa.lts.gui.EventClient;
+import ltsa.lts.gui.EventManager;
+import ltsa.lts.lts.LTSEvent;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+
 import org.freehep.graphics2d.VectorGraphics;
 import org.freehep.graphicsio.pdf.PDFGraphics2D;
 import org.freehep.graphicsio.ps.PSGraphics2D;
@@ -16,6 +22,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -451,9 +458,9 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
 	  	DefaultListModel lm = new DefaultListModel();
 	  	for(int i=0;i<Nmach;i++) {
 	  		if (hasC==1 && i== (Nmach-1))
-	  			lm.addElement("||"+sm[i].name);
+	  			lm.addElement("||"+sm[i].getName());
 	  		else
-	  			lm.addElement(sm[i].name);
+	  			lm.addElement(sm[i].getName());
 	  	}
 	  	list.setModel(lm);
 

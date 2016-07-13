@@ -3,28 +3,26 @@ package ltsa.control;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.CompositionExpression;
-import ltsa.lts.LTSOutput;
-import ltsa.lts.operations.minimization.Minimiser;
-import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
-import MTSTools.ac.ic.doc.commons.relations.Pair;
-import MTSTools.ac.ic.doc.mtstools.model.LTS;
-import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
-import MTSTools.ac.ic.doc.mtstools.model.impl.LTSSimulationSemantics;
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import ltsa.control.util.GoalDefToControllerGoal;
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.dispatcher.TransitionSystemDispatcher;
+import ltsa.lts.csp.CompositionExpression;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.operations.minimization.Minimiser;
+import ltsa.lts.parser.LTSOutput;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
+import MTSTools.ac.ic.doc.commons.relations.Pair;
+import MTSTools.ac.ic.doc.mtstools.model.MTS;
+import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
+import MTSTools.ac.ic.doc.mtstools.model.impl.LTSSimulationSemantics;
 
 public class ControlStackSynthesiser
 {  
@@ -144,7 +142,7 @@ public class ControlStackSynthesiser
       
       Vector<CompactState> machines = new Vector<CompactState>();
       machines.add(envModel);
-      CompositeState envComposite = new CompositeState(envModel.name, machines);
+      CompositeState envComposite = new CompositeState(envModel.getName(), machines);
       envComposite.composition = envModel;
       envComposite.goal = tierGoal;
       
@@ -156,7 +154,7 @@ public class ControlStackSynthesiser
         //System.out.println("Alpha "+tierNum+" pre-clean "+controller.getAlphabetV());
         //controller = cleanUpAlphabet(controller);
         //System.out.println("Alpha "+tierNum+" post-clean "+controller.getAlphabetV());
-        controller.name = stackDef.getName().toString()+"_CONTROLLER"+tierNum;
+        controller.setName( stackDef.getName().toString()+"_CONTROLLER"+tierNum);
         output.outln("Control stack '"+stackDef.getName()+"': controller for tier "+tierNum+" synthesised.");
         System.out.println("CONTROLLER LEVEL "+tierNum+" SYNTHESISED");
         controllers.add(0, controller);
@@ -170,7 +168,7 @@ public class ControlStackSynthesiser
         }
         
         CompactState excController = addControllerExceptions(tierNum, controller, stackDef.getControllableActions());
-        excController.name += ".EX";
+        excController.setName(excController.getName()+ ".EX");
         exceptionControllers.add(0, excController);
         System.out.println("Exception states added");
       }
@@ -210,7 +208,7 @@ public class ControlStackSynthesiser
         simulates = TransitionSystemDispatcher.isLTSRefinement(higherEnv, lowerEnv, output);
       
       if (simulates)
-        output.outln("'"+lowerEnv.name+"' simulates '"+higherEnv.name+"'.");
+        output.outln("'"+lowerEnv.getName()+"' simulates '"+higherEnv.getName()+"'.");
       else
       {
         output.outln("Control stack synthesis FAILED: Tier "+tierNum+" environment does not simulate tier "+(tierNum+1)+" environment.");
@@ -243,7 +241,7 @@ public class ControlStackSynthesiser
         toRemove.add(a);
     for (String a : toRemove)
       m2.removeAction(a);
-    return MTSToAutomataConverter.getInstance().convert(m2, machine.name, false);
+    return MTSToAutomataConverter.getInstance().convert(m2, machine.getName(), false);
   }
   
   private static CompactState solveSafety(CompactState envModel, Collection<CompactState> safetyMachines, LTSOutput output)
@@ -267,7 +265,7 @@ public class ControlStackSynthesiser
     controller2 = addControllerExceptions(tier, controller2, controlledActions); //was called with controller not controller2 -> inf loop, why never happened before?
     //had to change type of method below to MTS
     
-    return MTSToAutomataConverter.getInstance().convert(controller2, controller.name, false);
+    return MTSToAutomataConverter.getInstance().convert(controller2, controller.getName(), false);
   }
   
   public static MTS<Long,String> addControllerExceptions(int tier, MTS<Long,String> controller, List<String> controlledActions)
@@ -329,13 +327,13 @@ public class ControlStackSynthesiser
     
     try
     {
-      PrintWriter writer = new PrintWriter(new FileWriter("h:/contsynth/controllers/"+lts.name+".nm"));
+      PrintWriter writer = new PrintWriter(new FileWriter("h:/contsynth/controllers/"+lts.getName()+".nm"));
       
-      final String stateVar = "state_"+lts.name.substring(0, 2); //try to make them unique when combined with other LTSs
-      final String responseVar = "response_"+lts.name.substring(0, 2);
+      final String stateVar = "state_"+lts.getName().substring(0, 2); //try to make them unique when combined with other LTSs
+      final String responseVar = "response_"+lts.getName().substring(0, 2);
       
       writer.println("mdp //generated by MTSA");
-      writer.println("module "+lts.name);
+      writer.println("module "+lts.getName());
       writer.println(stateVar+": [0.."+lts2.getStates().size()+"] init 0;");
       writer.println(responseVar+": [0.."+uncontrolledActions.size()+"] init 0;");
       

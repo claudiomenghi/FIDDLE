@@ -3,7 +3,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import ltsa.lts.Relation;
+import ltsa.lts.csp.Relation;
 
 public class OutputActionRegistry {
 

@@ -5,12 +5,12 @@ import ltsa.control.ControllerGoalDefinition;
 import MTSSynthesis.controller.model.ControllerGoal;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.LabelSet;
-import ltsa.lts.Symbol;
 import ltsa.lts.chart.util.FormulaUtils;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.FormulaFactory;
 import ltsa.lts.ltl.PredicateDefinition;
+import ltsa.lts.parser.LabelSet;
+import ltsa.lts.parser.Symbol;
 
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -67,7 +67,7 @@ public class GoalDefToControllerGoal {
 		result.addAllFluentsInFaults(fluentsInFaults);
 
 		//Convert assumptions to Set<Formula> 
-		for (ltsa.lts.Symbol assumeDefinition : goalDef.getAssumeDefinitions()) {
+		for (ltsa.lts.parser.Symbol assumeDefinition : goalDef.getAssumeDefinitions()) {
 			AssertDefinition def = AssertDefinition.getDefinition(assumeDefinition.getName());
 			if (def!=null){
 				result.addAssume(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), involvedFluents));
@@ -77,7 +77,7 @@ public class GoalDefToControllerGoal {
 		}
 
 		//Convert guarantees to Set<Formula> 
-		for (ltsa.lts.Symbol guaranteeDefinition : goalDef.getGuaranteeDefinitions()) {
+		for (ltsa.lts.parser.Symbol guaranteeDefinition : goalDef.getGuaranteeDefinitions()) {
 			AssertDefinition def = AssertDefinition.getDefinition(guaranteeDefinition.getName());
 			if (def!=null){
 				result.addGuarantee(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), involvedFluents));
@@ -94,7 +94,7 @@ public class GoalDefToControllerGoal {
 		
 		Set<Fluent> concurrencyFluents = new HashSet<Fluent>();
 		//Convert faults to Set<Formula> 
-		for (ltsa.lts.Symbol concurrencyDefinition : goalDef.getConcurrencyDefinitions()) {
+		for (ltsa.lts.parser.Symbol concurrencyDefinition : goalDef.getConcurrencyDefinitions()) {
 			AssertDefinition def = AssertDefinition.getDefinition(concurrencyDefinition.getName());
 			if (def!=null){
 				FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), concurrencyFluents);
@@ -108,7 +108,7 @@ public class GoalDefToControllerGoal {
 
 		Set<Fluent> activityFluents = new HashSet<Fluent>();
 		//Convert faults to Set<Formula> 
-		for (ltsa.lts.Symbol activityDefinition : goalDef.getActivityDefinitions()) {
+		for (ltsa.lts.parser.Symbol activityDefinition : goalDef.getActivityDefinitions()) {
 			AssertDefinition def = AssertDefinition.getDefinition(activityDefinition.getName());
 			if (def!=null){
 				FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), activityFluents);

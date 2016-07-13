@@ -1,7 +1,7 @@
 package ltsa.lts.ltl;
 import java.util.BitSet;
 
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Symbol;
 
 /*
 * abstract syntax tree for LTL formlae

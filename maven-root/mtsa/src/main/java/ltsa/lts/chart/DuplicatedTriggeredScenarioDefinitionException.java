@@ -1,6 +1,6 @@
 package ltsa.lts.chart;
 
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Symbol;
 
 /**
  * @author gsibay

@@ -9,11 +9,11 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import ltsa.lts.ActionLabels;
-import ltsa.lts.Alphabet;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.Expression;
-import ltsa.lts.Symbol;
+import ltsa.lts.lts.Alphabet;
+import ltsa.lts.parser.ActionLabels;
+import ltsa.lts.parser.Expression;
+import ltsa.lts.parser.Symbol;
 
 /*
 * factory for LTL formlae

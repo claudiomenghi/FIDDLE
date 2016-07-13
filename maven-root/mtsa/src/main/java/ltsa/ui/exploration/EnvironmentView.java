@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ltsa.ui.Transition;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;

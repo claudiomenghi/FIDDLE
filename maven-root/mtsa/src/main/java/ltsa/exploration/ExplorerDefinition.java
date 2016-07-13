@@ -1,6 +1,6 @@
 package ltsa.exploration;
 
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Symbol;
 
 import java.util.List;
 

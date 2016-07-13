@@ -6,16 +6,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSError;
-import ltsa.lts.LTSException;
-import ltsa.lts.LTSInput;
-import ltsa.lts.LTSManager;
-import ltsa.lts.LTSOutput;
-import ltsa.lts.LabelSet;
-import ltsa.lts.SymbolTable;
-import ltsa.lts.operations.compiler.LTSCompiler;
+import ltsa.lts.lts.LTSError;
+import ltsa.lts.lts.LTSException;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSCompiler;
+import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.parser.LabelSet;
+import ltsa.lts.parser.SymbolTable;
+import ltsa.lts.parser.ltsinput.LTSInput;
 
 public class MinimalManager implements LTSManager {
 	

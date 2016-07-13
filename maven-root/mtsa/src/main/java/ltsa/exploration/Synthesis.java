@@ -2,10 +2,10 @@ package ltsa.exploration;
 
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.dispatcher.TransitionSystemDispatcher;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.EmptyLTSOuput;
-import ltsa.lts.EventState;
+import ltsa.lts.lts.EventState;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.ui.EmptyLTSOuput;
 
 import java.util.*;
 
@@ -74,8 +74,7 @@ public class Synthesis
         // Order in referee
         if (needOrder)
         {
-            CompactState order = new CompactState();
-            order.name = "ORDER";
+            CompactState order = new CompactState("ORDER");
             order.alphabet = Arrays.copyOf(allActions.toArray(new String[allActions.size()]), allActions.size());
             order.maxStates = mts[0].states.length - 1;
             if (order.maxStates < 2)

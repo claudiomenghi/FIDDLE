@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Vector;
 
 import ltsa.lts.Diagnostics;
-import ltsa.lts.LabelSet;
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.LabelSet;
+import ltsa.lts.parser.Symbol;
 
 public class ControlStackDefinition implements Iterable<ControlTierDefinition>
 {

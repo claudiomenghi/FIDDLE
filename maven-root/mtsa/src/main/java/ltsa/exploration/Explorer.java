@@ -7,7 +7,8 @@ import ltsa.exploration.model.Model;
 import ltsa.exploration.strategy.Strategy;
 import ltsa.exploration.strategy.StrategyManager;
 import ltsa.exploration.view.View;
-import ltsa.lts.EventState;
+import ltsa.lts.lts.EventState;
+
 import org.apache.commons.lang.ArrayUtils;
 
 import java.util.ArrayList;

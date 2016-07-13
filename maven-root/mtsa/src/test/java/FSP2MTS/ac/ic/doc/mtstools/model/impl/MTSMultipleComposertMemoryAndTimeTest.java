@@ -3,8 +3,8 @@ package FSP2MTS.ac.ic.doc.mtstools.model.impl;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSOutput;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSOutput;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.LTSATestUtils;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.MTSTestBase;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.TestLTSOuput;

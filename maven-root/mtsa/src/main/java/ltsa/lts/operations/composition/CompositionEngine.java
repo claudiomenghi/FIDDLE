@@ -1,9 +1,8 @@
 package ltsa.lts.operations.composition;
 
-import ltsa.lts.LTSOutput;
-import ltsa.lts.ModelExplorerContext;
-import ltsa.lts.StackCheck;
-import ltsa.lts.StateMap;
+import ltsa.lts.animator.ModelExplorerContext;
+import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.util.collections.StateMap;
 
 public interface CompositionEngine {
 	public void initialize();

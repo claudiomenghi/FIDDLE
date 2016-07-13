@@ -3,9 +3,9 @@ package FSP2MTS.ac.ic.doc.mtstools;
 import java.util.HashSet;
 import java.util.Set;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.MyList;
+import ltsa.lts.ltscomposition.CompactState;
 import ltsa.lts.util.MTSUtils;
+import ltsa.lts.util.collections.MyList;
 
 import org.apache.commons.collections.CollectionUtils;
 

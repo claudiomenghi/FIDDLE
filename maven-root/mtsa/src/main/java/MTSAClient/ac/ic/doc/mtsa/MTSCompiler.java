@@ -3,11 +3,11 @@ package MTSAClient.ac.ic.doc.mtsa;
 import java.io.File;
 import java.io.IOException;
 
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSInput;
-import ltsa.lts.LTSInputString;
-import ltsa.lts.LTSOutput;
-import ltsa.lts.operations.compiler.LTSCompiler;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSCompiler;
+import ltsa.lts.parser.LTSInputString;
+import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.ui.FileInput;
 import ltsa.ui.StandardOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;

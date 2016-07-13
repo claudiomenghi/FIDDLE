@@ -8,9 +8,9 @@ import java.util.List;
 
 import MTSTools.ac.ic.doc.mtstools.model.impl.CompositionRuleApplier;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSMultipleComposer;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSOutput;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSOutput;
 import FSP2MTS.ac.ic.doc.mtstools.MTSUtilsTest;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.LTSATestUtils;

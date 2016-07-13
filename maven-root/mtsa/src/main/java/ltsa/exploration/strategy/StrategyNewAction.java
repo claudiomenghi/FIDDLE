@@ -8,8 +8,8 @@ import MTSSynthesis.ar.dc.uba.model.language.Symbol;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.exploration.Synthesis;
 import ltsa.exploration.knowledge.Knowledge;
-import ltsa.lts.CompactState;
-import ltsa.lts.EventState;
+import ltsa.lts.lts.EventState;
+import ltsa.lts.ltscomposition.CompactState;
 
 import java.util.*;
 

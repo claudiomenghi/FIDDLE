@@ -10,10 +10,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.MyHashStack;
-import ltsa.lts.MyList;
+import ltsa.lts.ltscomposition.CompactState;
 import ltsa.lts.util.MTSUtils;
+import ltsa.lts.util.collections.MyHashStack;
+import ltsa.lts.util.collections.MyList;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;

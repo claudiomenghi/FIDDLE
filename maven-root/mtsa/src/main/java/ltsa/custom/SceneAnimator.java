@@ -23,8 +23,8 @@ import java.io.File;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import ltsa.lts.Animator;
-import ltsa.lts.Relation;
+import ltsa.lts.animator.Animator;
+import ltsa.lts.csp.Relation;
 import uk.ac.ic.doc.scenebeans.animation.Animation;
 import uk.ac.ic.doc.scenebeans.animation.AnimationCanvas;
 import uk.ac.ic.doc.scenebeans.animation.CommandException;

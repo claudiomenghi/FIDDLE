@@ -2,16 +2,14 @@ package ltsa.lts.operations.composition;
 
 import java.util.List;
 
-import ltsa.lts.LTSConstants;
-import ltsa.lts.LTSOutput;
-import ltsa.lts.ModelExplorer;
-import ltsa.lts.ModelExplorerContext;
-import ltsa.lts.MyHashStack;
-import ltsa.lts.Options;
-import ltsa.lts.StackCheck;
-import ltsa.lts.StateCodec;
-import ltsa.lts.StateMap;
+import ltsa.lts.animator.ModelExplorerContext;
+import ltsa.lts.animator.StateCodec;
+import ltsa.lts.lts.LTSConstants;
+import ltsa.lts.parser.LTSOutput;
 import ltsa.lts.util.LTSUtils;
+import ltsa.lts.util.Options;
+import ltsa.lts.util.collections.MyHashStack;
+import ltsa.lts.util.collections.StateMap;
 
 /**
  * DFS Composition Strategy

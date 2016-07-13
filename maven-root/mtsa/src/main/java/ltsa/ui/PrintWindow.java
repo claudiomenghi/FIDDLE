@@ -20,13 +20,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.EventClient;
-import ltsa.lts.EventManager;
-import ltsa.lts.LTSEvent;
-import ltsa.lts.LTSOutput;
-import ltsa.lts.PrintTransitions;
+import ltsa.lts.gui.EventClient;
+import ltsa.lts.gui.EventManager;
+import ltsa.lts.gui.PrintTransitions;
+import ltsa.lts.lts.LTSEvent;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSOutput;
 
 public class PrintWindow extends JSplitPane implements LTSOutput, EventClient {
 
@@ -137,9 +137,9 @@ public class PrintWindow extends JSplitPane implements LTSOutput, EventClient {
 	  DefaultListModel lm = new DefaultListModel();
 		for(int i=0;i<Nmach;i++) {
 		    if (hasC==1 && i== (Nmach-1))
-		        lm.addElement("||"+sm[i].name);
+		        lm.addElement("||"+sm[i].getName());
 		    else
-		        lm.addElement(sm[i].name);
+		        lm.addElement(sm[i].getName());
 		}
     list.setModel(lm);
     if (selectedMachine>=Nmach) selectedMachine = 0;
@@ -177,7 +177,7 @@ public class PrintWindow extends JSplitPane implements LTSOutput, EventClient {
 
 		FileDialog fd= new FileDialog((Frame) getTopLevelAncestor(), message, FileDialog.SAVE);
 		if (Nmach > 0) {
-			String fname= sm[selectedMachine].name;
+			String fname= sm[selectedMachine].getName();
 			int colon= fname.indexOf(':', 0);
 			if (colon > 0)
 				fname= fname.substring(0, colon);

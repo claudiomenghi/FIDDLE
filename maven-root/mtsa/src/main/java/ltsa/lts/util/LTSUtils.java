@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
-import ltsa.lts.Symbol;
+import ltsa.lts.parser.Symbol;
 
 public class LTSUtils {
 

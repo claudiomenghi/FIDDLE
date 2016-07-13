@@ -12,22 +12,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
-import ltsa.lts.Analyser;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.EmptyLTSOuput;
-import ltsa.lts.LTSOutput;
-import ltsa.lts.Symbol;
+import ltsa.lts.animator.Analyser;
 import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.distribution.DistributionTransformationException;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.operations.minimization.Minimiser;
+import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.parser.Symbol;
 import ltsa.lts.util.MTSUtils;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.ListUtils;
 import org.apache.commons.lang.Validate;
 
+import ltsa.ui.EmptyLTSOuput;
 import ltsa.ui.MTSAnimator;
 import ltsa.updatingControllers.synthesis.UpdatingControllerSynthesizer;
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
@@ -110,7 +110,7 @@ public class TransitionSystemDispatcher {
 				+ (System.currentTimeMillis() - initialTime) + "ms.");
 
 		return MTSToAutomataConverter.getInstance().convert(mts,
-				compactState.name);
+				compactState.getName());
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class TransitionSystemDispatcher {
 				composition);
 		mts = MTSAFacade.getPesimisticModel(mts);
 		return MTSToAutomataConverter.getInstance().convert(mts,
-				composition.name);
+				composition.getName());
 	}
 
 	/**
@@ -299,7 +299,7 @@ public class TransitionSystemDispatcher {
 				CompactState compactState = it.next();
 				toCompose.add(AutomataToMTSConverter.getInstance().convert(
 						compactState));
-				names.add(compactState.name);
+				names.add(compactState.getName());
 			}
 
 			ltsOutput.outln("Applying Merge Operator to MTSs...("
@@ -462,7 +462,7 @@ public class TransitionSystemDispatcher {
 				// AssertDefinition.compile(ltsOutput, "MDPGOAL");
 
 				System.out.println("Name of *A* is "
-						+ toCompose.machines.get(i).name); //
+						+ toCompose.machines.get(i).getName()); //
 				MDP composed = MDP.composeAbstraction(mdp1, mdp2, simulation); // MDP.compose(mdp1,
 																				// mdp2);//
 				System.out.println("\n" + composed);
@@ -497,7 +497,7 @@ public class TransitionSystemDispatcher {
 				System.out.println(mdp2);
 
 				System.out.println("Name of *C* is "
-						+ toCompose.machines.get(i).name);
+						+ toCompose.machines.get(i).getName());
 
 				// apply state labels stored from synthesis
 				for (Long s : mdp2.getStates()) {
@@ -662,10 +662,10 @@ public class TransitionSystemDispatcher {
 			ltsOutput.outln("Determinising ...");
 			MTSDeterminiser determiniser = new MTSDeterminiser(mts, true);
 			mts = determiniser.determinize();
-			ltsOutput.outln("Model " + lts.name + " determinised in "
+			ltsOutput.outln("Model " + lts.getName() + " determinised in "
 					+ (System.currentTimeMillis() - initialTime) + "ms.");
 			return MTSToAutomataConverter.getInstance().convert(mts,
-					compactState.name,
+					compactState.getName(),
 					MTSUtils.isMTSRepresentation(compactState));
 		} else {
 			Vector<CompactState> toDet = new Vector<CompactState>();
@@ -694,8 +694,8 @@ public class TransitionSystemDispatcher {
 				.convert(refined);
 		MTS<Long, String> refinesMTS = AutomataToMTSConverter.getInstance()
 				.convert(refines);
-		return isRefinement(refinesMTS, refines.name, refinedMTS, refined.name,
-				ss, output);
+		return isRefinement(refinesMTS, refines.getName(), refinedMTS,
+				refined.getName(), ss, output);
 	}
 
 	/**
@@ -718,8 +718,8 @@ public class TransitionSystemDispatcher {
 				.convert((CompactState) refined);
 		MTS<Long, String> refinesMTS = AutomataToMTSConverter.getInstance()
 				.convert((CompactState) refines);
-		return isRefinement(refinesMTS, refines.name, refinedMTS, refined.name,
-				refinement, ltsOutput);
+		return isRefinement(refinesMTS, refines.getName(), refinedMTS,
+				refined.getName(), refinement, ltsOutput);
 	}
 
 	/**
@@ -763,8 +763,8 @@ public class TransitionSystemDispatcher {
 				(CompactState) csA);
 		MTS<Long, String> mtsB = AutomataToMTSConverter.getInstance().convert(
 				(CompactState) csB);
-		return areConsistent(mtsA, csA.name, mtsB, csB.name, semantic,
-				ltsOutput);
+		return areConsistent(mtsA, csA.getName(), mtsB, csB.getName(),
+				semantic, ltsOutput);
 	}
 
 	public static <A> boolean areConsistent(MTS<?, A> mtsA, String mtsAName,
@@ -835,7 +835,7 @@ public class TransitionSystemDispatcher {
 				MTS<Long, String> mts = mtsMinimise(compactState, ltsOutput);
 				compositeState.setComposition(MTSToAutomataConverter
 						.getInstance().convert(mts,
-								compositeState.getComposition().name));
+								compositeState.getComposition().getName()));
 			}
 
 		} else {
@@ -846,7 +846,7 @@ public class TransitionSystemDispatcher {
 	private static MTS<Long, String> mtsMinimise(CompactState compactState,
 			LTSOutput ltsOutput) {
 		long initialTime = System.currentTimeMillis();
-		ltsOutput.outln("Converting CompactState " + compactState.name
+		ltsOutput.outln("Converting CompactState " + compactState.getName()
 				+ " to MTS...");
 		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert(
 				compactState);
@@ -859,7 +859,7 @@ public class TransitionSystemDispatcher {
 
 		// get the minimised MTS
 		MTS<Long, String> minimisedMTS = minimiser.minimise(mts);
-		ltsOutput.outln(compactState.name + " minimised in "
+		ltsOutput.outln(compactState.getName() + " minimised in "
 				+ (System.currentTimeMillis() - initialTime) + "ms.");
 
 		// minimisation sanity check
@@ -867,10 +867,11 @@ public class TransitionSystemDispatcher {
 				.outln("Internal sanity check: Validating minimised and original are equivalent by simulation...");
 		WeakSemantics weakSemantics = new WeakSemantics(
 				Collections.singleton(MTSConstants.TAU));
-		isRefinement(mts, " original " + compactState.name, minimisedMTS,
-				" minimised " + compactState.name, weakSemantics, ltsOutput);
-		isRefinement(minimisedMTS, " minimised " + compactState.name, mts,
-				" original " + compactState.name, weakSemantics, ltsOutput);
+		isRefinement(mts, " original " + compactState.getName(), minimisedMTS,
+				" minimised " + compactState.getName(), weakSemantics,
+				ltsOutput);
+		isRefinement(minimisedMTS, " minimised " + compactState.getName(), mts,
+				" original " + compactState.getName(), weakSemantics, ltsOutput);
 		ltsOutput.outln(""); // leave an empty line
 		return minimisedMTS;
 	}
@@ -888,7 +889,7 @@ public class TransitionSystemDispatcher {
 		if (MTSUtils.isMTSRepresentation(compactState)) {
 			MTS<Long, String> mts = mtsMinimise(compactState, ltsOutput);
 			return MTSToAutomataConverter.getInstance().convert(mts,
-					compactState.name);
+					compactState.getName());
 
 		} else {
 			Minimiser me = new Minimiser(compactState, ltsOutput);
@@ -933,7 +934,6 @@ public class TransitionSystemDispatcher {
 		return retValue;
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void checkSafety(CompositeState compositeState,
 			LTSOutput ltsOutput, boolean checkDeadlocks) {
 		long initialCurrentTimeMillis = System.currentTimeMillis();
@@ -1118,9 +1118,9 @@ public class TransitionSystemDispatcher {
 		Long trapState = Collections.max(property.getStates()) + 1;
 
 		MTSPropertyToBuchiConverter.convert(property, trapState, "@"
-				+ compactState.name);
+				+ compactState.getName());
 		return MTSToAutomataConverter.getInstance().convert(property,
-				compactState.name);
+				compactState.getName());
 	}
 
 	private static CompactState getProperty(CompositeState compositeState) {
@@ -1187,224 +1187,223 @@ public class TransitionSystemDispatcher {
 	 * 
 	 * @param compositeState
 	 * @param ltlProperty
-	 * @param not_ltl_property
+	 * @param notLtlProperty
 	 * @param fairCheck
 	 * @param ltsOutput
 	 */
-	@SuppressWarnings("unchecked")
 	public static void checkFLTL(CompositeState compositeState,
-			CompositeState ltlProperty, CompositeState not_ltl_property,
+			CompositeState ltlProperty, CompositeState notLtlProperty,
 			boolean fairCheck, LTSOutput ltsOutput) {
 
 		if (MTSUtils.isMTSRepresentation(compositeState)) {
-
-			if (fairCheck) {
-				throw new UnsupportedOperationException(
-						"FLTL model checking of MTS with Fair Choice is not yet defined.");
-			}
-			// ISSUE We can't do FLTL check on-the-fly.
-			applyComposition(compositeState, ltsOutput);
-
-			if (saved != null) {
-				compositeState.getMachines().remove(saved);
-				saved = null;
-			}
-
-			compositeState.setErrorTrace(new ArrayList<String>());
-
-			if (hasCompositionDeadlockFreeImplementations(compositeState,
-					ltsOutput)) {
-
-				long initialCurrentTimeMillis = System.currentTimeMillis();
-
-				String reference = "[TOSEM]";
-				printLine(" ", ltsOutput);
-				printLine(" ", ltsOutput);
-				printLine("Starting model check of " + compositeState.name
-						+ " against property " + ltlProperty.name, ltsOutput);
-
-				Vector<CompactState> machines = compositeState.getMachines();
-				CompactState composition = compositeState.getComposition();
-
-				CompactState optimistModel = getOptimisticModel(composition,
-						ltsOutput);
-				Vector<CompactState> toCheck = new Vector<CompactState>();
-				toCheck.add(optimistModel);
-				compositeState.setMachines(toCheck);
-
-				printLine(" ", ltsOutput);
-				printLine("Phase I: Does " + compositeState.name + "+ satisfy "
-						+ ltlProperty.name + "?", ltsOutput);
-
-				// phase I checking
-				compositeState.checkLTL(ltsOutput, ltlProperty);
-
-				if (compositeState.getErrorTrace() == null
-						|| compositeState.getErrorTrace().isEmpty()) {
-					// M+ |= FI
-					printLine(" ", ltsOutput);
-					printLine("Yes. " + compositeState.name + "+ satisfies. "
-							+ ltlProperty.name, ltsOutput);
-					printLine("This means that...", ltsOutput);
-					printLine(
-							"*****************************************************************",
-							ltsOutput);
-					printLine("All deadlock-free implementations of "
-							+ compositeState.name + " satisfy "
-							+ ltlProperty.name + " " + reference, ltsOutput);
-					printLine(
-							"*****************************************************************",
-							ltsOutput);
-
-				} else {
-					printLine(" ", ltsOutput);
-					printLine("No. " + compositeState.name
-							+ "+ does not satisfy " + ltlProperty.name,
-							ltsOutput);
-					printLine(
-							"This means that some deadlock-free implementations of "
-									+ compositeState.name + " do not satisfy "
-									+ ltlProperty.name, ltsOutput);
-
-					// M-
-					CompactState pessimisticModel = getPessimistModel(composition);
-					compositeState.setErrorTrace(ListUtils.EMPTY_LIST);
-
-					if (!MTSUtils.isEmptyMTS(pessimisticModel)) {
-						// M- is not the empty MTS
-
-						toCheck = new Vector<CompactState>();
-						toCheck.add(pessimisticModel);
-						compositeState.setMachines(toCheck);
-
-						printLine(" ", ltsOutput);
-						printLine("Phase II: Does " + compositeState.name
-								+ "- satisfy " + ltlProperty.name + "?",
-								ltsOutput);
-
-						// phase II checking
-						compositeState.checkLTL(ltsOutput, ltlProperty);
-
-						if (compositeState.getErrorTrace() == null
-								|| compositeState.getErrorTrace().isEmpty()) {
-							// M- |= FI
-							printLine("Yes. " + compositeState.name
-									+ "- does satisfy " + ltlProperty.name
-									+ ", which means that...", ltsOutput);
-							printLine(
-									"*****************************************************************",
-									ltsOutput);
-							printLine(
-									"There exists a deadlock-free implementation of "
-											+ compositeState.name
-											+ " that satisfies "
-											+ ltlProperty.name
-											+ " but there may be deadlock-free implementations "
-											+ "that violate the property. This is the case in which thorough semantics "
-											+ "is approximated by inductive semantics. "
-											+ reference, ltsOutput);
-							printLine(
-									"*****************************************************************",
-									ltsOutput);
-						} else {
-							// M- !|= FI
-							printLine("No. " + compositeState.name
-									+ "- does not satisfy " + ltlProperty.name
-									+ ", which means that...", ltsOutput);
-							printLine(
-									"*****************************************************************",
-									ltsOutput);
-							printLine("No deadlock-free implementation of "
-									+ compositeState.name + " satisfies "
-									+ ltlProperty.name + " " + reference,
-									ltsOutput);
-							printLine(
-									"*****************************************************************",
-									ltsOutput);
-						}
-
-					} else {
-						printLine(" ", ltsOutput);
-						printLine("Phase II: As " + compositeState.name
-								+ "- is empty it cannot be checked against "
-								+ ltlProperty.name + ". " + reference,
-								ltsOutput);
-						printLine("Will check " + compositeState.name
-								+ "+ against the negation of "
-								+ ltlProperty.name + " " + reference, ltsOutput);
-						printLine("Does " + compositeState.name + "+ satisfy "
-								+ not_ltl_property.name + "?", ltsOutput);
-
-						// phase II checking
-						compositeState.checkLTL(ltsOutput, not_ltl_property);
-
-						if (compositeState.getErrorTrace() == null
-								|| compositeState.getErrorTrace().isEmpty()) {
-							// M+ |= !FI
-							printLine("Yes. " + compositeState.name
-									+ "+ does satisfy " + not_ltl_property.name
-									+ ", which means that...", ltsOutput);
-
-							printLine(
-									"*****************************************************************",
-									ltsOutput);
-							printLine("No deadlock-free implementation of "
-									+ compositeState.name + " satisfies "
-									+ ltlProperty.name + " " + reference,
-									ltsOutput);
-							printLine(
-									"*****************************************************************",
-									ltsOutput);
-						} else {
-							// M+ !|= !FI
-							printLine("No. " + compositeState.name
-									+ "+ does not satisfy "
-									+ not_ltl_property.name
-									+ ", which means that...", ltsOutput);
-
-							printLine(
-									"*****************************************************************",
-									ltsOutput);
-							printLine(
-									"There might exist some deadlock-free implementations of "
-											+ compositeState.name
-											+ " that satisfy "
-											+ ltlProperty.name
-											+ ", but there are deadlock-free implementations "
-											+ "that don't satisfty "
-											+ ltlProperty.name
-											+ ". "
-											+ "This is the case in which thorough semantics "
-											+ "is approximated by inductive semantics. "
-											+ reference, ltsOutput);
-							printLine(
-									"*****************************************************************",
-									ltsOutput);
-						}
-					}
-				}
-
-				printLine(
-						compositeState.name
-								+ " model checked in "
-								+ (System.currentTimeMillis() - initialCurrentTimeMillis)
-								+ "ms", ltsOutput);
-
-				// restore the orginal compositeState
-				machines.add(saved = ltlProperty.getComposition());
-				compositeState.setMachines(machines);
-				compositeState.setComposition(composition);
-			} else {
-				ltsOutput
-						.outln("The model must have deadlock free implementations to be checked.");
-			}
+			checkFLTLMTS(compositeState, ltlProperty, notLtlProperty,
+					fairCheck, ltsOutput);
 		} else {
+
 			if (compositeState.makeController || compositeState.checkCompatible
 					|| compositeState.makeSyncController) {
 				checkControllerFLTL(compositeState, ltlProperty, ltsOutput);
 			} else {
 				compositeState.checkLTL(ltsOutput, ltlProperty);
 			}
+		}
+	}
+
+	private static void checkFLTLMTS(CompositeState compositeState,
+			CompositeState ltlProperty, CompositeState notLtlProperty,
+			boolean fairCheck, LTSOutput ltsOutput) {
+		if (fairCheck) {
+			throw new UnsupportedOperationException(
+					"FLTL model checking of MTS with Fair Choice is not yet defined.");
+		}
+		// ISSUE We can't do FLTL check on-the-fly.
+		applyComposition(compositeState, ltsOutput);
+
+		if (saved != null) {
+			compositeState.getMachines().remove(saved);
+			saved = null;
+		}
+
+		compositeState.setErrorTrace(new ArrayList<String>());
+
+		if (hasCompositionDeadlockFreeImplementations(compositeState, ltsOutput)) {
+
+			long initialCurrentTimeMillis = System.currentTimeMillis();
+
+			String reference = "[TOSEM]";
+			printLine(" ", ltsOutput);
+			printLine(" ", ltsOutput);
+			printLine("Starting model check of " + compositeState.name
+					+ " against property " + ltlProperty.name, ltsOutput);
+
+			Vector<CompactState> machines = compositeState.getMachines();
+			CompactState composition = compositeState.getComposition();
+
+			CompactState optimistModel = getOptimisticModel(composition,
+					ltsOutput);
+			Vector<CompactState> toCheck = new Vector<CompactState>();
+			toCheck.add(optimistModel);
+			compositeState.setMachines(toCheck);
+
+			printLine(" ", ltsOutput);
+			printLine("Phase I: Does " + compositeState.name + "+ satisfy "
+					+ ltlProperty.name + "?", ltsOutput);
+
+			// phase I checking
+			compositeState.checkLTL(ltsOutput, ltlProperty);
+
+			if (compositeState.getErrorTrace() == null
+					|| compositeState.getErrorTrace().isEmpty()) {
+				// M+ |= FI
+				printLine(" ", ltsOutput);
+				printLine("Yes. " + compositeState.name + "+ satisfies. "
+						+ ltlProperty.name, ltsOutput);
+				printLine("This means that...", ltsOutput);
+				printLine(
+						"*****************************************************************",
+						ltsOutput);
+				printLine("All deadlock-free implementations of "
+						+ compositeState.name + " satisfy " + ltlProperty.name
+						+ " " + reference, ltsOutput);
+				printLine(
+						"*****************************************************************",
+						ltsOutput);
+
+			} else {
+				printLine(" ", ltsOutput);
+				printLine("No. " + compositeState.name + "+ does not satisfy "
+						+ ltlProperty.name, ltsOutput);
+				printLine(
+						"This means that some deadlock-free implementations of "
+								+ compositeState.name + " do not satisfy "
+								+ ltlProperty.name, ltsOutput);
+
+				// M-
+				CompactState pessimisticModel = getPessimistModel(composition);
+				compositeState.setErrorTrace(ListUtils.EMPTY_LIST);
+
+				if (!MTSUtils.isEmptyMTS(pessimisticModel)) {
+					// M- is not the empty MTS
+
+					toCheck = new Vector<>();
+					toCheck.add(pessimisticModel);
+					compositeState.setMachines(toCheck);
+
+					printLine(" ", ltsOutput);
+					printLine("Phase II: Does " + compositeState.name
+							+ "- satisfy " + ltlProperty.name + "?", ltsOutput);
+
+					// phase II checking
+					compositeState.checkLTL(ltsOutput, ltlProperty);
+
+					if (compositeState.getErrorTrace() == null
+							|| compositeState.getErrorTrace().isEmpty()) {
+						// M- |= FI
+						printLine("Yes. " + compositeState.name
+								+ "- does satisfy " + ltlProperty.name
+								+ ", which means that...", ltsOutput);
+						printLine(
+								"*****************************************************************",
+								ltsOutput);
+						printLine(
+								"There exists a deadlock-free implementation of "
+										+ compositeState.name
+										+ " that satisfies "
+										+ ltlProperty.name
+										+ " but there may be deadlock-free implementations "
+										+ "that violate the property. This is the case in which thorough semantics "
+										+ "is approximated by inductive semantics. "
+										+ reference, ltsOutput);
+						printLine(
+								"*****************************************************************",
+								ltsOutput);
+					} else {
+						// M- !|= FI
+						printLine("No. " + compositeState.name
+								+ "- does not satisfy " + ltlProperty.name
+								+ ", which means that...", ltsOutput);
+						printLine(
+								"*****************************************************************",
+								ltsOutput);
+						printLine("No deadlock-free implementation of "
+								+ compositeState.name + " satisfies "
+								+ ltlProperty.name + " " + reference, ltsOutput);
+						printLine(
+								"*****************************************************************",
+								ltsOutput);
+					}
+
+				} else {
+					printLine(" ", ltsOutput);
+					printLine("Phase II: As " + compositeState.name
+							+ "- is empty it cannot be checked against "
+							+ ltlProperty.name + ". " + reference, ltsOutput);
+					printLine("Will check " + compositeState.name
+							+ "+ against the negation of " + ltlProperty.name
+							+ " " + reference, ltsOutput);
+					printLine("Does " + compositeState.name + "+ satisfy "
+							+ notLtlProperty.name + "?", ltsOutput);
+
+					// phase II checking
+					compositeState.checkLTL(ltsOutput, notLtlProperty);
+
+					if (compositeState.getErrorTrace() == null
+							|| compositeState.getErrorTrace().isEmpty()) {
+						// M+ |= !FI
+						printLine("Yes. " + compositeState.name
+								+ "+ does satisfy " + notLtlProperty.name
+								+ ", which means that...", ltsOutput);
+
+						printLine(
+								"*****************************************************************",
+								ltsOutput);
+						printLine("No deadlock-free implementation of "
+								+ compositeState.name + " satisfies "
+								+ ltlProperty.name + " " + reference, ltsOutput);
+						printLine(
+								"*****************************************************************",
+								ltsOutput);
+					} else {
+						// M+ !|= !FI
+						printLine("No. " + compositeState.name
+								+ "+ does not satisfy " + notLtlProperty.name
+								+ ", which means that...", ltsOutput);
+
+						printLine(
+								"*****************************************************************",
+								ltsOutput);
+						printLine(
+								"There might exist some deadlock-free implementations of "
+										+ compositeState.name
+										+ " that satisfy "
+										+ ltlProperty.name
+										+ ", but there are deadlock-free implementations "
+										+ "that don't satisfty "
+										+ ltlProperty.name
+										+ ". "
+										+ "This is the case in which thorough semantics "
+										+ "is approximated by inductive semantics. "
+										+ reference, ltsOutput);
+						printLine(
+								"*****************************************************************",
+								ltsOutput);
+					}
+				}
+			}
+
+			printLine(
+					compositeState.name
+							+ " model checked in "
+							+ (System.currentTimeMillis() - initialCurrentTimeMillis)
+							+ "ms", ltsOutput);
+
+			// restore the orginal compositeState
+			machines.add(saved = ltlProperty.getComposition());
+			compositeState.setMachines(machines);
+			compositeState.setComposition(composition);
+		} else {
+			ltsOutput
+					.outln("The model must have deadlock free implementations to be checked.");
 		}
 	}
 
@@ -1452,11 +1451,11 @@ public class TransitionSystemDispatcher {
 		MTSUtils.removeActionsFromAlphabet(mts, toDelete);
 
 		MTS<Long, String> abstractModel = abstractBuilder.getAbstractModel(mts);
-		output.outln("Abstract model generated for " + compactState.name
+		output.outln("Abstract model generated for " + compactState.getName()
 				+ " in: " + (System.currentTimeMillis() - initialTime) + "ms.");
 
 		return MTSToAutomataConverter.getInstance().convert(abstractModel,
-				compactState.name);
+				compactState.getName());
 	}
 
 	/**
@@ -1490,7 +1489,7 @@ public class TransitionSystemDispatcher {
 		output.outln("Applying tau clousure [bisimulation-based]");
 		MTSAFacade.applyClosure(mts, Collections.singleton(MTSConstants.TAU));
 		return MTSToAutomataConverter.getInstance().convert(mts,
-				compactState.name);
+				compactState.getName());
 	}
 
 	/**
@@ -1537,10 +1536,11 @@ public class TransitionSystemDispatcher {
 		MTSConstraintBuilder constraintBuilder = new MTSConstraintBuilder();
 		constraintBuilder.makeConstrainedModel(constrained);
 
-		output.outln("Constrained model generated for " + compactState.name
-				+ " in: " + (System.currentTimeMillis() - initialTime) + "ms.");
+		output.outln("Constrained model generated for "
+				+ compactState.getName() + " in: "
+				+ (System.currentTimeMillis() - initialTime) + "ms.");
 		return MTSToAutomataConverter.getInstance().convert(constrained,
-				compactState.name);
+				compactState.getName());
 	}
 
 	public static void checkProgress(CompositeState compositeState,
@@ -1649,10 +1649,10 @@ public class TransitionSystemDispatcher {
 						compositeState, compositeState.goal, output);
 				if (synthesiseController != null) {
 					compositeState.setComposition(synthesiseController);
-				} else if (!composition.name
-						.contains(ControlConstants.NO_CONTROLLER)) {
-					composition.name = composition.name
-							+ ControlConstants.NO_CONTROLLER;
+				} else if (!composition.getName().contains(
+						ControlConstants.NO_CONTROLLER)) {
+					composition.setName(composition.getName()
+							+ ControlConstants.NO_CONTROLLER);
 				}
 			} else {
 				Diagnostics.fatal("The controller must have a goal.");
@@ -1740,10 +1740,10 @@ public class TransitionSystemDispatcher {
 					synthesiseController = applyLatencyHeuristic(
 							compositeState, synthesiseController);
 					compositeState.setComposition(synthesiseController);
-				} else if (!composition.name
-						.contains(ControlConstants.NO_CONTROLLER)) {
-					composition.name = composition.name
-							+ ControlConstants.NO_CONTROLLER;
+				} else if (!composition.getName().contains(
+						ControlConstants.NO_CONTROLLER)) {
+					composition.setName(composition.getName()
+							+ ControlConstants.NO_CONTROLLER);
 				}
 			} else {
 				Diagnostics.fatal("The controller must have a goal.");
@@ -1760,10 +1760,10 @@ public class TransitionSystemDispatcher {
 						compositeState, compositeState.goal, output);
 				if (synthesiseController != null) {
 					compositeState.setComposition(synthesiseController);
-				} else if (!composition.name
-						.contains(ControlConstants.NO_CONTROLLER)) {
-					composition.name = composition.name
-							+ ControlConstants.NO_CONTROLLER;
+				} else if (!composition.getName().contains(
+						ControlConstants.NO_CONTROLLER)) {
+					composition.setName(composition.getName()
+							+ ControlConstants.NO_CONTROLLER);
 				}
 			} else {
 				Diagnostics.fatal("The controller must have a goal.");
@@ -2289,9 +2289,9 @@ public class TransitionSystemDispatcher {
 	 * @return Animator depending on the type of the Composite State
 	 */
 
-	public static ltsa.lts.Animator generateAnimator(
+	public static ltsa.lts.animator.Animator generateAnimator(
 			CompositeState compositeState, LTSOutput output,
-			ltsa.lts.EventManager eventManager) {
+			ltsa.lts.gui.EventManager eventManager) {
 		// return new MTSAnimator(compositeState, eventManager);
 
 		if (MTSUtils.isMTSRepresentation(compositeState)) {

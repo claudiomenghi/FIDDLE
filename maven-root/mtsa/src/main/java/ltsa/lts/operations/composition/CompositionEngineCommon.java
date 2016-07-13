@@ -4,11 +4,10 @@ import java.util.List;
 import java.util.Iterator;
 
 import ltsa.lts.Diagnostics;
-import ltsa.lts.ModelExplorerContext;
-import ltsa.lts.ProbabilisticEligibleTransition;
-import ltsa.lts.ProbabilisticTransition;
-import ltsa.lts.StateCodec;
-import ltsa.lts.StateMap;
+import ltsa.lts.animator.ModelExplorerContext;
+import ltsa.lts.animator.StateCodec;
+import ltsa.lts.lts.ProbabilisticTransition;
+import ltsa.lts.util.collections.StateMap;
 
 public class CompositionEngineCommon {
 

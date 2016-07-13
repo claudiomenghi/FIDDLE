@@ -8,11 +8,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import ltsa.lts.CompactState;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.EventState;
 import ltsa.lts.EventStateUtils;
-import ltsa.lts.Symbol;
+import ltsa.lts.lts.EventState;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.parser.Symbol;
 
 public class LabelFactory {
 	
@@ -24,6 +24,8 @@ public class LabelFactory {
 	BitSet[] ps;             //proposition sets
 	BitSet[] nps;            //not proposition sets
 	Vector propProcs;          //process per proposition
+	
+
 	SortedSet allActions;    //application alphabet of all propositions
 	
 	public LabelFactory(String n, FormulaFactory f, Vector alphaExtension) {
@@ -40,7 +42,7 @@ public class LabelFactory {
 		return tr;
 	}
 	
-	Vector getPrefix() {
+	public Vector getPrefix() {
 		Vector v = new Vector();
 		Formula f = (Formula)allprops.first();
 		v.add("_"+f);
@@ -208,8 +210,7 @@ public class LabelFactory {
 	}
 	
 	CompactState makePropProcess(PredicateDefinition p, int m) {
-		CompactState cs = new CompactState();
-		cs.name = p.name.toString();
+		CompactState cs = new CompactState(p.name.toString());
 		cs.maxStates = 2;
 		cs.states = new EventState[cs.maxStates];
 		BitSet trueTrans = new BitSet();
@@ -240,8 +241,7 @@ public class LabelFactory {
 	
 		  	   
 	CompactState makeSyncProcess() {
-		CompactState cs = new CompactState();
-		cs.name = "SYNC";
+		CompactState cs = new CompactState("SYNC");
 		cs.maxStates = 2;
 		cs.states = new EventState[cs.maxStates];
 		String [] propA = makeAlphabet(); 
@@ -259,6 +259,10 @@ public class LabelFactory {
 			 cs.states[0] = EventStateUtils.add(cs.states[0], new EventState(i+propA.length-1,1));
 		}
 	  return cs; 
+	}
+	
+	public Vector getPropProcs() {
+		return propProcs;
 	}
 
 }

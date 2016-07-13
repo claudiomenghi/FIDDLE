@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import MTSSynthesis.controller.ControllerSynthesisFacade;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompositeState;
 
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class NonDetControllerSynthesisTests {
 	@Test
 	public void test1() throws Exception {
 		CompositeState model = compiler.compileCompositeState("C", TestConstants.fileFrom("nondet1.lts"));
-		String name = model.getComposition().name;
+		String name = model.getComposition().getName();
 		assertTrue(name.contains(ControlConstants.NO_CONTROLLER));
 	}
 	
@@ -76,14 +76,14 @@ public class NonDetControllerSynthesisTests {
 	@Test
 	public void test5() throws Exception {
 		CompositeState model = compiler.compileCompositeState("C", TestConstants.fileFrom("nondet5.lts"));
-		String name = model.getComposition().name;
+		String name = model.getComposition().getName();
 		assertTrue("There is no controller for C", !name.contains(ControlConstants.NO_CONTROLLER));
 	}
 	
 	@Test
 	public void test6() throws Exception {
 		CompositeState model = compiler.compileCompositeState("C", TestConstants.fileFrom("nondet6.lts"));
-		String name = model.getComposition().name;
+		String name = model.getComposition().getName();
 		assertTrue("There shouldn't be a controller!!", name.contains(ControlConstants.NO_CONTROLLER));
 	}
 
@@ -98,7 +98,7 @@ public class NonDetControllerSynthesisTests {
 	private void testSynthesisedController(String resultName, String expectedName, String fileName) throws IOException {
 		CompositeState resultController = compiler.compileCompositeState(resultName, TestConstants.fileFrom(fileName));
 		MTS<Long, String> result = AutomataToMTSConverter.getInstance().convert(resultController.getComposition());
-		String name = resultController.getComposition().name;
+		String name = resultController.getComposition().getName();
 		assertTrue("There is no controller for C", !name.contains(ControlConstants.NO_CONTROLLER));
 		CompositeState expectedController = compiler.compileCompositeState(expectedName, TestConstants.fileFrom(fileName));
 		MTS<Long, String> expected = AutomataToMTSConverter.getInstance().convert(expectedController.getComposition());

@@ -40,13 +40,13 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.DrawMachine;
-import ltsa.lts.EventClient;
-import ltsa.lts.EventManager;
-import ltsa.lts.LTSCanvas;
-import ltsa.lts.LTSEvent;
+import ltsa.lts.gui.DrawMachine;
+import ltsa.lts.gui.EventClient;
+import ltsa.lts.gui.EventManager;
+import ltsa.lts.gui.LTSCanvas;
+import ltsa.lts.lts.LTSEvent;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.dclap.Gr2PICT;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 
@@ -298,9 +298,9 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		DefaultListModel lm = new DefaultListModel();
 		for (int i = 0; i < Nmach; i++) {
 			if (hasC == 1 && i == (Nmach - 1))
-				lm.addElement("||" + sm[i].name);
+				lm.addElement("||" + sm[i].getName());
 			else
-				lm.addElement(sm[i].name);
+				lm.addElement(sm[i].getName());
 		}
 		list.setModel(lm);
 		output.setMachines(Nmach);
@@ -393,7 +393,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		FileDialog fd = new FileDialog((Frame) getTopLevelAncestor(),
 				"Save file in:", FileDialog.SAVE);
 		if (Nmach > 0) {
-			String fname = dm.getMachine().name;
+			String fname = dm.getMachine().getName();
 			int colon = fname.indexOf(':', 0);
 			if (colon > 0)
 				fname = fname.substring(0, colon);

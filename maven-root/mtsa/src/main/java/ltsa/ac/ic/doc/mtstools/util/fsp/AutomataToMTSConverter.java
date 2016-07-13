@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.MyList;
+import ltsa.lts.ltscomposition.CompactState;
 import ltsa.lts.util.MTSUtils;
+import ltsa.lts.util.collections.MyList;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSImpl;

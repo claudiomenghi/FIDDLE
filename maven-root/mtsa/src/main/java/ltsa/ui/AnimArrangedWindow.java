@@ -23,8 +23,8 @@ import javax.swing.border.EmptyBorder;
 
 import com.sun.crypto.provider.JceKeyStore;
 
-import ltsa.lts.Animator;
-import ltsa.lts.RunMenu;
+import ltsa.lts.animator.Animator;
+import ltsa.lts.gui.RunMenu;
 
 /**
  * Window to run the simple animator

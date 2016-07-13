@@ -11,11 +11,11 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ltsa.lts.CompactState;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.LTSOutput;
 import ltsa.lts.chart.util.FormulaUtils;
 import ltsa.lts.ltl.AssertDefinition;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.parser.LTSOutput;
 
 import org.apache.commons.collections15.map.HashedMap;
 
@@ -232,7 +232,7 @@ public class UpdatingControllerSynthesizer {
 	private static MTS<Long, String> applySafety( ControllerGoalDefinition newGoalDef, MTS<Long, String> metaEnvironment, FluentStateValuation<Long> fluentStateValuation) {
 		Set<Fluent> safetyFluents = new HashSet<Fluent>();
 		List<Formula> safetyFormulas = new ArrayList<Formula>();
-		for (ltsa.lts.Symbol safetyDefinition : newGoalDef.getSafetyDefinitions()) {
+		for (ltsa.lts.parser.Symbol safetyDefinition : newGoalDef.getSafetyDefinitions()) {
 			AssertDefinition def = AssertDefinition
 					.getConstraint(safetyDefinition.getName());
 			if (def != null) {

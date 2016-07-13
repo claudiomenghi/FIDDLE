@@ -3,7 +3,7 @@ package MTSATests.controller;
 import static MTSAClient.ac.ic.doc.mtsa.MTSCompiler.getInstance;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompositeState;
 
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class PermissiveControllerTests {
 	public void testPermissive1() throws Exception {
 		TestLTSOuput testLTSOuput = new TestLTSOuput();
 		CompositeState model = getInstance().compileCompositeState("PERMISSIVE", TestConstants.fileFrom("permissive-controller.lts"), testLTSOuput);
-		String name = model.getComposition().name;
+		String name = model.getComposition().getName();
 		assertTrue("There is no controller for C", !name.contains(ControlConstants.NO_CONTROLLER));
 		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.composition);
 		String permissiveAction = "#w#_c";
@@ -32,7 +32,7 @@ public class PermissiveControllerTests {
 	public void testNotPermissive1() throws Exception {
 		TestLTSOuput testLTSOuput = new TestLTSOuput();
 		CompositeState model = getInstance().compileCompositeState("C", TestConstants.fileFrom("permissive-controller.lts"), testLTSOuput);
-		String name = model.getComposition().name;
+		String name = model.getComposition().getName();
 		assertTrue("There is no controller for C", !name.contains(ControlConstants.NO_CONTROLLER));
 		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.composition);
 		String permissiveAction = "#w#_c";
@@ -46,7 +46,7 @@ public class PermissiveControllerTests {
 	public void testPermissive2() throws Exception {
 		TestLTSOuput testLTSOuput = new TestLTSOuput();
 		CompositeState model = getInstance().compileCompositeState("PERMISSIVE", TestConstants.fileFrom("permissive-controller2.lts"), testLTSOuput);
-		String name = model.getComposition().name;
+		String name = model.getComposition().getName();
 		assertTrue("There is no controller for C", !name.contains(ControlConstants.NO_CONTROLLER));
 		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.composition);
 		String permissiveAction = "#w#_c";

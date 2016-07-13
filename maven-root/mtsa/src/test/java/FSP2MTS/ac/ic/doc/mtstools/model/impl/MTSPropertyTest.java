@@ -1,7 +1,7 @@
 package FSP2MTS.ac.ic.doc.mtstools.model.impl;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.util.MTSUtils;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.LTSATestUtils;

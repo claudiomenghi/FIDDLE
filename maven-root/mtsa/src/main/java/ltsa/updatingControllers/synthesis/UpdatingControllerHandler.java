@@ -10,8 +10,8 @@ import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
 import MTSSynthesis.ar.dc.uba.model.language.SingleSymbol;
 import MTSSynthesis.ar.dc.uba.model.language.Symbol;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.updatingControllers.UpdateConstants;
 
 import java.util.HashSet;

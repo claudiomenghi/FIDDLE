@@ -9,11 +9,11 @@ import java.util.Map.Entry;
 import java.util.Vector;
 
 import ltsa.ui.Transition;
-import ltsa.lts.Animator;
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.EventManager;
-import ltsa.lts.LTSEvent;
+import ltsa.lts.animator.Animator;
+import ltsa.lts.gui.EventManager;
+import ltsa.lts.lts.LTSEvent;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSSynthesis.controller.game.gr.StrategyState;
 import MTSSynthesis.controller.game.util.GameStrategyToMTSBuilder;

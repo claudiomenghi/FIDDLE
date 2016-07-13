@@ -2,8 +2,8 @@ package ltsa.custom;
 
 import java.util.BitSet;
 
-import ltsa.lts.Animator;
-import ltsa.lts.Relation;
+import ltsa.lts.animator.Animator;
+import ltsa.lts.csp.Relation;
 import uk.ac.ic.doc.scenebeans.event.AnimationEvent;
 import uk.ac.ic.doc.scenebeans.event.AnimationListener;
 

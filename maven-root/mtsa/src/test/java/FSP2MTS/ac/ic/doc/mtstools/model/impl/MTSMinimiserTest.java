@@ -2,8 +2,8 @@ package FSP2MTS.ac.ic.doc.mtstools.model.impl;
 
 import java.util.Collections;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;

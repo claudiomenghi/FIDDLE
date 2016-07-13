@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.EventState;
-import ltsa.lts.ProbabilisticEventState;
+import ltsa.lts.lts.EventState;
+import ltsa.lts.lts.ProbabilisticEventState;
+import ltsa.lts.ltscomposition.CompactState;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MDP;

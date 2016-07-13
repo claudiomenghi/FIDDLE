@@ -10,8 +10,8 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.LTSOutput;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.parser.LTSOutput;
 
 import org.apache.commons.collections15.map.HashedMap;
 

@@ -15,9 +15,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-import ltsa.lts.CompactState;
-import ltsa.lts.CompositeState;
-import ltsa.lts.LTSOutput;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.LTSOutput;
 import ltsa.ui.StandardOutput;
 import MTSTools.ac.ic.doc.commons.collections.PowerSet;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;

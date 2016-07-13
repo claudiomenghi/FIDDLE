@@ -8,12 +8,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-import ltsa.lts.CompactState;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.LTSOutput;
-import ltsa.lts.Symbol;
 import ltsa.lts.chart.util.MTSSynthesiserFacade;
 import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
+import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.parser.Symbol;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;

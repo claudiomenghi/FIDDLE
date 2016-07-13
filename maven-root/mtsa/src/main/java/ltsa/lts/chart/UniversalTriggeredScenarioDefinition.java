@@ -1,8 +1,8 @@
 package ltsa.lts.chart;
 
-import ltsa.lts.Symbol;
 import ltsa.lts.chart.util.TriggeredScenarioDefinitionToTriggeredScenario;
 import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
+import ltsa.lts.parser.Symbol;
 import MTSSynthesis.ar.dc.uba.model.lsc.TriggeredScenario;
 import MTSSynthesis.ar.dc.uba.model.lsc.LocationNamingStrategyImpl;
 

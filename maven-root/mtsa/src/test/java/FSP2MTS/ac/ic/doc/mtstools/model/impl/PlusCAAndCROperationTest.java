@@ -1,7 +1,7 @@
 package FSP2MTS.ac.ic.doc.mtstools.model.impl;
 
-import ltsa.lts.CompositeState;
-import ltsa.lts.Symbol;
+import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.parser.Symbol;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.LTSATestUtils;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.MTSTestBase;
 import ltsa.dispatcher.TransitionSystemDispatcher;
