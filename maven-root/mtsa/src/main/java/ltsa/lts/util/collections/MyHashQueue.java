@@ -26,6 +26,7 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 			curEntry = null;
 		}
 
+		@Override
 		public boolean hasNext() {
 			MyHashQueueEntry iter = curEntry;
 			int tableIter = tableEntry;
@@ -48,6 +49,7 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 			return false;
 		}
 
+		@Override
 		public Object next() {
 			MyHashQueueEntry iter = curEntry;
 			int tableIter = tableEntry;
@@ -73,6 +75,7 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 			return null; // ?
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
@@ -142,14 +145,15 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 		addPut(entry);
 	}
 	
-	// @Override
+	@Override
 	public void add(byte[] key, int depth) {
 		MyHashQueueEntry entry= new MyHashQueueEntry(key);
 		addPut(entry);
 		entry.depth= depth;
 	}
 
-	// @Override
+
+	@Override
 	public void add(byte[] key, int action, byte[] parent) {
 		MyHashQueueEntry parentEntry = null;
 		if (parent != null) {
@@ -159,12 +163,12 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 		addPut(key, action, parentEntry);
 	}
 
-	// @Override
+	@Override
 	public boolean nextStateIsMarked() {
 		return head.marked;
 	}
 
-	// @Override
+	@Override
 	public byte[] getNextState() {
 		return peek().key;
 	}
@@ -173,18 +177,18 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 		return head;
 	}
 
-	// @Override
+	@Override
 	public int getNextStateNumber() {
 		return head.stateNumber;
 	}
 	
-	// @Override
+	@Override
 	public void markNextState(int stateNumber) {
 		head.marked = true;
 		head.stateNumber= stateNumber;
 	}
 
-	// @Override
+	@Override
 	public void removeNextState() {
 		pop();
 	}
@@ -197,11 +201,12 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 			tail = head;
 	}
 
+	@Override
 	public boolean empty() {
 		return head == null;
 	}
 
-	// @Override
+	@Override
 	public boolean contains(byte[] key) {
 		return containsKey(key);
 	}
@@ -219,6 +224,7 @@ public class MyHashQueue implements StackCheck, Iterable, StateMap {
 
 	// for breadth first search we can only check that we have already visited
 	// the state
+	@Override
 	public boolean onStack(byte[] key) {
 		int hash = StateCodec.hash(key) % table.length;
 		MyHashQueueEntry entry = table[hash];

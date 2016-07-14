@@ -60,7 +60,7 @@ public class ProcessRef {
 				StateMachine one = new StateMachine(p, actuals);
 				mach = one.makeCompactState();
 			} else {
-				mach = new AutCompactState(p.name, p.importFile);
+				mach = new AutCompactState(p.getSymbol(), p.importFile);
 			}
 
 			if (this.passBackClone) {
@@ -119,7 +119,7 @@ public class ProcessRef {
 
 			// get the system model
 			CompactState systemModel = c.compiledProcesses.get(systemModelId
-					.getName());
+					.getValue());
 
 			// try to distribute
 			Collection<CompactState> distributedComponents = new LinkedList<CompactState>();
@@ -130,7 +130,7 @@ public class ProcessRef {
 			// Add the distributed components as compiled
 			for (CompactState compactState : distributedComponents) {
 				if (this.passBackClone
-						&& compactState.getName().equals(name.getName())) {
+						&& compactState.getName().equals(name.getValue())) {
 					// the machine is only the one with the requested name
 					machines.addElement(compactState.myclone()); // pass back
 																	// clone
@@ -141,7 +141,7 @@ public class ProcessRef {
 																				// process
 			}
 			if (!isDistributionSuccessful) {
-				Diagnostics.fatal("Model " + systemModelId.getName()
+				Diagnostics.fatal("Model " + systemModelId.getValue()
 						+ " could not be distributed.", systemModelId);
 			}
 			return;

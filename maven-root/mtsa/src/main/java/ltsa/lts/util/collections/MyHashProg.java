@@ -43,7 +43,7 @@ public class MyHashProg implements StackCheck {
         }
         return null;
     }
-    
+    @Override
     public boolean onStack(byte[] key) {
     	  MyHashProgEntry entry = get(key);
     	  if (entry==null) return false;

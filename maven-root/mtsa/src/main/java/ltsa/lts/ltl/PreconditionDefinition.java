@@ -11,7 +11,7 @@ public class PreconditionDefinition extends FormulaDefinition {
 	public PreconditionDefinition(Symbol n, FormulaSyntax f, LabelSet ls,
 			Hashtable ip, Vector p) {
 		super(n, f, ls, ip, p);
-		this.getFac().setFormula(
+		this.getFac().negateAndSetFormula(
 				this.getLTLFormula().expand(this.getFac(), new Hashtable(),
 						this.getInitialParams()));
 	}

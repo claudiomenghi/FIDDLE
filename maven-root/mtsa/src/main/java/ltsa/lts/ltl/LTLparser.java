@@ -1,5 +1,6 @@
 package ltsa.lts.ltl;
 import ltsa.lts.Diagnostics;
+import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.parser.Lex;
 import ltsa.lts.parser.Symbol;
 
@@ -19,7 +20,7 @@ public class LTLparser {
   	   if (current==null) {
   		   next_symbol();
   	   }
-  	   fac.setFormula(ltl_unary());
+  	   fac.negateAndSetFormula(ltl_unary());
   	   return fac;
   }
   

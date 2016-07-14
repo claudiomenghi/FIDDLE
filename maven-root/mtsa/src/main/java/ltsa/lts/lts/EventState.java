@@ -896,10 +896,12 @@ final class EventStateEnumerator implements Enumeration<EventState> {
 			list = es.getList();
 	}
 
+	@Override
 	public boolean hasMoreElements() {
 		return es != null;
 	}
 
+	@Override
 	public EventState nextElement() {
 		if (es != null) {
 			EventState temp = es;

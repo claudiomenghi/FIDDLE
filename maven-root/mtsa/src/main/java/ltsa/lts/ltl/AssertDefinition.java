@@ -110,7 +110,7 @@ public class AssertDefinition extends FormulaDefinition {
 			String name = (String) e.nextElement();
 			AssertDefinition p = (AssertDefinition) definitions.get(name);
 			p.fac = new FormulaFactory();
-			p.fac.setFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
+			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
 					p.initParams));
 		}
 	}
@@ -160,10 +160,10 @@ public class AssertDefinition extends FormulaDefinition {
 			Hashtable actualParams = new Hashtable();
 			for (int i = 0; i < pvalues.size(); ++i)
 				actualParams.put(p.params.elementAt(i), pvalues.elementAt(i));
-			p.fac.setFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
+			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
 					actualParams));
 		} else {
-			p.fac.setFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
+			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
 					p.initParams));
 		}
 		CompositeState cs = compile(constraints, output, name.toString(), true);
@@ -220,6 +220,9 @@ public class AssertDefinition extends FormulaDefinition {
 			alpha = new Vector();
 		if (addAsterisk && !isconstraint)
 			alpha.add("*");
+		
+		System.out.println(p.fac.getFormula().getPropositions());
+		
 		GeneralizedBuchiAutomata gba = new GeneralizedBuchiAutomata(
 				p.getName().toString(), p.fac, alpha);
 		gba.translate();

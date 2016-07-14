@@ -109,11 +109,11 @@ public class LTSTestHelper {
 			Set<LTS<Long, String>> safetyReqs = new HashSet<LTS<Long, String>>();
 			for (Symbol safetyDef : goalDefinition.getSafetyDefinitions()) {
 				CompactState c = compiler
-						.getProcessCompactStateByName(safetyDef.getName());
+						.getProcessCompactStateByName(safetyDef.getValue());
 				// TODO:what happens with assertions? they are not automata
 				if (c == null)
 					c = AssertDefinition.compileConstraint(output,
-							safetyDef.getName());
+							safetyDef.getValue());
 
 				LTSAdapter<Long, String> safe = new LTSAdapter<Long, String>(
 						AutomataToMTSConverter.getInstance().convert(c),

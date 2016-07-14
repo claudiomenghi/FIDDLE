@@ -39,10 +39,12 @@ public class ConditionDefinition {
 		this.name = name;
 	}
 	
+	@Override
 	public String toString() {
 		return this.name + " = " + this.getFplFormula().toString();
 	}
 	
+	@Override
 	public boolean equals(Object anObject) {
 		if(this == anObject) {
 			return true;
@@ -55,6 +57,7 @@ public class ConditionDefinition {
 		}
 	}
 	
+	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(19,37).append(this.getName()).toHashCode();
 	}

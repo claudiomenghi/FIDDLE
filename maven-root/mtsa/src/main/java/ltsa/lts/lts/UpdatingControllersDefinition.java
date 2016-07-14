@@ -77,7 +77,7 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		ControllerGoalDefinition oldGoalDef = ControllerGoalDefinition.getDefinition(this.getOldGoal());
 		ControllerGoalDefinition newGoalDef = ControllerGoalDefinition.getDefinition(this.getNewGoal());
 		Set<String> controllableSet = this.generateUpdatingControllableActions(oldGoalDef, newGoalDef);
-		Symbol controllableSetSymbol = LTSCompiler.saveControllableSet(controllableSet, this.getName().getName());
+		Symbol controllableSetSymbol = LTSCompiler.saveControllableSet(controllableSet, this.getName().getValue());
 		GRControllerGoal<String> grGoal = UpdatingControllersUtils.generateGRUpdateGoal(this, oldGoalDef, newGoalDef,
 			controllableSet);
 		ControllerGoalDefinition newGoal = UpdatingControllersUtils.generateSafetyGoalDef(this, oldGoalDef,
@@ -92,7 +92,7 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 		List<String> checkTrace = UpdatingControllersUtils.compileCheckTraces(this.getCheckTrace());
 
 		UpdatingControllerCompositeState ucce = new UpdatingControllerCompositeState(oldC, oldE, newE, newGoal,
-				grGoal, oldPropositions, newPropositions, debugMode, checkTrace, name.getName());
+				grGoal, oldPropositions, newPropositions, debugMode, checkTrace, name.getValue());
 		return ucce;
 	}
 

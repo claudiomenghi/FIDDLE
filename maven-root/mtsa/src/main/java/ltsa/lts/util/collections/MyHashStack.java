@@ -35,18 +35,18 @@ public class MyHashStack implements StackCheck, StateMap {
         table = new MyHashStackEntry[size];
     }
 
-    // @Override
+    @Override
     public void add(byte[] key) {
     	pushPut(key);
     }
     
-    // @Override
+    @Override
     public void add(byte[] key, int depth) {
     	MyHashStackEntry entry= pushPut(key);
     	entry.depth= depth;
     }
     
-    // @Override
+    @Override
     public void add(byte[] key, int action, byte[] parent) {
     	throw new UnsupportedOperationException();
     }
@@ -66,7 +66,7 @@ public class MyHashStack implements StackCheck, StateMap {
         return entry;
     }
     
-    // @Override
+    @Override
     public void removeNextState() {
     	pop();
     }
@@ -79,7 +79,7 @@ public class MyHashStack implements StackCheck, StateMap {
     	--depth;
     }
     
-    // @Override
+    @Override
     public byte[] getNextState() {
     	return peek();
     }
@@ -88,12 +88,12 @@ public class MyHashStack implements StackCheck, StateMap {
        return head.key;
     }
 
-    // @Override
+    @Override
     public int getNextStateNumber() {
     	return head.stateNumber;
     }
     
-    // @Override
+    @Override
     public void markNextState(int stateNumber) {
     	mark(stateNumber);
     }
@@ -103,7 +103,7 @@ public class MyHashStack implements StackCheck, StateMap {
     	   head.stateNumber = id;
     }
     
-    // @Override
+    @Override
     public boolean nextStateIsMarked() {
     	return marked();
     }
@@ -112,12 +112,12 @@ public class MyHashStack implements StackCheck, StateMap {
     	   return head.marked;
     }
 
-    // @Override
+    @Override
     public boolean empty() {
     	return head==null;
     }
     
-    // @Override
+    @Override
     public boolean contains(byte[] key) {
     	return containsKey(key);
     }
@@ -132,6 +132,7 @@ public class MyHashStack implements StackCheck, StateMap {
         return false;
     }
     
+    @Override
     public boolean onStack(byte[] key) {
        int hash = StateCodec.hash(key) % table.length;
         MyHashStackEntry entry = table[hash];
@@ -142,7 +143,7 @@ public class MyHashStack implements StackCheck, StateMap {
         return false;
     }
     
-    // @Override
+    @Override
     public int get(byte[] key) {
        int hash = StateCodec.hash(key) % table.length;
         MyHashStackEntry entry = table[hash];

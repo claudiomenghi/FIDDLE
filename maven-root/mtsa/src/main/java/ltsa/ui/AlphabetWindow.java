@@ -42,7 +42,8 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 
 	JTextArea output;
 	JList list;
-	JScrollPane left, right;
+	JScrollPane left;
+	JScrollPane right;
 	EventManager eman;
 	int Nmach;
 	int selectedMachine = 0;
@@ -101,6 +102,7 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	// ------------------------------------------------------------------------
 
 	class ExpandMoreAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (current == null)
 				return;
@@ -112,6 +114,7 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	}
 
 	class ExpandLessAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (current == null)
 				return;
@@ -123,6 +126,7 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	}
 
 	class ExpandMostAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (current == null)
 				return;
@@ -133,6 +137,7 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	}
 
 	class ExpandLeastAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (current == null)
 				return;
@@ -143,6 +148,7 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	}
 
 	class PrintAction implements ListSelectionListener {
+		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			int machine = list.getSelectedIndex();
 			if (machine < 0 || machine >= Nmach)
@@ -157,6 +163,7 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	}
 
 	/*---------LTS event broadcast action-----------------------------*/
+	@Override
 	public void ltsAction(LTSEvent e) {
 		switch (e.kind) {
 		case LTSEvent.NEWSTATE:
@@ -173,19 +180,22 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	}
 
 	// ------------------------------------------------------------------------
-
+	@Override
 	public void out(String str) {
 		output.append(str);
 	}
 
+	@Override
 	public void outln(String str) {
 		output.append(str + "\n");
 	}
 
+	@Override
 	public void clearOutput() {
 		output.setText("");
 	}
 
+	
 	private void new_machines(CompositeState cs) {
 		int hasC = (cs != null && cs.composition != null) ? 1 : 0;
 		if (cs != null && cs.machines != null && cs.machines.size() > 0) { // get
@@ -220,6 +230,7 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	protected JButton createTool(String icon, String tip, ActionListener act) {
 		JButton b = new JButton(
 				new ImageIcon(this.getClass().getResource(icon))) {
+			@Override
 			public float getAlignmentY() {
 				return 0.5f;
 			}

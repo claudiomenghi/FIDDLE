@@ -22,12 +22,14 @@ public class ActionVarRange extends ActionRange {
 		this.var = var;
 	}
 
+	@Override
 	protected String computeName() {
 		if (locals != null)
 			locals.put(var.toString(), new Value(current));
 		return String.valueOf(current);
 	}
 
+	@Override
 	protected void checkDuplicateVarDefn() {
 		if (locals == null)
 			return;
@@ -35,11 +37,13 @@ public class ActionVarRange extends ActionRange {
 			Diagnostics.fatal("Duplicate variable definition: " + var, var);
 	}
 
+	@Override
 	protected void removeVarDefn() {
 		if (locals != null)
 			locals.remove(var.toString());
 	}
 
+	@Override
 	protected ActionLabels make() {
 		return new ActionVarRange(var, rlow, rhigh);
 	}

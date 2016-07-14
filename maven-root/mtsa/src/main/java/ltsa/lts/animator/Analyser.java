@@ -354,7 +354,6 @@ public class Analyser implements Animator, Automata {
 		return hasErrors;
 	}
 
-	// >>> AMES: Deadlock Insensitive Analysis, multiple counterexamples
 	public boolean analyse(boolean checkDeadlocks) {
 		boolean hasErrors = true;
 		output.outln("Analysing...");
@@ -742,11 +741,13 @@ public class Analyser implements Animator, Automata {
 
 	// Implement Automata Interface
 	// returns the alphabet
+	@Override
 	public String[] getAlphabet() {
 		return actionName;
 	}
 
 	// returns the transitions from a particular state
+	@Override
 	public MyList getTransitions(byte[] state) {
 		List ex = eligibleTransitions(coder.decode(state));
 		MyList trs = new MyList();
@@ -768,6 +769,7 @@ public class Analyser implements Animator, Automata {
 	}
 
 	// assumes property is Machine Nmach-1
+	@Override
 	public boolean isAccepting(byte[] state) {
 		if (acceptEvent < 0)
 			return false;
@@ -775,12 +777,13 @@ public class Analyser implements Animator, Automata {
 		return EventState.hasEvent(sm[Nmach - 1].states[ds[Nmach - 1]],
 				acceptEvent);
 	}
-
+	@Override
 	public String getViolatedProperty() {
 		return sm[errorMachine].getName();
 	}
 
 	// returns shortest trace to state (vector of Strings)
+	@Override
 	public Vector getTraceToState(byte[] from, byte[] to) {
 		if (StateCodec.equals(from, to))
 			return new Vector();
@@ -794,16 +797,19 @@ public class Analyser implements Animator, Automata {
 	}
 
 	// return the number of the END state
+	@Override
 	public boolean END(byte[] state) {
 		return isEND(coder.decode(state));
 	}
 
 	// return the number of the START state
+	@Override
 	public byte[] START() {
 		return coder.zero();
 	}
 
 	// set the Stack Checker for partial order reduction
+	@Override
 	public void setStackChecker(StackCheck s) {
 		if (partialOrderReduction) {
 			partial = new PartialOrder(alphabet, actionName, sm,
@@ -814,6 +820,7 @@ public class Analyser implements Animator, Automata {
 	}
 
 	// returns true if partial order reduction
+	@Override
 	public boolean isPartialOrder() {
 		return partialOrderReduction;
 	}
@@ -821,6 +828,7 @@ public class Analyser implements Animator, Automata {
 	PartialOrder savedPartial = null;
 
 	// disable partial order
+	@Override
 	public void disablePartialOrder() {
 		savedPartial = partial;
 		partial = null;
@@ -828,6 +836,7 @@ public class Analyser implements Animator, Automata {
 	}
 
 	// enable partial order
+	@Override
 	public void enablePartialOrder() {
 		partial = savedPartial;
 		explorerContext.partial = partial;
@@ -912,6 +921,7 @@ public class Analyser implements Animator, Automata {
 		return b;
 	}
 
+	@Override
 	public BitSet initialise(Vector menu) {
 		choices = eligibleTransitions(currentA = coder.decode(coder.zero())); // set
 																				// state
@@ -931,6 +941,7 @@ public class Analyser implements Animator, Automata {
 		return menuActions();
 	}
 
+	@Override
 	public BitSet singleStep() {
 		if (errorState)
 			return null;
@@ -942,7 +953,7 @@ public class Analyser implements Animator, Automata {
 		}
 		return menuActions();
 	}
-
+	@Override
 	public BitSet menuStep(int choice) {
 		if (errorState)
 			return null;
@@ -959,15 +970,17 @@ public class Analyser implements Animator, Automata {
 	int theChoice = 0;
 
 	// action chosen - only valid after a step
+	@Override
 	public int actionChosen() {
 		return theChoice;
 	}
 
 	// action name chosen - only valid after a step
+	@Override
 	public String actionNameChosen() {
 		return actionName[theChoice];
 	}
-
+	@Override
 	public boolean nonMenuChoice() {
 		if (errorState)
 			return false;
@@ -996,6 +1009,7 @@ public class Analyser implements Animator, Automata {
 	}
 
 	// returns true if next element in the trace is eligible
+	@Override
 	public boolean traceChoice() {
 		if (errorState)
 			return false;
@@ -1013,11 +1027,13 @@ public class Analyser implements Animator, Automata {
 	}
 
 	// is there an error trace
+	@Override
 	public boolean hasErrorTrace() {
 		return (cs.getErrorTrace() != null);
 	}
 
 	// execute next step in trace
+	@Override
 	public BitSet traceStep() {
 		if (errorState)
 			return null;
@@ -1034,6 +1050,7 @@ public class Analyser implements Animator, Automata {
 		return menuActions();
 	}
 
+	@Override
 	public boolean isError() {
 		return errorState;
 	}
@@ -1041,6 +1058,7 @@ public class Analyser implements Animator, Automata {
 	/**
 	 * return true if END state has been reached
 	 */
+	@Override
 	public boolean isEnd() {
 		return isEND(currentA);
 	}
@@ -1095,18 +1113,22 @@ public class Analyser implements Animator, Automata {
 		return (int[]) choices.get(i);
 	}
 
+	@Override
 	public String[] getMenuNames() {
 		return menuAlpha;
 	}
 
+	@Override
 	public String[] getAllNames() {
 		return actionName;
 	}
 
+	@Override
 	public boolean getPriority() {
 		return lowpriority;
 	}
 
+	@Override
 	public BitSet getPriorityActions() {
 		if (priorLabels == null)
 			return null;
@@ -1121,6 +1143,7 @@ public class Analyser implements Animator, Automata {
 		return b;
 	}
 
+	@Override
 	public void message(String msg) {
 		output.outln(msg);
 	}

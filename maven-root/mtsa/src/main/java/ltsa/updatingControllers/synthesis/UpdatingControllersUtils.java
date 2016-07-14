@@ -164,11 +164,11 @@ public class UpdatingControllersUtils {
 		// Check with dipi. we are not sure if this will work as expected
 		Set<Fluent> fluentsInFaults = new HashSet<Fluent>();
 		for (ltsa.lts.parser.Symbol faultsDefinition : controllerGoalDefinition.getFaultsDefinitions()) {
-			AssertDefinition def = AssertDefinition.getDefinition(faultsDefinition.getName());
+			AssertDefinition def = AssertDefinition.getDefinition(faultsDefinition.getValue());
 			if (def != null) {
 				grcg.addFault(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), fluentsInFaults));
 			} else {
-				Diagnostics.fatal("Assertion not defined [" + faultsDefinition.getName() + "].");
+				Diagnostics.fatal("Assertion not defined [" + faultsDefinition.getValue() + "].");
 			}
 		}
 		involvedFluents.addAll(fluentsInFaults);

@@ -108,9 +108,8 @@ public class BFSCompositionEngine implements CompositionEngine {
 			CompositionEngineCommon.processTransitions(coder, ctx, transitions, analysed);
 		}
 	}
-	
+	@Override
 	public String getExplorationStatistics() {
-		// return "Depth " + analysed.getDepth() + " ";
 		return "";
 	}
 	

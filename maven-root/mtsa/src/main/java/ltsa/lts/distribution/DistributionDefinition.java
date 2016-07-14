@@ -66,7 +66,7 @@ public class DistributionDefinition {
     	DistributionDefinition result = null;
     	for (DistributionDefinition definition : DistributionDefinition.definitions) {
 			Set<String> names = definition.getComponentsNameAsString();
-			if(names.contains(component.getName())) {
+			if(names.contains(component.getValue())) {
 				result = definition;
 				break;
 			}

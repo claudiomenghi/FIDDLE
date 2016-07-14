@@ -16,6 +16,16 @@ public class Symbol {
 	private BigDecimal doubleValue;
 	private Object any; // add additional information
 
+	public Symbol(String string) {
+		this();
+		this.string=string;
+	}
+	public Symbol(String string, int type) {
+		this();
+		this.string=string;
+		this.kind=type;
+	}
+	
 	public Symbol() {
 		this.kind = UNKNOWN_TYPE;
 	};
@@ -69,7 +79,7 @@ public class Symbol {
 		string = s;
 	}
 
-	public String getName() {
+	public String getValue() {
 		return this.string;
 	}
 
@@ -129,18 +139,17 @@ public class Symbol {
 			return Color.black;
 	}
 
-	// _______________________________________________________________________________________
-	// TOSTRING
-
+	@Override
 	public String toString() {
-		switch (kind) {
-
 		// _______________________________________________________________________________________
 		// Keywords
 		// _______________________________________________________________________________________
-		// pre and post conditions
+		switch (kind) {
+
 		case PRECONDITION:
 			return "precondition";
+		case BOX:
+			return "box";
 		case LTLPRECONDITION:
 			return "ltl_precondition";
 		case POSTCONDITION:
@@ -324,9 +333,9 @@ public class Symbol {
 			return "prechart";
 		case MAINCHART:
 			return "mainchart";
-		case E_TRIGGERED_SCENARIO:
+		case ETRIGGEREDSCENARIO:
 			return "eTS";
-		case U_TRIGGERED_SCENARIO:
+		case UTRIGGEREDSCENARIO:
 			return "uTS";
 		case RESTRICTS:
 			return "restricts";
@@ -514,11 +523,11 @@ public class Symbol {
 	public static final int IDENTIFIER = 124;
 
 	// Charts
-	public static final int E_TRIGGERED_SCENARIO = 2000; // Existential
-															// Triggered
-															// Scenario
-	public static final int U_TRIGGERED_SCENARIO = 2001; // Universal Triggered
-															// Scenario
+	public static final int ETRIGGEREDSCENARIO = 2000; // Existential
+														// Triggered
+														// Scenario
+	public static final int UTRIGGEREDSCENARIO = 2001; // Universal Triggered
+														// Scenario
 	public static final int PRECHART = 2002;
 	public static final int MAINCHART = 2003;
 	public static final int INSTANCES = 2004;
@@ -665,8 +674,10 @@ public class Symbol {
 	public static final int POSTCONDITION = 7001;
 	public static final int LTLPRECONDITION = 7002;
 	public static final int LTLPOSTCONDITION = 7003;
+	public static final int BOX = 7004;
 
 	static {
+		blueSymbols.add(BOX);
 		blueSymbols.add(PRECONDITION);
 		blueSymbols.add(POSTCONDITION);
 		blueSymbols.add(LTLPRECONDITION);
@@ -685,8 +696,8 @@ public class Symbol {
 		blueSymbols.add(CHECK_COMPATIBILITY);
 		blueSymbols.add(LTLPROPERTY);
 		blueSymbols.add(COMPONENT);
-		blueSymbols.add(U_TRIGGERED_SCENARIO);
-		blueSymbols.add(E_TRIGGERED_SCENARIO);
+		blueSymbols.add(UTRIGGEREDSCENARIO);
+		blueSymbols.add(ETRIGGEREDSCENARIO);
 		blueSymbols.add(PRECHART);
 		blueSymbols.add(MAINCHART);
 		blueSymbols.add(RESTRICTS);

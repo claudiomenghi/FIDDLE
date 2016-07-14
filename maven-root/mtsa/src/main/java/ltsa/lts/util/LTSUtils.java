@@ -8,6 +8,10 @@ import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
 import ltsa.lts.parser.Symbol;
 
 public class LTSUtils {
+	
+	private LTSUtils(){
+		
+	}
 
 	public static boolean isOrSymbol(Symbol current) {
 		return current.kind == Symbol.OR

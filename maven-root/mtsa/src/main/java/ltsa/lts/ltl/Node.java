@@ -5,6 +5,13 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import ltsa.lts.ltl.formula.And;
+import ltsa.lts.ltl.formula.Formula;
+import ltsa.lts.ltl.formula.Next;
+import ltsa.lts.ltl.formula.Or;
+import ltsa.lts.ltl.formula.Release;
+import ltsa.lts.ltl.formula.True;
+import ltsa.lts.ltl.formula.Until;
 import ltsa.lts.parser.LTSOutput;
 
 

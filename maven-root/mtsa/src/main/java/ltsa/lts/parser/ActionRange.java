@@ -13,6 +13,9 @@ public class ActionRange extends ActionLabels {
 	Stack rlow;
 	Stack rhigh;
 
+	protected int current, high, low;
+
+	
 	public ActionRange(Stack low, Stack high) {
 		this.rlow = low;
 		this.rhigh = high;
@@ -23,12 +26,12 @@ public class ActionRange extends ActionLabels {
 		rhigh = r.high;
 	}
 
+	@Override
 	protected String computeName() {
 		return String.valueOf(current);
 	}
 
-	protected int current, high, low;
-
+	@Override
 	protected void initialise() {
 		low = Expression.evaluate(rlow, locals, globals).intValue();
 		high = Expression.evaluate(rhigh, locals, globals).intValue();
@@ -37,14 +40,17 @@ public class ActionRange extends ActionLabels {
 		current = low;
 	}
 
+	@Override
 	protected void next() {
 		++current;
 	}
 
+	@Override
 	public boolean hasMoreNames() {
 		return (current <= high);
 	}
 
+	@Override
 	protected ActionLabels make() {
 		return new ActionRange(rlow, rhigh);
 	}

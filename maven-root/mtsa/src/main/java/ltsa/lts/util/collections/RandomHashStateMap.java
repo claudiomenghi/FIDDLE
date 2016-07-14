@@ -113,6 +113,7 @@ public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
 			return false;
 		}
 
+		@Override
 		public Object next() {
 			RandomHashEntry retEntry= null;
 			if (nextCache != null) {
@@ -204,13 +205,13 @@ public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
         queue.add(entry);
 	}
 
-	// @Override
+	@Override
 	public void add(byte[] state, int action, byte[] parent)
 			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 
-	// @Override
+	@Override
 	public boolean contains(byte[] state) {
 		int hash = StateCodec.hash(state) % table.length;
 		RandomHashEntry entry = table[hash];
@@ -221,12 +222,12 @@ public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
 		return false;
 	}
 
-	// @Override
+	@Override
 	public boolean empty() {
 		return count == 0;
 	}
 
-	// @Override
+	@Override
 	public int get(byte[] key) throws UnsupportedOperationException {
 		int hash = StateCodec.hash(key) % table.length;
 		RandomHashEntry entry = table[hash];
@@ -238,7 +239,7 @@ public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
 		return LTSConstants.NO_SEQUENCE_FOUND;
 	}
 
-	// @Override
+	@Override
 	public byte[] getNextState() {
 		return ((RandomHashEntry) queue.peek()).key;
 	}
@@ -247,12 +248,12 @@ public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
 		return ((RandomHashEntry) queue.peek()).depth;
 	}
 
-	// @Override
+	@Override
 	public int getNextStateNumber() {
 		return ((RandomHashEntry) queue.peek()).stateNumber;
 	}
 
-	// @Override
+	@Override
 	public void markNextState(int stateNumber) {
 		((RandomHashEntry) queue.peek()).stateNumber= stateNumber;
 		((RandomHashEntry) queue.peek()).marked= true;
@@ -262,12 +263,12 @@ public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
 		((RandomHashEntry) queue.peek()).marked= false;
 	}
 
-	// @Override
+	@Override
 	public boolean nextStateIsMarked() {
 		return ((RandomHashEntry) queue.peek()).marked;
 	}
 
-	// @Override
+	@Override
 	public void removeNextState() {
 		queue.remove();
 		count--;
@@ -278,7 +279,7 @@ public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
 		return queue.remove();
 	}
 
-	// @Override
+	@Override
 	public boolean onStack(byte[] key) {
 		int hash = StateCodec.hash(key) % table.length;
 		RandomHashEntry entry = table[hash];
@@ -291,7 +292,7 @@ public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
 		return false;
 	}
 
-	// @Override
+	@Override
 	public Iterator iterator() {
 		return new RandomHashStateMapIterator(this);
 	}

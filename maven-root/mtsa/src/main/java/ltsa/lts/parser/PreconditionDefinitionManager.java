@@ -23,8 +23,11 @@ import ltsa.lts.ltl.FluentTrace;
 import ltsa.lts.ltl.FormulaFactory;
 import ltsa.lts.ltl.FormulaSyntax;
 import ltsa.lts.ltl.GeneralizedBuchiAutomata;
+import ltsa.lts.ltl.LTLAdditionalSymbolTable;
 import ltsa.lts.ltl.PreconditionDefinition;
 import ltsa.lts.ltl.PredicateDefinition;
+import ltsa.lts.ltl.formula.Formula;
+import ltsa.lts.ltl.visitors.FiniteFormulaGeneratorVisitor;
 import ltsa.lts.ltscomposition.CompactState;
 import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.operations.minimization.Minimiser;
@@ -53,84 +56,77 @@ public class PreconditionDefinitionManager {
 
 	}
 
+	
 	/**
-	 * returns the corresponding LTS
+	 * returns a state machine describing the violating behaviors
 	 * 
 	 * @param output
-	 * @param name
-	 * @param refname
-	 * @param pvalues
-	 * @return
+	 *            the output used to print messages
+	 * @param asserted
+	 *            the string representing the precondition to be considered
+	 * @return a state machine describing the violating behaviors
+	 * @throws IllegalArgumentException
+	 *             if the string representing the precondition is not a valid
+	 *             string
 	 */
-	public CompactState compilePrecondition(LTSOutput output, Symbol name,
-			String refname, Vector pvalues) {
-		Preconditions.checkNotNull(name,
-				"The name of the precondition to be checked cannot be null");
-		Preconditions.checkArgument(this.preconditions.containsKey(name),
-				"The name " + name
-						+ " is not associated with any valid precondition");
-
-		PreconditionDefinition p = preconditions.get(name.toString());
-
-		if (pvalues != null) {
-			if (pvalues.size() != p.getParams().size())
-				Diagnostics.fatal("Actual parameters do not match formals: "
-						+ name, name);
-			Hashtable actualParams = new Hashtable();
-			for (int i = 0; i < pvalues.size(); ++i)
-				actualParams.put(p.getParams().elementAt(i),
-						pvalues.elementAt(i));
-			p.getFac().setFormula(
-					p.getLTLFormula().expand(p.getFac(), new Hashtable(),
-							actualParams));
-		} else {
-			p.getFac().setFormula(
-					p.getLTLFormula().expand(p.getFac(), new Hashtable(),
-							p.getInitialParams()));
-		}
-		CompositeState cs = compile(output, name.toString());
-
-		cs.composition.setName(refname);
-		return cs.composition;
-	}
-
-
-	public CompositeState compile( LTSOutput output,
-			String asserted) {
-		Preconditions.checkArgument(preconditions.containsKey(asserted), "The precondition "+asserted+" is not contained into the set of the preconditions");
+	public CompositeState compile(LTSOutput output, String asserted) {
+		Preconditions
+				.checkArgument(
+						preconditions.containsKey(asserted),
+						"The precondition "
+								+ asserted
+								+ " is not contained into the set of the preconditions");
 		PreconditionDefinition p = preconditions.get(asserted);
-	
+
 		if (p.isCached()) {
 			return p.getCached();
 		}
 		output.outln("Formula !" + p.getName().toString() + " = "
 				+ p.getFac().getFormula());
-		Vector<String> alpha = p.getAlphaExtension() != null ? p.getAlphaExtension()
-				.getActions(null) : null;
-		if (alpha == null){
+		Vector<String> alpha = p.getAlphaExtension() != null ? p
+				.getAlphaExtension().getActions(null) : null;
+		if (alpha == null) {
 			alpha = new Vector<>();
 		}
-		if (addAsterisk){
+		if (addAsterisk) {
 			alpha.add("*");
 		}
+
+		Formula infiniteFormula = p.getFac().getFormula();
+
+		FormulaFactory finiteFormulaFactory = new FormulaFactory(p.getFac()
+				.getActionPredicates());
+
+		// translating the formula into its finite path version
+		Formula finiteFormula = infiniteFormula
+				.accept(new FiniteFormulaGeneratorVisitor(
+						LTLAdditionalSymbolTable.getPreSymbol(infiniteFormula,
+								"black"), finiteFormulaFactory));
+		finiteFormulaFactory.setFormula(finiteFormula);
+		output.outln("Infinite LTL precondition:  " + infiniteFormula
+				+ "transformed into: ");
+		output.outln("Finite LTL precondition:  " + finiteFormula);
+
 		GeneralizedBuchiAutomata gba = new GeneralizedBuchiAutomata(p.getName()
-				.toString(),p.getFac(), alpha);
+				.toString(), finiteFormulaFactory, alpha);
 		gba.translate();
-		Graph g = gba.makeGBA();
-		output.outln("GBA " + g.getNodeCount() + " states " + g.getEdgeCount()
-				+ " transitions");
-		g = SuperSetReduction.reduce(g);
-		Graph g1 = Degeneralize.degeneralize(g);
-		g1 = SCCReduction.reduce(g1);
-		g1 = Simplify.simplify(g1);
-		g1 = SFSReduction.reduce(g1);
+		Graph gbaGraph = gba.makeGBA();
+		output.outln("GBA " + gbaGraph.getNodeCount() + " states "
+				+ gbaGraph.getEdgeCount() + " transitions");
+		gbaGraph = SuperSetReduction.reduce(gbaGraph);
+		Graph degeneralizedGraph = Degeneralize.degeneralize(gbaGraph);
+		degeneralizedGraph = SCCReduction.reduce(degeneralizedGraph);
+		degeneralizedGraph = Simplify.simplify(degeneralizedGraph);
+		degeneralizedGraph = SFSReduction.reduce(degeneralizedGraph);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Converter c = new Converter(p.getName().toString(), g1,
+		Converter c = new Converter(p.getName().toString(), degeneralizedGraph,
 				gba.getLabelFactory());
 		output.outln("Buchi automata:");
 		c.printFSP(new PrintStream(baos));
 		output.out(baos.toString());
-		Vector procs = gba.getLabelFactory().getPropProcs();
+
+		// computing the composition between the system and the fuents
+		Vector<CompactState> procs = gba.getLabelFactory().getPropProcs();
 		procs.add(c);
 		CompositeState cs = new CompositeState(c.getName(), procs);
 		cs.hidden = gba.getLabelFactory().getPrefix();
@@ -139,6 +135,7 @@ public class PreconditionDefinitionManager {
 		cs.setFluentTracer(new FluentTrace(fluents));
 		cs.compose(output, true);
 		cs.composition.removeNonDetTau();
+
 		output.outln("After Tau elimination = " + cs.composition.maxStates
 				+ " state");
 		Minimiser e = new Minimiser(cs.composition, output);
@@ -157,7 +154,7 @@ public class PreconditionDefinitionManager {
 	/**
 	 * returns the name of the preconditions
 	 * 
-	 * @return the name of the preconditions 
+	 * @return the name of the preconditions
 	 */
 	public Set<String> names() {
 		Set<String> defs = new HashSet<>();

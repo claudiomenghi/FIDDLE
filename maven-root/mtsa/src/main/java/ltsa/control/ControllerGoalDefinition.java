@@ -75,7 +75,7 @@ public class ControllerGoalDefinition {
 			throw new IllegalArgumentException("Missing controller goal.");
 		}
 		ControllerGoalDefinition definition = definitions.get(definitionName
-				.getName());
+				.getValue());
 		if (definition == null) {
 			throw new IllegalArgumentException(
 					"Controller goal definition not found: " + definitionName);
@@ -106,8 +106,8 @@ public class ControllerGoalDefinition {
 	public boolean addGuaranteeDefinition(Symbol guaranteeDefinition) {
 		if (!this.guaranteeDefinitions.add(guaranteeDefinition)) {
 			Diagnostics.fatal(
-					"Duplicate Guarantee : " + guaranteeDefinition.getName(),
-					guaranteeDefinition.getName());
+					"Duplicate Guarantee : " + guaranteeDefinition.getValue(),
+					guaranteeDefinition.getValue());
 			return false;
 		} else {
 			return true;
@@ -117,8 +117,8 @@ public class ControllerGoalDefinition {
 	public boolean addConcurrencyDefinition(Symbol concurrencyDefinition) {
 		if (!this.concurrencyDefinitions.add(concurrencyDefinition)) {
 			Diagnostics.fatal(
-					"Duplicate Concurrency Fluent : " + concurrencyDefinition.getName(),
-					concurrencyDefinition.getName());
+					"Duplicate Concurrency Fluent : " + concurrencyDefinition.getValue(),
+					concurrencyDefinition.getValue());
 			return false;
 		} else {
 			return true;
@@ -129,8 +129,8 @@ public class ControllerGoalDefinition {
 	public boolean addActivityDefinition(Symbol activityDefinition) {
 		if (!this.activityDefinitions.add(activityDefinition)) {
 			Diagnostics.fatal(
-					"Duplicate Activity Fluent : " + activityDefinition.getName(),
-					activityDefinition.getName());
+					"Duplicate Activity Fluent : " + activityDefinition.getValue(),
+					activityDefinition.getValue());
 			return false;
 		} else {
 			return true;
@@ -140,8 +140,8 @@ public class ControllerGoalDefinition {
 
 	public boolean addFaultDefinition(Symbol faultDefinition) {
 		if (!this.faultsDefinitions.add(faultDefinition)) {
-			Diagnostics.fatal("Duplicate Fault : " + faultDefinition.getName(),
-					faultDefinition.getName());
+			Diagnostics.fatal("Duplicate Fault : " + faultDefinition.getValue(),
+					faultDefinition.getValue());
 			return false;
 		} else {
 			return true;
@@ -151,8 +151,8 @@ public class ControllerGoalDefinition {
 	public boolean addAssumeDefinition(Symbol assumeDefinition) {
 		if (!this.assumeDefinitions.add(assumeDefinition)) {
 			Diagnostics.fatal(
-					"Duplicate Assumption : " + assumeDefinition.getName(),
-					assumeDefinition.getName());
+					"Duplicate Assumption : " + assumeDefinition.getValue(),
+					assumeDefinition.getValue());
 			return false;
 		} else {
 			return true;
@@ -162,7 +162,7 @@ public class ControllerGoalDefinition {
 	public boolean addSafetyDefinition(Symbol safetyDefinition) {
 		if (!this.safetyDefinitions.add(safetyDefinition)) {
 			Diagnostics.fatal("duplicate Safety requirement: "
-					+ safetyDefinition.getName(), safetyDefinition.getName());
+					+ safetyDefinition.getValue(), safetyDefinition.getValue());
 			return false;
 		} else {
 			return true;
@@ -178,7 +178,7 @@ public class ControllerGoalDefinition {
 	}
 
 	public String getNameString() {
-		return name.getName();
+		return name.getValue();
 	}
 
 	public void setSafetyDefinitions(List<Symbol> safetyDefinitions) {

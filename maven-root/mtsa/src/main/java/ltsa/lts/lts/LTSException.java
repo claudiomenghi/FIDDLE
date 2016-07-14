@@ -2,7 +2,12 @@ package ltsa.lts.lts;
 
 public class LTSException extends RuntimeException {
 
-    public Object marker;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3275424071205029666L;
+	
+	public Object marker;
 
     public LTSException (String errorMsg) {
 	    super (errorMsg);

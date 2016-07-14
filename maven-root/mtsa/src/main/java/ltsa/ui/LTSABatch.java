@@ -27,7 +27,6 @@ import ltsa.lts.parser.LTSCompiler;
 import ltsa.lts.parser.LTSInputString;
 import ltsa.lts.parser.LTSOutput;
 import ltsa.lts.parser.LabelSet;
-import ltsa.lts.parser.SymbolTable;
 import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.lts.util.Options;
 import ltsa.lts.util.Options.CompositionStrategy;
@@ -52,18 +51,22 @@ implements LTSManager, LTSInput, LTSOutput, LTSError {
 		model = fileTxt;
 	}
 	
+	@Override
 	public void out ( String str ) {
 		System.out.print(str);
 	}
 	
+	@Override
 	public void outln ( String str ) {
 		System.out.println(str);
 	}
 	
+	@Override
 	public void clearOutput () {
 		//not needed
 	}
 	
+	@Override
 	public char nextChar () {
 		fPos = fPos + 1;
 		if (fPos < fSrc.length ()) {
@@ -74,6 +77,7 @@ implements LTSManager, LTSInput, LTSOutput, LTSError {
 		}
 	}
 	
+	@Override
 	public char backChar () {
 		fPos = fPos - 1;
 		if (fPos < 0) {
@@ -84,10 +88,12 @@ implements LTSManager, LTSInput, LTSOutput, LTSError {
 			return fSrc.charAt (fPos);		
 	}
 	
+	@Override
 	public int getMarker () {
 		return fPos;
 	}
 	
+	@Override
 	public void resetMarker () {
 		fPos = -1;
 	}
@@ -109,6 +115,7 @@ implements LTSManager, LTSInput, LTSOutput, LTSError {
 		current = docompile();
 	}
 	
+	@Override
 	public void displayError(LTSException x) {
 		outln("ERROR - "+x.getMessage());
 	}
@@ -176,6 +183,7 @@ implements LTSManager, LTSInput, LTSOutput, LTSError {
 		return true;
 	}
 	
+	@Override
 	public CompositeState compile(String name) {
 		fPos = -1;
         fSrc = model;
@@ -221,15 +229,18 @@ implements LTSManager, LTSInput, LTSOutput, LTSError {
 		return s;
 	}
 	
+	@Override
 	public void performAction (final Runnable r, final boolean showOutputPane) {
 		//not needed
 	}
 	
+	@Override
 	public String getTargetChoice() {
 		//not needed
 		return "";
 	}
 	
+	@Override
 	public void newMachines(java.util.List<CompactState> machines) {
 		//not needed
 	}

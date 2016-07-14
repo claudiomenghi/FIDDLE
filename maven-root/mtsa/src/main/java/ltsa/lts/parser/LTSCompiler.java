@@ -34,6 +34,7 @@ import ltsa.lts.chart.Location;
 import ltsa.lts.chart.TriggeredScenarioDefinition;
 import ltsa.lts.chart.UniversalTriggeredScenarioDefinition;
 import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
+import ltsa.lts.csp.BoxStateDefn;
 import ltsa.lts.csp.ChoiceElement;
 import ltsa.lts.csp.CompositeBody;
 import ltsa.lts.csp.CompositionExpression;
@@ -83,9 +84,6 @@ public class LTSCompiler {
 	private Symbol current;
 
 	private final PreconditionDefinitionManager preconditionDefinitionManager;
-	
-
-	
 
 	public static Hashtable<String, ProcessSpec> processes;
 	public static Hashtable<String, CompactState> compiled;
@@ -98,8 +96,9 @@ public class LTSCompiler {
 	public LTSCompiler(LTSInput input, LTSOutput output, String currentDirectory) {
 		Preconditions.checkNotNull(input, "The LTSInput cannot be null");
 		Preconditions.checkNotNull(output, "The LTSOutput cannot be null");
-		Preconditions.checkNotNull(currentDirectory, "The current directory cannot be null");
-		
+		Preconditions.checkNotNull(currentDirectory,
+				"The current directory cannot be null");
+
 		lex = new Lex(input);
 		this.output = output;
 		this.currentDirectory = currentDirectory;
@@ -117,15 +116,14 @@ public class LTSCompiler {
 		TriggeredScenarioDefinition.init();
 		ControllerDefinition.init();
 
-		this.preconditionDefinitionManager=new PreconditionDefinitionManager();
+		this.preconditionDefinitionManager = new PreconditionDefinitionManager();
 		ControllerGoalDefinition.init();
 		ControlStackDefinition.initDefinitionList();
 		DistributionDefinition.init();
 	}
 
 	private Symbol nextSymbol() {
-		current = lex.nextSymbol();
-		return current;
+		return (current = lex.nextSymbol());
 	}
 
 	private void pushSymbol() {
@@ -161,7 +159,7 @@ public class LTSCompiler {
 	}
 
 	private void currentIs(int kind, String errorMsg) {
-		if (current.kind != kind){
+		if (current.kind != kind) {
 			error(errorMsg);
 		}
 	}
@@ -295,12 +293,12 @@ public class LTSCompiler {
 				Symbol systemModelId = aDistributionDefinition.getSystemModel();
 				// check if the system model has been compiled
 				CompactState systemModel = (CompactState) compiled
-						.get(systemModelId.getName());
+						.get(systemModelId.getValue());
 				if (systemModel == null) {
 					// it needs to be compiled
 					systemModel = this
 							.compileSingleProcess((ProcessSpec) processes
-									.get(systemModelId.getName()));
+									.get(systemModelId.getValue()));
 				}
 				Collection<CompactState> distributedComponents = new HashSet<CompactState>();
 				boolean isDistributionSuccessful = TransitionSystemDispatcher
@@ -315,7 +313,7 @@ public class LTSCompiler {
 				}
 
 				if (!isDistributionSuccessful) {
-					Diagnostics.fatal("Model " + systemModelId.getName()
+					Diagnostics.fatal("Model " + systemModelId.getValue()
 							+ " could not be distributed.", systemModelId);
 				}
 			}
@@ -380,7 +378,7 @@ public class LTSCompiler {
 			output.outln("Compiled: " + compiled.getName());
 
 		} else {
-			compiled = new AutCompactState(processSpec.name,
+			compiled = new AutCompactState(processSpec.getSymbol(),
 					processSpec.importFile);
 			output.outln("Imported: " + compiled.getName());
 		}
@@ -388,7 +386,7 @@ public class LTSCompiler {
 	}
 
 	private static Formula adaptFormulaAndCreateFluents(
-			ltsa.lts.ltl.Formula formula, Set<Fluent> involvedFluents) {
+			ltsa.lts.ltl.formula.Formula formula, Set<Fluent> involvedFluents) {
 		// create a visitor for the formula
 		FormulaTransformerVisitor formulaTransformerVisitor = new FormulaTransformerVisitor();
 		formula.accept(formulaTransformerVisitor);
@@ -430,7 +428,7 @@ public class LTSCompiler {
 			output.outln("Compiled: " + compiled.getName());
 
 		} else {
-			compiled = new AutCompactState(processSpec.name,
+			compiled = new AutCompactState(processSpec.getSymbol(),
 					processSpec.importFile);
 			output.outln("Imported: " + compiled.getName());
 		}
@@ -451,381 +449,441 @@ public class LTSCompiler {
 		nextSymbol();
 		try {
 			while (current.kind != Symbol.EOFSYM) {
-				if (current.kind == Symbol.CONSTANT) {
+
+				switch (current.kind) {
+
+				case Symbol.CONSTANT:
 					nextSymbol();
 					constantDefinition(Expression.constants);
-				} else if (current.kind == Symbol.RANGE) {
+					break;
+				case Symbol.RANGE:
 					nextSymbol();
 					rangeDefinition();
-				} else if (current.kind == Symbol.SET) {
+					break;
+				case Symbol.SET:
 					nextSymbol();
 					setDefinition();
-				} else if (current.kind == Symbol.PROGRESS) {
+					break;
+				case Symbol.PROGRESS:
 					nextSymbol();
 					progressDefinition();
-				} else if (current.kind == Symbol.MENU) {
+					break;
+				case Symbol.MENU:
 					nextSymbol();
 					menuDefinition();
-				} else if (current.kind == Symbol.ANIMATION) {
+					break;
+				case Symbol.ANIMATION:
 					nextSymbol();
 					animationDefinition();
-				} else if (current.kind == Symbol.ASSERT) {
+					break;
+				case Symbol.ASSERT:
 					nextSymbol();
 					assertDefinition(false, false);
-				} else if (current.kind == Symbol.CONSTRAINT) {
+					break;
+				case Symbol.CONSTRAINT:
 					nextSymbol();
 					assertDefinition(true, false);
-				} else if (current.kind == Symbol.PRECONDITION) {
+					break;
+				case Symbol.PRECONDITION:
 					nextSymbol();
 					assertPrecondition();
-				} else if (current.kind == Symbol.LTLPRECONDITION) {
+					break;
+				case Symbol.LTLPRECONDITION:
 					nextSymbol();
 					assertPrecondition();
-				} else if (current.kind == Symbol.LTLPROPERTY) {
+					break;
+				case Symbol.LTLPROPERTY:
 					nextSymbol();
 					assertDefinition(true, true);
-				} else if (current.kind == Symbol.PREDICATE) {
+					break;
+				case Symbol.PREDICATE:
 					nextSymbol();
 					predicateDefinition();
-				} else if (current.kind == Symbol.DEF) {
+					break;
+				case Symbol.DEF:
 					nextSymbol();
 					defDefinition();
-				} else if (current.kind == Symbol.GOAL) {
+					break;
+				case Symbol.GOAL:
 					nextSymbol();
-
-					currentIs(Symbol.UPPERIDENT, "goal identifier expected");
-
-					this.validateUniqueProcessName(current);
-					ControllerGoalDefinition goal = new ControllerGoalDefinition(
-							current);
-					this.goalDefinition(goal);
-
-				} else if (current.kind == Symbol.EXPLORATION) {
+					parseGoal();
+					break;
+				case Symbol.EXPLORATION:
 					nextSymbol();
-
-					currentIs(Symbol.UPPERIDENT,
-							"exploration identifier expected");
-
-					this.validateUniqueProcessName(current);
-					ExplorerDefinition explorerDefinition = new ExplorerDefinition(
-							current);
+					manageExploration();
+					break;
+				case Symbol.UPDATING_CONTROLLER:
 					nextSymbol();
-
-					this.explorerDefinition(explorerDefinition);
-
-					output.outln("Explorer: " + explorerDefinition.getName());
-
-				} else if (current.kind == Symbol.UPDATING_CONTROLLER) {
+					updatingTheController(composites);
+					break;
+				case Symbol.GRAPH_UPDATE:
+					graphUpdate();
+					break;
+				case Symbol.CONTROL_STACK:
+					controlStack(composites, processes, compiled);
+					break;
+				case Symbol.IMPORT:
 					nextSymbol();
-
-					currentIs(Symbol.UPPERIDENT,
-							"updating controller identifier expected");
-
-					UpdatingControllersDefinition cuDefinition = new UpdatingControllersDefinition(
-							current);
-
-					this.updateControllerDefinition(cuDefinition);
-
-					if (composites.put(cuDefinition.getName().getName(),
-							cuDefinition) != null) {
-						Diagnostics.fatal("duplicate composite definition: "
-								+ cuDefinition.getName(),
-								cuDefinition.getName());
-					} else {
-						if (allComposites != null) {
-							allComposites.put(cuDefinition.getName().getName(),
-									cuDefinition);
-						}
-					}
-
-				} else if (current.kind == Symbol.GRAPH_UPDATE) {
-					expectIdentifier("Graph Update");
-					UpdateGraphDefinition graphDefinition = new UpdateGraphDefinition(
-							current.getName());
-					expectBecomes();
-					expectLeftCurly();
-					graphDefinition.setInitialProblem(parseInitialState());
-					graphDefinition.setTransitions(parseTransitions());
-					expectRightCurly();
-					UpdateGraphGenerator.addGraphDefinition(graphDefinition);
-				} else if (current.kind == Symbol.CONTROL_STACK) {
-
-					ControlStackDefinition def = this.controlStackDefinition();
-					ControlStackDefinition.addDefinition(def);
-
-					CompositionExpression c = new CompositionExpression();
-					c.name = def.getName();
-					c.setComposites(composites);
-					c.processes = processes;
-					c.compiledProcesses = compiled;
-					c.controlStackEnvironments = new Vector<Symbol>();
-					for (ControlTierDefinition tier : def) {
-						c.controlStackEnvironments.add(tier.getEnvModel());
-					}
-					c.output = output;
-					c.makeControlStack = true;
-					if (allComposites != null) {
-						allComposites.put(c.name.toString(), c);
-					}
-					if (composites.put(c.name.toString(), c) != null) {
-						Diagnostics.fatal("duplicate composite definition: "
-								+ c.name, c.name);
-					}
-
-				} else if (current.kind == Symbol.IMPORT) {
+					parseImport(processes);
+					break;
+				case Symbol.ETRIGGEREDSCENARIO:
 					nextSymbol();
-					ProcessSpec p = importDefinition();
-					if (processes.put(p.name.toString(), p) != null) {
-						Diagnostics.fatal("duplicate process definition: "
-								+ p.name, p.name);
-					}
-				} else if (current.kind == Symbol.E_TRIGGERED_SCENARIO) {
-					nextSymbol();
-					// Check the syntax
-					currentIs(Symbol.UPPERIDENT, "chart identifier expected");
-
-					this.validateUniqueProcessName(current);
-
-					// create the existential triggeredScenario with the given
-					// identifier
-					TriggeredScenarioDefinition eTSDefinition = new ExistentialTriggeredScenarioDefinition(
-							current);
-
+					TriggeredScenarioDefinition eTSDefinition = parseETriggeredScenario();
 					nextSymbol();
 					this.triggeredScenarioDefinition(eTSDefinition);
-				} else if (current.kind == Symbol.U_TRIGGERED_SCENARIO) {
+					break;
+				case Symbol.UTRIGGEREDSCENARIO:
 					nextSymbol();
-					// Check the syntax
-					currentIs(Symbol.UPPERIDENT, "chart identifier expected");
-
-					this.validateUniqueProcessName(current);
-
-					// create the universal triggered Scenario with the given
-					// identifier
-					TriggeredScenarioDefinition uTSDefinition = new UniversalTriggeredScenarioDefinition(
-							current);
-
+					TriggeredScenarioDefinition uTSDefinition = parseUTriggeredScenario();
 					nextSymbol();
 					this.triggeredScenarioDefinition(uTSDefinition);
-				} else if (current.kind == Symbol.DISTRIBUTION) {
+					break;
+				case Symbol.DISTRIBUTION:
 					this.distributionDefinition();
-				} else if (current.kind == Symbol.DETERMINISTIC
-						|| current.kind == Symbol.MINIMAL
-						|| current.kind == Symbol.PROPERTY
-						|| current.kind == Symbol.COMPOSE
-						|| current.kind == Symbol.OPTIMISTIC
-						|| current.kind == Symbol.PESSIMISTIC
-						|| LTSUtils.isCompositionExpression(current)
-						|| current.kind == Symbol.CLOUSURE
-						|| current.kind == Symbol.ABSTRACT
-						|| current.kind == Symbol.CONTROLLER
-						|| current.kind == Symbol.CHECK_COMPATIBILITY
-						|| current.kind == Symbol.COMPONENT
-						|| current.kind == Symbol.PROBABILISTIC
-						|| current.kind == Symbol.MDP
-						|| current.kind == Symbol.STARENV
-						|| current.kind == Symbol.PLANT
-						|| current.kind == Symbol.CONTROLLED_DET
-						|| current.kind == Symbol.SYNC_CONTROLLER) {
-					// TODO: refactor needed. Some of the operations can be
-					// combined, however
-					// the parser does not allow some valid combinations. Also
-					// the order of the operations
-					// is not kept when the operations are applied
-
-					boolean makeDet = false;
-					boolean makeMin = false;
-					boolean makeProp = false;
-					boolean makeComp = false;
-					boolean makeOptimistic = false;
-					boolean makePessimistic = false;
-					boolean makeClousure = false;
-					boolean makeAbstract = false;
-					boolean makeController = false;
-					boolean makeSyncController = false;
-					boolean checkCompatible = false;
-					boolean makeComponent = false;
-					boolean probabilistic = false;
-					boolean isMDP = false;
-					boolean isEnactment = false;
-					boolean makeStarEnv = false;
-					boolean makePlant = false;
-					boolean makeControlledDet = false;
-					Symbol controlledActions = null;
-
-					if (current.kind == Symbol.CLOUSURE) {
-						makeClousure = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.ABSTRACT) {
-						makeAbstract = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.DETERMINISTIC) {
-						makeDet = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.MINIMAL) {
-						makeMin = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.COMPOSE) {
-						makeComp = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.PROPERTY) {
-						makeProp = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.OPTIMISTIC) {
-						makeOptimistic = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.PESSIMISTIC) {
-						makePessimistic = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.COMPONENT) {
-						makeComponent = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.CONTROLLER) {
-						makeController = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.SYNC_CONTROLLER) {
-						makeSyncController = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.STARENV) {
-						makeStarEnv = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.PLANT) {
-						makePlant = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.CHECK_COMPATIBILITY) {
-						checkCompatible = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.CONTROLLED_DET) {
-						makeControlledDet = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.PROBABILISTIC) {
-						probabilistic = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.MDP) {
-						isMDP = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.ENACTMENT) {
-						isEnactment = true;
-						nextSymbol();
-						if (current.kind == Symbol.LCURLY) {
-							nextSymbol();
-							controlledActions = current;
-							nextSymbol();
-							// }
-							nextSymbol();
-						}
-					}
-
-					if (current.kind != Symbol.OR
-							&& current.kind != Symbol.PLUS_CA
-							&& current.kind != Symbol.PLUS_CR
-							&& current.kind != Symbol.MERGE) {
-						ProcessSpec p = stateDefns();
-						if (processes.put(p.name.toString(), p) != null) {
-							Diagnostics.fatal("duplicate process definition: "
-									+ p.name, p.name);
-						}
-						p.isProperty = makeProp;
-						p.isMinimal = makeMin;
-						p.isDeterministic = makeDet;
-						p.isOptimistic = makeOptimistic;
-						p.isPessimistic = makePessimistic;
-						p.isClousure = makeClousure;
-						p.isAbstract = makeAbstract;
-						p.isProbabilistic = probabilistic;
-						p.isMDP = isMDP;
-						p.isStarEnv = makeStarEnv;
-
-						if (makeController || checkCompatible || makePlant
-								|| makeControlledDet || makeSyncController) {
-							Diagnostics
-									.fatal("The operation requires a composite model.");
-						}
-
-						if (makeComponent) {
-							Diagnostics
-									.fatal("A component can only be created from a composite model.");
-						}
-
-						if (probabilistic
-								&& (makeProp || makeMin || makeDet
-										|| makeOptimistic || makePessimistic
-										|| makeClousure || makeAbstract)) {
-							Diagnostics
-									.fatal("Probabilistic automata cannot be combined with other options.");
-						}
-
-						if (probabilistic != isMDP) { // x to account for future
-														// probabilistic
-														// variations
-							Diagnostics
-									.fatal("Probabilistic automata must be one of: mdp.");
-						}
-					} else if (LTSUtils.isCompositionExpression(current)) {
-						CompositionExpression c = composition();
-						c.setComposites(composites);
-						c.processes = processes;
-						c.compiledProcesses = compiled;
-						c.output = output;
-						c.makeDeterministic = makeDet;
-						c.makeProperty = makeProp;
-						c.makeMinimal = makeMin;
-						c.makeCompose = makeComp;
-						c.makeOptimistic = makeOptimistic;
-						c.makePessimistic = makePessimistic;
-						c.makeClousure = makeClousure;
-						c.makeAbstract = makeAbstract;
-						c.makeMDP = isMDP;
-						c.makeEnactment = isEnactment;
-						c.enactmentControlled = controlledActions;
-						c.makeController = makeController;
-						c.makeSyncController = makeSyncController;
-						c.checkCompatible = checkCompatible;
-						c.isStarEnv = makeStarEnv;
-						c.isPlant = makePlant;
-						c.isControlledDet = makeControlledDet;
-						c.setMakeComponent(makeComponent);
-						c.compositionType = compositionType;
-						compositionType = -1;
-						if (allComposites != null) {
-							allComposites.put(c.name.toString(), c);
-						}
-						if (composites.put(c.name.toString(), c) != null) {
-							Diagnostics
-									.fatal("duplicate composite definition: "
-											+ c.name, c.name);
-						}
-					}
-				} else {
+					break;
+				case Symbol.DETERMINISTIC:
+				case Symbol.MINIMAL:
+				case Symbol.PROPERTY:
+				case Symbol.COMPOSE:
+				case Symbol.OPTIMISTIC:
+				case Symbol.PESSIMISTIC:
+				case Symbol.CLOUSURE:
+				case Symbol.ABSTRACT:
+				case Symbol.CONTROLLER:
+				case Symbol.CHECK_COMPATIBILITY:
+				case Symbol.COMPONENT:
+				case Symbol.PROBABILISTIC:
+				case Symbol.MDP:
+				case Symbol.STARENV:
+				case Symbol.PLANT:
+				case Symbol.CONTROLLED_DET:
+				case Symbol.SYNC_CONTROLLER:
+				case Symbol.OR:
+				case Symbol.PLUS_CA:
+				case Symbol.PLUS_CR:
+				case Symbol.MERGE:
+					parseControllerSynthesis(composites, processes, compiled);
+					break;
+				default:
 					ProcessSpec p = stateDefns();
-					if (processes.put(p.name.toString(), p) != null) {
-						Diagnostics.fatal("duplicate process definition: "
-								+ p.name, p.name);
+					if (processes.put(p.getSymbol().toString(), p) != null) {
+						Diagnostics.fatal(
+								"duplicate process definition: "
+										+ p.getSymbol(), p.getSymbol());
 					}
+					break;
 				}
 
+				System.out.println("END: " + current.getValue());
 				nextSymbol();
 			}
 		} catch (DuplicatedTriggeredScenarioDefinitionException e) {
 			Diagnostics.fatal("duplicate Chart definition: " + e.getName());
 		}
+	}
+
+	private TriggeredScenarioDefinition parseETriggeredScenario() {
+		// Check the syntax
+		currentIs(Symbol.UPPERIDENT, "chart identifier expected");
+
+		this.validateUniqueProcessName(current);
+
+		// create the existential triggeredScenario with the given
+		// identifier
+		TriggeredScenarioDefinition eTSDefinition = new ExistentialTriggeredScenarioDefinition(
+				current);
+		return eTSDefinition;
+	}
+
+	private TriggeredScenarioDefinition parseUTriggeredScenario() {
+		// Check the syntax
+		currentIs(Symbol.UPPERIDENT, "chart identifier expected");
+
+		this.validateUniqueProcessName(current);
+
+		// create the universal triggered Scenario with the given
+		// identifier
+		TriggeredScenarioDefinition uTSDefinition = new UniversalTriggeredScenarioDefinition(
+				current);
+		return uTSDefinition;
+	}
+
+	private void parseImport(Hashtable<String, ProcessSpec> processes) {
+		ProcessSpec p = importDefinition();
+		if (processes.put(p.getSymbol().toString(), p) != null) {
+			Diagnostics.fatal("duplicate process definition: " + p.getSymbol(),
+					p.getSymbol());
+		}
+	}
+
+	private void parseControllerSynthesis(
+			Hashtable<String, CompositionExpression> composites,
+			Hashtable<String, ProcessSpec> processes,
+			Hashtable<String, CompactState> compiled) {
+		// TODO: refactor needed. Some of the operations can be
+		// combined, however
+		// the parser does not allow some valid combinations. Also
+		// the order of the operations
+		// is not kept when the operations are applied
+
+		boolean makeDet = false;
+		boolean makeMin = false;
+		boolean makeProp = false;
+		boolean makeComp = false;
+		boolean makeOptimistic = false;
+		boolean makePessimistic = false;
+		boolean makeClousure = false;
+		boolean makeAbstract = false;
+		boolean makeController = false;
+		boolean makeSyncController = false;
+		boolean checkCompatible = false;
+		boolean makeComponent = false;
+		boolean probabilistic = false;
+		boolean isMDP = false;
+		boolean isEnactment = false;
+		boolean makeStarEnv = false;
+		boolean makePlant = false;
+		boolean makeControlledDet = false;
+		Symbol controlledActions = null;
+
+		switch (current.kind) {
+		case Symbol.CLOUSURE:
+			makeClousure = true;
+			nextSymbol();
+			break;
+		case Symbol.ABSTRACT:
+			makeAbstract = true;
+			nextSymbol();
+			break;
+		case Symbol.DETERMINISTIC:
+			makeDet = true;
+			nextSymbol();
+			break;
+		case Symbol.MINIMAL:
+			makeMin = true;
+			nextSymbol();
+			break;
+		case Symbol.COMPOSE:
+			makeComp = true;
+			nextSymbol();
+			break;
+		case Symbol.PROPERTY:
+			makeProp = true;
+			nextSymbol();
+			break;
+		case Symbol.OPTIMISTIC:
+			makeOptimistic = true;
+			nextSymbol();
+			break;
+		}
+
+		if (current.kind == Symbol.PESSIMISTIC) {
+			makePessimistic = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.COMPONENT) {
+			makeComponent = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.CONTROLLER) {
+			makeController = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.SYNC_CONTROLLER) {
+			makeSyncController = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.STARENV) {
+			makeStarEnv = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.PLANT) {
+			makePlant = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.CHECK_COMPATIBILITY) {
+			checkCompatible = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.CONTROLLED_DET) {
+			makeControlledDet = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.PROBABILISTIC) {
+			probabilistic = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.MDP) {
+			isMDP = true;
+			nextSymbol();
+		}
+		if (current.kind == Symbol.ENACTMENT) {
+			isEnactment = true;
+			nextSymbol();
+			if (current.kind == Symbol.LCURLY) {
+				nextSymbol();
+				controlledActions = current;
+				nextSymbol();
+				nextSymbol();
+			}
+		}
+
+		if (current.kind != Symbol.OR && current.kind != Symbol.PLUS_CA
+				&& current.kind != Symbol.PLUS_CR
+				&& current.kind != Symbol.MERGE) {
+			ProcessSpec p = stateDefns();
+			if (processes.put(p.getSymbol().toString(), p) != null) {
+				Diagnostics.fatal(
+						"duplicate process definition: " + p.getSymbol(),
+						p.getSymbol());
+			}
+			p.isProperty = makeProp;
+			p.isMinimal = makeMin;
+			p.isDeterministic = makeDet;
+			p.isOptimistic = makeOptimistic;
+			p.isPessimistic = makePessimistic;
+			p.isClousure = makeClousure;
+			p.isAbstract = makeAbstract;
+			p.isProbabilistic = probabilistic;
+			p.isMDP = isMDP;
+			p.isStarEnv = makeStarEnv;
+
+			if (makeController || checkCompatible || makePlant
+					|| makeControlledDet || makeSyncController) {
+				Diagnostics.fatal("The operation requires a composite model.");
+			}
+
+			if (makeComponent) {
+				Diagnostics
+						.fatal("A component can only be created from a composite model.");
+			}
+
+			if (probabilistic
+					&& (makeProp || makeMin || makeDet || makeOptimistic
+							|| makePessimistic || makeClousure || makeAbstract)) {
+				Diagnostics
+						.fatal("Probabilistic automata cannot be combined with other options.");
+			}
+
+			if (probabilistic != isMDP) { // x to account for future
+											// probabilistic
+											// variations
+				Diagnostics
+						.fatal("Probabilistic automata must be one of: mdp.");
+			}
+		} else if (LTSUtils.isCompositionExpression(current)) {
+			CompositionExpression c = composition();
+			c.setComposites(composites);
+			c.processes = processes;
+			c.compiledProcesses = compiled;
+			c.output = output;
+			c.makeDeterministic = makeDet;
+			c.makeProperty = makeProp;
+			c.makeMinimal = makeMin;
+			c.makeCompose = makeComp;
+			c.makeOptimistic = makeOptimistic;
+			c.makePessimistic = makePessimistic;
+			c.makeClousure = makeClousure;
+			c.makeAbstract = makeAbstract;
+			c.makeMDP = isMDP;
+			c.makeEnactment = isEnactment;
+			c.enactmentControlled = controlledActions;
+			c.makeController = makeController;
+			c.makeSyncController = makeSyncController;
+			c.checkCompatible = checkCompatible;
+			c.isStarEnv = makeStarEnv;
+			c.isPlant = makePlant;
+			c.isControlledDet = makeControlledDet;
+			c.setMakeComponent(makeComponent);
+			c.compositionType = compositionType;
+			compositionType = -1;
+			if (allComposites != null) {
+				allComposites.put(c.name.toString(), c);
+			}
+			if (composites.put(c.name.toString(), c) != null) {
+				Diagnostics.fatal("duplicate composite definition: " + c.name,
+						c.name);
+			}
+		}
+	}
+
+	private void graphUpdate() {
+		expectIdentifier("Graph Update");
+		UpdateGraphDefinition graphDefinition = new UpdateGraphDefinition(
+				current.getValue());
+		expectBecomes();
+		expectLeftCurly();
+		graphDefinition.setInitialProblem(parseInitialState());
+		graphDefinition.setTransitions(parseTransitions());
+		expectRightCurly();
+		UpdateGraphGenerator.addGraphDefinition(graphDefinition);
+	}
+
+	private void controlStack(
+			Hashtable<String, CompositionExpression> composites,
+			Hashtable<String, ProcessSpec> processes,
+			Hashtable<String, CompactState> compiled) {
+		ControlStackDefinition def = this.controlStackDefinition();
+		ControlStackDefinition.addDefinition(def);
+
+		CompositionExpression c = new CompositionExpression();
+		c.name = def.getName();
+		c.setComposites(composites);
+		c.processes = processes;
+		c.compiledProcesses = compiled;
+		c.controlStackEnvironments = new Vector<Symbol>();
+		for (ControlTierDefinition tier : def) {
+			c.controlStackEnvironments.add(tier.getEnvModel());
+		}
+		c.output = output;
+		c.makeControlStack = true;
+		if (allComposites != null) {
+			allComposites.put(c.name.toString(), c);
+		}
+		if (composites.put(c.name.toString(), c) != null) {
+			Diagnostics.fatal("duplicate composite definition: " + c.name,
+					c.name);
+		}
+	}
+
+	private void updatingTheController(
+			Hashtable<String, CompositionExpression> composites) {
+		currentIs(Symbol.UPPERIDENT, "updating controller identifier expected");
+
+		UpdatingControllersDefinition cuDefinition = new UpdatingControllersDefinition(
+				current);
+
+		this.updateControllerDefinition(cuDefinition);
+
+		if (composites.put(cuDefinition.getName().getValue(), cuDefinition) != null) {
+			Diagnostics
+					.fatal("duplicate composite definition: "
+							+ cuDefinition.getName(), cuDefinition.getName());
+		} else {
+			if (allComposites != null) {
+				allComposites.put(cuDefinition.getName().getValue(),
+						cuDefinition);
+			}
+		}
+	}
+
+	private void manageExploration() {
+		currentIs(Symbol.UPPERIDENT, "exploration identifier expected");
+
+		this.validateUniqueProcessName(current);
+		ExplorerDefinition explorerDefinition = new ExplorerDefinition(current);
+		nextSymbol();
+
+		this.explorerDefinition(explorerDefinition);
+
+		output.outln("Explorer: " + explorerDefinition.getName());
+	}
+
+	private void parseGoal() {
+		currentIs(Symbol.UPPERIDENT, "goal identifier expected");
+		this.validateUniqueProcessName(current);
+		ControllerGoalDefinition goal = new ControllerGoalDefinition(current);
+		this.goalDefinition(goal);
 	}
 
 	private CompositeState noCompositionExpression(
@@ -1029,15 +1087,22 @@ public class LTSCompiler {
 		return v;
 	}
 
+	/**
+	 * parses a process specification
+	 * 
+	 * @return a process specification
+	 */
 	private ProcessSpec stateDefns() {
 		ProcessSpec p = new ProcessSpec();
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		Symbol temp = current;
 		nextSymbol();
+		// parses the parameters of the process
 		paramDefns(p.init_constants, p.parameters);
 		pushSymbol();
 		current = temp;
 		p.stateDefns.addElement(stateDefn());
+		// parses the states of the system
 		while (current.kind == Symbol.COMMA) {
 			nextSymbol();
 			p.stateDefns.addElement(stateDefn());
@@ -1045,14 +1110,12 @@ public class LTSCompiler {
 		if (current.kind == Symbol.PLUS) {
 			nextSymbol();
 			p.alphaAdditions = labelSet();
-			// this.addMaybesToAlphabet(p);
 		}
 		p.alphaRelabel = relabelDefns();
 		if (current.kind == Symbol.BACKSLASH || current.kind == Symbol.AT) {
 			p.exposeNotHide = (current.kind == Symbol.AT);
 			nextSymbol();
 			p.alphaHidden = labelSet();
-			// this.hideMaybeActions(p.alphaHidden);
 		}
 
 		if (Symbol.SINE == current.kind) {
@@ -1100,8 +1163,7 @@ public class LTSCompiler {
 
 	private ProcessSpec importDefinition() {
 		currentIs(Symbol.UPPERIDENT, "imported process identifier expected");
-		ProcessSpec p = new ProcessSpec();
-		p.name = current;
+		ProcessSpec p = new ProcessSpec(current);
 		expectBecomes();
 		nextSymbol();
 		currentIs(Symbol.STRING_VALUE, " - imported file name expected");
@@ -1272,8 +1334,7 @@ public class LTSCompiler {
 	}
 
 	private void constantDefinition(Hashtable<String, Value> p) {
-		currentIs(Symbol.UPPERIDENT,
-				"constant, upper case identifier expected");
+		currentIs(Symbol.UPPERIDENT, "constant, upper case identifier expected");
 		Symbol name = current;
 		expectBecomes();
 		nextSymbol();
@@ -1285,6 +1346,12 @@ public class LTSCompiler {
 		}
 	}
 
+	/**
+	 * parses the parameter of the process
+	 * 
+	 * @param p
+	 * @param parameters
+	 */
 	private void paramDefns(Hashtable<String, Value> p,
 			Vector<String> parameters) {
 		if (current.kind == Symbol.LROUND) {
@@ -1318,18 +1385,32 @@ public class LTSCompiler {
 		}
 	}
 
+	/**
+	 * parses a state of the state machine
+	 * 
+	 * @return
+	 */
 	private StateDefn stateDefn() {
-		StateDefn s = new StateDefn();
-		currentIs(Symbol.UPPERIDENT, "process identifier expected");
-		s.name = current;
+		StateDefn s;
+		if (current.kind == Symbol.BOX) {
+			s = new BoxStateDefn();
+			nextSymbol();
+			currentIs(Symbol.UPPERIDENT, "process identifier expected");
+			s.name = current;
+		} else {
+			s = new StateDefn();
+			currentIs(Symbol.UPPERIDENT, "process identifier expected");
+			s.name = current;
+		}
 		nextSymbol();
 		if (current.kind == Symbol.AT) {
 			s.accept = true;
 			nextSymbol();
 		}
 		if (current.kind == Symbol.DOT || current.kind == Symbol.LSQUARE) {
-			if (current.kind == Symbol.DOT)
+			if (current.kind == Symbol.DOT) {
 				nextSymbol();
+			}
 			s.range = labelElement();
 		}
 		currentIs(Symbol.BECOMES, "= expected");
@@ -1339,10 +1420,10 @@ public class LTSCompiler {
 	}
 
 	private Stack<Symbol> getEvaluatedExpression() {
-		Stack<Symbol> tmp = new Stack<Symbol>();
+		Stack<Symbol> tmp = new Stack<>();
 		simpleExpression(tmp);
 		BigDecimal v = Expression.evaluate(tmp, null, null);
-		tmp = new Stack<Symbol>();
+		tmp = new Stack<>();
 		if (LTSUtils.isInteger(v)) {
 			tmp.push(new Symbol(Symbol.INT_VALUE, v));
 		} else {
@@ -1353,16 +1434,14 @@ public class LTSCompiler {
 	}
 
 	private void defDefinition() {
-		currentIs(Symbol.UPPERIDENT,
-				"def name, upper case identifier expected");
+		currentIs(Symbol.UPPERIDENT, "def name, upper case identifier expected");
 		Symbol nameSymbol = current;
-		Def d = new Def(nameSymbol.getName());
+		Def d = new Def(nameSymbol.getValue());
 		nextSymbol();
 		currentIs(Symbol.LROUND, "( expected");
 		nextSymbol();
 		while (current.kind != Symbol.RROUND) {
-			currentIs(Symbol.IDENTIFIER,
-					"identifier expected for def argument");
+			currentIs(Symbol.IDENTIFIER, "identifier expected for def argument");
 			d.addParameter(current);
 			nextSymbol();
 			if (current.kind == Symbol.COMMA)
@@ -1463,38 +1542,47 @@ public class LTSCompiler {
 			return null;
 	}
 
+	/**
+	 * parses an expression associated with a state
+	 * 
+	 * @return the expression associated with a state
+	 */
 	private StateExpr stateExpr() {
 		StateExpr s = new StateExpr();
-		if (current.kind == Symbol.UPPERIDENT)
+		if (current.kind == Symbol.UPPERIDENT) {
 			stateRef(s);
-		else if (current.kind == Symbol.IF) {
-			nextSymbol();
-			s.boolexpr = new Stack<Symbol>();
-			expression(s.boolexpr);
-			currentIs(Symbol.THEN, "keyword then expected");
-			nextSymbol();
-			s.thenpart = stateExpr();
-			if (current.kind == Symbol.ELSE) {
+		} else {
+			if (current.kind == Symbol.IF) {
 				nextSymbol();
-				s.elsepart = stateExpr();
+				s.boolexpr = new Stack<Symbol>();
+				expression(s.boolexpr);
+				currentIs(Symbol.THEN, "keyword then expected");
+				nextSymbol();
+				s.thenpart = stateExpr();
+				if (current.kind == Symbol.ELSE) {
+					nextSymbol();
+					s.elsepart = stateExpr();
+				} else {
+					Symbol stop = new Symbol(Symbol.UPPERIDENT, "STOP");
+					StateExpr se = new StateExpr();
+					se.name = stop;
+					s.elsepart = se;
+				}
 			} else {
-				Symbol stop = new Symbol(Symbol.UPPERIDENT, "STOP");
-				StateExpr se = new StateExpr();
-				se.name = stop;
-				s.elsepart = se;
+				if (current.kind == Symbol.LROUND) {
+					nextSymbol();
+					if (current.kind == Symbol.FOREACH) {
+						nextSymbol();
+						s.actions = labelElement();
+					}
+					choiceExpr(s);
+					currentIs(Symbol.RROUND, ") expected");
+					nextSymbol();
+				} else {
+					error(" (, if or process identifier expected");
+				}
 			}
-		} else if (current.kind == Symbol.LROUND) {
-			nextSymbol();
-			if (current.kind == Symbol.FOREACH) {
-				nextSymbol();
-				s.actions = labelElement();
-			}
-			choiceExpr(s);
-			currentIs(Symbol.RROUND, ") expected");
-			nextSymbol();
-		} else
-			error(" (, if or process identifier expected");
-
+		}
 		return s;
 	}
 
@@ -1646,7 +1734,7 @@ public class LTSCompiler {
 	}
 
 	// set selection @(set , expr)
-	private void set_select(Stack<Symbol> expr) {
+	private void setSelect(Stack<Symbol> expr) {
 		Symbol op = current;
 		nextSymbol();
 		currentIs(Symbol.LROUND, "( expected to start set index selection");
@@ -1731,7 +1819,7 @@ public class LTSCompiler {
 			expr.push(temp);
 			break;
 		case Symbol.AT:
-			set_select(expr);
+			setSelect(expr);
 			break;
 		default:
 			error("syntax error in expression");
@@ -1951,7 +2039,7 @@ public class LTSCompiler {
 		// Negation of the formula
 		if (!(isConstraint && isProperty)) {
 			Symbol notName = new Symbol(name);
-			notName.setString(AssertDefinition.NOT_DEF + notName.getName());
+			notName.setString(AssertDefinition.NOT_DEF + notName.getValue());
 			Symbol s = new Symbol(Symbol.PLING);
 			FormulaSyntax notF = FormulaSyntax.make(null, s, formula);
 
@@ -1983,16 +2071,17 @@ public class LTSCompiler {
 		}
 		pushSymbol();
 		this.validateUniqueProcessName(name);
-		this.preconditionDefinitionManager.put(name, formula, ls, initparams, params);
-		
+		this.preconditionDefinitionManager.put(name, formula, ls, initparams,
+				params);
+
 		Symbol notName = new Symbol(name);
-		notName.setString(AssertDefinition.NOT_DEF + notName.getName());
+		notName.setString(AssertDefinition.NOT_DEF + notName.getValue());
 		Symbol s = new Symbol(Symbol.PLING);
 		FormulaSyntax notF = FormulaSyntax.make(null, s, formula);
 
 		this.validateUniqueProcessName(notName);
-		this.preconditionDefinitionManager.put(notName, notF, ls, initparams, params
-				);
+		this.preconditionDefinitionManager.put(notName, notF, ls, initparams,
+				params);
 	}
 
 	/**
@@ -2007,8 +2096,8 @@ public class LTSCompiler {
 				&& composites.get(processName.toString()) != null
 				|| (AssertDefinition.getDefinition(processName.toString()) != null)
 				|| (TriggeredScenarioDefinition.contains(processName))
-				|| DistributionDefinition.contains(processName)) { 
-			
+				|| DistributionDefinition.contains(processName)) {
+
 			Diagnostics.fatal(
 					"name already defined  " + processName.toString(),
 					processName);
@@ -2191,7 +2280,7 @@ public class LTSCompiler {
 			ActionName actionName = (ActionName) actionLabel;
 			Symbol symbol = actionName.name;
 			result = new ActionName(new Symbol(symbol,
-					getMaybeAction(symbol.getName())));
+					getMaybeAction(symbol.getValue())));
 		} else if (actionLabel instanceof ActionSet) {
 			ActionSet actionSet = (ActionSet) actionLabel;
 			Vector<ActionLabels> maybeSetLabels = new Vector<ActionLabels>();
@@ -2989,8 +3078,7 @@ public class LTSCompiler {
 	}
 
 	private List<Symbol> parseDistributedAlphabets() {
-		currentIs(Symbol.DISTRIBUTED_ALPHABETS,
-				"distributedAlphabets expected");
+		currentIs(Symbol.DISTRIBUTED_ALPHABETS, "distributedAlphabets expected");
 		expectBecomes();
 
 		expectLeftCurly();
@@ -3017,7 +3105,6 @@ public class LTSCompiler {
 		nextSymbol();
 		return result;
 	}
-	
 
 	/**
 	 * Parses a Triggered Scenario
@@ -3076,7 +3163,7 @@ public class LTSCompiler {
 			return null;
 		}
 		ConditionDefinition conditionDefinition = new ConditionDefinition(
-				name.getName(), formula);
+				name.getValue(), formula);
 
 		return conditionDefinition;
 	}
@@ -3131,13 +3218,13 @@ public class LTSCompiler {
 			nextSymbol();
 
 			// previous symbol is the interaction's source
-			String source = previous.getName();
-			String message = this.event().getName();
+			String source = previous.getValue();
+			String message = this.event().getValue();
 
 			currentIs(Symbol.ARROW, "-> expected");
 			nextSymbol();
 
-			String target = this.identifier().getName();
+			String target = this.identifier().getValue();
 
 			return new Interaction(source, message, target);
 		} else if (current.kind == Symbol.LSQUARE) {
@@ -3150,21 +3237,21 @@ public class LTSCompiler {
 				nextSymbol();
 
 				// previous symbol is the condition's identifier
-				if (!tsDefinition.hasCondition(previous.getName())) {
+				if (!tsDefinition.hasCondition(previous.getValue())) {
 					// Condition must be defined previously in the
 					// TriggeredScenario.
-					error("Condition not defined: " + previous.getName());
+					error("Condition not defined: " + previous.getValue());
 					return null;
 				} else {
-					String conditionName = previous.getName();
+					String conditionName = previous.getValue();
 
 					// get the instances synchronising with this condition
 					Set<String> instances = new HashSet<String>();
 
 					// at least there must be an instance
-					instances.add(this.identifier().getName());
+					instances.add(this.identifier().getValue());
 					while (current.kind != Symbol.RSQUARE) {
-						instances.add(this.identifier().getName());
+						instances.add(this.identifier().getValue());
 					}
 					nextSymbol();
 
@@ -3235,7 +3322,7 @@ public class LTSCompiler {
 		nextSymbol();
 		currentIs(Symbol.RCURLY, "} expected");
 	}
-	
+
 	public PreconditionDefinitionManager getPreconditionDefinitionManager() {
 		return preconditionDefinitionManager;
 	}

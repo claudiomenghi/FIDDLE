@@ -42,7 +42,7 @@ public class UpdateGraphGenerator {
 			for (Symbol controllerSpecSymbol : updateGraphDef.getTransitions()) {
 				UpdatingControllersDefinition updateSpec = getUpdateControllerSpec(controllerSpecSymbol);
 				UpdatingControllerCompositeState updateController = (UpdatingControllerCompositeState) comp
-						.continueCompilation(updateSpec.getName().getName());
+						.continueCompilation(updateSpec.getName().getValue());
 				TransitionSystemDispatcher.applyComposition(updateController, output);
 				if (updateController.getComposition().getName().endsWith(ControlConstants.NO_CONTROLLER)) {
 					throw new LTSException("Graph could not be generated because controller " + name + " could " +
@@ -83,7 +83,7 @@ public class UpdateGraphGenerator {
 		Compiles the given Update Controller symbol
 	 */
 	private static UpdatingControllersDefinition getUpdateControllerSpec(Symbol controllerSpecSymbol) {
-		CompositionExpression composite = LTSCompiler.getComposite(controllerSpecSymbol.getName());
+		CompositionExpression composite = LTSCompiler.getComposite(controllerSpecSymbol.getValue());
 		validate(composite, controllerSpecSymbol);
 		UpdatingControllersDefinition updateSpec = (UpdatingControllersDefinition) composite;
 		return updateSpec;

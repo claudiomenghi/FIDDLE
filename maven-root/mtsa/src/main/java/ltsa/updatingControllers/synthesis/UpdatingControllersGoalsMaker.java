@@ -63,7 +63,7 @@ public class UpdatingControllersGoalsMaker {
 	 */
 	private static FormulaSyntax obtainFormula(Symbol formulaName) {
 		//TODO: Also consider that instead of a formula we could get a machine / lts
-		AssertDefinition def = AssertDefinition.getConstraint(formulaName.getName());
+		AssertDefinition def = AssertDefinition.getConstraint(formulaName.getValue());
 		if (def == null) {
 			throw new RuntimeException("ltl_property " + formulaName + " not found");
 		}

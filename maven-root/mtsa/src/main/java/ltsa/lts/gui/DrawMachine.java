@@ -22,11 +22,10 @@ import ltsa.lts.ltscomposition.CompactState;
 public class DrawMachine {
 
 	public static int MAXDRAWSTATES = 100; // maximum drawable size
-	static final  int STATESIZE = 30;
+	static final int STATESIZE = 30;
 
 	String[][] labels; // from -- to
 
-	
 	Font labelFont; // used for drawing labels
 	Font nameFont; // used for displaying names
 	Font stateFont = new Font("SansSerif", Font.BOLD, 18);
@@ -42,7 +41,7 @@ public class DrawMachine {
 	private static int arrowForward = 1;
 	private static int arrowBackward = 2;
 	private static int arrowDown = 3;
-	
+
 	int attrseparation; // state separation
 	int arcinc; // arc separation
 
@@ -80,8 +79,9 @@ public class DrawMachine {
 		attrseparation = separation;
 		arcinc = arcIncrement;
 		accepting = mach.accepting();
-		if (newLabelFormat)
+		if (newLabelFormat) {
 			initCompactLabels();
+		}
 		size = computeDimension(mach);
 	}
 
@@ -264,8 +264,8 @@ public class DrawMachine {
 				: STATESIZE / 2;
 		heightBelowCenter = heightBelowCenter + maxBwdLabels * fheight + 10;
 		int pwidth = errorState == 0 ? 10 + nameWidth + STATESIZE + endWidth
-				+ (m.maxStates - 1) * attrseparation : 10 + STATESIZE + endWidth
-				+ m.maxStates * attrseparation;
+				+ (m.maxStates - 1) * attrseparation : 10 + STATESIZE
+				+ endWidth + m.maxStates * attrseparation;
 		int pheight = heightAboveCenter + heightBelowCenter;
 		return new Dimension(pwidth, pheight);
 	}
@@ -285,10 +285,10 @@ public class DrawMachine {
 
 	public void draw(Graphics g) {
 		Preconditions.checkNotNull(g, "The graphics cannot be null");
-		
+
 		// draw transitions
 		CompactState m = mach;
-		if (m == null){
+		if (m == null) {
 			return;
 		}
 		if (selectedMachine) {
@@ -304,26 +304,26 @@ public class DrawMachine {
 		if (m.maxStates > MAXDRAWSTATES) {
 			g.setColor(Color.black);
 			g.setFont(nameFont);
-			g.drawString(m.getName() + " -- too many states: " + m.maxStates, topX,
-					topY + 20);
+			g.drawString(m.getName() + " -- too many states: " + m.maxStates,
+					topX, topY + 20);
 		} else {
 			// display name
 			g.setFont(nameFont);
 			FontMetrics fm = g.getFontMetrics();
 			int nw = fm.stringWidth(m.getName());
 			g.setColor(Color.black);
-			if (displayName){
+			if (displayName) {
 				g.drawString(m.getName(), zeroX - nw, zeroY - 5);
 			}
 			// draw transitions - lines
 			for (int i = 0; i < m.maxStates; i++) {
-				int[] ntrans = new int[m.maxStates + 1]; 	// count transtions
+				int[] ntrans = new int[m.maxStates + 1]; // count transtions
 															// between 2 states
 				EventState p = m.states[i];
 				while (p != null) {
 					EventState tr = p;
 					String event = m.alphabet[tr.getEvent()];
-					if (event.charAt(0) != '@'){
+					if (event.charAt(0) != '@') {
 						while (tr != null) {
 							ntrans[tr.getNext() + 1]++;
 
@@ -433,8 +433,9 @@ public class DrawMachine {
 				}
 			}
 
-			for (int i = -errorState; i < m.maxStates; i++)
+			for (int i = -errorState; i < m.maxStates; i++){
 				drawState(g, i, i == selected);
+			}
 		}
 		if (selectedMachine) {
 			g.setColor(Color.gray);
@@ -445,8 +446,9 @@ public class DrawMachine {
 	private void drawState(Graphics g, int id, boolean highlight) {
 		int x = zeroX + id * attrseparation;
 		int y = zeroY;
-		if (highlight)
+		if (highlight){
 			g.setColor(Color.red);
+		}
 		else
 			g.setColor(Color.cyan);
 		if (id >= 0 && accepting.get(id))
@@ -524,8 +526,6 @@ public class DrawMachine {
 		g.drawString(s, px, py);
 	}
 
-
-
 	private void drawArrow(Graphics g, int x, int y, int direction) {
 		if (direction == arrowForward) {
 			arrowX[0] = x - 5;
@@ -551,7 +551,6 @@ public class DrawMachine {
 		}
 		g.fillPolygon(arrowX, arrowY, 3);
 	}
-
 
 	private void initCompactLabels() {
 		if (mach == null)

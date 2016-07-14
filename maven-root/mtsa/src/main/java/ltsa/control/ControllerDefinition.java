@@ -33,11 +33,11 @@ public class ControllerDefinition {
     }
     
     private String getNameString() {
-		return this.getName().getName();
+		return this.getName().getValue();
 	}
 
 	public static ControllerDefinition getDefinition(Symbol definitionName) {
-    	ControllerDefinition definition = definitions.get(definitionName.getName());
+    	ControllerDefinition definition = definitions.get(definitionName.getValue());
 		if(definition == null) {
 			throw new IllegalArgumentException("Controller Goal definition not found: " + definitionName);
 		}

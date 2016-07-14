@@ -5,11 +5,10 @@ import java.util.List;
 
 import ltsa.lts.parser.LTSOutput;
 
-/* -----------------------------------------------------------------------*/
 
 public class FluentTrace {
 
-	PredicateDefinition[] fluents;
+	private PredicateDefinition[] fluents;
 
 	int[] state;
 

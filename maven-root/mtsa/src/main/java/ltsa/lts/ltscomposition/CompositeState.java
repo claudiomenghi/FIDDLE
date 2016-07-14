@@ -537,6 +537,7 @@ public class CompositeState {
 		return compositionType;
 	}
 
+	@Override
 	public String toString() {
 		return super.toString();
 	}

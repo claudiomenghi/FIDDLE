@@ -1,0 +1,214 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix atxa-jdt: <http://www.architexa.com/rdf/jdt#> .
+@prefix atxa-rse-eclipse: <http://www.architexa.com/rdf/rse-eclipse#> .
+@prefix atxa-core: <http://www.architexa.com/rdf/core#> .
+@prefix atxa: <http://www.architexa.com/rdf/> .
+@prefix atxa-jdt-wkspc: <http://www.architexa.com/rdf/jdt-wkspc#> .
+
+atxa-rse-eclipse:IO a atxa-core:reloFile .
+
+atxa:DetailNode atxa-core:detailLevel "2" .
+
+atxa-core:docRoot atxa-core:browseModel "com.architexa.diagrams.relo.jdt/com.architexa.diagrams.relo.jdt.browse.ClassStrucBrowseModel" ;
+	atxa-core:contains _:node1anhpqqbsx10330 .
+
+_:node1anhpqqbsx10330 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui> ;
+	atxa-core:posX "421" ;
+	atxa-core:posY "176" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$DrawMachine> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$LTSCanvas> .
+
+_:node1anhpqqbsx10330 atxa-core:contains _:node1anhpqqbsx10331 .
+
+_:node1anhpqqbsx10331 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$DrawMachine> ;
+	atxa-core:posX "710" ;
+	atxa-core:posY "201" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$DrawMachine> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$DrawMachine.DrawMachine(CompactState,JPanel,Font,Font,boolean,boolean,int,int,)> .
+
+_:node1anhpqqbsx10331 atxa-core:contains _:node1anhpqqbsx10332 .
+
+_:node1anhpqqbsx10332 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$DrawMachine.DrawMachine(CompactState,JPanel,Font,Font,boolean,boolean,int,int,)> ;
+	atxa-core:posX "711" ;
+	atxa-core:posY "219" .
+
+_:node1anhpqqbsx10330 atxa-core:contains _:node1anhpqqbsx10333 .
+
+_:node1anhpqqbsx10333 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$LTSCanvas> ;
+	atxa-core:posX "427" ;
+	atxa-core:posY "336" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$LTSCanvas> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$LTSCanvas.draw(int,CompactState,int,int,String,)> .
+
+_:node1anhpqqbsx10094 a atxa-core:link ;
+	atxa-core:model atxa-jdt:inherits ;
+	rdf:subject _:node1anhpqqbsx10333 ;
+	rdf:object _:node1anhpqqbsx10334 ;
+	atxa-core:bendpoint _:node1anhpqqbsx10451 .
+
+_:node1anhpqqbsx10451 atxa-core:bpLocation "476,234" ;
+	atxa-core:bpIndex "0" .
+
+_:node1anhpqqbsx10094 atxa-core:bendpoint _:node1anhpqqbsx10452 .
+
+_:node1anhpqqbsx10452 atxa-core:bpLocation "349,234" ;
+	atxa-core:bpIndex "1" .
+
+_:node1anhpqqbsx10333 atxa-core:contains _:node1anhpqqbsx10337 .
+
+_:node1anhpqqbsx10337 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.gui$LTSCanvas.draw(int,CompactState,int,int,String,)> ;
+	atxa-core:posX "428" ;
+	atxa-core:posY "354" .
+
+_:node1anhpqqbsx10090 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1anhpqqbsx10337 ;
+	rdf:object _:node1anhpqqbsx10332 .
+
+atxa-core:docRoot atxa-core:contains _:node1anhpqqbsx10338 .
+
+_:node1anhpqqbsx10338 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#javax.swing> ;
+	atxa-core:posX "306" ;
+	atxa-core:posY "157" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#javax.swing> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#javax.swing$JPanel> .
+
+_:node1anhpqqbsx10338 atxa-core:contains _:node1anhpqqbsx10334 .
+
+_:node1anhpqqbsx10334 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#javax.swing$JPanel> ;
+	atxa-core:posX "312" ;
+	atxa-core:posY "182" .
+
+atxa-core:docRoot atxa-core:contains _:node1anhpqqbsx10339 .
+
+_:node1anhpqqbsx10339 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui> ;
+	atxa-core:posX "-45" ;
+	atxa-core:posY "243" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$HPWindow> .
+
+_:node1anhpqqbsx10339 atxa-core:contains _:node1anhpqqbsx10340 .
+
+_:node1anhpqqbsx10340 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow> ;
+	atxa-core:posX "252" ;
+	atxa-core:posY "416" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow$PrintAction> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow.new_machines(CompositeState,)> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow.LTSDrawWindow(CompositeState,EventManager,)> .
+
+_:node1anhpqqbsx10340 atxa-core:contains _:node1anhpqqbsx10341 .
+
+_:node1anhpqqbsx10341 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow$PrintAction> ;
+	atxa-core:posX "253" ;
+	atxa-core:posY "466" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow$PrintAction> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow$PrintAction.valueChanged(ListSelectionEvent,)> .
+
+_:node1anhpqqbsx10341 atxa-core:contains _:node1anhpqqbsx10342 .
+
+_:node1anhpqqbsx10342 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow$PrintAction.valueChanged(ListSelectionEvent,)> ;
+	atxa-core:posX "254" ;
+	atxa-core:posY "484" .
+
+_:node1anhpqqbsx10113 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1anhpqqbsx10342 ;
+	rdf:object _:node1anhpqqbsx10337 .
+
+_:node1anhpqqbsx10340 atxa-core:contains _:node1anhpqqbsx10343 .
+
+_:node1anhpqqbsx10343 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow.new_machines(CompositeState,)> ;
+	atxa-core:posX "253" ;
+	atxa-core:posY "434" .
+
+_:node1anhpqqbsx10340 atxa-core:contains _:node1anhpqqbsx10344 .
+
+_:node1anhpqqbsx10344 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$LTSDrawWindow.LTSDrawWindow(CompositeState,EventManager,)> ;
+	atxa-core:posX "253" ;
+	atxa-core:posY "450" .
+
+_:node1anhpqqbsx10161 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1anhpqqbsx10344 ;
+	rdf:object _:node1anhpqqbsx10343 .
+
+_:node1anhpqqbsx10339 atxa-core:contains _:node1anhpqqbsx10345 .
+
+_:node1anhpqqbsx10345 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$HPWindow> ;
+	atxa-core:posX "-39" ;
+	atxa-core:posY "268" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$HPWindow> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$HPWindow.newDrawWindow(boolean,)> , <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$HPWindow.docompile()> .
+
+_:node1anhpqqbsx10345 atxa-core:contains _:node1anhpqqbsx10346 .
+
+_:node1anhpqqbsx10346 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$HPWindow.newDrawWindow(boolean,)> ;
+	atxa-core:posX "-38" ;
+	atxa-core:posY "286" .
+
+_:node1anhpqqbsx10173 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1anhpqqbsx10346 ;
+	rdf:object _:node1anhpqqbsx10344 .
+
+_:node1anhpqqbsx10345 atxa-core:contains _:node1anhpqqbsx10453 .
+
+_:node1anhpqqbsx10453 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.ui$HPWindow.docompile()> ;
+	atxa-core:posX "-38" ;
+	atxa-core:posY "302" .
+
+_:node1anhpqqbsx10382 a atxa-core:link ;
+	atxa-core:model atxa-jdt:calls ;
+	rdf:subject _:node1anhpqqbsx10453 ;
+	rdf:object _:node1anhpqqbsx10454 .
+
+atxa-core:docRoot atxa-core:contains _:node1anhpqqbsx10455 .
+
+_:node1anhpqqbsx10455 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.parser> ;
+	atxa-core:posX "169" ;
+	atxa-core:posY "126" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.parser> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.parser$LTSCompiler> .
+
+_:node1anhpqqbsx10455 atxa-core:contains _:node1anhpqqbsx10456 .
+
+_:node1anhpqqbsx10456 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.parser$LTSCompiler> ;
+	atxa-core:posX "175" ;
+	atxa-core:posY "151" .
+
+<http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.parser$LTSCompiler> atxa-core:contains <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.parser$LTSCompiler.compile()> .
+
+_:node1anhpqqbsx10456 atxa-core:contains _:node1anhpqqbsx10454 .
+
+_:node1anhpqqbsx10454 a atxa-core:node ;
+	atxa-core:model <http://www.architexa.com/rdf/jdt-wkspc#ltsa.lts.parser$LTSCompiler.compile()> ;
+	atxa-core:posX "176" ;
+	atxa-core:posY "169" .
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix atxa-jdt: <http://www.architexa.com/rdf/jdt#> .
+@prefix atxa-rse-eclipse: <http://www.architexa.com/rdf/rse-eclipse#> .
+@prefix atxa-core: <http://www.architexa.com/rdf/core#> .
+@prefix atxa: <http://www.architexa.com/rdf/> .
+@prefix atxa-jdt-wkspc: <http://www.architexa.com/rdf/jdt-wkspc#> .
+
+atxa-rse-eclipse:IO a atxa-core:reloFile ;
+	atxa-core:contains _:node1anhpqqbsx10332 , _:node1anhpqqbsx10331 , _:node1anhpqqbsx10337 , _:node1anhpqqbsx10333 , _:node1anhpqqbsx10330 , _:node1anhpqqbsx10334 , _:node1anhpqqbsx10338 , _:node1anhpqqbsx10342 , _:node1anhpqqbsx10341 , _:node1anhpqqbsx10343 , _:node1anhpqqbsx10344 , _:node1anhpqqbsx10340 , _:node1anhpqqbsx10346 , _:node1anhpqqbsx10453 , _:node1anhpqqbsx10345 , _:node1anhpqqbsx10339 , _:node1anhpqqbsx10454 , _:node1anhpqqbsx10456 , _:node1anhpqqbsx10455 , atxa-core:docRoot , _:node1anhpqqbsx10332 , _:node1anhpqqbsx10331 , _:node1anhpqqbsx10337 , _:node1anhpqqbsx10333 , _:node1anhpqqbsx10330 , _:node1anhpqqbsx10334 , _:node1anhpqqbsx10338 , _:node1anhpqqbsx10342 , _:node1anhpqqbsx10341 , _:node1anhpqqbsx10343 , _:node1anhpqqbsx10344 , _:node1anhpqqbsx10340 , _:node1anhpqqbsx10346 , _:node1anhpqqbsx10453 , _:node1anhpqqbsx10345 , _:node1anhpqqbsx10339 , _:node1anhpqqbsx10454 , _:node1anhpqqbsx10456 , _:node1anhpqqbsx10455 , atxa-core:docRoot , _:node1anhpqqbsx10094 , _:node1anhpqqbsx10090 , _:node1anhpqqbsx10113 , _:node1anhpqqbsx10161 , _:node1anhpqqbsx10173 , _:node1anhpqqbsx10382 , _:node1anhpqqbsx10094 , _:node1anhpqqbsx10090 , _:node1anhpqqbsx10113 , _:node1anhpqqbsx10161 , _:node1anhpqqbsx10173 , _:node1anhpqqbsx10382 .
+

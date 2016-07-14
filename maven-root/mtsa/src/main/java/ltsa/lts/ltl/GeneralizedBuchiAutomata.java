@@ -15,6 +15,8 @@ import java.util.Vector;
 import com.google.common.base.Preconditions;
 
 import ltsa.lts.Diagnostics;
+import ltsa.lts.ltl.formula.Formula;
+import ltsa.lts.lts.LabelFactory;
 import ltsa.lts.parser.LTSOutput;
 
 public class GeneralizedBuchiAutomata {
@@ -150,6 +152,7 @@ class State implements Comparable {
 		return stateId;
 	}
 
+	@Override
 	public int compareTo(Object obj) {
 		return this != obj ? 1 : 0;
 	}

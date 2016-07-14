@@ -27,13 +27,14 @@ public class StateExpr extends Declaration {
 	public StateExpr elsepart;
 
 	public void addSeqProcessRef(SeqProcessRef sp) {
-		if (processes == null)
-			processes = new Vector<SeqProcessRef>();
+		if (processes == null){
+			processes = new Vector<>();
+		}
 		processes.addElement(sp);
 	}
 
 	public CompactState makeInserts(Hashtable locals, StateMachine m) {
-		Vector<CompactState> seqs = new Vector<CompactState>();
+		Vector<CompactState> seqs = new Vector<>();
 		Enumeration<SeqProcessRef> e = processes.elements();
 		while (e.hasMoreElements()) {
 			SeqProcessRef sp = e.nextElement();

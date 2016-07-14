@@ -87,8 +87,6 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		right = new JScrollPane(outPane,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		// right.getViewport().putClientProperty("EnableWindowBlit",
-		// Boolean.TRUE);
 		// scrollable list pane
 		list = new JList();
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -102,14 +100,16 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		JToolBar tools = new JToolBar();
 		tools.setOrientation(JToolBar.VERTICAL);
 		fortools.add("West", tools);
-		tools.add(createTool("src/main/java/ltsa/ui/icon/stretchHorizontal.gif",
+		tools.add(createTool(
+				"src/main/java/ltsa/ui/icon/stretchHorizontal.gif",
 				"Stretch Horizontal", new HStretchAction(10)));
-		tools.add(createTool("src/main/java/ltsa/ui/icon/compressHorizontal.gif",
+		tools.add(createTool(
+				"src/main/java/ltsa/ui/icon/compressHorizontal.gif",
 				"Compress Horizontal", new HStretchAction(-10)));
-		tools.add(createTool("src/main/java/ltsa/ui/icon/stretchVertical.gif", "Stretch Vertical",
-				new VStretchAction(10)));
-		tools.add(createTool("src/main/java/ltsa/ui/icon/compressVertical.gif", "Compress Vertical",
-				new VStretchAction(-10)));
+		tools.add(createTool("src/main/java/ltsa/ui/icon/stretchVertical.gif",
+				"Stretch Vertical", new VStretchAction(10)));
+		tools.add(createTool("src/main/java/ltsa/ui/icon/compressVertical.gif",
+				"Compress Vertical", new VStretchAction(-10)));
 		if (eman != null)
 			eman.addClient(this);
 		new_machines(cs);
@@ -121,16 +121,18 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		output.addKeyListener(new KeyPress());
 		output.addMouseListener(new MyMouse());
 		try {
-			drawIcon = new ImageIcon(new URL("file://src/main/java/ltsa/ui/icon/draw.gif"));
+			drawIcon = new ImageIcon(new URL(
+					"file://src/main/java/ltsa/ui/icon/draw.gif"));
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void setCurrentState(int[] currentStateNumbers)
-	{
-		this.prevEvent = Arrays.copyOf(currentStateNumbers, currentStateNumbers.length + 2);
-		this.lastEvent = Arrays.copyOf(currentStateNumbers, currentStateNumbers.length + 2);
+	public void setCurrentState(int[] currentStateNumbers) {
+		this.prevEvent = Arrays.copyOf(currentStateNumbers,
+				currentStateNumbers.length + 2);
+		this.lastEvent = Arrays.copyOf(currentStateNumbers,
+				currentStateNumbers.length + 2);
 
 		this.prevEvent[prevEvent.length - 2] = currentStateNumbers[0];
 		this.lastEvent[lastEvent.length - 2] = currentStateNumbers[0];
@@ -150,6 +152,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 			increment = i;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (output != null)
 				output.stretchHorizontal(increment);
@@ -163,6 +166,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 			increment = i;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (output != null)
 				output.stretchVertical(increment);
@@ -170,6 +174,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 	}
 
 	class PrintAction implements ListSelectionListener {
+		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if (e.getValueIsAdjusting() && !singleMode)
 				return;
@@ -177,19 +182,17 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 			if (machine < 0 || machine >= Nmach)
 				return;
 
-			if (singleMode)
-			{
-				output.draw(machine, sm[machine], validMachine(machine, prevEvent), validMachine(machine, lastEvent), lastName);
-			}
-			else
-			{
-				if (!machineToDrawSet[machine])
-				{
-					output.draw(machine, sm[machine], validMachine(machine, prevEvent), validMachine(machine, lastEvent), lastName);
+			if (singleMode) {
+				output.draw(machine, sm[machine],
+						validMachine(machine, prevEvent),
+						validMachine(machine, lastEvent), lastName);
+			} else {
+				if (!machineToDrawSet[machine]) {
+					output.draw(machine, sm[machine],
+							validMachine(machine, prevEvent),
+							validMachine(machine, lastEvent), lastName);
 					machineToDrawSet[machine] = true;
-				}
-				else
-				{
+				} else {
 					output.clear(machine);
 					machineToDrawSet[machine] = false;
 				}
@@ -206,6 +209,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 	}
 
 	class KeyPress extends KeyAdapter {
+		@Override
 		public void keyPressed(KeyEvent k) {
 			if (output == null)
 				return;
@@ -229,6 +233,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 	}
 
 	class MyMouse extends MouseAdapter {
+		@Override
 		public void mouseEntered(MouseEvent e) {
 			output.requestFocus();
 		}
@@ -236,6 +241,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 
 	/*---------LTS event broadcast action-----------------------------*/
 
+	@Override
 	public void ltsAction(LTSEvent e) {
 		switch (e.kind) {
 		case LTSEvent.NEWSTATE:
@@ -251,8 +257,8 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 			buttonHighlight(e.name);
 			break;
 		case LTSEvent.INVALID:
-//			prevEvent = null;
-//			lastEvent = null;
+			// prevEvent = null;
+			// lastEvent = null;
 			cs = (CompositeState) e.info;
 			new_machines(cs);
 			break;
@@ -278,18 +284,22 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 
 	protected void new_machines(CompositeState cs) {
 		hasC = (cs != null && cs.composition != null) ? 1 : 0;
-		if (cs != null && cs.machines != null && cs.machines.size() > 0) { // get set of machines
-			
+		if (cs != null && cs.machines != null && !cs.machines.isEmpty()) { // get
+																			// set
+																			// of
+																			// machines
+
 			sm = new CompactState[cs.machines.size() + hasC];
 			Enumeration e = cs.machines.elements();
 			for (int i = 0; e.hasMoreElements(); i++)
 				sm[i] = (CompactState) e.nextElement();
 			Nmach = sm.length;
-			if (hasC == 1)
+			if (hasC == 1) {
 				sm[Nmach - 1] = cs.composition;
+			}
 			machineHasAction = new boolean[Nmach];
 			machineToDrawSet = new boolean[Nmach];
-			
+
 		} else {
 			Nmach = 0;
 			machineHasAction = null;
@@ -297,10 +307,11 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 		}
 		DefaultListModel lm = new DefaultListModel();
 		for (int i = 0; i < Nmach; i++) {
-			if (hasC == 1 && i == (Nmach - 1))
+			if (hasC == 1 && i == (Nmach - 1)) {
 				lm.addElement("||" + sm[i].getName());
-			else
+			} else {
 				lm.addElement(sm[i].getName());
+			}
 		}
 		list.setModel(lm);
 		output.setMachines(Nmach);
@@ -311,12 +322,12 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 	protected JButton createTool(String icon, String tip, ActionListener act) {
 		URL url = null;
 		try {
-			url = 	new File(icon).toURI().toURL();
+			url = new File(icon).toURI().toURL();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
-		JButton b = new JButton(
-				new ImageIcon(url)) {
+		JButton b = new JButton(new ImageIcon(url)) {
+			@Override
 			public float getAlignmentY() {
 				return 0.5f;
 			}
@@ -365,6 +376,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 			setHorizontalTextPosition(SwingConstants.LEFT);
 		}
 
+		@Override
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 			setFont(fontFlag ? f4 : f3);

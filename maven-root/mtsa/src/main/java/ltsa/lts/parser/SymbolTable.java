@@ -1,14 +1,16 @@
 package ltsa.lts.parser;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SymbolTable {
 
-	private static Hashtable<String, Integer> keyword;
+	private static Map<String, Integer> keyword;
 
+	//static initialiser since the language doesn't change at runtime!
 	static { 
-		//static initialiser since the language doesn't change at runtime!
-		keyword = new Hashtable<>();
+		keyword = new HashMap<>();
+		keyword.put("box", new Integer(Symbol.BOX));
 		keyword.put("ltl_precondition", new Integer(Symbol.LTLPRECONDITION));
 		keyword.put("ltl_postcondition", new Integer(Symbol.LTLPOSTCONDITION));
 		keyword.put("precondition", new Integer(Symbol.PRECONDITION));
@@ -48,8 +50,8 @@ public class SymbolTable {
 		keyword.put("instances", new Integer(Symbol.INSTANCES));
 		keyword.put("prechart", new Integer(Symbol.PRECHART));
 		keyword.put("mainchart", new Integer(Symbol.MAINCHART));
-		keyword.put("eTS", new Integer(Symbol.E_TRIGGERED_SCENARIO));
-		keyword.put("uTS", new Integer(Symbol.U_TRIGGERED_SCENARIO));
+		keyword.put("eTS", new Integer(Symbol.ETRIGGEREDSCENARIO));
+		keyword.put("uTS", new Integer(Symbol.UTRIGGEREDSCENARIO));
 
 		keyword.put("distribution", new Integer(Symbol.DISTRIBUTION));
 		keyword.put("systemModel", new Integer(Symbol.SYSTEM_MODEL));
@@ -110,6 +112,9 @@ public class SymbolTable {
 		keyword.put("transitions", Symbol.GRAPH_TRANSITIONS);
 	}
 
+	private SymbolTable(){
+		
+	}
 	public static Integer get(String s) {
 		return keyword.get(s);
 	}

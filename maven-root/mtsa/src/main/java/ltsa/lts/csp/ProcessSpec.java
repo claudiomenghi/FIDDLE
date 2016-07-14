@@ -5,13 +5,22 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.google.common.base.Preconditions;
+
 import ltsa.lts.Diagnostics;
 import ltsa.lts.lts.StateMachine;
 import ltsa.lts.parser.LabelSet;
 import ltsa.lts.parser.Symbol;
 
+/**
+ * contains the declaration of a process
+ * @author Claudio Menghi
+ *
+ */
 public class ProcessSpec extends Declaration {
-	public Symbol name;
+	
+	private Symbol name;
+	
 	public Hashtable constants;
 	public Hashtable init_constants = new Hashtable();
 	public Vector parameters = new Vector();
@@ -37,6 +46,18 @@ public class ProcessSpec extends Declaration {
 	public File importFile = null; // used if the process is imported from a
 									// .aut file
 
+	public ProcessSpec(){
+		
+	}
+	public ProcessSpec(Symbol name){
+		Preconditions.checkNotNull(name, "The name of the process cannot be null");
+		this.name=name;
+	}
+	
+	public Symbol getSymbol(){
+		return name;
+	}
+	
 	public boolean imported() {
 		return importFile != null;
 	}
@@ -49,7 +70,8 @@ public class ProcessSpec extends Declaration {
 			Diagnostics.fatal("process name cannot be indexed", name);
 		return s.name.toString();
 	}
-
+	
+	@Override
 	public void explicitStates(StateMachine m) {
 		Enumeration<StateDefn> e = stateDefns.elements();
 		while (e.hasMoreElements()) {
@@ -78,8 +100,9 @@ public class ProcessSpec extends Declaration {
 	}
 
 	public void relabelAlphabet(StateMachine m) {
-		if (alphaRelabel == null)
+		if (alphaRelabel == null){
 			return;
+		}
 		m.setRelabels(new Relation());
 		Enumeration e = alphaRelabel.elements();
 		while (e.hasMoreElements()) {
@@ -88,6 +111,7 @@ public class ProcessSpec extends Declaration {
 		}
 	}
 
+	@Override
 	public void crunch(StateMachine m) {
 		Enumeration<StateDefn> e = stateDefns.elements();
 		while (e.hasMoreElements()) {
@@ -113,8 +137,7 @@ public class ProcessSpec extends Declaration {
 	}
 
 	public ProcessSpec myclone() {
-		ProcessSpec p = new ProcessSpec();
-		p.name = name;
+		ProcessSpec p = new ProcessSpec(name);
 		p.constants = (Hashtable) constants.clone();
 		p.init_constants = init_constants;
 		p.parameters = parameters;

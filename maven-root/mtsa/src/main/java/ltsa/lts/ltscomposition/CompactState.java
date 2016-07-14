@@ -791,6 +791,7 @@ public class CompactState implements Automata {
 
 	}
 
+	@Override
 	public String[] getAlphabet() {
 		return alphabet;
 	}
@@ -802,6 +803,7 @@ public class CompactState implements Automata {
 		return v;
 	}
 
+	@Override
 	public MyList getTransitions(byte[] fromState) {
 		MyList tr = new MyList();
 		int state;
@@ -820,11 +822,13 @@ public class CompactState implements Automata {
 		return tr;
 	}
 
+	@Override
 	public String getViolatedProperty() {
 		return null;
 	}
 
 	// returns shortest trace to state (vector of Strings)
+	@Override
 	public Vector<?> getTraceToState(byte[] from, byte[] to) {
 		EventState trace = new EventState(0, 0);
 		int result = EventState.search(trace, states, decode(from), decode(to),
@@ -833,34 +837,42 @@ public class CompactState implements Automata {
 	}
 
 	// return the number of the END state
+	@Override
 	public boolean END(byte[] state) {
 		return decode(state) == endseq;
 	}
 
+	
 	// return whether or not state is accepting
+	@Override
 	public boolean isAccepting(byte[] state) {
 		return isAccepting(decode(state));
 	}
 
 	// return the number of the START state
+	@Override
 	public byte[] START() {
 		return encode(0);
 	}
 
 	// set the Stack Checker for partial order reduction
+	@Override
 	public void setStackChecker(StackCheck s) {
 	} // null operation
 
 	// returns true if partial order reduction
+	@Override
 	public boolean isPartialOrder() {
 		return false;
 	}
 
 	// diable partial order
+	@Override
 	public void disablePartialOrder() {
 	}
 
 	// enable partial order
+	@Override
 	public void enablePartialOrder() {
 	}
 

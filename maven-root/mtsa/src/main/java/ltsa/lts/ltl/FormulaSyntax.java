@@ -5,6 +5,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 import ltsa.lts.Diagnostics;
+import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.parser.ActionLabels;
 import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.Symbol;
@@ -76,8 +77,9 @@ public class FormulaSyntax  {
 
 						Hashtable actual_params = new Hashtable();
 						Vector values = paramValues(parameters,locals,globals);
-						for (int i=0; i<parameters.size(); ++i)
+						for (int i=0; i<parameters.size(); ++i){
 						    actual_params.put(p.params.elementAt(i),values.elementAt(i));
+						}
 						return p.ltlFormula.expand(fac,locals,actual_params);
 					}
 				}

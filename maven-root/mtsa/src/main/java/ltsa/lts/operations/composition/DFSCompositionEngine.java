@@ -34,7 +34,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 	@Override
 	public void initialize() {
 	}
-	
+	@Override
 	public void setOutput(LTSOutput output) {
 		this.output= output;
 	}
@@ -111,6 +111,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 		}
 	}
 	
+	@Override
 	public String getExplorationStatistics() {
 		// return "Depth " + analysed.getDepth() + " ";
 		return "";

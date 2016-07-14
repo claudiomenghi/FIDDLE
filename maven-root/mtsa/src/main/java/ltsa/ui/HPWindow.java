@@ -817,6 +817,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 
 		JButton b = new JButton(new ImageIcon(url)) {
+			@Override
 			public float getAlignmentY() {
 				return 0.5f;
 			}
@@ -1005,10 +1006,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// ------------------------------------------------------------------------
 
 	class CloseWindow extends WindowAdapter {
+		@Override
 		public void windowClosing(WindowEvent e) {
 			quitAll();
 		}
 
+		@Override
 		public void windowActivated(WindowEvent e) {
 			if (animator != null)
 				animator.toFront();
@@ -1297,6 +1300,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	class SaveAsFileAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			String pp = textIO.getTitleAt(textIO.getSelectedIndex());
 			if (pp.equals("Edit"))
@@ -1305,6 +1309,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	class ExportFileAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			String pp = textIO.getTitleAt(textIO.getSelectedIndex());
 			if (pp.equals("Edit"))
@@ -1315,6 +1320,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	class ExitFileAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			quitAll();
 		}
@@ -1475,6 +1481,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			final JButton applybutton = new JButton("Apply");
 
 			class ButtonOptionListener implements ActionListener {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (e.getSource() == applybutton) {
 						updateValues();
@@ -1488,7 +1495,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 						f.dispose();
 					}
 				}
-
+				
 				private void updateValues() {
 					try {
 						Object o = KK_length_factor_spinner.getValue();
@@ -1498,8 +1505,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 								.toString()) < 0 ? 0 : (Double.parseDouble(o
 								.toString()) > 10 ? 10 : Double.parseDouble(o
 								.toString()));
-						// if (layouts!=null)
-						// layouts.getCanvas().setOptions(LTSJUNGCanvas.LayoutOptions.KK_length_factor,LTSJUNGCanvas.KK_length_factor);
 					} catch (NumberFormatException ignored) {
 					}
 					// try {
@@ -1670,7 +1675,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		ExecuteAction(String s) {
 			runtarget = s;
 		}
-
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			run_menu = runtarget;
 			doAction(DOEXECUTE);
@@ -1706,12 +1711,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	class EditCutAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			input.cut();
 		}
 	}
 
 	class EditCopyAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			String pp = textIO.getTitleAt(textIO.getSelectedIndex());
 			if (pp.equals("Edit"))
@@ -1728,12 +1735,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	class EditPasteAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			input.paste();
 		}
 	}
 
 	class TargetAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			String choice = (String) targetChoice.getSelectedItem();
 			if (choice == null)
@@ -1751,6 +1760,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// undo editor stuff
 
 	class UndoHandler implements UndoableEditListener {
+		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
 			undo.addEdit(e.getEdit());
 			updateDoState();
@@ -1758,6 +1768,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	class UndoAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
 				undo.undo();
@@ -1768,6 +1779,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	class RedoAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
 				undo.redo();
@@ -1779,6 +1791,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	// >>> AMES: Text Search
 	class EditFindAction implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			centre(findDialog);
 			findDialog.setVisible(true);
@@ -1844,6 +1857,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	class RequestFocus implements Runnable {
+		@Override
 		public void run() {
 			input.requestFocusInWindow();
 		}
@@ -1851,14 +1865,17 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	public void out(String str) {
 		SwingUtilities.invokeLater(new OutputAppend(str));
 	}
 
+	@Override
 	public void outln(String str) {
 		SwingUtilities.invokeLater(new OutputAppend(str + "\n"));
 	}
 
+	@Override
 	public void clearOutput() {
 		SwingUtilities.invokeLater(new OutputClear());
 	}
@@ -1874,18 +1891,21 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			this.text = text;
 		}
 
+		@Override
 		public void run() {
 			output.append(text);
 		}
 	}
 
 	class OutputClear implements Runnable {
+		@Override
 		public void run() {
 			output.setText("");
 		}
 	}
 
 	class OutputShow implements Runnable {
+		@Override
 		public void run() {
 			swapto(1);
 		}
@@ -1904,7 +1924,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			return '\u0000';
 		}
 	}
-
+	@Override
 	public char backChar() {
 		fPos = fPos - 1;
 		if (fPos < 0) {
@@ -1914,6 +1934,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			return fSrc.charAt(fPos);
 	}
 
+	@Override
 	public int getMarker() {
 		return fPos;
 	}
@@ -2109,7 +2130,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				.getView().size()];
 		for (int i = 0; i < explorerDefinition.getView().size(); i++)
 			for (int j = 0; j < current.machines.size(); j++)
-				if (explorerDefinition.getView().get(i).getName()
+				if (explorerDefinition.getView().get(i).getValue()
 						.equals(current.machines.elementAt(j).getName()))
 					components[i] = current.machines.elementAt(j);
 
@@ -2135,7 +2156,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				.getModel().size()];
 		for (int i = 0; i < explorerDefinition.getView().size(); i++)
 			for (int j = 0; j < current.machines.size(); j++)
-				if (explorerDefinition.getModel().get(i).getName()
+				if (explorerDefinition.getModel().get(i).getValue()
 						.equals(current.machines.elementAt(j).getName()))
 					knowledge_configurations[i] = current.machines.elementAt(j);
 
@@ -2180,6 +2201,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		layouts.setCurrentState(this.explorer.getCurrentStateNumbers());
 	}
 
+	
 	private void exploration_manual() {
 		if (this.explorer == null)
 			throw new UnsupportedOperationException("Primero hay que explorar");
@@ -2356,7 +2378,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private void reachable() {
 		clearOutput();
 		compileIfChange();
-		if (current != null && current.machines.size() > 0) {
+		if (current != null && !current.machines.isEmpty()) {
 			Analyser a = new Analyser(current, this, null);
 			SuperTrace s = new SuperTrace(a, this);
 			current.setErrorTrace(s.getErrorTrace());
@@ -2605,6 +2627,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 		enactorOptionsWindow.getOkButton().addActionListener(
 				new ActionListener() {
+					@Override
 					public void actionPerformed(ActionEvent e) {
 
 						enactmentOptions.scheduler = (String) enactorOptionsWindow
@@ -2787,6 +2810,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	class Hyperactive implements HyperlinkListener {
 
+		@Override
 		public void hyperlinkUpdate(HyperlinkEvent e) {
 			if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 				JEditorPane pane = (JEditorPane) e.getSource();
@@ -2830,6 +2854,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			this.arg = arg;
 		}
 
+		@Override
 		public void run() {
 			window.doOpenFile("", arg, false);
 		}
@@ -2861,6 +2886,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	/**
 	 * Returns the currently selected item from the targets selection box.
 	 */
+	@Override
 	public String getTargetChoice() {
 		return (String) targetChoice.getSelectedItem();
 	}
@@ -2869,6 +2895,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	 * Updates the various display windows and animators with the given
 	 * machines.
 	 */
+	@Override
 	public void newMachines(java.util.List<CompactState> machines) {
 		CompositeState c = new CompositeState(new Vector<>(machines));
 		postState(c);
@@ -2906,12 +2933,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	 * @param showOutputPane
 	 *            Whether the output console is made visible
 	 */
+	@Override
 	public void performAction(final Runnable r, final boolean showOutputPane) {
 		// XXX: There is a race here, as there is in the method do_action.
 		menuEnable(false);
 		// check_stop.setEnabled(true);
 		// stopTool.setEnabled(true);
 		executer = new Thread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					if (showOutputPane)

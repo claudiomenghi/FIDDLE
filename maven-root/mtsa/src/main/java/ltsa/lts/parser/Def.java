@@ -18,7 +18,7 @@ public class Def {
 	}
 	
 	public static Def get(Symbol s) {
-		return defs.get(s.getName());
+		return defs.get(s.getValue());
 	}
 	
 	private String name;
@@ -32,7 +32,7 @@ public class Def {
 	}
 
 	public void addParameter(Symbol s) {
-		params.put(s.getName(), params.size());
+		params.put(s.getValue(), params.size());
 	}
 	
 	public Stack<Symbol> getExpressionStack() {
@@ -43,7 +43,7 @@ public class Def {
 		for (int i = 0; i < expression.size(); ++i) {
 			Symbol s = expression.get(i);
 			if (s.kind == Symbol.IDENTIFIER) {
-				Integer arg = params.get(s.getName());
+				Integer arg = params.get(s.getValue());
 				if (arg != null) {
 					Stack<Symbol> argumentExpression = arguments.get(arg);
 					for (int j = 0; j < argumentExpression.size(); ++j)

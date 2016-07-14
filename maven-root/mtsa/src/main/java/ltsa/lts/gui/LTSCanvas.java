@@ -110,10 +110,12 @@ public class LTSCanvas extends JPanel implements Scrollable {
 
 	public void setMachines(int n) {
 		focus = null;
-		if (n > 0)
+		if (n > 0){
 			drawing = new DrawMachine[n];
-		else
+		}
+		else{
 			drawing = null;
+		}
 		setPreferredSize(initial);
 		revalidate();
 		repaint();
@@ -251,7 +253,7 @@ public class LTSCanvas extends JPanel implements Scrollable {
 					}
 			}
 		}
-
+		@Override
 		public void mouseDragged(MouseEvent e) {
 			if (focus != null) {
 				focus.getRect(r);
@@ -268,6 +270,7 @@ public class LTSCanvas extends JPanel implements Scrollable {
 			}
 		}
 
+		@Override
 		public void mouseReleased(MouseEvent e) {
 			start = null;
 			if (focus != null) {

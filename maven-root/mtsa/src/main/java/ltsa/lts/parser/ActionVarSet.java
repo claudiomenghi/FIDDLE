@@ -14,6 +14,7 @@ public class ActionVarSet extends ActionSet {
 		this.var = var;
 	}
 
+	@Override
 	protected String computeName() {
 		String s = (String) actions.elementAt(current);
 		if (locals != null)
@@ -21,6 +22,7 @@ public class ActionVarSet extends ActionSet {
 		return s;
 	}
 
+	@Override
 	protected void checkDuplicateVarDefn() {
 		if (locals == null)
 			return;
@@ -28,11 +30,13 @@ public class ActionVarSet extends ActionSet {
 			Diagnostics.fatal("Duplicate variable definition: " + var, var);
 	}
 
+	@Override
 	protected void removeVarDefn() {
 		if (locals != null)
 			locals.remove(var.toString());
 	}
 
+	@Override
 	protected ActionLabels make() {
 		return new ActionVarSet(var, set);
 	}

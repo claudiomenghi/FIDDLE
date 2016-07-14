@@ -33,6 +33,7 @@ public class ExploredTransitionsTable implements Iterable {
 		public ExploredTransitionsTableIterator(ExploredTransitionsTable table) {
 		}
 		
+		@Override
 		public boolean hasNext() {
 			ExploredTransitionsEntry iter= curEntry;
 			int tableIter= curTable;
@@ -55,6 +56,7 @@ public class ExploredTransitionsTable implements Iterable {
 			return false;
 		}
 
+		@Override
 		public Object next() {
 			ExploredTransitionsEntry iter= curEntry;
 			int tableIter= curTable;
@@ -80,7 +82,7 @@ public class ExploredTransitionsTable implements Iterable {
 			
 			return null; // ?
 		}
-
+		@Override
 		public void remove() {
 			if (curEntry.prev != null) {
 				curEntry.prev.next= curEntry.next;
@@ -124,7 +126,7 @@ public class ExploredTransitionsTable implements Iterable {
     	ExploredTransitionsEntry entry = new ExploredTransitionsEntry(key, action, parent.key);
         addPut(entry);
 	}
-
+    @Override
 	public Iterator iterator() {
 		return new ExploredTransitionsTableIterator(this);
 	}

@@ -21,9 +21,9 @@ public class ProgressDefinition {
 
     public static void compile(){
         ProgressTest.init();
-        Enumeration e = definitions.elements();
+        Enumeration<ProgressDefinition> e = definitions.elements();
         while (e.hasMoreElements()){
-            ProgressDefinition p = (ProgressDefinition)e.nextElement();
+            ProgressDefinition p = e.nextElement();
             p.makeProgressTest();
         }
     }

@@ -230,28 +230,28 @@ public class CompositionExpression {
 		Collection<CompactState> safetyReqs = new HashSet<CompactState>();
 		for (Symbol safetyDef : pendingGoal.getSafetyDefinitions()) {
 			ProcessSpec p = LTSCompiler.processes.get(safetyDef
-					.getName());
+					.getValue());
 			CompactState cs = AssertDefinition.compileConstraint(output,
-					safetyDef.getName());
+					safetyDef.getValue());
 			if (p != null) {
 				StateMachine one = new StateMachine(p);
 				CompactState c = one.makeCompactState();
 				CompactState c2 = c;
 				safetyReqs.add(c2);
 			} else if (cs != null) {
-				Validate.notNull(cs, "LTL PROPERTY: " + safetyDef.getName()
+				Validate.notNull(cs, "LTL PROPERTY: " + safetyDef.getValue()
 						+ " not defined.");
 				MTS<Long, String> convert = AutomataToMTSConverter
 						.getInstance().convert(cs);
-				convert.removeAction("@" + safetyDef.getName());
+				convert.removeAction("@" + safetyDef.getValue());
 				cs = MTSToAutomataConverter.getInstance().convert(convert,
-						safetyDef.getName());
+						safetyDef.getValue());
 				safetyReqs.add(cs);
 			} else {
-				CompositionExpression ce = LTSCompiler.getComposite(safetyDef.getName());
+				CompositionExpression ce = LTSCompiler.getComposite(safetyDef.getValue());
 				if (ce == null) {
 					StringBuffer sb = new StringBuffer();
-					sb.append("Safety property ").append(safetyDef.getName())
+					sb.append("Safety property ").append(safetyDef.getValue())
 							.append(" is not defined.");
 					Diagnostics.fatal(sb.toString());
 				}
@@ -265,7 +265,7 @@ public class CompositionExpression {
 				
 				CompactState convert2 = MTSToAutomataConverter
 						.getInstance().convert(convert,
-								safetyDef.getName(), false);
+								safetyDef.getValue(), false);
 
 				safetyReqs.add(convert2);
 				

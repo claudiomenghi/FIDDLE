@@ -124,12 +124,14 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
 		
 		JButton stopButton = new JButton("Stop");
 		stopButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.stop();
 			}
 		});
 		JButton clearButton = new JButton("Clear");
 		clearButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.clear();
 				machineLayout.clear();
@@ -138,6 +140,7 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
 		});		
 		JCheckBox navigateCheckBox = new JCheckBox("Navigate");
 		navigateCheckBox.addItemListener(new ItemListener() {
+			@Override
 	    	public void itemStateChanged(ItemEvent e) {
     	    	if (e.getStateChange() == ItemEvent.SELECTED) {
     	    		output.setInteraction(EnumMode.Activate);
@@ -155,42 +158,49 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
 		});
 		JButton previousButton = new JButton("<");
 		previousButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.previous();
 			}
 		});
 		JButton nextButton = new JButton(">");
 		nextButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.next();
 			}
 		});
 		JButton reachableButton = new JButton(">>");
 		reachableButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.reachable();
 			}
 		});
 		JButton bZoomIn = new JButton(" + ");
 		bZoomIn.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.zoomIn();
 			}
 		});
 		JButton bZoomOut = new JButton(" - ");
 		bZoomOut.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.zoomOut();
 			}
 		});
 		JButton saveButton = new JButton(">Mem");
 		saveButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.savePositions();
 			}
 		});
 		JButton loadButton = new JButton("<Mem");
 		loadButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				output.loadPositions();
 			}

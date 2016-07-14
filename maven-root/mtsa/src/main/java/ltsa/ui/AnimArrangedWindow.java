@@ -267,6 +267,7 @@ public class AnimArrangedWindow extends JFrame {
 			choice = id;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			dostep(choice);
 		}

@@ -14,16 +14,16 @@ import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.Symbol;
 
 public class PredicateDefinition {
-    Symbol name;
+	public Symbol name;
     ActionLabels trueSet, falseSet;
-    Vector<String> trueActions, falseActions;
+    public Vector<String> trueActions, falseActions;
     Stack expr;
-    boolean initial;
+    public boolean initial;
     ActionLabels range;    //range of fluents
 
     static Hashtable definitions;
     
-    private PredicateDefinition(Symbol n, ActionLabels rng, ActionLabels ts, ActionLabels fs, Stack es){
+    public PredicateDefinition(Symbol n, ActionLabels rng, ActionLabels ts, ActionLabels fs, Stack es){
     	  name = n;
 		  range = rng;
     	  trueSet = ts;
@@ -32,13 +32,13 @@ public class PredicateDefinition {
     	  initial = false;
     }
 	
-	PredicateDefinition(Symbol n, Vector<String> TA, Vector<String> FA)  {
+    public PredicateDefinition(Symbol n, Vector<String> TA, Vector<String> FA)  {
 		name = n;
 		trueActions = TA;
 		falseActions = FA;
 	}
 	
-	PredicateDefinition(String n, Vector<String> TA, Vector<String> FA, boolean init)  {
+    public PredicateDefinition(String n, Vector<String> TA, Vector<String> FA, boolean init)  {
 		name = new Symbol(Symbol.UPPERIDENT,n);
 		trueActions = TA;
 		falseActions = FA;
@@ -142,6 +142,7 @@ public class PredicateDefinition {
 	    return initial?1:-1;
 	}
     
+	@Override
 	public String toString()  {
 		return name.toString();
 	}

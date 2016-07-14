@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import com.google.common.base.Preconditions;
 
+import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.parser.LabelSet;
 import ltsa.lts.parser.Symbol;

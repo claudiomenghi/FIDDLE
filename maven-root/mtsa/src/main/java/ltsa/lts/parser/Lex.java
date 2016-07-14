@@ -85,7 +85,7 @@ public class Lex {
 		return true; // dummy statement to stop to remove compiler warning
 	}
 
-	private void in_number() {
+	private void inNumber() {
 		long intValue = 0;
 		int digit = 0;
 		int base = 10;
@@ -329,7 +329,7 @@ public class Lex {
 	// _______________________________________________________________________________________
 	// IN_SYM
 
-	public Symbol in_sym() {
+	public Symbol inSym() {
 		nextCh();
 		if (newSymbols) {
 			symbol = new Symbol();
@@ -439,7 +439,7 @@ public class Lex {
 			case '7':
 			case '8':
 			case '9':
-				in_number();
+				inNumber();
 				break;
 
 			// Single character symbols
@@ -662,7 +662,7 @@ public class Lex {
 
 	public Symbol nextSymbol() {
 		if (buffer == null) {
-			current = in_sym();
+			current = inSym();
 		} else {
 			current = buffer;
 			buffer = null;

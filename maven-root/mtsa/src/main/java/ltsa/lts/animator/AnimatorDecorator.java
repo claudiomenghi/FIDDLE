@@ -14,9 +14,11 @@ import ltsa.lts.util.collections.MyList;
 
 public class AnimatorDecorator implements Animator {
 	private Analyser analyser;
+	@Override
 	public int actionChosen() {
 		return analyser.actionChosen();
 	}
+	@Override
 	public String actionNameChosen() {
 		return analyser.actionNameChosen();
 	}
@@ -41,9 +43,11 @@ public class AnimatorDecorator implements Animator {
 	public boolean END(byte[] state) {
 		return analyser.END(state);
 	}
+	@Override
 	public boolean equals(Object obj) {
 		return analyser.equals(obj);
 	}
+	@Override
 	public String[] getAllNames() {
 		return alphabetWithNoMaybes();
 	}
@@ -61,12 +65,15 @@ public class AnimatorDecorator implements Animator {
 	public List getErrorTrace() {
 		return analyser.getErrorTrace();
 	}
+	@Override
 	public String[] getMenuNames() {
 		return analyser.getMenuNames();
 	}
+	@Override
 	public boolean getPriority() {
 		return analyser.getPriority();
 	}
+	@Override
 	public BitSet getPriorityActions() {
 		return analyser.getPriorityActions();
 	}
@@ -79,51 +86,64 @@ public class AnimatorDecorator implements Animator {
 	public String getViolatedProperty() {
 		return analyser.getViolatedProperty();
 	}
+	@Override
 	public boolean hasErrorTrace() {
 		return analyser.hasErrorTrace();
 	}
+	@Override
 	public int hashCode() {
 		return analyser.hashCode();
 	}
+	@Override
 	public BitSet initialise(Vector menu) {
 		return analyser.initialise(menu);
 	}
 	public boolean isAccepting(byte[] state) {
 		return analyser.isAccepting(state);
 	}
+	@Override
 	public boolean isEnd() {
 		return analyser.isEnd();
 	}
+	@Override
 	public boolean isError() {
 		return analyser.isError();
 	}
 	public boolean isPartialOrder() {
 		return analyser.isPartialOrder();
 	}
+	@Override
 	public BitSet menuStep(int choice) {
 		return analyser.menuStep(choice);
 	}
+	@Override
 	public void message(String msg) {
 		analyser.message(msg);
 	}
+	@Override
 	public boolean nonMenuChoice() {
 		return analyser.nonMenuChoice();
 	}
 	public void setStackChecker(StackCheck s) {
 		analyser.setStackChecker(s);
 	}
+	@Override
 	public BitSet singleStep() {
 		return analyser.singleStep();
 	}
+	
 	public byte[] START() {
 		return analyser.START();
 	}
+	@Override
 	public String toString() {
 		return analyser.toString();
 	}
+	@Override
 	public boolean traceChoice() {
 		return analyser.traceChoice();
 	}
+	@Override
 	public BitSet traceStep() {
 		return analyser.traceStep();
 	}

@@ -234,13 +234,13 @@ public class UpdatingControllerSynthesizer {
 		List<Formula> safetyFormulas = new ArrayList<Formula>();
 		for (ltsa.lts.parser.Symbol safetyDefinition : newGoalDef.getSafetyDefinitions()) {
 			AssertDefinition def = AssertDefinition
-					.getConstraint(safetyDefinition.getName());
+					.getConstraint(safetyDefinition.getValue());
 			if (def != null) {
 				safetyFormulas.add(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(false), safetyFluents));
 
 			} else {
 				Diagnostics.fatal("Assertion not defined ["
-						+ safetyDefinition.getName() + "].");
+						+ safetyDefinition.getValue() + "].");
 			}
 		}
 		HashSet<Long> toBuild = new HashSet<Long>();

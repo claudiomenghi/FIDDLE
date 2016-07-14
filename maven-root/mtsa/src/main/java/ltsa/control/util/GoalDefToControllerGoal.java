@@ -56,11 +56,11 @@ public class GoalDefToControllerGoal {
 		Set<Fluent> fluentsInFaults = new HashSet<Fluent>();
 		//Convert faults to Set<Formula> 
 		for (Symbol faultDefinition : goalDef.getFaultsDefinitions()) {
-			AssertDefinition def = AssertDefinition.getDefinition(faultDefinition.getName());
+			AssertDefinition def = AssertDefinition.getDefinition(faultDefinition.getValue());
 			if (def!=null){
 				result.addFault(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), fluentsInFaults));
 			} else {
-				Diagnostics.fatal("Assertion not defined [" + faultDefinition.getName() + "].");
+				Diagnostics.fatal("Assertion not defined [" + faultDefinition.getValue() + "].");
 			}
 		}
 		involvedFluents.addAll(fluentsInFaults);
@@ -68,38 +68,38 @@ public class GoalDefToControllerGoal {
 
 		//Convert assumptions to Set<Formula> 
 		for (ltsa.lts.parser.Symbol assumeDefinition : goalDef.getAssumeDefinitions()) {
-			AssertDefinition def = AssertDefinition.getDefinition(assumeDefinition.getName());
+			AssertDefinition def = AssertDefinition.getDefinition(assumeDefinition.getValue());
 			if (def!=null){
 				result.addAssume(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), involvedFluents));
 			} else {
-				Diagnostics.fatal("Assertion not defined [" + assumeDefinition.getName() + "].");
+				Diagnostics.fatal("Assertion not defined [" + assumeDefinition.getValue() + "].");
 			}
 		}
 
 		//Convert guarantees to Set<Formula> 
 		for (ltsa.lts.parser.Symbol guaranteeDefinition : goalDef.getGuaranteeDefinitions()) {
-			AssertDefinition def = AssertDefinition.getDefinition(guaranteeDefinition.getName());
+			AssertDefinition def = AssertDefinition.getDefinition(guaranteeDefinition.getValue());
 			if (def!=null){
 				result.addGuarantee(FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), involvedFluents));
 			} else {
-			  PredicateDefinition fdef = PredicateDefinition.get(guaranteeDefinition.getName());
+			  PredicateDefinition fdef = PredicateDefinition.get(guaranteeDefinition.getValue());
 			  if (fdef != null)
 			    result.addGuarantee(FormulaUtils.adaptFormulaAndCreateFluents(new FormulaFactory().make
 					    (guaranteeDefinition), involvedFluents));
 			  else
 				  //Diagnostics.fatal("Assertion not defined [" + guaranteeDefinition.getName() + "].");
-			    Diagnostics.fatal("Fluent/assertion not defined [" + guaranteeDefinition.getName() + "].");
+			    Diagnostics.fatal("Fluent/assertion not defined [" + guaranteeDefinition.getValue() + "].");
 			}
 		}
 		
 		Set<Fluent> concurrencyFluents = new HashSet<Fluent>();
 		//Convert faults to Set<Formula> 
 		for (ltsa.lts.parser.Symbol concurrencyDefinition : goalDef.getConcurrencyDefinitions()) {
-			AssertDefinition def = AssertDefinition.getDefinition(concurrencyDefinition.getName());
+			AssertDefinition def = AssertDefinition.getDefinition(concurrencyDefinition.getValue());
 			if (def!=null){
 				FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), concurrencyFluents);
 			} else {
-				Diagnostics.fatal("Assertion not defined [" + concurrencyDefinition.getName() + "].");
+				Diagnostics.fatal("Assertion not defined [" + concurrencyDefinition.getValue() + "].");
 			}
 		}
 		result.addAllConcurrencyFluents(concurrencyFluents);
@@ -109,11 +109,11 @@ public class GoalDefToControllerGoal {
 		Set<Fluent> activityFluents = new HashSet<Fluent>();
 		//Convert faults to Set<Formula> 
 		for (ltsa.lts.parser.Symbol activityDefinition : goalDef.getActivityDefinitions()) {
-			AssertDefinition def = AssertDefinition.getDefinition(activityDefinition.getName());
+			AssertDefinition def = AssertDefinition.getDefinition(activityDefinition.getValue());
 			if (def!=null){
 				FormulaUtils.adaptFormulaAndCreateFluents(def.getFormula(true), activityFluents);
 			} else {
-				Diagnostics.fatal("Assertion not defined [" + activityDefinition.getName() + "].");
+				Diagnostics.fatal("Assertion not defined [" + activityDefinition.getValue() + "].");
 			}
 		}
 		result.addAllActivityFluents(activityFluents);
