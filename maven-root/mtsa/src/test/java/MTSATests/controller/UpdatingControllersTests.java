@@ -13,29 +13,28 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.Vector;
 
-import MTSTools.ac.ic.doc.mtstools.model.impl.LTSSimulationSemantics;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.LTSOutput;
 import ltsa.lts.parser.ltsinput.LTSInput;
+import ltsa.ui.FileInput;
+import ltsa.ui.StandardOutput;
+import ltsa.updatingControllers.UpdateConstants;
+import ltsa.updatingControllers.structures.graph.UpdateGraph;
+import ltsa.updatingControllers.structures.graph.UpdateNode;
+import ltsa.updatingControllers.structures.graph.UpdateTransition;
+import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import ltsa.ui.FileInput;
-import ltsa.ui.StandardOutput;
-import ltsa.updatingControllers.UpdateConstants;
+import FSP2MTS.ac.ic.doc.mtstools.test.util.TestLTSOuput;
 import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import FSP2MTS.ac.ic.doc.mtstools.test.util.TestLTSOuput;
-import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
-import ltsa.updatingControllers.structures.UpdateGraphDefinition;
-import ltsa.updatingControllers.structures.graph.UpdateGraph;
-import ltsa.updatingControllers.structures.graph.UpdateNode;
-import ltsa.updatingControllers.structures.graph.UpdateTransition;
+import MTSTools.ac.ic.doc.mtstools.model.impl.LTSSimulationSemantics;
 
 public class UpdatingControllersTests {
 
@@ -48,7 +47,6 @@ public class UpdatingControllersTests {
 				{"/ltsa/dist/examples/ControllerUpdate/Tests/removing_actions_test"},
 				{"/ltsa/dist/examples/ControllerUpdate/Tests/UAV_test"},
 				{"/ltsa/dist/examples/ControllerUpdate/Tests/productionCell_test"},
-//				{"/ltsa/dist/examples/ControllerUpdate/Tests/GsubsetjG'_test"},
 				{"/ltsa/dist/examples/ControllerUpdate/Ghezzi/2015-FSE-PowerPlant-Ghezzi2013"},
 				{"/ltsa/dist/examples/ControllerUpdate/Ghezzi/2015-FSE-Railcab-Ghezzi2012"},
 				{"/ltsa/dist/examples/ControllerUpdate/2015-FSE-ProductionCell"},
@@ -63,7 +61,7 @@ public class UpdatingControllersTests {
 
 		// Get the environment for update E_u
 		MTS<Long, String> obtainedEnv = null;
-		for (CompactState machine : compiled.machines) {
+		for (LabelledTransitionSystem machine : compiled.getMachines()) {
 			if (machine.getName().equals("UPD_CONT_ENVIRONMENT")) {
 				obtainedEnv = AutomataToMTSConverter.getInstance().convert(machine);
 				break;
@@ -116,9 +114,9 @@ public class UpdatingControllersTests {
 		CompositeState ltlProperty = AssertDefinition.compile(output, "TEST_FINAL_FORMULA");
 		compiled.setErrorTrace(new ArrayList<String>());
 
-		Vector<CompactState> machines = new Vector<CompactState>();
+		Vector<LabelledTransitionSystem> machines = new Vector<LabelledTransitionSystem>();
 		machines.add(compiled.getComposition());
-		CompositeState cs = new CompositeState(compiled.name, machines);
+		CompositeState cs = new CompositeState(compiled.getName(), machines);
 		cs.checkLTL(output, ltlProperty);
 
 		assertTrue(cs.getErrorTrace() == null || cs.getErrorTrace().isEmpty());

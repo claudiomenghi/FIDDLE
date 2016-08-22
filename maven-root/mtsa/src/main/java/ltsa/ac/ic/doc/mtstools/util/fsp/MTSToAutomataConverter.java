@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.collections.MyHashStack;
 import ltsa.lts.util.collections.MyList;
@@ -20,7 +20,7 @@ import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 public class MTSToAutomataConverter {
 
 	private static MTSToAutomataConverter instance;
- 
+
 	public static final String TAU = "tau";
 	public static final String TAU_MAYBE = "tau?";
 
@@ -31,62 +31,54 @@ public class MTSToAutomataConverter {
 		return instance;
 	}
 
-	public CompactState convert(MTS<Long, String> mts, String name) {
-		/*Set<Long> states = mts.getStates();
-		int size = (states.contains(-1L))? states.size()-1 : states.size();
+	public LabelledTransitionSystem convert(MTS<Long, String> mts, String name) {
+
+		return convert(mts, name, true);
+	}
+
+	public LabelledTransitionSystem convert(MTS<Long, String> mts, String name,
+			boolean includeMaybes) {
+		Set<Long> states = mts.getStates();
+		int size = (states.contains(-1L)) ? states.size() - 1 : states.size();
 		int endState = -9999;
 
-		Map<Long, Long> indexToState = buildIndexToState(mts.getStates());
+		Map<Long, Long> indexToState = buildIndexToState(mts.getStates(),
+				mts.getInitialState());
 		MyHashStack statemap = this.buildStateMap(states, size, indexToState);
 		Map<String, Integer> indexToAction = new HashMap<String, Integer>();
 
-		String[] alphabet = this.buildAlphabet(mts.getActions(), indexToAction);
-		
-		
+		String[] alphabet;
+		if (includeMaybes)
+			alphabet = this.buildAlphabet(mts.getActions(), indexToAction);
+		else
+			alphabet = this.buildAlphabetNoMaybes(mts.getActions(),
+					indexToAction);
+
 		// ver que pasa con que una vez que tengo las rel binarias ya no se el
 		// tipo
 		MyList automataTransitionsList = new MyList();
-		this.addTransitions(mts, indexToAction, TransitionType.MAYBE, automataTransitionsList, indexToState);
-		this.addTransitions(mts, indexToAction, TransitionType.REQUIRED, automataTransitionsList, indexToState);
-		return new CompactState(size, name, statemap, automataTransitionsList, alphabet, endState);*/
-	  return convert(mts, name, true);
+		if (includeMaybes)
+			this.addTransitions(mts, indexToAction, TransitionType.MAYBE,
+					automataTransitionsList, indexToState);
+		this.addTransitions(mts, indexToAction, TransitionType.REQUIRED,
+				automataTransitionsList, indexToState);
+		return new LabelledTransitionSystem(size, name, statemap, automataTransitionsList,
+				alphabet, endState);
 	}
-	
-	public CompactState convert(MTS<Long, String> mts, String name, boolean includeMaybes) {
-    Set<Long> states = mts.getStates();
-    int size = (states.contains(-1L))? states.size()-1 : states.size();
-    int endState = -9999;
 
-    Map<Long, Long> indexToState = buildIndexToState(mts.getStates(), mts.getInitialState());
-    MyHashStack statemap = this.buildStateMap(states, size, indexToState);
-    Map<String, Integer> indexToAction = new HashMap<String, Integer>();
-
-    String[] alphabet;
-    if (includeMaybes)
-      alphabet = this.buildAlphabet(mts.getActions(), indexToAction);
-    else
-      alphabet = this.buildAlphabetNoMaybes(mts.getActions(), indexToAction);
-    
-    // ver que pasa con que una vez que tengo las rel binarias ya no se el
-    // tipo
-    MyList automataTransitionsList = new MyList();
-    if (includeMaybes)
-      this.addTransitions(mts, indexToAction, TransitionType.MAYBE, automataTransitionsList, indexToState);
-    this.addTransitions(mts, indexToAction, TransitionType.REQUIRED, automataTransitionsList, indexToState);
-    return new CompactState(size, name, statemap, automataTransitionsList, alphabet, endState);
-  }
-
-	private HashMap<Long, Long> buildIndexToState(Set<Long> states, Long initialState) {
+	private HashMap<Long, Long> buildIndexToState(Set<Long> states,
+			Long initialState) {
 		HashMap<Long, Long> result = new HashMap<Long, Long>();
 		SortedSet<Long> sortedSet = new TreeSet<Long>(states);
 		long i = 0;
-	  result.put(initialState, i);
-	  i++;
-		for (Iterator<Long> it = sortedSet.iterator(); it.hasNext(); ) {
+		result.put(initialState, i);
+		i++;
+		for (Iterator<Long> it = sortedSet.iterator(); it.hasNext();) {
 			Long state = it.next();
-			if (state.equals(-1L)){
+			if (state.equals(-1L)) {
 				result.put(state, -1L);
-			} else if (!state.equals(initialState)) { //don't add initial state twice
+			} else if (!state.equals(initialState)) { // don't add initial state
+														// twice
 				result.put(state, i);
 				i++;
 			}
@@ -95,47 +87,53 @@ public class MTSToAutomataConverter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addTransitions(MTS<Long, String> mts, Map<String, Integer> indexToAction,
-			TransitionType transitionType, MyList automataTransitionsList, Map<Long, Long> indexToState) {
-		Map<Long, BinaryRelation<String, Long>> transitions = mts.getTransitions(transitionType);
+	private void addTransitions(MTS<Long, String> mts,
+			Map<String, Integer> indexToAction, TransitionType transitionType,
+			MyList automataTransitionsList, Map<Long, Long> indexToState) {
+		Map<Long, BinaryRelation<String, Long>> transitions = mts
+				.getTransitions(transitionType);
 		for (Iterator it = transitions.entrySet().iterator(); it.hasNext();) {
-			Entry<Long, BinaryRelation<String, Long>> tranFromState = (Entry<Long, BinaryRelation<String, Long>>) it.next();
-			
+			Entry<Long, BinaryRelation<String, Long>> tranFromState = (Entry<Long, BinaryRelation<String, Long>>) it
+					.next();
+
 			Long fromState = tranFromState.getKey();
-			
+
 			BinaryRelation<String, Long> neighbors = tranFromState.getValue();
-			for (Iterator<Pair<String, Long>> iterator = neighbors.iterator(); iterator.hasNext();) {
+			for (Iterator<Pair<String, Long>> iterator = neighbors.iterator(); iterator
+					.hasNext();) {
 				Pair<String, Long> axis = iterator.next();
 				// paso el estado de long a int
 				// TODO cambiar esto
 				if (TransitionType.MAYBE.equals(transitionType)) {
-					
-					automataTransitionsList.add(indexToState.get(fromState).intValue(), 
-							MTSUtils.encode(indexToState.get(axis.getSecond()).intValue()),
-							indexToAction.get(MTSUtils.getMaybeAction(axis.getFirst())));
+
+					automataTransitionsList.add(indexToState.get(fromState)
+							.intValue(), MTSUtils.encode(indexToState.get(
+							axis.getSecond()).intValue()), indexToAction
+							.get(MTSUtils.getMaybeAction(axis.getFirst())));
 				} else {
 
-					automataTransitionsList.add(indexToState.get(fromState).intValue(), 
-							MTSUtils.encode(indexToState.get(axis.getSecond()).intValue()),
-							indexToAction.get(axis.getFirst()));
+					automataTransitionsList.add(indexToState.get(fromState)
+							.intValue(), MTSUtils.encode(indexToState.get(
+							axis.getSecond()).intValue()), indexToAction
+							.get(axis.getFirst()));
 				}
 
 			}
 		}
 	}
-	
+
 	/*
 	 * Generates the IAutomata alphabet from a set of actions.
 	 */
-	private String[] buildAlphabet(Set<String> actions, Map<String, Integer> indexToAction) {
+	private String[] buildAlphabet(Set<String> actions,
+			Map<String, Integer> indexToAction) {
 		String[] alphabet;
 		if (!actions.contains(TAU)) {
 			alphabet = new String[(actions.size() * 2) + 2];
 		} else {
 			alphabet = new String[(actions.size() * 2)];
 		}
-		 
-		
+
 		// para cada elem e del alfabeto en el IAutomata se pone e y e?
 		this.addTaus(indexToAction, alphabet);
 		int i = 2;
@@ -152,21 +150,21 @@ public class MTSToAutomataConverter {
 		}
 		return alphabet;
 	}
-	
-	private String[] buildAlphabetNoMaybes(Set<String> actions, Map<String, Integer> indexToAction) {
-    String[] alphabet = new String[actions.size()+1];
-    alphabet[0] = TAU; //0 is always tau
-    indexToAction.put(TAU, 0);
-    
-    int i = 1;
-    for (String action : actions)
-    {
-      alphabet[i] = action;
-      indexToAction.put(alphabet[i], i);
-      i++;
-    }
-    return alphabet;
-  }
+
+	private String[] buildAlphabetNoMaybes(Set<String> actions,
+			Map<String, Integer> indexToAction) {
+		String[] alphabet = new String[actions.size() + 1];
+		alphabet[0] = TAU; // 0 is always tau
+		indexToAction.put(TAU, 0);
+
+		int i = 1;
+		for (String action : actions) {
+			alphabet[i] = action;
+			indexToAction.put(alphabet[i], i);
+			i++;
+		}
+		return alphabet;
+	}
 
 	private void addTaus(Map<String, Integer> indexToAction, String[] alphabet) {
 		alphabet[0] = TAU;
@@ -175,7 +173,8 @@ public class MTSToAutomataConverter {
 		indexToAction.put("tau?", 1);
 	}
 
-	private MyHashStack buildStateMap(Set<Long> states, int size, Map<Long, Long> indexToState) {
+	private MyHashStack buildStateMap(Set<Long> states, int size,
+			Map<Long, Long> indexToState) {
 		MyHashStack statemap = new MyHashStack(size);
 
 		for (Iterator<Long> it = states.iterator(); it.hasNext();) {

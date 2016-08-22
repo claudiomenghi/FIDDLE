@@ -5,21 +5,23 @@ import java.util.Vector;
 
 import com.google.common.base.Preconditions;
 
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.ltl.formula.Formula;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LabelSet;
+import ltsa.lts.ltl.formula.factory.FormulaFactory;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.LabelSet;
 
 public class FormulaDefinition {
 
-	private Symbol name;
+	private Symbol symbol;
 	FormulaSyntax ltlFormula;
 	CompositeState cached;
 	LabelSet alphaExtension;
 	
 
-	Hashtable initParams; // initial parameter values name,value
-	Vector params; // list of parameter names
+	Hashtable<String, Value> initParams; // initial parameter values name,value
+	Vector<String> params; // list of parameter names
 	FormulaFactory fac;
 
 	/**
@@ -27,24 +29,24 @@ public class FormulaDefinition {
 	 * @param name
 	 * @param ltlFormula
 	 * @param ls
-	 * @param ip
-	 * @param p
+	 * @param initialParams
+	 * @param finalParams
 	 */
 	public FormulaDefinition(Symbol name, FormulaSyntax ltlFormula,
-			LabelSet ls, Hashtable ip, Vector p) {
+			LabelSet ls, Hashtable<String, Value> initialParams, Vector<String> finalParams) {
 		Preconditions.checkNotNull(name,
 				"The name of the formula cannot be null");
 		Preconditions.checkNotNull(ltlFormula,
 				"The syntax of the formula cannot be null");
-		Preconditions.checkNotNull(ip, "The ip table cannot be null");
-		Preconditions.checkNotNull(p, "The p table cannot be null");
+		Preconditions.checkNotNull(initialParams, "The ip table cannot be null");
+		Preconditions.checkNotNull(finalParams, "The p table cannot be null");
 
-		this.name = name;
+		this.symbol = name;
 		this.ltlFormula = ltlFormula;
-		cached = null;
-		alphaExtension = ls;
-		initParams = ip;
-		params = p;
+		this.cached = null;
+		this.alphaExtension = ls;
+		this.initParams = initialParams;
+		this.params = finalParams;
 		this.fac = new FormulaFactory();
 	}
 
@@ -66,11 +68,11 @@ public class FormulaDefinition {
 		return fac;
 	}
 
-	public Vector getParams() {
+	public Vector<String> getParams() {
 		return params;
 	}
 
-	public Hashtable getInitialParams() {
+	public Hashtable<String, Value> getInitialParams() {
 		return initParams;
 	}
 
@@ -106,7 +108,7 @@ public class FormulaDefinition {
 	/**
 	 * @return the name
 	 */
-	public Symbol getName() {
-		return name;
+	public Symbol getSymbol() {
+		return this.symbol;
 	}
 }

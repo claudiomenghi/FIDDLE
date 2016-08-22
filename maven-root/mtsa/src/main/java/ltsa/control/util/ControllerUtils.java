@@ -15,9 +15,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import ltsa.ui.StandardOutput;
 import MTSTools.ac.ic.doc.commons.collections.PowerSet;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
@@ -76,7 +76,7 @@ public class ControllerUtils {
 //		}
 
 		MTSToAutomataConverter instance = MTSToAutomataConverter.getInstance();
-		Vector<CompactState> machinesToCompose = new Vector<CompactState>();
+		Vector<LabelledTransitionSystem> machinesToCompose = new Vector<LabelledTransitionSystem>();
 		
 		machinesToCompose.add(instance.convert(mts, " "));
 		machinesToCompose.add(instance.convert(new MTSAdapter<Long, String>(sync), " "));
@@ -84,7 +84,7 @@ public class ControllerUtils {
 		CompositeState c = new CompositeState(machinesToCompose);
 		c.compose(new StandardOutput());
 		
-		return AutomataToMTSConverter.getInstance().convert(c.composition);
+		return AutomataToMTSConverter.getInstance().convert(c.getComposition());
 		
 		
 	}
@@ -92,7 +92,7 @@ public class ControllerUtils {
 	public static MTS<Long, String> removeTopStates(MTS<Long, String> mts, Collection<Fluent> fluents) {
 		
 		MTSToAutomataConverter instance = MTSToAutomataConverter.getInstance();
-		Vector<CompactState> machinesToCompose = new Vector<CompactState>();
+		Vector<LabelledTransitionSystem> machinesToCompose = new Vector<LabelledTransitionSystem>();
 		machinesToCompose.add(instance.convert(mts, " "));
 		Set<String> mtsActions = mts.getActions();
 		
@@ -115,7 +115,7 @@ public class ControllerUtils {
 		
 		CompositeState c = new CompositeState(machinesToCompose);
 		c.compose(new StandardOutput());
-		return AutomataToMTSConverter.getInstance().convert(c.composition);
+		return AutomataToMTSConverter.getInstance().convert(c.getComposition());
 		
 //		CompositionRuleApplier compositionRuleApplier = new CompositionRuleApplier();
 //		MTS<Long, String> result = new MTSMultipleComposer<Long, String>(compositionRuleApplier).compose(toCompose);

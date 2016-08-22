@@ -1,7 +1,6 @@
 package ltsa.lts.csp;
 
-import ltsa.lts.lts.StateMachine;
-
+import ltsa.lts.automata.automaton.StateMachine;
 
 public abstract class Declaration {
 	public static final int TAU = 0;
@@ -9,19 +8,31 @@ public abstract class Declaration {
 	public static final int ERROR = -1;
 	public static final int STOP = 0;
 	public static final int SUCCESS = 1;
-
-	public void explicitStates(StateMachine m) {
+	
+	/**
+	 * adds the states of the declaration to the state machine
+	 * 
+	 * @param stateMachine
+	 *            the state machine to be modified
+	 */
+	public void explicitStates(StateMachine stateMachine) {
 	};
 
 	/**
 	 * makes sure aliases refer to the same state
 	 * 
-	 * @param m
+	 * @param stateMachine
 	 *            the state machine to be considered
 	 */
-	public void crunch(StateMachine m) {
+	protected void crunch(StateMachine stateMachine) {
 	};
 
-	public void transition(StateMachine m) {
+	/**
+	 * adds the transitions of the declaration to the state machine
+	 * 
+	 * @param stateMachine
+	 *            the state machine to be modified
+	 */
+	public void transition(StateMachine stateMachine) {
 	};
 }

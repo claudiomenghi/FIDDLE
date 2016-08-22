@@ -1,7 +1,7 @@
 package ltsa.lts;
 
-import ltsa.lts.lts.LTSException;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.LTSException;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.Symbol;
 
 public class Diagnostics {

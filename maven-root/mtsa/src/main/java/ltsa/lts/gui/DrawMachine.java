@@ -13,11 +13,11 @@ import javax.swing.JPanel;
 import com.google.common.base.Preconditions;
 
 import ltsa.lts.EventStateUtils;
+import ltsa.lts.automata.lts.Alphabet;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
+import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
 import ltsa.lts.csp.Declaration;
-import ltsa.lts.lts.Alphabet;
-import ltsa.lts.lts.EventState;
-import ltsa.lts.lts.ProbabilisticEventState;
-import ltsa.lts.ltscomposition.CompactState;
 
 public class DrawMachine {
 
@@ -62,15 +62,18 @@ public class DrawMachine {
 	private int selected = 0; // current selected state
 	private String lastaction; // action to be high lit
 
-	CompactState mach = null; // the machine to draw
+	/**
+	 * the machine to draw
+	 */
+	private final LabelledTransitionSystem mach; 
 
 	BitSet accepting; // the set of states which are accepting
 
 	JPanel parent;
 
-	public DrawMachine(CompactState m, JPanel p, Font fn, Font fl, boolean dn,
+	public DrawMachine(LabelledTransitionSystem m, JPanel p, Font fn, Font fl, boolean dn,
 			boolean nl, int separation, int arcIncrement) {
-		mach = m;
+		this.mach = m;
 		parent = p;
 		nameFont = fn;
 		labelFont = fl;
@@ -146,11 +149,11 @@ public class DrawMachine {
 		r.height = size.height;
 	}
 
-	public CompactState getMachine() {
+	public LabelledTransitionSystem getMachine() {
 		return mach;
 	}
 
-	protected Dimension computeDimension(CompactState m) {
+	protected Dimension computeDimension(LabelledTransitionSystem m) {
 		// now compute size of drawing
 		// work out length & height of name
 		int nameHeight = 0;
@@ -167,20 +170,20 @@ public class DrawMachine {
 		} else
 			nameWidth = 0;
 		// if tooo big return
-		if (m.maxStates > MAXDRAWSTATES)
+		if (m.getMaxStates() > MAXDRAWSTATES)
 			return new Dimension(220 + nameWidth, 50);
 		// first compute length of largest end label if any
 		String largestEndLabel = null;
 		if (!newLabelFormat) {
-			EventState p = m.states[m.maxStates - 1];
+			LTSTransitionList p = m.getStates()[m.getMaxStates() - 1];
 			while (p != null) {
-				EventState tr = p;
+				LTSTransitionList tr = p;
 				while (tr != null) {
-					if (tr.getNext() == (m.maxStates - 1)) {
+					if (tr.getNext() == (m.getMaxStates() - 1)) {
 						if (largestEndLabel == null) {
-							largestEndLabel = m.alphabet[tr.getEvent()];
+							largestEndLabel = m.getAlphabet()[tr.getEvent()];
 						} else {
-							String s = m.alphabet[tr.getEvent()];
+							String s = m.getAlphabet()[tr.getEvent()];
 							if (s.length() > largestEndLabel.length())
 								largestEndLabel = s;
 						}
@@ -190,7 +193,7 @@ public class DrawMachine {
 				p = p.getList();
 			}
 		} else
-			largestEndLabel = labels[m.maxStates][m.maxStates];
+			largestEndLabel = labels[m.getMaxStates()][m.getMaxStates()];
 		int endWidth = 10;
 		if (largestEndLabel != null) {
 			Graphics g = parent.getGraphics();
@@ -205,8 +208,8 @@ public class DrawMachine {
 		}
 		// check if machine has an error state
 		errorState = 0;
-		for (int i = 0; i < m.maxStates; i++)
-			if (EventState.hasState(m.states[i], Declaration.ERROR)) {
+		for (int i = 0; i < m.getMaxStates(); i++)
+			if (LTSTransitionList.hasState(m.getStates()[i], Declaration.ERROR)) {
 				errorState = 1;
 			}
 		// now compute maximum forward and backward arcs
@@ -215,15 +218,15 @@ public class DrawMachine {
 		int maxFwdLabels = 0;
 		int maxBwd = 0;
 		int maxBwdLabels = 0;
-		for (int i = 0; i < m.maxStates; i++) {
-			int[] ntrans = new int[m.maxStates + 1];
+		for (int i = 0; i < m.getMaxStates(); i++) {
+			int[] ntrans = new int[m.getMaxStates() + 1];
 			int fwdToState = 0;
 			int bwdToState = 0;
 			boolean fwd = false;
 			boolean bwd = false;
-			EventState p = m.states[i];
+			LTSTransitionList p = m.getStates()[i];
 			while (p != null) {
-				EventState tr = p;
+				LTSTransitionList tr = p;
 				while (tr != null) {
 					ntrans[tr.getNext() + 1]++;
 					int diff = tr.getNext() - i;
@@ -248,7 +251,7 @@ public class DrawMachine {
 			if (bwd)
 				maxBwdLabels = newLabelFormat ? 1 : ntrans[bwdToState];
 		}
-		if (m.maxStates == 1)
+		if (m.getMaxStates() == 1)
 			maxFwdLabels = 0;
 		int fheight = 10;
 		Graphics g = parent.getGraphics();
@@ -264,8 +267,8 @@ public class DrawMachine {
 				: STATESIZE / 2;
 		heightBelowCenter = heightBelowCenter + maxBwdLabels * fheight + 10;
 		int pwidth = errorState == 0 ? 10 + nameWidth + STATESIZE + endWidth
-				+ (m.maxStates - 1) * attrseparation : 10 + STATESIZE
-				+ endWidth + m.maxStates * attrseparation;
+				+ (m.getMaxStates() - 1) * attrseparation : 10 + STATESIZE
+				+ endWidth + m.getMaxStates() * attrseparation;
 		int pheight = heightAboveCenter + heightBelowCenter;
 		return new Dimension(pwidth, pheight);
 	}
@@ -287,7 +290,7 @@ public class DrawMachine {
 		Preconditions.checkNotNull(g, "The graphics cannot be null");
 
 		// draw transitions
-		CompactState m = mach;
+		LabelledTransitionSystem m = mach;
 		if (m == null) {
 			return;
 		}
@@ -301,10 +304,10 @@ public class DrawMachine {
 		}
 		zeroX = topX + 10 + errorState * attrseparation + aw;
 		zeroY = topY + heightAboveCenter - STATESIZE / 2;
-		if (m.maxStates > MAXDRAWSTATES) {
+		if (m.getMaxStates() > MAXDRAWSTATES) {
 			g.setColor(Color.black);
 			g.setFont(nameFont);
-			g.drawString(m.getName() + " -- too many states: " + m.maxStates,
+			g.drawString(m.getName() + " -- too many states: " + m.getMaxStates(),
 					topX, topY + 20);
 		} else {
 			// display name
@@ -316,13 +319,13 @@ public class DrawMachine {
 				g.drawString(m.getName(), zeroX - nw, zeroY - 5);
 			}
 			// draw transitions - lines
-			for (int i = 0; i < m.maxStates; i++) {
-				int[] ntrans = new int[m.maxStates + 1]; // count transtions
+			for (int i = 0; i < m.getMaxStates(); i++) {
+				int[] ntrans = new int[m.getMaxStates() + 1]; // count transitions
 															// between 2 states
-				EventState p = m.states[i];
+				LTSTransitionList p = m.getStates()[i];
 				while (p != null) {
-					EventState tr = p;
-					String event = m.alphabet[tr.getEvent()];
+					LTSTransitionList tr = p;
+					String event = m.getAlphabet()[tr.getEvent()];
 					if (event.charAt(0) != '@') {
 						while (tr != null) {
 							ntrans[tr.getNext() + 1]++;
@@ -357,13 +360,13 @@ public class DrawMachine {
 				}
 			}
 			// draw transitions - text
-			for (int i = 0; i < m.maxStates; i++) {
-				int[] ntrans = new int[m.maxStates + 1]; // count transtions
+			for (int i = 0; i < m.getMaxStates(); i++) {
+				int[] ntrans = new int[m.getMaxStates() + 1]; // count transtions
 															// between 2 states
-				EventState p = m.states[i];
+				LTSTransitionList p = m.getStates()[i];
 				while (p != null) {
-					EventState tr = p;
-					String event = m.alphabet[tr.getEvent()];
+					LTSTransitionList tr = p;
+					String event = m.getAlphabet()[tr.getEvent()];
 					if (event.charAt(0) != '@')
 						while (tr != null) {
 							ntrans[tr.getNext() + 1]++;
@@ -433,7 +436,7 @@ public class DrawMachine {
 				}
 			}
 
-			for (int i = -errorState; i < m.maxStates; i++){
+			for (int i = -errorState; i < m.getMaxStates(); i++){
 				drawState(g, i, i == selected);
 			}
 		}
@@ -461,13 +464,13 @@ public class DrawMachine {
 			g.drawArc(x - 3, y - 3, STATESIZE + 6, STATESIZE + 6, 0, 360);
 		g.drawArc(x, y, STATESIZE, STATESIZE, 0, 360);
 		FontMetrics fm = g.getFontMetrics();
-		String sid = (id == mach.endseq) ? "E" : "" + id;
+		String sid = (id == mach.getEndOfSequenceIndex()) ? "E" : "" + id;
 		int px = x + STATESIZE / 2 - fm.stringWidth(sid) / 2;
 		int py = y + STATESIZE / 2 + fm.getHeight() / 3;
 		g.drawString(sid, px, py);
 	}
 
-	private void drawTransition(Graphics g, int from, EventState toState,
+	private void drawTransition(Graphics g, int from, LTSTransitionList toState,
 			String s, int n, boolean highlight, boolean dotext) {
 		int to = toState.getNext();
 
@@ -555,14 +558,14 @@ public class DrawMachine {
 	private void initCompactLabels() {
 		if (mach == null)
 			return;
-		if (mach.maxStates > MAXDRAWSTATES)
+		if (mach.getMaxStates() > MAXDRAWSTATES)
 			return;
-		labels = new String[mach.maxStates + 1][mach.maxStates + 1];
-		for (int i = 0; i < mach.maxStates; i++) {
-			EventState current = EventStateUtils.transpose(mach.states[i]);
+		labels = new String[mach.getMaxStates() + 1][mach.getMaxStates() + 1];
+		for (int i = 0; i < mach.getMaxStates(); i++) {
+			LTSTransitionList current = EventStateUtils.transpose(mach.getStates()[i]);
 			while (current != null) {
-				String[] events = EventState.eventsToNextNoAccept(current,
-						mach.alphabet);
+				String[] events = LTSTransitionList.eventsToNextNoAccept(current,
+						mach.getAlphabet());
 				Alphabet a = new Alphabet(events);
 				labels[i + 1][current.getNext() + 1] = a.toString();
 				current = current.getList();

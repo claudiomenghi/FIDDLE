@@ -3,9 +3,9 @@ package ltsa.lts;
 import java.io.PrintStream;
 import java.util.Hashtable;
 
+import ltsa.lts.automata.lts.state.LTSTransitionList;
+import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
 import ltsa.lts.csp.Declaration;
-import ltsa.lts.lts.EventState;
-import ltsa.lts.lts.ProbabilisticEventState;
 import ltsa.lts.util.collections.MyIntHash;
 
 /**
@@ -17,11 +17,12 @@ import ltsa.lts.util.collections.MyIntHash;
  */
 
 public class EventStateUtils {
-	public static EventState renumberStates(EventState head, Hashtable oldtonew) {
-		EventState p = head;
-		EventState newhead = null;
+	public static LTSTransitionList renumberStates(LTSTransitionList head,
+			Hashtable oldtonew) {
+		LTSTransitionList p = head;
+		LTSTransitionList newhead = null;
 		while (p != null) {
-			EventState q = p;
+			LTSTransitionList q = p;
 			while (q != null) {
 				int next = q.getNext() < 0 ? Declaration.ERROR
 						: ((Integer) oldtonew.get(new Integer(q.getNext())))
@@ -42,16 +43,13 @@ public class EventStateUtils {
 						newhead = EventStateUtils.add(
 								newhead,
 								new ProbabilisticEventState(probSt.getEvent(),
-										next,
-										((ProbabilisticEventState) probSt)
-												.getProbability(),
-										((ProbabilisticEventState) probSt)
+										next, probSt.getProbability(), probSt
 												.getBundle()));
 						probSt = (ProbabilisticEventState) probSt.getProbTr();
 					}
 				} else {
 					newhead = EventStateUtils.add(newhead,
-							new EventState(q.getEvent(), next));
+							new LTSTransitionList(q.getEvent(), next));
 				}
 				q = q.getNondet();
 			}
@@ -60,11 +58,12 @@ public class EventStateUtils {
 		return newhead;
 	}
 
-	public static EventState renumberStates(EventState head, MyIntHash oldtonew) {
-		EventState p = head;
-		EventState newhead = null;
+	public static LTSTransitionList renumberStates(LTSTransitionList head,
+			MyIntHash oldtonew) {
+		LTSTransitionList p = head;
+		LTSTransitionList newhead = null;
 		while (p != null) {
-			EventState q = p;
+			LTSTransitionList q = p;
 			while (q != null) {
 				int next = q.getNext() < 0 ? Declaration.ERROR : oldtonew.get(q
 						.getNext());
@@ -92,7 +91,7 @@ public class EventStateUtils {
 					}
 				} else {
 					newhead = EventStateUtils.add(newhead,
-							new EventState(q.getEvent(), next));
+							new LTSTransitionList(q.getEvent(), next));
 				}
 				q = q.getNondet();
 			}
@@ -107,23 +106,23 @@ public class EventStateUtils {
 	 * /*----------------------------------------------------------------
 	 */
 
-	public static MyIntHash reachable(EventState[] states) {
+	public static MyIntHash reachable(LTSTransitionList[] states) {
 		int ns = 0; // newstate
 		MyIntHash visited = new MyIntHash(states.length);
-		EventState stack = null;
-		stack = EventState.push(stack, new EventState(0, 0));
+		LTSTransitionList stack = null;
+		stack = LTSTransitionList.push(stack, new LTSTransitionList(0, 0));
 		while (stack != null) {
 			int v = stack.getNext();
-			stack = EventState.pop(stack);
+			stack = LTSTransitionList.pop(stack);
 			if (!visited.containsKey(v)) {
 				visited.put(v, ns++);
-				EventState p = states[v];
+				LTSTransitionList p = states[v];
 				while (p != null) {
-					EventState q = p;
+					LTSTransitionList q = p;
 					while (q != null) {
 						if (q.getNext() >= 0
 								&& !visited.containsKey(q.getNext()))
-							stack = EventState.push(stack, q);
+							stack = LTSTransitionList.push(stack, q);
 
 						if (q instanceof ProbabilisticEventState) {
 							ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q)
@@ -132,7 +131,8 @@ public class EventStateUtils {
 								if (probSt.getNext() >= 0
 										&& !visited.containsKey(probSt
 												.getNext()))
-									stack = EventState.push(stack, probSt);
+									stack = LTSTransitionList.push(stack,
+											probSt);
 								probSt = (ProbabilisticEventState) probSt
 										.getProbTr();
 							}
@@ -149,13 +149,14 @@ public class EventStateUtils {
 
 	// to = to U from
 	// Agrega al to, todos los eventState a los que llega el from
-	public static EventState union(EventState to, EventState from) {
-		EventState res = to;
-		EventState p = from;
+	public static LTSTransitionList union(LTSTransitionList to,
+			LTSTransitionList from) {
+		LTSTransitionList res = to;
+		LTSTransitionList p = from;
 		while (p != null) {
-			EventState q = p;
+			LTSTransitionList q = p;
 			while (q != null) {
-				EventState evSt;
+				LTSTransitionList evSt;
 				if (q instanceof ProbabilisticEventState) {
 					ProbabilisticEventState probQ = (ProbabilisticEventState) q;
 					evSt = new ProbabilisticEventState(probQ.getEvent(),
@@ -173,7 +174,7 @@ public class EventStateUtils {
 						probSt = (ProbabilisticEventState) probSt.getProbTr();
 					}
 				} else {
-					evSt = new EventState(q.getEvent(), q.getNext());
+					evSt = new LTSTransitionList(q.getEvent(), q.getNext());
 					res = EventStateUtils.add(res, evSt);
 				}
 
@@ -184,32 +185,46 @@ public class EventStateUtils {
 		return res;
 	}
 
+	/**
+	 * requires that the lists are ordered by events. Branches may spawn on a
+	 * given EventState: -- nondet branches for transitions under the same event
+	 * -- prob branches for transitions on the same prob bundle (only //
+	 * ProbabilisticEventState)
+	 * 
+	 * @param head
+	 * @param transitionToBeAdded
+	 * @return
+	 */
 	// the following is not very OO but efficient
 	// duplicates are discarded
-	public static EventState add(EventState head, EventState tr) {
-		// list is ordered by events
-		// branches may spawn on a given EventState:
-		// -- nondet branches for transitions under the same event
-		// -- prob branches for transitions on the same prob bundle (only
-		// ProbabilisticEventState)
-		if (head == null || tr.getEvent() < head.getEvent()) {
-			tr.setList(head);
-			return tr;
+	public static LTSTransitionList add(LTSTransitionList head,
+			LTSTransitionList transitionToBeAdded) {
+
+		if (head == null) {
+			return transitionToBeAdded;
+		}
+		if (transitionToBeAdded == null) {
+			return head;
+		}
+		if (transitionToBeAdded.getEvent() < head.getEvent()) {
+			transitionToBeAdded.setList(head);
+			return transitionToBeAdded;
 		}
 
-		EventState p = head;
-		while (p.getList() != null && p.getEvent() != tr.getEvent()
-				&& tr.getEvent() >= p.getList().getEvent())
+		LTSTransitionList p = head;
+		while (p.getList() != null
+				&& p.getEvent() != transitionToBeAdded.getEvent()
+				&& transitionToBeAdded.getEvent() >= p.getList().getEvent())
 			p = p.getList();
 
-		if (p.getEvent() == tr.getEvent()) {
+		if (p.getEvent() == transitionToBeAdded.getEvent()) {
 			// check if probabilistic
-			if (tr instanceof ProbabilisticEventState) {
+			if (transitionToBeAdded instanceof ProbabilisticEventState) {
 				// p must also be ProbabilisticEventState
 				ProbabilisticEventState newP, newTr;
 				try {
 					newP = (ProbabilisticEventState) p;
-					newTr = (ProbabilisticEventState) tr;
+					newTr = (ProbabilisticEventState) transitionToBeAdded;
 					// check if it is for existing bundle
 					while (newP != null && newP.getEvent() == newTr.getEvent()
 							&& newTr.getBundle() != newP.getBundle()) {
@@ -230,21 +245,21 @@ public class EventStateUtils {
 				}
 			} else {
 				// add to nondet
-				EventState q = p;
-				if (q.getNext() == tr.getNext()){
+				LTSTransitionList q = p;
+				if (q.getNext() == transitionToBeAdded.getNext()) {
 					return head;
 				}
 				while (q.getNondet() != null) {
 					q = q.getNondet();
-					if (q.getNext() == tr.getNext()){
+					if (q.getNext() == transitionToBeAdded.getNext()) {
 						return head;
 					}
 				}
-				q.setNondet(tr);
+				q.setNondet(transitionToBeAdded);
 			}
 		} else { // unknown event, add after p
-			tr.setList(p.getList());
-			p.setList(tr);
+			transitionToBeAdded.setList(p.getList());
+			p.setList(transitionToBeAdded);
 		}
 
 		return head;
@@ -254,11 +269,11 @@ public class EventStateUtils {
 	// the nondet list containing lists of different next states
 	// for the same event
 	// transpose creates a new list sorted by next
-	public static EventState transpose(EventState from) {
-		EventState res = null;
-		EventState p = from;
+	public static LTSTransitionList transpose(LTSTransitionList from) {
+		LTSTransitionList res = null;
+		LTSTransitionList p = from;
 		while (p != null) {
-			EventState q = p;
+			LTSTransitionList q = p;
 			while (q != null) {
 				if (q instanceof ProbabilisticEventState) {
 					ProbabilisticEventState probQ = (ProbabilisticEventState) q;
@@ -272,8 +287,11 @@ public class EventStateUtils {
 						probQ = (ProbabilisticEventState) probQ.getProbTr();
 					} while (probQ != null);
 				} else {
-					res = EventStateUtils.add(res, new EventState(q.getNext(),
-							q.getEvent())); // swap event & next
+					res = EventStateUtils.add(res,
+							new LTSTransitionList(q.getNext(), q.getEvent())); // swap
+																				// event
+																				// &
+																				// next
 				}
 				q = q.getNondet();
 			}
@@ -282,7 +300,7 @@ public class EventStateUtils {
 		// now walk through the list a swap event & next back again
 		p = res;
 		while (p != null) {
-			EventState q = p;
+			LTSTransitionList q = p;
 			while (q != null) {
 				int n = q.getNext();
 				q.setNext(q.getEvent());
@@ -304,12 +322,12 @@ public class EventStateUtils {
 		return res;
 	}
 
-	public static void printAUT(EventState head, int from, String[] alpha,
-			PrintStream output) {
-		EventState p = head;
+	public static void printAUT(LTSTransitionList head, int from,
+			String[] alpha, PrintStream output) {
+		LTSTransitionList p = head;
 		ProbabilisticEventState probP;
 		while (p != null) {
-			EventState q = p;
+			LTSTransitionList q = p;
 			while (q != null) {
 
 				if (q instanceof ProbabilisticEventState) {
@@ -332,11 +350,11 @@ public class EventStateUtils {
 		}
 	}
 
-	public static int count(EventState head) {
-		EventState p = head;
+	public static int count(LTSTransitionList head) {
+		LTSTransitionList p = head;
 		int n = 0;
 		while (p != null) {
-			EventState q = p;
+			LTSTransitionList q = p;
 			while (q != null) {
 				n++;
 				if (q instanceof ProbabilisticEventState) {

@@ -7,7 +7,7 @@ import ltsa.exploration.model.Model;
 import ltsa.exploration.strategy.Strategy;
 import ltsa.exploration.strategy.StrategyManager;
 import ltsa.exploration.view.View;
-import ltsa.lts.lts.EventState;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -131,7 +131,7 @@ public class Explorer
     }
     private void executeInModelAndKnowledge(Integer componentNumber, String nextAction, Integer nextViewState, HashSet<String> stateActions)
     {
-        EventState nextModelState = this.model.execute(componentNumber, nextAction);
+        LTSTransitionList nextModelState = this.model.execute(componentNumber, nextAction);
         this.knowledge.execute(componentNumber, nextAction, nextViewState, nextModelState);
         this.updateKnowledgeFromCurrentStateActions(componentNumber, stateActions);
     }

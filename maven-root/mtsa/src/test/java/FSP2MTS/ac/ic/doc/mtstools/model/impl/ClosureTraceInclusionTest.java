@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import MTSTools.ac.ic.doc.mtstools.model.impl.WeakSimulationSemantics;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.ui.StandardOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.operations.TraceInclusionClosure;
@@ -43,7 +43,7 @@ public class ClosureTraceInclusionTest extends MTSTestBase {
 		
 		CompositeState expectedComposite = LTSATestUtils.buildAutomataFromSource(expectedFSP);
 		TransitionSystemDispatcher.applyComposition(expectedComposite, ltsOutput);
-		CompactState expectedComposition = expectedComposite.getComposition();
+		LabelledTransitionSystem expectedComposition = expectedComposite.getComposition();
 		MTS<Long, String> expected = AutomataToMTSConverter.getInstance().convert(expectedComposition);
 
 		assertEquals(expected.getActions(), result.getActions());

@@ -2,19 +2,19 @@ package ltsa.lts.gui;
 
 import ltsa.lts.Diagnostics;
 import ltsa.lts.EventStateUtils;
-import ltsa.lts.lts.Alphabet;
-import ltsa.lts.lts.EventState;
-import ltsa.lts.lts.ProbabilisticEventState;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.Alphabet;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
+import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
+import ltsa.lts.output.LTSOutput;
 
 
 
 public class PrintTransitions {
   
-  CompactState sm;
+  LabelledTransitionSystem sm;
   
-  public PrintTransitions (CompactState sm) {
+  public PrintTransitions (LabelledTransitionSystem sm) {
       this.sm = sm;
   }
     public void print( LTSOutput output ) {
@@ -29,18 +29,18 @@ public class PrintTransitions {
     output.outln("\t"+sm.getName());
     // print number of states
     output.outln("States:");
-    output.outln("\t"+sm.maxStates);
+    output.outln("\t"+sm.getMaxStates());
     output.outln("Transitions:");
     output.outln("\t"+sm.getName()+ " = Q0,");
-    for (int i = 0; i<sm.maxStates; i++ ){
+    for (int i = 0; i<sm.getMaxStates(); i++ ){
       output.out("\tQ"+i+"\t= ");
-      EventState current = EventStateUtils.transpose(sm.states[i]);
+      LTSTransitionList current = EventStateUtils.transpose(sm.getStates()[i]);
       if (current == null) {
-        if (i==sm.endseq)
+        if (i==sm.getEndOfSequenceIndex())
           output.out("END");
         else
           output.out("STOP");
-        if (i<sm.maxStates-1) 
+        if (i<sm.getMaxStates()-1) 
            output.outln(","); 
         else 
            output.outln(".");  
@@ -52,14 +52,14 @@ public class PrintTransitions {
             output.outln("EXCEEDED MAXPRINT SETTING");
             return;
           }
-          String[] events = EventState.eventsToNext(current,sm.alphabet);
+          String[] events = LTSTransitionList.eventsToNext(current,sm.getAlphabet());
           Alphabet a = new Alphabet(events);
           
           if (current instanceof ProbabilisticEventState) {
         	  int evCnt= 0;
         	  for (String evt : events) {
         		  ProbabilisticEventState probCurr= (ProbabilisticEventState) current;
-        		  while (!sm.alphabet[probCurr.getEvent()].equals(evt) && probCurr != null) {
+        		  while (!sm.getAlphabet()[probCurr.getEvent()].equals(evt) && probCurr != null) {
         			  probCurr= (ProbabilisticEventState) probCurr.getNondet();
         		  }
         		  
@@ -88,7 +88,7 @@ public class PrintTransitions {
           current = current.getList();
 
           if (current==null) {
-            if (i<sm.maxStates-1) 
+            if (i<sm.getMaxStates()-1) 
               output.outln("),"); 
             else 
               output.outln(").");

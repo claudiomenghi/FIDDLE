@@ -12,32 +12,49 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMDPConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MDPToAutomataConverter;
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ltsa.control.ControlStackSynthesiser;
+import ltsa.control.util.ControlConstants;
+import ltsa.control.util.ControllerUtils;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.animator.Analyser;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.checkers.Analyser;
 import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.distribution.DistributionTransformationException;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.operations.minimization.Minimiser;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.Symbol;
 import ltsa.lts.util.MTSUtils;
-
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.ListUtils;
-import org.apache.commons.lang.Validate;
-
 import ltsa.ui.EmptyLTSOuput;
 import ltsa.ui.MTSAnimator;
-import ltsa.updatingControllers.synthesis.UpdatingControllerSynthesizer;
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 import ltsa.updatingControllers.synthesis.UpdatingControllerHandler;
-import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
-import MTSTools.ac.ic.doc.commons.relations.Pair;
+import ltsa.updatingControllers.synthesis.UpdatingControllerSynthesizer;
+
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.lang.Validate;
+
+import com.google.common.base.Preconditions;
+
 import MTSSynthesis.ac.ic.doc.distribution.DistributionFacade;
 import MTSSynthesis.ac.ic.doc.distribution.model.AlphabetDistribution;
 import MTSSynthesis.ac.ic.doc.distribution.model.DistributionFeedbackItem;
 import MTSSynthesis.ac.ic.doc.distribution.model.DistributionResult;
+import MTSSynthesis.controller.ControllerSynthesisFacade;
+import MTSSynthesis.controller.HeuristicControllerSynthesiser;
+import MTSSynthesis.controller.NondetControlProblem;
+import MTSSynthesis.controller.game.gr.StrategyState;
+import MTSSynthesis.controller.game.model.Assumptions;
+import MTSSynthesis.controller.game.model.Guarantees;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import MTSSynthesis.controller.model.gr.GRGame;
+import MTSSynthesis.controller.synchronous.SynchronousControlProblem;
+import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
+import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.facade.MTSAFacade;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
@@ -63,23 +80,7 @@ import MTSTools.ac.ic.doc.mtstools.model.operations.TraceInclusionClosure;
 import MTSTools.ac.ic.doc.mtstools.model.operations.impl.MTSPropertyToBuchiConverter;
 import MTSTools.ac.ic.doc.mtstools.model.operations.impl.WeakAlphabetMergeBuilder;
 import MTSTools.ac.ic.doc.mtstools.model.predicates.IsDeterministicMTSPredicate;
-import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMDPConverter;
-import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ltsa.ac.ic.doc.mtstools.util.fsp.MDPToAutomataConverter;
-import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
-import ltsa.control.ControlStackSynthesiser;
-import ltsa.control.util.ControlConstants;
-import ltsa.control.util.ControllerUtils;
-import MTSSynthesis.controller.ControllerSynthesisFacade;
-import MTSSynthesis.controller.HeuristicControllerSynthesiser;
-import MTSSynthesis.controller.NondetControlProblem;
-import MTSSynthesis.controller.game.gr.StrategyState;
-import MTSSynthesis.controller.game.model.Assumptions;
-import MTSSynthesis.controller.game.model.Guarantees;
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
-import MTSSynthesis.controller.model.gr.GRGame;
-import MTSSynthesis.controller.synchronous.SynchronousControlProblem;
 
 /**
  * This class consists exclusively of static methods that operate on or return
@@ -99,7 +100,7 @@ public class TransitionSystemDispatcher {
 	 * @param output
 	 * @return the optimistic representation of the compactState parameter
 	 */
-	public static CompactState getOptimisticModel(CompactState compactState,
+	public static LabelledTransitionSystem getOptimisticModel(LabelledTransitionSystem compactState,
 			LTSOutput output) {
 		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert(
 				compactState);
@@ -119,7 +120,7 @@ public class TransitionSystemDispatcher {
 	 * @param composition
 	 * @return the pessimistic representation of the compactState parameter
 	 */
-	public static CompactState getPessimistModel(CompactState composition) {
+	public static LabelledTransitionSystem getPessimistModel(LabelledTransitionSystem composition) {
 		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert(
 				composition);
 		mts = MTSAFacade.getPesimisticModel(mts);
@@ -166,7 +167,6 @@ public class TransitionSystemDispatcher {
 	 * 
 	 * @param compositeState
 	 */
-	@SuppressWarnings("unchecked")
 	public static void makePessimisticModel(CompositeState compositeState,
 			LTSOutput ltsOutput) {
 		if (MTSUtils.isMTSRepresentation(compositeState)) {
@@ -252,7 +252,7 @@ public class TransitionSystemDispatcher {
 		// switch old actions to actions without old after having the winning
 		// game
 		if (Symbol.UPDATING_CONTROLLER == toCompose.getCompositionType()
-				&& toCompose.composition != null) {
+				&& toCompose.getComposition() != null) {
 			UpdatingControllerHandler.removeOldTransitions(toCompose);
 		}
 	}
@@ -288,22 +288,22 @@ public class TransitionSystemDispatcher {
 				(UpdatingControllerCompositeState) toCompose, output);
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void merge(CompositeState composition, LTSOutput ltsOutput) {
 		if (composition.getComposition() == null) {
 			ArrayList<MTS<Long, String>> toCompose = new ArrayList<>();
 			List<String> names = new ArrayList<>();
 
-			for (Iterator<CompactState> it = composition.getMachines()
+			for (Iterator<LabelledTransitionSystem> it = composition.getMachines()
 					.iterator(); it.hasNext();) {
-				CompactState compactState = it.next();
+				LabelledTransitionSystem compactState = it.next();
 				toCompose.add(AutomataToMTSConverter.getInstance().convert(
 						compactState));
 				names.add(compactState.getName());
 			}
-
-			ltsOutput.outln("Applying Merge Operator to MTSs...("
-					+ composition.name + ")");
+			if (ltsOutput != null) {
+				ltsOutput.outln("Applying Merge Operator to MTSs...("
+						+ composition.getName() + ")");
+			}
 			long initialTime = System.currentTimeMillis();
 
 			if (toCompose.size() > 2) {
@@ -336,6 +336,7 @@ public class TransitionSystemDispatcher {
 						ltsOutput
 								.outln("****************************************************************");
 					} else {
+
 						// Weak Alphabet
 						ltsOutput
 								.outln("********************************************************************************");
@@ -371,10 +372,10 @@ public class TransitionSystemDispatcher {
 
 				ltsOutput
 						.outln("Internal sanity check: Validating merge is a common refinement...");
-				isRefinement(merge, composition.name, mtsA, mtsAName, refA,
-						ltsOutput);
-				isRefinement(merge, composition.name, mtsB, names.get(i - 1),
-						refB, ltsOutput);
+				isRefinement(merge, composition.getName(), mtsA, mtsAName,
+						refA, ltsOutput);
+				isRefinement(merge, composition.getName(), mtsB,
+						names.get(i - 1), refB, ltsOutput);
 
 				mtsA = merge;
 				mtsAName = "(" + mtsAName + "++" + names.get(i - 1) + ")";
@@ -386,12 +387,12 @@ public class TransitionSystemDispatcher {
 					.transform(merge);
 
 			composition.setComposition(MTSToAutomataConverter.getInstance()
-					.convert(mts, composition.name));
+					.convert(mts, composition.getName()));
 
 		}
 	}
 
-	/***************************************************************************
+	/***
 	 * Applies parallel composition over all model instances in machines field
 	 * of <code>compositeState</code> and it's result is set to composition
 	 * field of <code>compositeState</code>.
@@ -406,19 +407,21 @@ public class TransitionSystemDispatcher {
 	 */
 	public static void parallelComposition(CompositeState compositeState,
 			LTSOutput ltsOutput) {
+		Preconditions.checkNotNull(ltsOutput, "An output class is required");
+
 		if (MTSUtils.isMTSRepresentation(compositeState)) {
 
 			long initialTime = System.currentTimeMillis();
-			ltsOutput.outln("Converting MTSs from " + compositeState.name);
-			ltsOutput.outln("Composing MTSs from " + compositeState.name);
+			ltsOutput.outln("Converting MTSs from " + compositeState.getName());
+			ltsOutput.outln("Composing MTSs from " + compositeState.getName());
 
 			MTS<Long, String> mts = MTSUtils.getMTSComposition(compositeState);
 
 			ltsOutput.outln("MTSs composed in "
 					+ (System.currentTimeMillis() - initialTime) + "ms.\n");
 
-			CompactState convert = MTSToAutomataConverter.getInstance()
-					.convert(mts, compositeState.name);
+			LabelledTransitionSystem convert = MTSToAutomataConverter.getInstance()
+					.convert(mts, compositeState.getName());
 			compositeState.setComposition(convert);
 
 		} else if (compositeState.makeMDP) {
@@ -438,13 +441,13 @@ public class TransitionSystemDispatcher {
 	private static void mdpComposeAbstraction(CompositeState toCompose,
 			LTSOutput ltsOutput) {
 		long initialTime = System.currentTimeMillis();
-		if (toCompose.machines.size() >= 2) {
+		if (toCompose.getMachines().size() >= 2) {
 			MDP lastMachine = AutomataToMDPConverter.getInstance().convert(
-					toCompose.machines.get(0));
-			for (int i = 1; i < toCompose.machines.size(); i++) {
+					toCompose.getMachines().get(0));
+			for (int i = 1; i < toCompose.getMachines().size(); i++) {
 				MDP mdp1 = lastMachine;
 				MDP mdp2 = AutomataToMDPConverter.getInstance().convert(
-						toCompose.machines.get(i));
+						toCompose.getMachines().get(i));
 				System.out.println(mdp1);
 				System.out.println(mdp2);
 
@@ -462,17 +465,18 @@ public class TransitionSystemDispatcher {
 				// AssertDefinition.compile(ltsOutput, "MDPGOAL");
 
 				System.out.println("Name of *A* is "
-						+ toCompose.machines.get(i).getName()); //
+						+ toCompose.getMachines().get(i).getName()); //
 				MDP composed = MDP.composeAbstraction(mdp1, mdp2, simulation); // MDP.compose(mdp1,
 																				// mdp2);//
 				System.out.println("\n" + composed);
 				lastMachine = composed;
 			}
 
-			toCompose.composition = MDPToAutomataConverter.getInstance()
-					.convert(lastMachine, toCompose.getName());
-			lastMachine.writePrismFile("h:/contsynth/controllers/"
-					+ toCompose.name + ".nm", toCompose.name);
+			toCompose.setComposition(MDPToAutomataConverter.getInstance()
+					.convert(lastMachine, toCompose.getName()));
+			lastMachine.writePrismFile(
+					"h:/contsynth/controllers/" + toCompose.getName() + ".nm",
+					toCompose.getName());
 
 			ltsOutput.outln("MDPs composed in "
 					+ (System.currentTimeMillis() - initialTime) + "ms.\n");
@@ -486,18 +490,18 @@ public class TransitionSystemDispatcher {
 	private static void mdpComposeEnactment(CompositeState toCompose,
 			List<String> controlledActions, LTSOutput ltsOutput) {
 		long initialTime = System.currentTimeMillis();
-		if (toCompose.machines.size() >= 2) {
+		if (toCompose.getMachines().size() >= 2) {
 			MDP lastMachine = AutomataToMDPConverter.getInstance().convert(
-					toCompose.machines.get(0));
-			for (int i = 1; i < toCompose.machines.size(); i++) {
+					toCompose.getMachines().get(0));
+			for (int i = 1; i < toCompose.getMachines().size(); i++) {
 				MDP mdp1 = lastMachine;
 				MDP mdp2 = AutomataToMDPConverter.getInstance().convert(
-						toCompose.machines.get(i));
+						toCompose.getMachines().get(i));
 				System.out.println(mdp1);
 				System.out.println(mdp2);
 
 				System.out.println("Name of *C* is "
-						+ toCompose.machines.get(i).getName());
+						+ toCompose.getMachines().get(i).getName());
 
 				// apply state labels stored from synthesis
 				for (Long s : mdp2.getStates()) {
@@ -512,10 +516,11 @@ public class TransitionSystemDispatcher {
 				lastMachine = composed;
 			}
 
-			toCompose.composition = MDPToAutomataConverter.getInstance()
-					.convert(lastMachine, toCompose.getName());
-			lastMachine.writePrismFile("h:/contsynth/controllers/"
-					+ toCompose.name + ".nm", toCompose.name);
+			toCompose.setComposition(MDPToAutomataConverter.getInstance()
+					.convert(lastMachine, toCompose.getName()));
+			lastMachine.writePrismFile(
+					"h:/contsynth/controllers/" + toCompose.getName() + ".nm",
+					toCompose.getName());
 
 			ltsOutput.outln("MDPs composed in "
 					+ (System.currentTimeMillis() - initialTime) + "ms.\n");
@@ -531,23 +536,20 @@ public class TransitionSystemDispatcher {
 	 * @param compositeState
 	 * @param ltsOutput
 	 */
-	@SuppressWarnings("unchecked")
 	public static void applyPlusCROperator(CompositeState compositeState,
 			LTSOutput ltsOutput) {
 		if (compositeState.getComposition() == null) {
-			ArrayList<MTS<Long, String>> toCompose = new ArrayList<MTS<Long, String>>();
+			ArrayList<MTS<Long, String>> toCompose = new ArrayList<>();
 
 			long initialTime = System.currentTimeMillis();
 			ltsOutput.outln("Converting CompactState to MTSs...");
 
-			for (Iterator<CompactState> it = compositeState.getMachines()
+			for (Iterator<LabelledTransitionSystem> it = compositeState.getMachines()
 					.iterator(); it.hasNext();) {
-				CompactState compactState = it.next();
+				LabelledTransitionSystem compactState = it.next();
 				toCompose.add(AutomataToMTSConverter.getInstance().convert(
 						compactState));
 			}
-			// ltsOutput.outln("MTSs converted in "
-			// + (System.currentTimeMillis() - initialTime) + "ms.");
 
 			ltsOutput.outln("Applying +CR Operator to MTSs...");
 			initialTime = System.currentTimeMillis();
@@ -568,9 +570,8 @@ public class TransitionSystemDispatcher {
 			ltsOutput.outln("+CR operator applied in "
 					+ (System.currentTimeMillis() - initialTime) + "ms.");
 			compositeState.setComposition(MTSToAutomataConverter.getInstance()
-					.convert(merge, compositeState.name));
+					.convert(merge, compositeState.getName()));
 			ltsOutput.outln(""); // leave an empty line
-			// ((CompositeState) composition).applyOperations(ltsOutput);
 		}
 	}
 
@@ -583,21 +584,20 @@ public class TransitionSystemDispatcher {
 	 * @param compositeState
 	 * @param ltsOutput
 	 */
-	@SuppressWarnings("unchecked")
 	public static void applyPlusCAOperator(CompositeState compositeState,
 			LTSOutput ltsOutput) {
 		if (compositeState.getComposition() == null) {
 			PlusCARulesApplier plusCARulesApplier = new PlusCARulesApplier();
 			String plusSymbol = "+CA";
 
-			List<MTS<Long, String>> toCompose = new ArrayList<MTS<Long, String>>();
+			List<MTS<Long, String>> toCompose = new ArrayList<>();
 
 			long initialTime = System.currentTimeMillis();
 			ltsOutput.outln("Converting CompactState to MTSs...");
 
-			for (Iterator<CompactState> it = compositeState.getMachines()
+			for (Iterator<LabelledTransitionSystem> it = compositeState.getMachines()
 					.iterator(); it.hasNext();) {
-				CompactState compactState = it.next();
+				LabelledTransitionSystem compactState = it.next();
 				toCompose.add(AutomataToMTSConverter.getInstance().convert(
 						compactState));
 			}
@@ -613,9 +613,8 @@ public class TransitionSystemDispatcher {
 					+ (System.currentTimeMillis() - initialTime) + "ms.");
 
 			compositeState.setComposition(MTSToAutomataConverter.getInstance()
-					.convert(merge, compositeState.name));
+					.convert(merge, compositeState.getName()));
 			ltsOutput.outln(""); // leave an empty line
-			// ((CompositeState) composition).applyOperations(ltsOutput);
 		}
 	}
 
@@ -635,7 +634,7 @@ public class TransitionSystemDispatcher {
 	public static void determinise(CompositeState compositeState,
 			LTSOutput ltsOutput) {
 		TransitionSystemDispatcher.compose(compositeState, ltsOutput);
-		CompactState deterministic = determinise(
+		LabelledTransitionSystem deterministic = determinise(
 				compositeState.getComposition(), ltsOutput);
 		compositeState.setComposition(deterministic);
 	}
@@ -649,8 +648,8 @@ public class TransitionSystemDispatcher {
 	 *            output support
 	 * @return deterministic version of <code>lts</code>
 	 */
-	public static CompactState determinise(CompactState lts, LTSOutput ltsOutput) {
-		CompactState compactState = (CompactState) lts;
+	public static LabelledTransitionSystem determinise(LabelledTransitionSystem lts, LTSOutput ltsOutput) {
+		LabelledTransitionSystem compactState = (LabelledTransitionSystem) lts;
 		if (MTSUtils.isMTSRepresentation(compactState)) {
 			long initialTime = System.currentTimeMillis();
 			// ltsOutput.outln("Converting CompactState to MTS...");
@@ -668,7 +667,7 @@ public class TransitionSystemDispatcher {
 					compactState.getName(),
 					MTSUtils.isMTSRepresentation(compactState));
 		} else {
-			Vector<CompactState> toDet = new Vector<CompactState>();
+			Vector<LabelledTransitionSystem> toDet = new Vector<LabelledTransitionSystem>();
 			toDet.add(compactState);
 			CompositeState compositeState = new CompositeState(toDet);
 			compositeState.compose(ltsOutput);
@@ -685,8 +684,8 @@ public class TransitionSystemDispatcher {
 		// return lts;
 	}
 
-	public static boolean isLTSRefinement(CompactState refines,
-			CompactState refined, LTSOutput output) {
+	public static boolean isLTSRefinement(LabelledTransitionSystem refines,
+			LabelledTransitionSystem refined, LTSOutput output) {
 		LTSSimulationSemantics ss = new LTSSimulationSemantics(); // previously
 																	// using
 																	// emptySet
@@ -710,14 +709,14 @@ public class TransitionSystemDispatcher {
 	 * @param ltsOutput
 	 * @return
 	 */
-	public static boolean isRefinement(CompactState refines,
-			CompactState refined, SemanticType semantic, LTSOutput ltsOutput) {
+	public static boolean isRefinement(LabelledTransitionSystem refines,
+			LabelledTransitionSystem refined, SemanticType semantic, LTSOutput ltsOutput) {
 
 		Refinement refinement = semantic.getRefinement();
 		MTS<Long, String> refinedMTS = AutomataToMTSConverter.getInstance()
-				.convert((CompactState) refined);
+				.convert((LabelledTransitionSystem) refined);
 		MTS<Long, String> refinesMTS = AutomataToMTSConverter.getInstance()
-				.convert((CompactState) refines);
+				.convert((LabelledTransitionSystem) refines);
 		return isRefinement(refinesMTS, refines.getName(), refinedMTS,
 				refined.getName(), refinement, ltsOutput);
 	}
@@ -756,13 +755,13 @@ public class TransitionSystemDispatcher {
 		return isRefinement;
 	}
 
-	public static boolean areConsistent(CompactState csA, CompactState csB,
+	public static boolean areConsistent(LabelledTransitionSystem csA, LabelledTransitionSystem csB,
 			SemanticType semantic, LTSOutput ltsOutput) {
 
 		MTS<Long, String> mtsA = AutomataToMTSConverter.getInstance().convert(
-				(CompactState) csA);
+				(LabelledTransitionSystem) csA);
 		MTS<Long, String> mtsB = AutomataToMTSConverter.getInstance().convert(
-				(CompactState) csB);
+				(LabelledTransitionSystem) csB);
 		return areConsistent(mtsA, csA.getName(), mtsB, csB.getName(),
 				semantic, ltsOutput);
 	}
@@ -826,7 +825,7 @@ public class TransitionSystemDispatcher {
 			Validate.isTrue(compositeState.getComposition() != null,
 					"MTS ON-THE-FLY minimisation it is not implemented yet.");
 
-			CompactState compactState = (CompactState) compositeState
+			LabelledTransitionSystem compactState = (LabelledTransitionSystem) compositeState
 					.getComposition();
 
 			// compactState may be null, for instance after trying
@@ -843,7 +842,7 @@ public class TransitionSystemDispatcher {
 		}
 	}
 
-	private static MTS<Long, String> mtsMinimise(CompactState compactState,
+	private static MTS<Long, String> mtsMinimise(LabelledTransitionSystem compactState,
 			LTSOutput ltsOutput) {
 		long initialTime = System.currentTimeMillis();
 		ltsOutput.outln("Converting CompactState " + compactState.getName()
@@ -884,7 +883,7 @@ public class TransitionSystemDispatcher {
 	 * @param ltsOutput
 	 * @return
 	 */
-	public static CompactState minimise(CompactState compactState,
+	public static LabelledTransitionSystem minimise(LabelledTransitionSystem compactState,
 			LTSOutput ltsOutput) {
 		if (MTSUtils.isMTSRepresentation(compactState)) {
 			MTS<Long, String> mts = mtsMinimise(compactState, ltsOutput);
@@ -905,12 +904,12 @@ public class TransitionSystemDispatcher {
 	 * @param output
 	 * @return optimistic version of the original models.
 	 */
-	private static Vector<CompactState> getOptimistModels(
-			Vector<CompactState> originalMachines, LTSOutput output) {
-		Vector<CompactState> retValue = new Vector<CompactState>();
-		for (Iterator<CompactState> ir = originalMachines.iterator(); ir
+	private static Vector<LabelledTransitionSystem> getOptimistModels(
+			Vector<LabelledTransitionSystem> originalMachines, LTSOutput output) {
+		Vector<LabelledTransitionSystem> retValue = new Vector<>();
+		for (Iterator<LabelledTransitionSystem> ir = originalMachines.iterator(); ir
 				.hasNext();) {
-			CompactState compactState = ir.next();
+			LabelledTransitionSystem compactState = ir.next();
 			retValue.add(getOptimisticModel(compactState, output));
 		}
 		return retValue;
@@ -923,12 +922,12 @@ public class TransitionSystemDispatcher {
 	 * @param originalMachines
 	 * @return pessimistic version of the original models.
 	 */
-	private static Vector<CompactState> getPessimisticModels(
-			Vector<CompactState> originalMachines) {
-		Vector<CompactState> retValue = new Vector<CompactState>();
-		for (Iterator<CompactState> ir = originalMachines.iterator(); ir
+	private static Vector<LabelledTransitionSystem> getPessimisticModels(
+			Vector<LabelledTransitionSystem> originalMachines) {
+		Vector<LabelledTransitionSystem> retValue = new Vector<>();
+		for (Iterator<LabelledTransitionSystem> ir = originalMachines.iterator(); ir
 				.hasNext();) {
-			CompactState compactState = ir.next();
+			LabelledTransitionSystem compactState = ir.next();
 			retValue.add(getPessimistModel(compactState));
 		}
 		return retValue;
@@ -939,19 +938,20 @@ public class TransitionSystemDispatcher {
 		long initialCurrentTimeMillis = System.currentTimeMillis();
 		printLine(" ", ltsOutput);
 		printLine(" ", ltsOutput);
-		printLine("Starting safety check on " + compositeState.name, ltsOutput);
+		printLine("Starting safety check on " + compositeState.getName(),
+				ltsOutput);
 
-		CompactState compactState = compositeState.getComposition();
-		Vector<CompactState> machines = compositeState.getMachines();
+		LabelledTransitionSystem compactState = compositeState.getComposition();
+		Vector<LabelledTransitionSystem> machines = compositeState.getMachines();
 		String reference = "[Missing Reference]";
 
 		printLine(" ", ltsOutput);
-		printLine("Phase I: Does " + compositeState.name + "+ have errors?",
-				ltsOutput);
+		printLine("Phase I: Does " + compositeState.getName()
+				+ "+ have errors?", ltsOutput);
 
-		CompactState optimisticModel = getOptimisticModel(compactState,
+		LabelledTransitionSystem optimisticModel = getOptimisticModel(compactState,
 				ltsOutput);
-		Vector<CompactState> toCheck = new Vector<CompactState>();
+		Vector<LabelledTransitionSystem> toCheck = new Vector<>();
 		toCheck.add(optimisticModel);
 		compositeState.setMachines(toCheck);
 
@@ -960,49 +960,49 @@ public class TransitionSystemDispatcher {
 		if (compositeState.getErrorTrace() == null
 				|| compositeState.getErrorTrace().isEmpty()) {
 			// M+ |= FI
-			printLine(compositeState.name
+			printLine(compositeState.getName()
 					+ "+ does not have errors. Which means that...", ltsOutput);
 			printLine(
 					"*******************************************************************************************",
 					ltsOutput);
 			printLine("NO ERRORS FOUND: All implementations of "
-					+ compositeState.name + " do not have errors." + reference,
-					ltsOutput);
+					+ compositeState.getName() + " do not have errors."
+					+ reference, ltsOutput);
 			printLine(
 					"********************************************************************************************",
 					ltsOutput);
 
 		} else {
-			printLine(compositeState.name
+			printLine(compositeState.getName()
 					+ "+ does have errors. Which means that...", ltsOutput);
 			printLine("This means that some implementations of "
-					+ compositeState.name + " have errors.", ltsOutput);
+					+ compositeState.getName() + " have errors.", ltsOutput);
 			printLine("", ltsOutput);
 
-			CompactState pessimisticModel = getPessimistModel(compactState);
+			LabelledTransitionSystem pessimisticModel = getPessimistModel(compactState);
 			compositeState.setErrorTrace(new ArrayList<String>());
 
 			if (!MTSUtils.isEmptyMTS(pessimisticModel)) {
-				printLine("Phase II: Does " + compositeState.name
+				printLine("Phase II: Does " + compositeState.getName()
 						+ "- have errors?", ltsOutput);
 
-				toCheck = new Vector<CompactState>();
+				toCheck = new Vector<LabelledTransitionSystem>();
 				toCheck.add(pessimisticModel);
 				compositeState.setMachines(toCheck);
-				compositeState.composition = null;
+				compositeState.setComposition(null);
 
 				compositeState.analyse(checkDeadlocks, ltsOutput);
 
 				if (compositeState.getErrorTrace() == null
 						|| compositeState.getErrorTrace().isEmpty()) {
 					// M- |= FI
-					printLine(compositeState.name
+					printLine(compositeState.getName()
 							+ "- does not have errors. Which means that...",
 							ltsOutput);
 					printLine(
 							"*****************************************************************",
 							ltsOutput);
-					printLine("Model " + compositeState.name
+					printLine("Model " + compositeState.getName()
 							+ " has some implementations with errors."
 							+ reference, ltsOutput);
 					printLine(
@@ -1010,14 +1010,16 @@ public class TransitionSystemDispatcher {
 							ltsOutput);
 				} else {
 					// M- !|= FI
-					printLine(compositeState.name
+					printLine(compositeState.getName()
 							+ "- does have errors. Which means that...",
 							ltsOutput);
 					printLine(
 							"*****************************************************************",
 							ltsOutput);
-					printLine("All implmentations of  " + compositeState.name
-							+ " have errors." + reference, ltsOutput);
+					printLine(
+							"All implmentations of  "
+									+ compositeState.getName()
+									+ " have errors." + reference, ltsOutput);
 					printLine(
 							"*****************************************************************",
 							ltsOutput);
@@ -1026,14 +1028,15 @@ public class TransitionSystemDispatcher {
 
 				// complementar la propiedad
 				// armar el buchi de la propiedad.
-				printLine("Phase II: " + compositeState.name
+				printLine("Phase II: " + compositeState.getName()
 						+ "- turned out to be empty. Does the complement of "
-						+ compositeState.name + "+ have errors?", ltsOutput);
+						+ compositeState.getName() + "+ have errors?",
+						ltsOutput);
 
-				CompactState originalProperty = null;
-				for (Iterator<CompactState> it = machines.iterator(); it
+				LabelledTransitionSystem originalProperty = null;
+				for (Iterator<LabelledTransitionSystem> it = machines.iterator(); it
 						.hasNext();) {
-					CompactState aModel = it.next();
+					LabelledTransitionSystem aModel = it.next();
 					if (MTSUtils.isPropertyModel(aModel)) {
 						originalProperty = aModel;
 						break;
@@ -1042,17 +1045,17 @@ public class TransitionSystemDispatcher {
 				if (originalProperty == null) {
 					Diagnostics.fatal("There must be a property to check.");
 				}
-				compositeState.composition = compactState;
-				compositeState.machines = machines;
+				compositeState.setComposition(compactState);
+				compositeState.setMachines(machines);
 
-				CompactState property = TransitionSystemDispatcher
+				LabelledTransitionSystem property = TransitionSystemDispatcher
 						.buildBuchiFromProperty(compositeState, ltsOutput);
 
 				// chequear M+ junto con la propiedad complementada y dar
 				// resultado.
-				compositeState.composition = getOptimisticModel(compactState,
-						ltsOutput);
-				Vector<CompactState> propVector = new Vector<CompactState>();
+				compositeState.setComposition(getOptimisticModel(compactState,
+						ltsOutput));
+				Vector<LabelledTransitionSystem> propVector = new Vector<>();
 				propVector.add(property);
 				CompositeState propertyComp = new CompositeState(propVector);
 				propertyComp.compose(ltsOutput);
@@ -1064,14 +1067,16 @@ public class TransitionSystemDispatcher {
 					// M+ !|= NOT FI
 
 					printLine(
-							compositeState.name
+							compositeState.getName()
 									+ "+ does not satisfy the complement of the property. This means that... ",
 							ltsOutput);
 					printLine(
 							"*****************************************************************",
 							ltsOutput);
-					printLine("All implmentations of  " + compositeState.name
-							+ " have errors." + reference, ltsOutput);
+					printLine(
+							"All implmentations of  "
+									+ compositeState.getName()
+									+ " have errors." + reference, ltsOutput);
 					printLine(
 							"*****************************************************************",
 							ltsOutput);
@@ -1079,13 +1084,13 @@ public class TransitionSystemDispatcher {
 				} else {
 					// M+ |= NOT FI
 					printLine(
-							compositeState.name
+							compositeState.getName()
 									+ "+ satisfies the complement of the property. This means that... ",
 							ltsOutput);
 					printLine(
 							"*****************************************************************",
 							ltsOutput);
-					printLine("Model " + compositeState.name
+					printLine("Model " + compositeState.getName()
 							+ " has implementations with errors." + reference,
 							ltsOutput);
 					printLine(
@@ -1107,11 +1112,11 @@ public class TransitionSystemDispatcher {
 		compositeState.setMachines(machines);
 	}
 
-	private static CompactState buildBuchiFromProperty(
+	private static LabelledTransitionSystem buildBuchiFromProperty(
 			CompositeState compositeState, LTSOutput ltsOutput) {
 
 		// mover a mtsUtils
-		CompactState compactState = getProperty(compositeState);
+		LabelledTransitionSystem compactState = getProperty(compositeState);
 		MTS<Long, String> property = AutomataToMTSConverter.getInstance()
 				.convert(compactState);
 
@@ -1123,10 +1128,10 @@ public class TransitionSystemDispatcher {
 				compactState.getName());
 	}
 
-	private static CompactState getProperty(CompositeState compositeState) {
-		for (Iterator<CompactState> it = compositeState.machines.iterator(); it
-				.hasNext();) {
-			CompactState compactState = it.next();
+	private static LabelledTransitionSystem getProperty(CompositeState compositeState) {
+		for (Iterator<LabelledTransitionSystem> it = compositeState.getMachines()
+				.iterator(); it.hasNext();) {
+			LabelledTransitionSystem compactState = it.next();
 			if (MTSUtils.isPropertyModel(compactState)) {
 				return compactState;
 			}
@@ -1147,23 +1152,25 @@ public class TransitionSystemDispatcher {
 		applyComposition(compositeState, ltsOutput);
 		if (MTSUtils.isMTSRepresentation(compositeState)) {
 			MTS<Long, String> mts = AutomataToMTSConverter.getInstance()
-					.convert((CompactState) compositeState.getComposition());
+					.convert((LabelledTransitionSystem) compositeState.getComposition());
 
 			String reference = "[Mising Reference]";
 			int deadlockStatus = MTSAFacade.getDeadlockStatus(mts);
 			if (deadlockStatus == 1) {
-				String output = "All implementations of " + compositeState.name
-						+ " have a deadlock state." + reference;
+				String output = "All implementations of "
+						+ compositeState.getName() + " have a deadlock state."
+						+ reference;
 				ltsOutput.outln(output);
 
 				return false;
 			} else if (deadlockStatus == 2) {
-				String output = "All implementations of " + compositeState.name
-						+ " are deadlock free." + reference;
+				String output = "All implementations of "
+						+ compositeState.getName() + " are deadlock free."
+						+ reference;
 				ltsOutput.outln(output);
 			} else {
 				String output = "Some implementations of "
-						+ compositeState.name
+						+ compositeState.getName()
 						+ " are deadlock free while others have a deadlock state."
 						+ reference;
 				ltsOutput.outln(output);
@@ -1233,21 +1240,21 @@ public class TransitionSystemDispatcher {
 			String reference = "[TOSEM]";
 			printLine(" ", ltsOutput);
 			printLine(" ", ltsOutput);
-			printLine("Starting model check of " + compositeState.name
-					+ " against property " + ltlProperty.name, ltsOutput);
+			printLine("Starting model check of " + compositeState.getName()
+					+ " against property " + ltlProperty.getName(), ltsOutput);
 
-			Vector<CompactState> machines = compositeState.getMachines();
-			CompactState composition = compositeState.getComposition();
+			Vector<LabelledTransitionSystem> machines = compositeState.getMachines();
+			LabelledTransitionSystem composition = compositeState.getComposition();
 
-			CompactState optimistModel = getOptimisticModel(composition,
+			LabelledTransitionSystem optimistModel = getOptimisticModel(composition,
 					ltsOutput);
-			Vector<CompactState> toCheck = new Vector<CompactState>();
+			Vector<LabelledTransitionSystem> toCheck = new Vector<LabelledTransitionSystem>();
 			toCheck.add(optimistModel);
 			compositeState.setMachines(toCheck);
 
 			printLine(" ", ltsOutput);
-			printLine("Phase I: Does " + compositeState.name + "+ satisfy "
-					+ ltlProperty.name + "?", ltsOutput);
+			printLine("Phase I: Does " + compositeState.getName()
+					+ "+ satisfy " + ltlProperty.getName() + "?", ltsOutput);
 
 			// phase I checking
 			compositeState.checkLTL(ltsOutput, ltlProperty);
@@ -1256,31 +1263,35 @@ public class TransitionSystemDispatcher {
 					|| compositeState.getErrorTrace().isEmpty()) {
 				// M+ |= FI
 				printLine(" ", ltsOutput);
-				printLine("Yes. " + compositeState.name + "+ satisfies. "
-						+ ltlProperty.name, ltsOutput);
+				printLine("Yes. " + compositeState.getName() + "+ satisfies. "
+						+ ltlProperty.getName(), ltsOutput);
 				printLine("This means that...", ltsOutput);
 				printLine(
 						"*****************************************************************",
 						ltsOutput);
-				printLine("All deadlock-free implementations of "
-						+ compositeState.name + " satisfy " + ltlProperty.name
-						+ " " + reference, ltsOutput);
+				printLine(
+						"All deadlock-free implementations of "
+								+ compositeState.getName() + " satisfy "
+								+ ltlProperty.getName() + " " + reference,
+						ltsOutput);
 				printLine(
 						"*****************************************************************",
 						ltsOutput);
 
 			} else {
 				printLine(" ", ltsOutput);
-				printLine("No. " + compositeState.name + "+ does not satisfy "
-						+ ltlProperty.name, ltsOutput);
+				printLine("No. " + compositeState.getName()
+						+ "+ does not satisfy " + ltlProperty.getName(),
+						ltsOutput);
 				printLine(
 						"This means that some deadlock-free implementations of "
-								+ compositeState.name + " do not satisfy "
-								+ ltlProperty.name, ltsOutput);
+								+ compositeState.getName() + " do not satisfy "
+								+ ltlProperty.getName(), ltsOutput);
 
 				// M-
-				CompactState pessimisticModel = getPessimistModel(composition);
-				compositeState.setErrorTrace(ListUtils.EMPTY_LIST);
+
+				LabelledTransitionSystem pessimisticModel = getPessimistModel(composition);
+				compositeState.setErrorTrace(new ArrayList<String>());
 
 				if (!MTSUtils.isEmptyMTS(pessimisticModel)) {
 					// M- is not the empty MTS
@@ -1290,8 +1301,9 @@ public class TransitionSystemDispatcher {
 					compositeState.setMachines(toCheck);
 
 					printLine(" ", ltsOutput);
-					printLine("Phase II: Does " + compositeState.name
-							+ "- satisfy " + ltlProperty.name + "?", ltsOutput);
+					printLine("Phase II: Does " + compositeState.getName()
+							+ "- satisfy " + ltlProperty.getName() + "?",
+							ltsOutput);
 
 					// phase II checking
 					compositeState.checkLTL(ltsOutput, ltlProperty);
@@ -1299,17 +1311,17 @@ public class TransitionSystemDispatcher {
 					if (compositeState.getErrorTrace() == null
 							|| compositeState.getErrorTrace().isEmpty()) {
 						// M- |= FI
-						printLine("Yes. " + compositeState.name
-								+ "- does satisfy " + ltlProperty.name
+						printLine("Yes. " + compositeState.getName()
+								+ "- does satisfy " + ltlProperty.getName()
 								+ ", which means that...", ltsOutput);
 						printLine(
 								"*****************************************************************",
 								ltsOutput);
 						printLine(
 								"There exists a deadlock-free implementation of "
-										+ compositeState.name
+										+ compositeState.getName()
 										+ " that satisfies "
-										+ ltlProperty.name
+										+ ltlProperty.getName()
 										+ " but there may be deadlock-free implementations "
 										+ "that violate the property. This is the case in which thorough semantics "
 										+ "is approximated by inductive semantics. "
@@ -1319,15 +1331,16 @@ public class TransitionSystemDispatcher {
 								ltsOutput);
 					} else {
 						// M- !|= FI
-						printLine("No. " + compositeState.name
-								+ "- does not satisfy " + ltlProperty.name
+						printLine("No. " + compositeState.getName()
+								+ "- does not satisfy " + ltlProperty.getName()
 								+ ", which means that...", ltsOutput);
 						printLine(
 								"*****************************************************************",
 								ltsOutput);
 						printLine("No deadlock-free implementation of "
-								+ compositeState.name + " satisfies "
-								+ ltlProperty.name + " " + reference, ltsOutput);
+								+ compositeState.getName() + " satisfies "
+								+ ltlProperty.getName() + " " + reference,
+								ltsOutput);
 						printLine(
 								"*****************************************************************",
 								ltsOutput);
@@ -1335,14 +1348,17 @@ public class TransitionSystemDispatcher {
 
 				} else {
 					printLine(" ", ltsOutput);
-					printLine("Phase II: As " + compositeState.name
+					printLine("Phase II: As " + compositeState.getName()
 							+ "- is empty it cannot be checked against "
-							+ ltlProperty.name + ". " + reference, ltsOutput);
-					printLine("Will check " + compositeState.name
-							+ "+ against the negation of " + ltlProperty.name
-							+ " " + reference, ltsOutput);
-					printLine("Does " + compositeState.name + "+ satisfy "
-							+ notLtlProperty.name + "?", ltsOutput);
+							+ ltlProperty.getName() + ". " + reference,
+							ltsOutput);
+					printLine(
+							"Will check " + compositeState.getName()
+									+ "+ against the negation of "
+									+ ltlProperty.getName() + " " + reference,
+							ltsOutput);
+					printLine("Does " + compositeState.getName() + "+ satisfy "
+							+ notLtlProperty.getName() + "?", ltsOutput);
 
 					// phase II checking
 					compositeState.checkLTL(ltsOutput, notLtlProperty);
@@ -1350,36 +1366,39 @@ public class TransitionSystemDispatcher {
 					if (compositeState.getErrorTrace() == null
 							|| compositeState.getErrorTrace().isEmpty()) {
 						// M+ |= !FI
-						printLine("Yes. " + compositeState.name
-								+ "+ does satisfy " + notLtlProperty.name
+						printLine("Yes. " + compositeState.getName()
+								+ "+ does satisfy " + notLtlProperty.getName()
 								+ ", which means that...", ltsOutput);
 
 						printLine(
 								"*****************************************************************",
 								ltsOutput);
 						printLine("No deadlock-free implementation of "
-								+ compositeState.name + " satisfies "
-								+ ltlProperty.name + " " + reference, ltsOutput);
+								+ compositeState.getName() + " satisfies "
+								+ ltlProperty.getName() + " " + reference,
+								ltsOutput);
 						printLine(
 								"*****************************************************************",
 								ltsOutput);
 					} else {
 						// M+ !|= !FI
-						printLine("No. " + compositeState.name
-								+ "+ does not satisfy " + notLtlProperty.name
-								+ ", which means that...", ltsOutput);
+						printLine(
+								"No. " + compositeState.getName()
+										+ "+ does not satisfy "
+										+ notLtlProperty.getName()
+										+ ", which means that...", ltsOutput);
 
 						printLine(
 								"*****************************************************************",
 								ltsOutput);
 						printLine(
 								"There might exist some deadlock-free implementations of "
-										+ compositeState.name
+										+ compositeState.getName()
 										+ " that satisfy "
-										+ ltlProperty.name
+										+ ltlProperty.getName()
 										+ ", but there are deadlock-free implementations "
 										+ "that don't satisfty "
-										+ ltlProperty.name
+										+ ltlProperty.getName()
 										+ ". "
 										+ "This is the case in which thorough semantics "
 										+ "is approximated by inductive semantics. "
@@ -1392,7 +1411,7 @@ public class TransitionSystemDispatcher {
 			}
 
 			printLine(
-					compositeState.name
+					compositeState.getName()
 							+ " model checked in "
 							+ (System.currentTimeMillis() - initialCurrentTimeMillis)
 							+ "ms", ltsOutput);
@@ -1407,7 +1426,7 @@ public class TransitionSystemDispatcher {
 		}
 	}
 
-	/*
+	/**
 	 * This method applies the specified set of operations to the compositeState
 	 * parameter, including parallel composition, and then builds a new
 	 * CompositeState which machines vector is filled only with the just
@@ -1418,13 +1437,14 @@ public class TransitionSystemDispatcher {
 		if (compositeState.getComposition() == null) {
 			applyComposition(compositeState, ltsOutput);
 		}
-		Vector<CompactState> machines = new Vector<CompactState>();
+		Vector<LabelledTransitionSystem> machines = new Vector<>();
 		machines.add(compositeState.getComposition());
-		CompositeState cs = new CompositeState(compositeState.name, machines);
+		CompositeState cs = new CompositeState(compositeState.getName(),
+				machines);
 		cs.checkLTL(ltsOutput, ltlProperty);
 	}
 
-	private static CompactState saved = null;
+	private static LabelledTransitionSystem saved = null;
 
 	/**
 	 * Builds the <b>abstract</b> version of the original model. The result it's
@@ -1439,7 +1459,7 @@ public class TransitionSystemDispatcher {
 	 * @param output
 	 * @return
 	 */
-	public static CompactState getAbstractModel(CompactState compactState,
+	public static LabelledTransitionSystem getAbstractModel(LabelledTransitionSystem compactState,
 			LTSOutput output) {
 		long initialTime = System.currentTimeMillis();
 		MTSAbstractBuilder abstractBuilder = new MTSAbstractBuilder();
@@ -1482,7 +1502,7 @@ public class TransitionSystemDispatcher {
 	 * @param output
 	 * @return
 	 */
-	public static CompactState getTauClosure(CompactState compactState,
+	public static LabelledTransitionSystem getTauClosure(LabelledTransitionSystem compactState,
 			LTSOutput output) {
 		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert(
 				compactState);
@@ -1504,12 +1524,12 @@ public class TransitionSystemDispatcher {
 			LTSOutput output) {
 		long initialTime = System.currentTimeMillis();
 		if (compositeState.getComposition() != null) {
-			CompactState tauClosure = TransitionSystemDispatcher.getTauClosure(
+			LabelledTransitionSystem tauClosure = TransitionSystemDispatcher.getTauClosure(
 					compositeState.getComposition(), output);
 			compositeState.setComposition(tauClosure);
-			output.outln("Clousure model generated for " + compositeState.name
-					+ " in: " + (System.currentTimeMillis() - initialTime)
-					+ "ms.");
+			output.outln("Clousure model generated for "
+					+ compositeState.getName() + " in: "
+					+ (System.currentTimeMillis() - initialTime) + "ms.");
 		}
 	}
 
@@ -1521,8 +1541,8 @@ public class TransitionSystemDispatcher {
 	 * @param output
 	 * @return
 	 */
-	public static CompactState makeMTSConstraintModel(
-			CompactState compactState, LTSOutput output) {
+	public static LabelledTransitionSystem makeMTSConstraintModel(
+			LabelledTransitionSystem compactState, LTSOutput output) {
 		MTS<Long, String> constrained = AutomataToMTSConverter.getInstance()
 				.convert(compactState);
 
@@ -1551,10 +1571,10 @@ public class TransitionSystemDispatcher {
 		} else {
 			if (compositeState.makeController || compositeState.checkCompatible
 					|| compositeState.makeSyncController) {
-				Vector<CompactState> machines = new Vector<CompactState>();
+				Vector<LabelledTransitionSystem> machines = new Vector<LabelledTransitionSystem>();
 				machines.add(compositeState.getComposition());
-				CompositeState cs = new CompositeState(compositeState.name,
-						machines);
+				CompositeState cs = new CompositeState(
+						compositeState.getName(), machines);
 				cs.checkProgress(output);
 			} else {
 				compositeState.checkProgress(output);
@@ -1564,7 +1584,7 @@ public class TransitionSystemDispatcher {
 
 	public static void checkCompatible(CompositeState compositeState,
 			LTSOutput output) {
-		CompactState composition = compositeState.getComposition();
+		LabelledTransitionSystem composition = compositeState.getComposition();
 		if (composition != null) {
 			if (MTSUtils.isMTSRepresentation(composition)) {
 				Diagnostics
@@ -1590,7 +1610,7 @@ public class TransitionSystemDispatcher {
 	}
 
 	public static void makePlant(CompositeState compositeState, LTSOutput output) {
-		CompactState composition = compositeState.getComposition();
+		LabelledTransitionSystem composition = compositeState.getComposition();
 		if (composition != null) {
 			if (compositeState.goal != null) {
 				MTS<Long, String> env = AutomataToMTSConverter.getInstance()
@@ -1610,7 +1630,7 @@ public class TransitionSystemDispatcher {
 
 	public static void makeControlledDeterminisation(
 			CompositeState compositeState, LTSOutput output) {
-		CompactState composition = compositeState.getComposition();
+		LabelledTransitionSystem composition = compositeState.getComposition();
 		if (composition != null) {
 			GRControllerGoal<String> goal = compositeState.goal;
 			MTS<Long, String> env = AutomataToMTSConverter.getInstance()
@@ -1642,10 +1662,10 @@ public class TransitionSystemDispatcher {
 	// would be nice.
 	public static void synthesiseSyncController(CompositeState compositeState,
 			LTSOutput output) {
-		CompactState composition = compositeState.getComposition();
+		LabelledTransitionSystem composition = compositeState.getComposition();
 		if (composition != null) {
 			if (compositeState.goal != null) {
-				CompactState synthesiseController = synthesiseSyncController(
+				LabelledTransitionSystem synthesiseController = synthesiseSyncController(
 						compositeState, compositeState.goal, output);
 				if (synthesiseController != null) {
 					compositeState.setComposition(synthesiseController);
@@ -1660,10 +1680,10 @@ public class TransitionSystemDispatcher {
 		}
 	}
 
-	public static CompactState synthesiseSyncController(
+	public static LabelledTransitionSystem synthesiseSyncController(
 			CompositeState compositeState, GRControllerGoal<String> goal,
 			LTSOutput output) {
-		CompactState c = compositeState.composition;
+		LabelledTransitionSystem c = compositeState.getComposition();
 		long initialTime = System.currentTimeMillis();
 
 		// Validation
@@ -1707,7 +1727,7 @@ public class TransitionSystemDispatcher {
 		// process the output
 		if (synthesised == null) {
 			output.outln("There is no controller for model "
-					+ compositeState.name + " for the given setting.");
+					+ compositeState.getName() + " for the given setting.");
 			output.outln("Analysis time: "
 					+ (System.currentTimeMillis() - initialTime) + "ms.");
 			return null;
@@ -1723,7 +1743,7 @@ public class TransitionSystemDispatcher {
 			output.outln("Controller [" + plainController.getStates().size()
 					+ "] generated successfully.");
 
-			CompactState compactState = MTSToAutomataConverter.getInstance()
+			LabelledTransitionSystem compactState = MTSToAutomataConverter.getInstance()
 					.convert(plainController, compositeState.getName());
 			return compactState;
 		}
@@ -1731,10 +1751,10 @@ public class TransitionSystemDispatcher {
 
 	public static void synthesiseGR(CompositeState compositeState,
 			LTSOutput output) {
-		CompactState composition = compositeState.getComposition();
+		LabelledTransitionSystem composition = compositeState.getComposition();
 		if (composition != null) {
 			if (compositeState.goal != null) {
-				CompactState synthesiseController = synthesiseGR(
+				LabelledTransitionSystem synthesiseController = synthesiseGR(
 						compositeState, compositeState.goal, output);
 				if (synthesiseController != null) {
 					synthesiseController = applyLatencyHeuristic(
@@ -1753,10 +1773,10 @@ public class TransitionSystemDispatcher {
 
 	public static void synthesiseGRNoText(CompositeState compositeState,
 			LTSOutput output) {
-		CompactState composition = compositeState.getComposition();
+		LabelledTransitionSystem composition = compositeState.getComposition();
 		if (composition != null) {
 			if (compositeState.goal != null) {
-				CompactState synthesiseController = synthesiseGRNoText(
+				LabelledTransitionSystem synthesiseController = synthesiseGRNoText(
 						compositeState, compositeState.goal, output);
 				if (synthesiseController != null) {
 					compositeState.setComposition(synthesiseController);
@@ -1771,8 +1791,8 @@ public class TransitionSystemDispatcher {
 		}
 	}
 
-	private static CompactState applyLatencyHeuristic(
-			CompositeState compositeState, CompactState synthesiseController) {
+	private static LabelledTransitionSystem applyLatencyHeuristic(
+			CompositeState compositeState, LabelledTransitionSystem synthesiseController) {
 		GRControllerGoal<String> goal = compositeState.goal;
 		boolean PRUNNING_HEURISTIC_DEFINED = goal.isNonTransient()
 				|| !goal.getConcurrencyFluents().isEmpty();
@@ -1782,7 +1802,7 @@ public class TransitionSystemDispatcher {
 			HeuristicControllerSynthesiser<Long, String> synthesiser = new HeuristicControllerSynthesiser<Long, String>();
 			MTS<Long, String> plainController;
 			if (PRUNNING_HEURISTIC_DEFINED) {
-				CompactState e = compositeState.env;
+				LabelledTransitionSystem e = compositeState.getEnv();
 				MTS<Long, String> env = AutomataToMTSConverter.getInstance()
 						.convert(e);
 				System.out.println("Applying Heuristics!");
@@ -1800,7 +1820,7 @@ public class TransitionSystemDispatcher {
 
 	// ToDani: este metodo deberia ser synthesise y resolver que control problem
 	// hay que aplicar.
-	public static CompactState synthesiseGR(CompositeState compositeState,
+	public static LabelledTransitionSystem synthesiseGR(CompositeState compositeState,
 			GRControllerGoal<String> goal, LTSOutput output) {
 
 		// ToDani: MTS env =
@@ -1809,7 +1829,7 @@ public class TransitionSystemDispatcher {
 		// ControlProblemFactory.buildControlProblem(env, goal).solve()
 		// ToDani: return MTSToAutomata.convert(controller);
 
-		CompactState c = compositeState.composition;
+		LabelledTransitionSystem c = compositeState.getComposition();
 
 		long initialTime = System.currentTimeMillis();
 
@@ -1823,8 +1843,10 @@ public class TransitionSystemDispatcher {
 				output.outln("Solving the partial observability control problem.");
 				TauRemoval.muAddition(env, "-2", MTSConstants.TAU);
 				TauRemoval.apply(env, MTSConstants.TAU);
-				c = compositeState.composition = MTSToAutomataConverter
-						.getInstance().convert(env, compositeState.name, isMTS);
+				compositeState.setComposition(MTSToAutomataConverter
+						.getInstance().convert(env, compositeState.getName(),
+								isMTS));
+				c = compositeState.getComposition();
 			} else {
 				output.outln("Solving the nondeterministic control problem.");
 			}
@@ -1853,7 +1875,7 @@ public class TransitionSystemDispatcher {
 				makeControlledDeterminisation(compositeState, output);
 				output.outln("Determinisation time: "
 						+ (System.currentTimeMillis() - time) + "ms.");
-				CompactState synthesiseController = synthesiseGR(
+				LabelledTransitionSystem synthesiseController = synthesiseGR(
 						compositeState, goal, output);
 				if (synthesiseController != null) {
 					MTS<Long, String> temp = AutomataToMTSConverter
@@ -1863,9 +1885,9 @@ public class TransitionSystemDispatcher {
 					if (c.hasTau())
 						TauRemoval.muRemoval(temp, "-2");
 					// compositeState.setComposition(MTSToAutomataConverter.getInstance().convert(temp,
-					// compositeState.name));
+					// compositeState.getName()));
 					return MTSToAutomataConverter.getInstance().convert(temp,
-							compositeState.name, isMTS);
+							compositeState.getName(), isMTS);
 				} else {
 					return null;
 				}
@@ -1873,7 +1895,7 @@ public class TransitionSystemDispatcher {
 
 			if (synthesised == null) {
 				output.outln("There is no controller for model "
-						+ compositeState.name + " for the given setting.");
+						+ compositeState.getName() + " for the given setting.");
 				output.outln("Analysis time: "
 						+ (System.currentTimeMillis() - initialTime) + "ms.");
 				return null;
@@ -1885,7 +1907,7 @@ public class TransitionSystemDispatcher {
 				output.outln("Controller ["
 						+ plainController.getStates().size()
 						+ "] generated successfully.");
-				CompactState compactState = MTSToAutomataConverter
+				LabelledTransitionSystem compactState = MTSToAutomataConverter
 						.getInstance().convert(plainController,
 								compositeState.getName(), isMTS);
 				compactState = minimise(compactState, output);
@@ -1908,7 +1930,7 @@ public class TransitionSystemDispatcher {
 
 			if (synthesised == null) {
 				output.outln("There is no controller for model "
-						+ compositeState.name + " for the given setting.");
+						+ compositeState.getName() + " for the given setting.");
 				output.outln("Analysis time: "
 						+ (System.currentTimeMillis() - initialTime) + "ms.");
 				return null;
@@ -1925,7 +1947,7 @@ public class TransitionSystemDispatcher {
 				output.outln("Controller ["
 						+ plainController.getStates().size()
 						+ "] generated successfully.");
-				CompactState controller = MTSToAutomataConverter.getInstance()
+				LabelledTransitionSystem controller = MTSToAutomataConverter.getInstance()
 						.convert(plainController, compositeState.getName(),
 								isMTS);
 				controller.setMtsControlProblemAnswer("ALL");
@@ -1967,7 +1989,7 @@ public class TransitionSystemDispatcher {
 				// disjunction);
 				output.outln("All implementations of "
 						+ compositeState.getName() + " can be controlled");
-				CompactState controller = MTSToAutomataConverter.getInstance()
+				LabelledTransitionSystem controller = MTSToAutomataConverter.getInstance()
 						.convert(plainController, compositeState.getName());
 				controller.setMtsControlProblemAnswer("ALL");
 				return controller;
@@ -1996,7 +2018,7 @@ public class TransitionSystemDispatcher {
 						+ " can be controlled and some cannot.");
 				MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>()
 						.transform(synthesised);
-				CompactState controller = MTSToAutomataConverter.getInstance()
+				LabelledTransitionSystem controller = MTSToAutomataConverter.getInstance()
 						.convert(plainController, compositeState.getName());
 				controller.setMtsControlProblemAnswer("SOME");
 				return controller;
@@ -2004,7 +2026,7 @@ public class TransitionSystemDispatcher {
 		}
 	}
 
-	public static CompactState synthesiseGRNoText(
+	public static LabelledTransitionSystem synthesiseGRNoText(
 			CompositeState compositeState, GRControllerGoal<String> goal,
 			LTSOutput output) {
 
@@ -2014,9 +2036,9 @@ public class TransitionSystemDispatcher {
 		// ControlProblemFactory.buildControlProblem(env, goal).solve()
 		// ToDani: return MTSToAutomata.convert(controller);
 
-		CompactState c = compositeState.composition;
+		LabelledTransitionSystem c = compositeState.getComposition();
 
-		long initialTime = System.currentTimeMillis();
+		System.currentTimeMillis();
 
 		boolean isMTS = MTSUtils.isMTSRepresentation(c);
 
@@ -2027,8 +2049,10 @@ public class TransitionSystemDispatcher {
 			if (c.hasTau()) {
 				TauRemoval.muAddition(env, "-2", MTSConstants.TAU);
 				TauRemoval.apply(env, MTSConstants.TAU);
-				c = compositeState.composition = MTSToAutomataConverter
-						.getInstance().convert(env, compositeState.name, isMTS);
+				compositeState.setComposition(MTSToAutomataConverter
+						.getInstance().convert(env, compositeState.getName(),
+								isMTS));
+				c = compositeState.getComposition();
 			}
 
 			MTS<StrategyState<Set<Long>, Integer>, String> synthesised = null;
@@ -2048,9 +2072,9 @@ public class TransitionSystemDispatcher {
 			} else {
 				// synthesising Legal Controllers
 				// check: do i need to embed fluents?
-				long time = System.currentTimeMillis();
+				System.currentTimeMillis();
 				makeControlledDeterminisation(compositeState, output);
-				CompactState synthesiseController = synthesiseGR(
+				LabelledTransitionSystem synthesiseController = synthesiseGR(
 						compositeState, goal, output);
 				if (synthesiseController != null) {
 					MTS<Long, String> temp = AutomataToMTSConverter
@@ -2060,9 +2084,9 @@ public class TransitionSystemDispatcher {
 					if (c.hasTau())
 						TauRemoval.muRemoval(temp, "-2");
 					// compositeState.setComposition(MTSToAutomataConverter.getInstance().convert(temp,
-					// compositeState.name));
+					// compositeState.getName()));
 					return MTSToAutomataConverter.getInstance().convert(temp,
-							compositeState.name, isMTS);
+							compositeState.getName(), isMTS);
 				} else {
 					return null;
 				}
@@ -2073,7 +2097,7 @@ public class TransitionSystemDispatcher {
 			} else {
 				MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Set<Long>, Integer>, String>()
 						.transform(synthesised);
-				CompactState compactState = MTSToAutomataConverter
+				LabelledTransitionSystem compactState = MTSToAutomataConverter
 						.getInstance().convert(plainController,
 								compositeState.getName(), isMTS);
 				compactState = minimise(compactState, output);
@@ -2103,7 +2127,7 @@ public class TransitionSystemDispatcher {
 				recordControllerStateLabels(transformer.getStateMapping(),
 						facade.getGame(), goal); // needed for MDP translation
 
-				CompactState controller = MTSToAutomataConverter.getInstance()
+				LabelledTransitionSystem controller = MTSToAutomataConverter.getInstance()
 						.convert(plainController, compositeState.getName(),
 								isMTS);
 				controller.setMtsControlProblemAnswer("ALL");
@@ -2141,7 +2165,7 @@ public class TransitionSystemDispatcher {
 				// TraceInclusionClosure.getInstance().applyMTSClosure(plainController,
 				// disjunction);
 
-				CompactState controller = MTSToAutomataConverter.getInstance()
+				LabelledTransitionSystem controller = MTSToAutomataConverter.getInstance()
 						.convert(plainController, compositeState.getName());
 				controller.setMtsControlProblemAnswer("ALL");
 				return controller;
@@ -2164,7 +2188,7 @@ public class TransitionSystemDispatcher {
 			} else {
 				MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>()
 						.transform(synthesised);
-				CompactState controller = MTSToAutomataConverter.getInstance()
+				LabelledTransitionSystem controller = MTSToAutomataConverter.getInstance()
 						.convert(plainController, compositeState.getName());
 				controller.setMtsControlProblemAnswer("SOME");
 				return controller;
@@ -2249,7 +2273,7 @@ public class TransitionSystemDispatcher {
 	 * @param output
 	 * @return
 	 */
-	public static CompactState getStarEnv(CompactState c, LTSOutput output) {
+	public static LabelledTransitionSystem getStarEnv(LabelledTransitionSystem c, LTSOutput output) {
 		long initialTime = System.currentTimeMillis();
 		MTS<Long, String> env = AutomataToMTSConverter.getInstance().convert(c);
 		MTS<Pair<Long, Set<String>>, String> envStar = ControllerUtils
@@ -2316,8 +2340,9 @@ public class TransitionSystemDispatcher {
 	 */
 
 	public static int numberMachinesToDraw(CompositeState compositeState) {
-		boolean isComposite = (compositeState != null && compositeState.composition != null);
-		int numMachines = compositeState.machines.size();
+		boolean isComposite = (compositeState != null && compositeState
+				.getComposition() != null);
+		int numMachines = compositeState.getMachines().size();
 		;
 		if (MTSUtils.isMTSRepresentation(compositeState)) {
 			if (isComposite)
@@ -2339,9 +2364,9 @@ public class TransitionSystemDispatcher {
 	 * @param output
 	 * @return
 	 */
-	public static boolean tryDistribution(CompactState systemModelCS,
+	public static boolean tryDistribution(LabelledTransitionSystem systemModelCS,
 			DistributionDefinition distributionDefinition, LTSOutput output,
-			Collection<CompactState> calculatedDistributedComponents) {
+			Collection<LabelledTransitionSystem> calculatedDistributedComponents) {
 		Validate.notNull(calculatedDistributedComponents,
 				"A set to store the calculated components must be provided");
 		Validate.notNull(systemModelCS, "System model is null");
@@ -2397,7 +2422,7 @@ public class TransitionSystemDispatcher {
 					MTS<Long, String> mTSComponentLongString = toLongStringMTSConverter
 							.transform(mTSComponent);
 
-					CompactState compactStateComponent = converter.convert(
+					LabelledTransitionSystem compactStateComponent = converter.convert(
 							mTSComponentLongString, componentName);
 
 					// add the component to the result
@@ -2453,7 +2478,7 @@ public class TransitionSystemDispatcher {
 	 * @param output
 	 * @return
 	 */
-	private static CompactState getComponentModel(CompactState composition,
+	private static LabelledTransitionSystem getComponentModel(LabelledTransitionSystem composition,
 			Vector<String> componentAlphabet, LTSOutput output) {
 
 		MTS<Long, String> compositionMTS = AutomataToMTSConverter.getInstance()
@@ -2507,10 +2532,10 @@ public class TransitionSystemDispatcher {
 				}
 
 				MTSToAutomataConverter converter = new MTSToAutomataConverter();
-				CompactState compactState = (CompactState) converter.convert(
-						mts, compositeState.name);
+				LabelledTransitionSystem compactState = (LabelledTransitionSystem) converter.convert(
+						mts, compositeState.getName());
 				compositeState.setComposition(compactState);
-				output.outln("property model for: " + compositeState.name);
+				output.outln("property model for: " + compositeState.getName());
 			} else {
 				// TODO: CHECK WHAT TO DO IN THIS CASE
 				Diagnostics.fatal("Property keword is not defined for MTS");
@@ -2519,7 +2544,7 @@ public class TransitionSystemDispatcher {
 
 	}
 
-	public static CompactState synthesiseControlStack(CompositeState cStackDef,
+	public static LabelledTransitionSystem synthesiseControlStack(CompositeState cStackDef,
 			LTSOutput output) {
 		return ControlStackSynthesiser
 				.synthesiseControlStack(cStackDef, output);

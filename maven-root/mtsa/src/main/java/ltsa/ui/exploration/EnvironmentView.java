@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ltsa.ui.Transition;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
@@ -30,7 +30,7 @@ public class EnvironmentView {
 		// Generate a LTS that simulates the environment view
 		originalLTS = _environmentView;
 		AutomataToMTSConverter mtsConverter = AutomataToMTSConverter.getInstance();
-		CompactState machine = _environmentView.machines.get(0);
+		LabelledTransitionSystem machine = _environmentView.getMachines().get(0);
 		mts = mtsConverter.convert(machine);
 		Set<String> viewActions = new HashSet<String>(); 
 		viewActions.addAll(mts.getActions());

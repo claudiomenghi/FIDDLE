@@ -1,17 +1,25 @@
 package ltsa.lts.animator;
 
 import java.util.BitSet;
+import java.util.Set;
 
-import ltsa.lts.lts.LTSConstants;
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.LTSConstants;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.util.collections.MyList;
 
 public class ModelExplorerContext {
-	public int Nmach;											// number of machines to be composed
-	public boolean canTerminate;								// alpha(nonTerm) subset alpha(term)
-	public CompactState[] sm;									// array of state machines to be composed
+	/**
+	 * number of machines to be composed
+	 */
+	public int Nmach;
+	/**
+	 * alpha(nonTerm) subset alpha(term)
+	 */
+	public boolean canTerminate;								
+	public LabelledTransitionSystem[] sm;									// array of state machines to be composed
 	public PartialOrder partial;
 	public int asteriskEvent = -1; 								// number of asterisk event
+	public int endEvent; 
 	public int[] actionCount;									// number of machines which share this action;
 	public BitSet highAction = null;							// actions with high priority
 	public int acceptEvent = -1;								// number of acceptance label @NAME
@@ -21,4 +29,6 @@ public class ModelExplorerContext {
 	public MyList compTrans;									// list of transitions
 	public boolean[] violated;									// true if this property already violated
 	public String[] actionName;
+	
+	public Set<byte[]> finalStates;
 }

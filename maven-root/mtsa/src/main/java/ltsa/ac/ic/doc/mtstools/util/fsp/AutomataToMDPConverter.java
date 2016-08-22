@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import ltsa.lts.lts.EventState;
-import ltsa.lts.lts.ProbabilisticEventState;
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
+import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MDP;
@@ -54,8 +54,8 @@ public class AutomataToMDPConverter
     return res;
   }
   
-  public MDP convert(CompactState automata) {
-    this.mdp = new MDP(modelConverterUtils.rank(automata.START()));
+  public MDP convert(LabelledTransitionSystem automata) {
+    this.mdp = new MDP(modelConverterUtils.rank(automata.start()));
     
     indexToAction = new String[automata.getAlphabet().length];
     
@@ -68,7 +68,7 @@ public class AutomataToMDPConverter
   }
   
 
-  private void addActions(CompactState automata) {
+  private void addActions(LabelledTransitionSystem automata) {
     String[] alphabet = automata.getAlphabet();
     Map<String,Integer> reverseMap = new HashMap<String,Integer>();
 
@@ -85,35 +85,8 @@ public class AutomataToMDPConverter
     }
   }
 
-  /*private void printEverything(CompactState automaton)
-  {
-    for (int i = 0; i < automaton.states.length; i++)
-      if (automaton.states[i] != null)
-        printEverything(i, automaton.states[i]);
-  }
-  
-  private void printEverything(int s, EventState e)
-  {
-    System.out.println("*"+s+"--"+indexToAction[e.getEvent()]+"-->"+e.getNext());
-    for (Object o : Collections.list(e.elements()))
-      if (o != e)
-        printEverything(s, (EventState) o);
-    if (EventState.hasNonDet(e))
-      for (Object o2 : Collections.list(e.elements()))
-        if (o2 != e)
-          printEverything(s, (EventState) o2);
-    if (e instanceof ProbabilisticEventState)
-    {
-      ProbabilisticEventState pe = (ProbabilisticEventState) e;
-      if (pe.getBundleTransitions() != null)
-        for (Object o2 : Collections.list(pe.getBundleTransitions().elements()))
-          if (o2 != e)
-            printEverything(s, (EventState) o2);
-    }
-    
-  }*/
 
-  private void addTransitions(CompactState automaton)
+  private void addTransitions(LabelledTransitionSystem automaton)
   {
     Queue<Long> stateQueue = new LinkedList<Long>();
     
@@ -123,10 +96,10 @@ public class AutomataToMDPConverter
       System.out.println("Processing "+actualState);
       if (automaton.isAccepting((int) actualState))
         mdp.addStateLabel(actualState, "accepting");
-      if (automaton.states[(int) actualState] != null)
-      for (Object o : Collections.list(automaton.states[(int) actualState].elements()))
+      if (automaton.getStates()[(int) actualState] != null)
+      for (Object o : Collections.list(automaton.getStates()[(int) actualState].elements()))
       {
-        EventState ev = (EventState) o;
+        LTSTransitionList ev = (LTSTransitionList) o;
         long next = ev.getNext();
         String action = indexToAction[ev.getEvent()];
         if (!mdp.getStates().contains(next))
@@ -177,14 +150,14 @@ public class AutomataToMDPConverter
           mdp.addTransition(actualState, action, next);
         }
         
-        if (EventState.hasNonDet(ev))
+        if (LTSTransitionList.hasNonDet(ev))
         {
           System.out.println(indexToAction[ev.getEvent()]+"-->"+ev.getNext()+" has nondet (mdpconverter)");
           for (Object o2 : Collections.list(ev.elements()))
           {
             if (o2 != o)
             {
-              EventState ev2 = (EventState) o2;
+              LTSTransitionList ev2 = (LTSTransitionList) o2;
               long next2 = ev2.getNext();
               if (!mdp.getStates().contains(next2))
               {

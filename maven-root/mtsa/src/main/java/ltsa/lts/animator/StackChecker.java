@@ -1,6 +1,6 @@
 package ltsa.lts.animator;
 
-import ltsa.lts.operations.composition.StackCheck;
+import ltsa.lts.operations.composition.parallel.StackCheck;
 
 /* 
 * pachage stack check and state coding for PartialOrder

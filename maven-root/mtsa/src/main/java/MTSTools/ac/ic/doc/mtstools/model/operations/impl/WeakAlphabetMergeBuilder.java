@@ -51,11 +51,11 @@ public class WeakAlphabetMergeBuilder implements MergeBuilder {
 	}
 
 
-	@SuppressWarnings("unchecked")
+	@Override
 	public <S1, S2, A> MTS<Object, A> merge(MTS<S1, A> mtsA, MTS<S2, A> mtsB) {
 
-		Set<A> alphabetAminusB = new HashSet<A>(CollectionUtils.subtract(mtsA.getActions(), mtsB.getActions()));
-		Set<A> alphabetBminusA = new HashSet<A>(CollectionUtils.subtract(mtsB.getActions(), mtsA.getActions()));
+		Set<A> alphabetAminusB = new HashSet<>(CollectionUtils.subtract(mtsA.getActions(), mtsB.getActions()));
+		Set<A> alphabetBminusA = new HashSet<>(CollectionUtils.subtract(mtsB.getActions(), mtsA.getActions()));
 		
 		alphabetAminusB.addAll((Collection<? extends A>) this.silentActions);
 		alphabetBminusA.addAll((Collection<? extends A>) this.silentActions);
@@ -72,7 +72,7 @@ public class WeakAlphabetMergeBuilder implements MergeBuilder {
 		Validate.isTrue(refB.isARefinement(mtsB, bestCR),"CR doesn't refine model B");
 	
 		
-		Queue<Object> stateToProcess = new LinkedList<Object>();
+		Queue<Object> stateToProcess = new LinkedList<>();
 		
 		
 		Set<Set<A>> actionsPartition = this.createActionsPartition(mtsA.getActions(), mtsB.getActions());
@@ -360,7 +360,5 @@ public class WeakAlphabetMergeBuilder implements MergeBuilder {
 		MTSQuickClone<S,A> result = new MTSQuickClone<S, A>(mts);
 		result.deepClone(state);
 		return result;
-	}
-	
-		
+	}	
 }

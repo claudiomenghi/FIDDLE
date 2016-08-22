@@ -44,13 +44,13 @@ public class ControllerGoalDefinition {
 
 	public ControllerGoalDefinition(Symbol current) {
 		this.name = current;
-		this.safetyDefinitions = new ArrayList<Symbol>();
-		this.assumeDefinitions = new ArrayList<Symbol>();
-		this.guaranteeDefinitions = new ArrayList<Symbol>();
-		this.faultsDefinitions = new ArrayList<Symbol>();
+		this.safetyDefinitions = new ArrayList<>();
+		this.assumeDefinitions = new ArrayList<>();
+		this.guaranteeDefinitions = new ArrayList<>();
+		this.faultsDefinitions = new ArrayList<>();
 		this.isPermissive = false;
-		this.concurrencyDefinitions = new ArrayList<Symbol>();
-		this.activityDefinitions = new ArrayList<Symbol>();
+		this.concurrencyDefinitions = new ArrayList<>();
+		this.activityDefinitions = new ArrayList<>();
 		this.lazyness = 0;
 		this.nonTransient = false;
 		this.testLatency = false;

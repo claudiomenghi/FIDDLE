@@ -7,470 +7,6 @@ import java.util.Set;
 
 public class Symbol {
 
-	public int kind;
-	public int startPos; // start offset of token in input
-	public int endPos = -1; // end offset of token in input
-
-	private String string; // holds identifiers as well as string literals
-	private int longValue;
-	private BigDecimal doubleValue;
-	private Object any; // add additional information
-
-	public Symbol(String string) {
-		this();
-		this.string=string;
-	}
-	public Symbol(String string, int type) {
-		this();
-		this.string=string;
-		this.kind=type;
-	}
-	
-	public Symbol() {
-		this.kind = UNKNOWN_TYPE;
-	};
-
-	public Symbol(Symbol copy) {
-		this.kind = copy.kind;
-		this.startPos = copy.startPos;
-		this.endPos = copy.endPos;
-		this.string = copy.string;
-		this.longValue = copy.longValue;
-		this.doubleValue = copy.doubleValue;
-		this.any = copy.any;
-	}
-
-	public Symbol(Symbol copy, String name) {
-		this(copy);
-		this.string = name;
-	}
-
-	public Symbol(int kind) {
-		this.kind = kind;
-		this.startPos = -1;
-		this.string = null;
-		this.longValue = 0;
-		this.doubleValue = BigDecimal.ZERO;
-	}
-
-	public Symbol(int kind, String s) {
-		this.kind = kind;
-		this.startPos = -1;
-		this.string = s;
-		this.longValue = 0;
-		this.doubleValue = BigDecimal.ZERO;
-	}
-
-	public Symbol(int kind, double v) {
-		this.kind = kind;
-		this.startPos = -1;
-		this.string = null;
-		this.doubleValue = new BigDecimal(v);
-	}
-
-	public Symbol(int kind, BigDecimal v) {
-		this.kind = kind;
-		this.startPos = -1;
-		this.string = null;
-		this.doubleValue = v;
-	}
-
-	public void setString(String s) {
-		string = s;
-	}
-
-	public String getValue() {
-		return this.string;
-	}
-
-	public void setValue(BigDecimal val) {
-		doubleValue = val;
-	}
-
-	public BigDecimal doubleValue() {
-		return doubleValue;
-	}
-
-	public int intValue() {
-		return longValue;
-	}
-
-	public void setAny(Object o) {
-		any = o;
-	}
-
-	public Object getAny() {
-		return any;
-	}
-
-	// _______________________________________________________________________________________
-	// isScalarType
-
-	public boolean isScalarType() {
-		switch (kind) {
-		case BOOLEAN_TYPE:
-		case DOUBLE_TYPE:
-		case INT_TYPE:
-		case STRING_TYPE:
-			return true;
-
-		default:
-			return false;
-		}
-	}
-
-	/*--------------------------------------------------------*/
-
-	private Color commentColor = new Color(102, 153, 153);
-	private Color upperColor = new Color(0, 0, 160);
-	private static Set<Integer> blueSymbols = new HashSet<>();
-
-	public Color getColor() {
-		if (kind > 0 && kind <= INIT || blueSymbols.contains(kind))
-			return Color.blue;
-		else if (kind == COMMENT)
-			return commentColor;
-		else if (kind == INT_VALUE || kind == STRING_VALUE
-				|| kind == DOUBLE_VALUE)
-			return Color.red;
-		else if (kind == UPPERIDENT)
-			return upperColor;
-		else
-			return Color.black;
-	}
-
-	@Override
-	public String toString() {
-		// _______________________________________________________________________________________
-		// Keywords
-		// _______________________________________________________________________________________
-		switch (kind) {
-
-		case PRECONDITION:
-			return "precondition";
-		case BOX:
-			return "box";
-		case LTLPRECONDITION:
-			return "ltl_precondition";
-		case POSTCONDITION:
-			return "postcondition";
-		case LTLPOSTCONDITION:
-			return "ltl_postcondition";
-		case CONSTANT:
-			return "const";
-		case PROPERTY:
-			return "property";
-		case RANGE:
-			return "range";
-		case IF:
-			return "if";
-		case THEN:
-			return "then";
-		case ELSE:
-			return "else";
-		case FORALL:
-			return "forall";
-		case WHEN:
-			return "when";
-		case SET:
-			return string == null ? "set" : string;
-		case PROGRESS:
-			return "progress";
-		case MENU:
-			return "menu";
-		case ANIMATION:
-			return "animation";
-		case ACTIONS:
-			return "actions";
-		case CONTROLS:
-			return "controls";
-		case DETERMINISTIC:
-			return "determinstic";
-		case OPTIMISTIC:
-			return "optimistic";
-		case PESSIMISTIC:
-			return "pessimistic";
-		case CLOUSURE:
-			return "clousure";
-		case ABSTRACT:
-			return "abstract";
-		case PLUS_CA:
-			return "+ca";
-		case PLUS_CR:
-			return "+cr";
-		case MERGE:
-			return "++";
-		case MINIMAL:
-			return "minimal";
-		case COMPOSE:
-			return "compose";
-		case TARGET:
-			return "target";
-		case IMPORT:
-			return "import";
-		case UNTIL:
-			return "U";
-		case ASSERT:
-			return "assert";
-		case PREDICATE:
-			return "fluent";
-		case NEXTTIME:
-			return "X";
-		case EXISTS:
-			return "exists";
-		case RIGID:
-			return "rigid";
-		case CONSTRAINT:
-			return "constraint";
-		case LTLPROPERTY:
-			return "ltl_property";
-		case INIT:
-			return "initially";
-		case CONTROLLER:
-			return "controller";
-		case SYNC_CONTROLLER:
-			return "Synchronous Controller";
-		case STARENV:
-			return "starenv";
-		case PLANT:
-			return "plant";
-		case CHECK_COMPATIBILITY:
-			return "check compatibility";
-		case GOAL:
-			return "controller spec";
-		case UPDATING_CONTROLLER:
-			return "updating controller";
-		case ASSUME:
-			return "assumption";
-		case FAULT:
-			return "failure";
-		case GUARANTEE:
-			return "liveness";
-		case SAFETY:
-			return "safety";
-		case OLD_CONTROLLER:
-			return "old controller";
-		case OLD_ENVIRONMENT:
-			return "old environment";
-		case HAT_ENVIRONMENT:
-			return "hat environment";
-		case NEW_ENVIRONMENT:
-			return "new environment";
-		case OLD_GOAL:
-			return "old goal";
-		case NEW_GOAL:
-			return "new goal";
-		case TRANSITION:
-			return "transition";
-		case OLD_PROPOSITIONS:
-			return "old propositions";
-		case NEW_PROPOSITIONS:
-			return "new propositions";
-		case UPDATE_DEBUG:
-			return "debug mode";
-		case UPDATE_CHECK_TRACE:
-			return "check trace in environment";
-		case GRAPH_UPDATE:
-			return "graph update";
-		case GRAPH_INITIAL_STATE:
-			return "initial state";
-		case GRAPH_TRANSITIONS:
-			return "transitions";
-		case PERMISSIVE:
-			return "permissive";
-		case CONTROLLABLE:
-			return "controllable";
-		case CONTROLLED_DET:
-			return "controllable determinisation";
-		case CONTROLLER_NB:
-			return "Nonblocking controller";
-		case CONTROLLER_LAZYNESS:
-			return "Controller Lazyness value";
-		case EXCEPTION_HANDLING:
-			return "Exception Handling controller";
-		case CONTROL_STACK:
-			return "controlstack";
-		case CONTROL_TIER:
-			return "tier";
-		case ENACTMENT:
-			return "enactment";
-		case COMPONENT:
-			return "component";
-		case DEF:
-			return "def";
-		case FOREACH:
-			return "foreach";
-		case BOOLEAN_TYPE:
-			return "boolean";
-		case DOUBLE_TYPE:
-			return "double";
-		case INT_TYPE:
-			return "int";
-		case STRING_TYPE:
-			return "string";
-		case UNKNOWN_TYPE:
-			return "unknown";
-
-			// _______________________________________________________________________________________
-
-		case UPPERIDENT:
-			return string;
-		case IDENTIFIER:
-			return string;
-		case LABELCONST:
-			return string;
-		case INT_VALUE:
-			return doubleValue.intValue() + "";
-		case DOUBLE_VALUE:
-			return doubleValue + "";
-		case STRING_VALUE:
-			return string;
-
-			// _______________________________________________________________________________________
-			// Charts
-
-		case PRECHART:
-			return "prechart";
-		case MAINCHART:
-			return "mainchart";
-		case ETRIGGEREDSCENARIO:
-			return "eTS";
-		case UTRIGGEREDSCENARIO:
-			return "uTS";
-		case RESTRICTS:
-			return "restricts";
-		case INSTANCES:
-			return "instances";
-		case CONDITION:
-			return "condition";
-
-			// _______________________________________________________________________________________
-			// Distribution
-		case DISTRIBUTION:
-			return "distribution";
-		case SYSTEM_MODEL:
-			return "systemModel";
-		case OUTPUT_FILE_NAME:
-			return "outputFileName";
-		case DISTRIBUTED_ALPHABETS:
-			return "distributedAlphabets";
-
-			// _______________________________________________________________________________________
-			// Expression symbols
-
-		case UNARY_MINUS:
-			return "-";
-		case UNARY_PLUS:
-			return "+";
-		case PLUS:
-			return "+";
-		case MINUS:
-			return "-";
-		case STAR:
-			return "*";
-		case DIVIDE:
-			return "/";
-		case MODULUS:
-			return "%";
-		case POWER:
-			return "$";
-		case CIRCUMFLEX:
-			return "^";
-		case SINE:
-			return "~";
-		case QUESTION:
-			return "?";
-		case COLON:
-			return ":";
-		case COLON_COLON:
-			return "::";
-		case COMMA:
-			return ",";
-		case OR:
-			return "||";
-		case BITWISE_OR:
-			return "|";
-		case AND:
-			return "&&";
-		case BITWISE_AND:
-			return "&";
-		case NOT_EQUAL:
-			return "!=";
-		case PLING:
-			return "!";
-		case LESS_THAN_EQUAL:
-			return "<=";
-		case LESS_THAN:
-			return "<";
-		case SHIFT_LEFT:
-			return "<<";
-		case GREATER_THAN_EQUAL:
-			return ">=";
-		case GREATER_THAN:
-			return ">";
-		case SHIFT_RIGHT:
-			return ">>";
-		case EQUALS:
-			return "==";
-		case LROUND:
-			return "(";
-		case RROUND:
-			return ")";
-		case QUOTE:
-			return "'";
-		case HASH:
-			return "#";
-		case EVENTUALLY:
-			return "<>";
-		case ALWAYS:
-			return "[]";
-		case EQUIVALENT:
-			return "<->";
-		case WEAKUNTIL:
-			return "W";
-
-			// _______________________________________________________________________________________
-			// Others
-
-		case LCURLY:
-			return "{";
-		case RCURLY:
-			return "}";
-		case LSQUARE:
-			return "[";
-		case RSQUARE:
-			return "]";
-		case BECOMES:
-			return "=";
-		case SEMICOLON:
-			return ";";
-		case DOT:
-			return ".";
-		case DOT_DOT:
-			return "..";
-		case AT:
-			return "@";
-		case ARROW:
-			return "->";
-		case BACKSLASH:
-			return "\\";
-			// _______________________________________________________________________________________
-			// Special
-
-			// _______________________________________________________________________________________
-			// Probabilistic
-		case PROBABILISTIC:
-			return "probabilistic";
-		case MDP:
-			return "mdp";
-		case EOFSYM:
-			return "EOF";
-
-		default:
-			return "ERROR";
-		}
-	}
-
 	// _______________________________________________________________________________________
 	// Keywords
 	public static final int CONSTANT = 1;
@@ -670,16 +206,482 @@ public class Symbol {
 
 	// _______________________________________________________________________________________
 	// Pre and post conditions
-	public static final int PRECONDITION = 7000;
-	public static final int POSTCONDITION = 7001;
 	public static final int LTLPRECONDITION = 7002;
 	public static final int LTLPOSTCONDITION = 7003;
 	public static final int BOX = 7004;
+	public static final int REPLACEMENT = 7006;
+	public static final int FINAL = 7007;
+
+	public int kind;
+	public int startPos; // start offset of token in input
+	public int endPos = -1; // end offset of token in input
+
+	private String string; // holds identifiers as well as string literals
+	private int longValue;
+	private BigDecimal doubleValue;
+	private Object any; // add additional information
+
+	public static final String replacementCheckingEvent="init";
+	
+	public Symbol(String string) {
+		this();
+		this.string = string;
+	}
+
+	public Symbol(String string, int type) {
+		this(string);
+		this.kind = type;
+	}
+
+	public Symbol() {
+		this.kind = UNKNOWN_TYPE;
+	};
+
+	public Symbol(Symbol copy) {
+		this.kind = copy.kind;
+		this.startPos = copy.startPos;
+		this.endPos = copy.endPos;
+		this.string = copy.string;
+		this.longValue = copy.longValue;
+		this.doubleValue = copy.doubleValue;
+		this.any = copy.any;
+	}
+
+	public Symbol(Symbol copy, String name) {
+		this(copy);
+		this.string = name;
+	}
+
+	public Symbol(int kind) {
+		this.kind = kind;
+		this.startPos = -1;
+		this.string = null;
+		this.longValue = 0;
+		this.doubleValue = BigDecimal.ZERO;
+	}
+
+	public Symbol(int kind, String s) {
+		this.kind = kind;
+		this.startPos = -1;
+		this.string = s;
+		this.longValue = 0;
+		this.doubleValue = BigDecimal.ZERO;
+	}
+
+	public Symbol(int kind, double v) {
+		this.kind = kind;
+		this.startPos = -1;
+		this.string = null;
+		this.doubleValue = new BigDecimal(v);
+	}
+
+	public Symbol(int kind, BigDecimal v) {
+		this.kind = kind;
+		this.startPos = -1;
+		this.string = null;
+		this.doubleValue = v;
+	}
+
+	public void setString(String s) {
+		string = s;
+	}
+
+	public String getValue() {
+		return this.string;
+	}
+
+	public void setValue(BigDecimal val) {
+		doubleValue = val;
+	}
+
+	public BigDecimal doubleValue() {
+		return doubleValue;
+	}
+
+	public int intValue() {
+		return longValue;
+	}
+
+	public void setAny(Object o) {
+		any = o;
+	}
+
+	public Object getAny() {
+		return any;
+	}
+
+	// _______________________________________________________________________________________
+	// isScalarType
+
+	public boolean isScalarType() {
+		switch (kind) {
+		case BOOLEAN_TYPE:
+		case DOUBLE_TYPE:
+		case INT_TYPE:
+		case STRING_TYPE:
+			return true;
+
+		default:
+			return false;
+		}
+	}
+
+	/*--------------------------------------------------------*/
+
+	private Color commentColor = new Color(102, 153, 153);
+	private Color upperColor = new Color(0, 0, 160);
+	private static Set<Integer> blueSymbols = new HashSet<>();
+
+	public Color getColor() {
+		if (kind > 0 && kind <= INIT || blueSymbols.contains(kind))
+			return Color.blue;
+		else if (kind == COMMENT)
+			return commentColor;
+		else if (kind == INT_VALUE || kind == STRING_VALUE
+				|| kind == DOUBLE_VALUE)
+			return Color.red;
+		else if (kind == UPPERIDENT)
+			return upperColor;
+		else
+			return Color.black;
+	}
+
+	@Override
+	public String toString() {
+		// _______________________________________________________________________________________
+		// Keywords
+		// _______________________________________________________________________________________
+		switch (kind) {
+
+		case REPLACEMENT:
+			return "replacement";
+		case FINAL:
+			return "final";
+		case BOX:
+			return "box";
+		case LTLPRECONDITION:
+			return "ltl_precondition";
+		case LTLPOSTCONDITION:
+			return "ltl_postcondition";
+		case CONSTANT:
+			return "const";
+		case PROPERTY:
+			return "property";
+		case RANGE:
+			return "range";
+		case IF:
+			return "if";
+		case THEN:
+			return "then";
+		case ELSE:
+			return "else";
+		case FORALL:
+			return "forall";
+		case WHEN:
+			return "when";
+		case SET:
+			return string == null ? "set" : string;
+		case PROGRESS:
+			return "progress";
+		case MENU:
+			return "menu";
+		case ANIMATION:
+			return "animation";
+		case ACTIONS:
+			return "actions";
+		case CONTROLS:
+			return "controls";
+		case DETERMINISTIC:
+			return "determinstic";
+		case OPTIMISTIC:
+			return "optimistic";
+		case PESSIMISTIC:
+			return "pessimistic";
+		case CLOUSURE:
+			return "clousure";
+		case ABSTRACT:
+			return "abstract";
+		case PLUS_CA:
+			return "+ca";
+		case PLUS_CR:
+			return "+cr";
+		case MERGE:
+			return "++";
+		case MINIMAL:
+			return "minimal";
+		case COMPOSE:
+			return "compose";
+		case TARGET:
+			return "target";
+		case IMPORT:
+			return "import";
+		case UNTIL:
+			return "U";
+		case ASSERT:
+			return "assert";
+		case PREDICATE:
+			return "fluent";
+		case NEXTTIME:
+			return "X";
+		case EXISTS:
+			return "exists";
+		case RIGID:
+			return "rigid";
+		case CONSTRAINT:
+			return "constraint";
+		case LTLPROPERTY:
+			return "ltl_property";
+		case INIT:
+			return "initially";
+		case CONTROLLER:
+			return "controller";
+		case SYNC_CONTROLLER:
+			return "Synchronous Controller";
+		case STARENV:
+			return "starenv";
+		case PLANT:
+			return "plant";
+		case CHECK_COMPATIBILITY:
+			return "check compatibility";
+		case GOAL:
+			return "controller spec";
+		case UPDATING_CONTROLLER:
+			return "updating controller";
+		case ASSUME:
+			return "assumption";
+		case FAULT:
+			return "failure";
+		case GUARANTEE:
+			return "liveness";
+		case SAFETY:
+			return "safety";
+		case OLD_CONTROLLER:
+			return "old controller";
+		case OLD_ENVIRONMENT:
+			return "old environment";
+		case HAT_ENVIRONMENT:
+			return "hat environment";
+		case NEW_ENVIRONMENT:
+			return "new environment";
+		case OLD_GOAL:
+			return "old goal";
+		case NEW_GOAL:
+			return "new goal";
+		case TRANSITION:
+			return "transition";
+		case OLD_PROPOSITIONS:
+			return "old propositions";
+		case NEW_PROPOSITIONS:
+			return "new propositions";
+		case UPDATE_DEBUG:
+			return "debug mode";
+		case UPDATE_CHECK_TRACE:
+			return "check trace in environment";
+		case GRAPH_UPDATE:
+			return "graph update";
+		case GRAPH_INITIAL_STATE:
+			return "initial state";
+		case GRAPH_TRANSITIONS:
+			return "transitions";
+		case PERMISSIVE:
+			return "permissive";
+		case CONTROLLABLE:
+			return "controllable";
+		case CONTROLLED_DET:
+			return "controllable determinisation";
+		case CONTROLLER_NB:
+			return "Nonblocking controller";
+		case CONTROLLER_LAZYNESS:
+			return "Controller Lazyness value";
+		case EXCEPTION_HANDLING:
+			return "Exception Handling controller";
+		case CONTROL_STACK:
+			return "controlstack";
+		case CONTROL_TIER:
+			return "tier";
+		case ENACTMENT:
+			return "enactment";
+		case COMPONENT:
+			return "component";
+		case DEF:
+			return "def";
+		case FOREACH:
+			return "foreach";
+		case BOOLEAN_TYPE:
+			return "boolean";
+		case DOUBLE_TYPE:
+			return "double";
+		case INT_TYPE:
+			return "int";
+		case STRING_TYPE:
+			return "string";
+		case UNKNOWN_TYPE:
+			return "unknown";
+
+			// _______________________________________________________________________________________
+
+		case UPPERIDENT:
+			return string;
+		case IDENTIFIER:
+			return string;
+		case LABELCONST:
+			return string;
+		case INT_VALUE:
+			return Integer.toString(doubleValue.intValue());
+		case DOUBLE_VALUE:
+			return doubleValue + "";
+		case STRING_VALUE:
+			return string;
+
+			// _______________________________________________________________________________________
+			// Charts
+
+		case PRECHART:
+			return "prechart";
+		case MAINCHART:
+			return "mainchart";
+		case ETRIGGEREDSCENARIO:
+			return "eTS";
+		case UTRIGGEREDSCENARIO:
+			return "uTS";
+		case RESTRICTS:
+			return "restricts";
+		case INSTANCES:
+			return "instances";
+		case CONDITION:
+			return "condition";
+
+			// _______________________________________________________________________________________
+			// Distribution
+		case DISTRIBUTION:
+			return "distribution";
+		case SYSTEM_MODEL:
+			return "systemModel";
+		case OUTPUT_FILE_NAME:
+			return "outputFileName";
+		case DISTRIBUTED_ALPHABETS:
+			return "distributedAlphabets";
+
+			// _______________________________________________________________________________________
+			// Expression symbols
+
+		case UNARY_MINUS:
+			return "-";
+		case UNARY_PLUS:
+			return "+";
+		case PLUS:
+			return "+";
+		case MINUS:
+			return "-";
+		case STAR:
+			return "*";
+		case DIVIDE:
+			return "/";
+		case MODULUS:
+			return "%";
+		case POWER:
+			return "$";
+		case CIRCUMFLEX:
+			return "^";
+		case SINE:
+			return "~";
+		case QUESTION:
+			return "?";
+		case COLON:
+			return ":";
+		case COLON_COLON:
+			return "::";
+		case COMMA:
+			return ",";
+		case OR:
+			return "||";
+		case BITWISE_OR:
+			return "|";
+		case AND:
+			return "&&";
+		case BITWISE_AND:
+			return "&";
+		case NOT_EQUAL:
+			return "!=";
+		case PLING:
+			return "!";
+		case LESS_THAN_EQUAL:
+			return "<=";
+		case LESS_THAN:
+			return "<";
+		case SHIFT_LEFT:
+			return "<<";
+		case GREATER_THAN_EQUAL:
+			return ">=";
+		case GREATER_THAN:
+			return ">";
+		case SHIFT_RIGHT:
+			return ">>";
+		case EQUALS:
+			return "==";
+		case LROUND:
+			return "(";
+		case RROUND:
+			return ")";
+		case QUOTE:
+			return "'";
+		case HASH:
+			return "#";
+		case EVENTUALLY:
+			return "<>";
+		case ALWAYS:
+			return "[]";
+		case EQUIVALENT:
+			return "<->";
+		case WEAKUNTIL:
+			return "W";
+
+			// _______________________________________________________________________________________
+			// Others
+
+		case LCURLY:
+			return "{";
+		case RCURLY:
+			return "}";
+		case LSQUARE:
+			return "[";
+		case RSQUARE:
+			return "]";
+		case BECOMES:
+			return "=";
+		case SEMICOLON:
+			return ";";
+		case DOT:
+			return ".";
+		case DOT_DOT:
+			return "..";
+		case AT:
+			return "@";
+		case ARROW:
+			return "->";
+		case BACKSLASH:
+			return "\\";
+			// _______________________________________________________________________________________
+			// Special
+
+			// _______________________________________________________________________________________
+			// Probabilistic
+		case PROBABILISTIC:
+			return "probabilistic";
+		case MDP:
+			return "mdp";
+		case EOFSYM:
+			return "EOF";
+
+		default:
+			return "ERROR";
+		}
+	}
 
 	static {
 		blueSymbols.add(BOX);
-		blueSymbols.add(PRECONDITION);
-		blueSymbols.add(POSTCONDITION);
+		blueSymbols.add(FINAL);
+		blueSymbols.add(REPLACEMENT);
 		blueSymbols.add(LTLPRECONDITION);
 		blueSymbols.add(LTLPOSTCONDITION);
 		blueSymbols.add(OPTIMISTIC);

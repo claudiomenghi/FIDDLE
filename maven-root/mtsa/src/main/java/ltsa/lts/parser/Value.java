@@ -18,7 +18,7 @@ public class Value {
         sval = String.valueOf(i);
     }
     
-    protected Value(String s) {   //convert string to integer of possible
+    public Value(String s) {   //convert string to integer of possible
         sval = s;
         try {
             val = new BigDecimal(s);

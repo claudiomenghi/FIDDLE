@@ -4,9 +4,9 @@ import java.util.Collections;
 
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSDeterminiser;
 import MTSTools.ac.ic.doc.mtstools.model.impl.WeakSimulationSemantics;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import ltsa.ui.StandardOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.LTSATestUtils;
@@ -47,18 +47,18 @@ public class MTSDeterminiserTest extends MTSTestBase {
 			TransitionSystemDispatcher.parallelComposition(composite, ltsOutput);
 			MTS<Long, String> toDet = AutomataToMTSConverter.getInstance().convert(composite.getComposition());
 			MTS<Long, String> deterministic = new MTSDeterminiser(toDet, false).determinize();
-			CompactState detAutomata = MTSToAutomataConverter.getInstance().convert(deterministic, composite.getName());
+			LabelledTransitionSystem detAutomata = MTSToAutomataConverter.getInstance().convert(deterministic, composite.getName());
 			result = AutomataToMTSConverter.getInstance().convert(detAutomata);
 			
 		} else {
 			TransitionSystemDispatcher.determinise(composite, ltsOutput);
-			CompactState composition = composite.getComposition();
+			LabelledTransitionSystem composition = composite.getComposition();
 			result = AutomataToMTSConverter.getInstance().convert(composition);
 		}
 		
 		CompositeState expectedComposite = LTSATestUtils.buildAutomataFromSource(expectedSourceString, expectedModel);
 		TransitionSystemDispatcher.applyComposition(expectedComposite, ltsOutput);
-		CompactState expectedComposition = expectedComposite.getComposition();
+		LabelledTransitionSystem expectedComposition = expectedComposite.getComposition();
 		
 		MTS<Long, String> expected = AutomataToMTSConverter.getInstance().convert(expectedComposition);
 

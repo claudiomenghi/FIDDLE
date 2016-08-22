@@ -21,6 +21,7 @@ public class StateVertex {
 		graphName = graph;
 	}
 	
+	@Override
 	public String toString() {
 		return String.valueOf(stateName);
 	}

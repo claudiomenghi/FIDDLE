@@ -3,7 +3,7 @@ package MTSATests.controller;
 import static MTSAClient.ac.ic.doc.mtsa.MTSCompiler.getInstance;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.CompositeState;
 
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class PermissiveControllerTests {
 		CompositeState model = getInstance().compileCompositeState("PERMISSIVE", TestConstants.fileFrom("permissive-controller.lts"), testLTSOuput);
 		String name = model.getComposition().getName();
 		assertTrue("There is no controller for C", !name.contains(ControlConstants.NO_CONTROLLER));
-		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.composition);
+		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.getComposition());
 		String permissiveAction = "#w#_c";
 		assertTrue(permissive.getActions().contains(permissiveAction));
 		assertFalse(permissive.getTransitions(permissive.getInitialState(), TransitionType.REQUIRED).getImage(permissiveAction).isEmpty());
@@ -34,7 +34,7 @@ public class PermissiveControllerTests {
 		CompositeState model = getInstance().compileCompositeState("C", TestConstants.fileFrom("permissive-controller.lts"), testLTSOuput);
 		String name = model.getComposition().getName();
 		assertTrue("There is no controller for C", !name.contains(ControlConstants.NO_CONTROLLER));
-		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.composition);
+		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.getComposition());
 		String permissiveAction = "#w#_c";
 		assertFalse(permissive.getActions().contains(permissiveAction));
 		assertTrue(permissive.getTransitions(permissive.getInitialState(), TransitionType.REQUIRED).getImage(permissiveAction).isEmpty());
@@ -48,7 +48,7 @@ public class PermissiveControllerTests {
 		CompositeState model = getInstance().compileCompositeState("PERMISSIVE", TestConstants.fileFrom("permissive-controller2.lts"), testLTSOuput);
 		String name = model.getComposition().getName();
 		assertTrue("There is no controller for C", !name.contains(ControlConstants.NO_CONTROLLER));
-		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.composition);
+		MTS<Long, String> permissive = AutomataToMTSConverter.getInstance().convert(model.getComposition());
 		String permissiveAction = "#w#_c";
 		assertTrue(permissive.getActions().contains(permissiveAction));
 		assertFalse(permissive.getTransitions(permissive.getInitialState(), TransitionType.REQUIRED).getImage(permissiveAction).isEmpty());

@@ -2,11 +2,11 @@ package ltsa.lts.checkers;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.csp.Declaration;
-import ltsa.lts.lts.EventState;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.output.LTSOutput;
 
 public class CounterExample {
 
@@ -18,17 +18,17 @@ public class CounterExample {
     }
 
     public void print(LTSOutput output , boolean checkDeadlocks ) {
-        EventState trace = new EventState(0,0);
+        LTSTransitionList trace = new LTSTransitionList(0,0);
         int findState = Declaration.ERROR;
         if (checkDeadlocks){
         	findState = Integer.MIN_VALUE;
         }
-        int result = EventState.search(
+        int result = LTSTransitionList.search(
                          trace,
-                         mach.composition.states,
+                         mach.getComposition().getStates(),
                          	0,
                          findState,
-                         mach.composition.endseq,
+                         mach.getComposition().getEndOfSequenceIndex(),
                          checkDeadlocks
                      );
         errorTrace = null;
@@ -38,11 +38,11 @@ public class CounterExample {
             break;
         case Declaration.STOP:
            output.outln("Trace to DEADLOCK:");
-           errorTrace = EventState.getPath(trace.getPath(),mach.composition.alphabet);
+           errorTrace = LTSTransitionList.getPath(trace.getPath(),mach.getComposition().getAlphabet());
            printPath(output,errorTrace);
            break;
         case Declaration.ERROR:
-           errorTrace = EventState.getPath(trace.getPath(),mach.composition.alphabet);
+           errorTrace = LTSTransitionList.getPath(trace.getPath(),mach.getComposition().getAlphabet());
            String name = findComponent(errorTrace);
            output.outln("Trace to property violation in "+name+":");
            printPath(output,errorTrace);
@@ -57,9 +57,9 @@ public class CounterExample {
     }
 
     private String findComponent(Vector<String> trace) {
-        Enumeration<CompactState> e = mach.machines.elements();
+        Enumeration<LabelledTransitionSystem> e = mach.getMachines().elements();
         while (e.hasMoreElements()) {
-            CompactState cs = e.nextElement();
+            LabelledTransitionSystem cs = e.nextElement();
             if (cs.isErrorTrace(trace)){
             	return cs.getName();
             }

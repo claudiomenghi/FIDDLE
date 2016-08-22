@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import ltsa.lts.lts.EventState;
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
 
 public class PartialOrder {
 
-	private CompactState machines[]; // array of machines to be composed
+	private LabelledTransitionSystem machines[]; // array of machines to be composed
 	private int[][] actionSharedBy; // [action number] list of machines that
 									// share action
 									// ordered by machine number
@@ -28,16 +28,26 @@ public class PartialOrder {
 	private boolean preserveOE; // if set preserve Observational Equivalence
 	private BitSet high;
 
-	public PartialOrder(Map<String, BitSet> alphabet, // map action name to bitmap of
-											// shared machines
-			String[] actionName, // map number to name;
-			CompactState[] sm, StackChecker ck, // array of state machines to be
-												// composed
-			Vector hidden, // vector of prefixes
-			boolean exposeNotHide, boolean OE, // preserve Observational
-												// Equivalence
-			BitSet high // null or set of high priority actions
-	) {
+	/**
+	 * 
+	 * @param alphabet
+	 *            map action name to bitmap of shared machines
+	 * @param actionName
+	 *            map number to name;
+	 * @param sm
+	 * @param ck
+	 *            array of state machines to be composed
+	 * @param hidden
+	 *            vector of prefixes
+	 * @param exposeNotHide
+	 * @param OE
+	 *            preserve Observational Equivalence
+	 * @param high
+	 *            null or set of high priority actions
+	 */
+	public PartialOrder(Map<String, BitSet> alphabet, String[] actionName,
+			LabelledTransitionSystem[] sm, StackChecker ck, Vector<String> hidden,
+			boolean exposeNotHide, boolean OE, BitSet high) {
 		machines = sm;
 		names = actionName;
 		Nactions = actionName.length;
@@ -56,10 +66,10 @@ public class PartialOrder {
 			if (hidden == null) {
 				visible.set(i);
 			} else if (exposeNotHide) {
-				if (CompactState.contains(actionName[i], hidden))
+				if (LabelledTransitionSystem.contains(actionName[i], hidden))
 					visible.set(i);
 			} else {
-				if (!CompactState.contains(actionName[i], hidden))
+				if (!LabelledTransitionSystem.contains(actionName[i], hidden))
 					visible.set(i);
 			}
 		}
@@ -68,14 +78,22 @@ public class PartialOrder {
 		candidates = computeCandidates();
 	}
 
-	public List transitions(int[] state) {
+	/**
+	 * given the current state returns the set of eligible transitions
+	 * 
+	 * @param state
+	 *            the state to be considered
+	 * @return the set of eligible transitions
+	 */
+	public List<int[]> transitions(int[] state) {
 		// find machine with all independent actions i.e. candidate == 1
 		for (int mach = 0; mach < machines.length; ++mach) {
 			if (candidates[mach][state[mach]] == 1) {
-				List trs = new ArrayList(8);
+				List<int[]> trs = new ArrayList<>(8);
 				boolean res = getMachTransitions(trs, mach, state, null);
-				if (res)
+				if (res) {
 					return trs;
+				}
 			}
 		}
 		// find pair of machines with independent actions
@@ -85,22 +103,24 @@ public class PartialOrder {
 				if (mach == partners[partner][state[partner]]) { // his partner
 																	// is me so
 																	// we match
-					List trs = getPairTransitions(mach, partner, state);
-					if (trs != null)
+					List<int[]> trs = getPairTransitions(mach, partner, state);
+					if (trs != null) {
 						return trs;
+					}
 				}
 			}
 		}
 		return null;
 	}
 
-	private boolean addTransitions(List trs, int[] state, int event, int first) {
+	private boolean addTransitions(List<int[]> trs, int[] state, int event,
+			int first) {
 		int[] saved = null;
 		int mach = actionSharedBy[event][first];
-		EventState p = machines[mach].states[state[mach]];
+		LTSTransitionList p = machines[mach].getStates()[state[mach]];
 		if (p != null)
 			saved = myclone(state, event);
-		p = EventState.firstCompState(p, event, state);
+		p = LTSTransitionList.firstCompState(p, event, state);
 		if (first < actionSharedBy[event].length - 1) {
 			if (!addTransitions(trs, state, event, first + 1))
 				return false;
@@ -111,7 +131,7 @@ public class PartialOrder {
 		}
 		while (p != null) {
 			int next[] = myclone(saved, event);
-			p = EventState.moreCompState(p, next);
+			p = LTSTransitionList.moreCompState(p, next);
 			if (first < actionSharedBy[event].length - 1) {
 				if (!addTransitions(trs, next, event, first + 1))
 					return false;
@@ -124,8 +144,8 @@ public class PartialOrder {
 		return true;
 	}
 
-	private List getPairTransitions(int mach, int partner, int[] state) { // candidate==2
-		List trs = new ArrayList(8);
+	private List<int[]> getPairTransitions(int mach, int partner, int[] state) { // candidate==2
+		List<int[]> trs = new ArrayList<>(8);
 		boolean res = true;
 		if (!preserveOE) {
 			// get unshared transitions for mach
@@ -143,10 +163,10 @@ public class PartialOrder {
 		}
 		// get shared transitions with partner
 		BitSet machB = new BitSet(Nactions);
-		EventState.hasEvents(machines[mach].states[state[mach]], machB);
+		LTSTransitionList.hasEvents(machines[mach].getStates()[state[mach]], machB);
 		BitSet partnerB = new BitSet(Nactions);
-		EventState
-				.hasEvents(machines[partner].states[state[partner]], partnerB);
+		LTSTransitionList
+				.hasEvents(machines[partner].getStates()[state[partner]], partnerB);
 		machB.and(partnerB);
 		if (preserveOE && countSet(machB) != 1)
 			return null;
@@ -162,9 +182,10 @@ public class PartialOrder {
 
 	private BitSet getUnshared(int mach, int state[]) {
 		BitSet b = new BitSet(Nactions);
-		Enumeration e = machines[mach].states[state[mach]].elements();
+		Enumeration<LTSTransitionList> e = machines[mach].getStates()[state[mach]]
+				.elements();
 		while (e.hasMoreElements()) {
-			EventState es = (EventState) e.nextElement();
+			LTSTransitionList es = (LTSTransitionList) e.nextElement();
 			if (es.getEvent() == 0) {
 				b.set(es.getEvent());
 			} else {
@@ -177,11 +198,12 @@ public class PartialOrder {
 		return b;
 	}
 
-	private boolean getMachTransitions(List trs, int mach, int[] state,
+	private boolean getMachTransitions(List<int[]> trs, int mach, int[] state,
 			BitSet single) {
-		Enumeration e = machines[mach].states[state[mach]].elements();
+		Enumeration<LTSTransitionList> e = machines[mach].getStates()[state[mach]]
+				.elements();
 		while (e.hasMoreElements()) {
-			EventState es = (EventState) e.nextElement();
+			LTSTransitionList es = e.nextElement();
 			if (single == null || single.get(es.getEvent())) {
 				int[] next = myclone(state, es.getEvent());
 				next[mach] = es.getNext();
@@ -228,22 +250,11 @@ public class PartialOrder {
 		return tmp;
 	}
 
-	private void printArray(String s, int[][] a) {
-		System.out.println(s);
-		for (int i = 0; i < a.length; ++i) {
-			System.out.print("Mach " + i + " --");
-			for (int j = 0; j < a[i].length; ++j) {
-				System.out.print(" " + a[i][j]);
-			}
-			System.out.println(".");
-		}
-	}
-
 	private void initPartners() {
 		partners = new int[machines.length][];
 		for (int i = 0; i < machines.length; ++i) {
-			partners[i] = new int[machines[i].states.length];
-			for (int j = 0; j < machines[i].states.length; ++j)
+			partners[i] = new int[machines[i].getStates().length];
+			for (int j = 0; j < machines[i].getStates().length; ++j)
 				partners[i][j] = -1;
 		}
 	}
@@ -251,9 +262,9 @@ public class PartialOrder {
 	private int[][] computeCandidates() {
 		int[][] cd = new int[machines.length][];
 		for (int i = 0; i < machines.length; ++i) {
-			cd[i] = new int[machines[i].states.length];
-			for (int j = 0; j < machines[i].states.length; ++j) {
-				int[] actions = EventState.localEnabled(machines[i].states[j]);
+			cd[i] = new int[machines[i].getStates().length];
+			for (int j = 0; j < machines[i].getStates().length; ++j) {
+				int[] actions = LTSTransitionList.localEnabled(machines[i].getStates()[j]);
 				cd[i][j] = candidateNumber(i, j, actions);
 			}
 		}
@@ -269,7 +280,7 @@ public class PartialOrder {
 	private int candidateNumber(int mach, int state, int[] actions) {
 		if (actions == null)
 			return 0;
-		if (preserveOE && EventState.hasNonDet(machines[mach].states[state]))
+		if (preserveOE && LTSTransitionList.hasNonDet(machines[mach].getStates()[state]))
 			return 0;
 		int cn = 0;
 		int singles = 0;

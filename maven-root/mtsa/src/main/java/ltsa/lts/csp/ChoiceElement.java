@@ -3,10 +3,11 @@ package ltsa.lts.csp;
 import java.util.Hashtable;
 import java.util.Stack;
 
-import ltsa.lts.lts.StateMachine;
-import ltsa.lts.parser.ActionLabels;
+import ltsa.lts.automata.automaton.StateMachine;
 import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.ActionLabels;
 
 /* ----------------------------------------------------------------------- */
 public class ChoiceElement extends Declaration {
@@ -22,7 +23,7 @@ public class ChoiceElement extends Declaration {
 		this.guard = guard;
 	}
 
-	private void add(int from, Hashtable locals, StateMachine m,
+	private void add(int from, Hashtable<String, Value> locals, StateMachine m,
 			ActionLabels action) {
 		action.initContext(locals, m.getConstants());
 		while (action.hasMoreNames()) {
@@ -35,7 +36,7 @@ public class ChoiceElement extends Declaration {
 		action.clearContext();
 	}
 
-	public void addTransition(int from, Hashtable locals, StateMachine m) {
+	public void addTransition(int from, Hashtable<String, Value> locals, StateMachine m) {
 		if (guard == null
 				|| Expression.evaluate(guard, locals, m.getConstants())
 						.intValue() != 0) {

@@ -6,8 +6,8 @@ import java.util.Vector;
 
 import ltsa.lts.Diagnostics;
 import ltsa.lts.gui.RunMenu;
-import ltsa.lts.parser.ActionLabels;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.actions.ActionLabels;
 
 
 /* -----------------------------------------------------------------------*/
@@ -21,11 +21,11 @@ public class MenuDefinition {
     public Vector controlMapDefn;
     public Vector animations;
 
-    public static Hashtable definitions;
+    public static Hashtable<String, MenuDefinition> definitions;
 
     public static void compile(){
         RunMenu.init();
-        Enumeration e = definitions.elements();
+        Enumeration<MenuDefinition> e = definitions.elements();
         while (e.hasMoreElements()){
             MenuDefinition m = (MenuDefinition)e.nextElement();
             RunMenu.add(m.makeRunMenu());
@@ -37,7 +37,7 @@ public class MenuDefinition {
         int n = definitions.size();
         String na[];
         if (n==0) return null; else na = new String[n];
-        Enumeration e = definitions.keys();
+        Enumeration<String> e = definitions.keys();
         int i = 0;
         while (e.hasMoreElements())
             na[i++] = (String)e.nextElement();
@@ -133,6 +133,4 @@ public class MenuDefinition {
       }
       
     }// end AnimationPart
-        
-
 }

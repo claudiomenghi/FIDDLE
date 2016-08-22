@@ -2,7 +2,7 @@ package ltsa.jung;
 
 import java.util.ArrayList;
 
-import ltsa.lts.lts.Alphabet;
+import ltsa.lts.automata.lts.Alphabet;
 
 /**
  * An action in a LTS, for use as an edge in LTSGraph

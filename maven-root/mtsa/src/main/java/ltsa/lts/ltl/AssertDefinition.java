@@ -15,29 +15,32 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import ltsa.lts.Diagnostics;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.operations.minimization.Minimiser;
-import ltsa.lts.parser.LTSOutput;
-import ltsa.lts.parser.LabelSet;
-import ltsa.lts.parser.Symbol;
 import ltsa.dispatcher.TransitionSystemDispatcher;
+import ltsa.lts.Diagnostics;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.ltl.formula.factory.FormulaFactory;
+import ltsa.lts.ltl.toba.Converter;
+import ltsa.lts.ltl.toba.GeneralizedBuchiAutomata;
+import ltsa.lts.operations.minimization.Minimiser;
+import ltsa.lts.output.LTSOutput;
+import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.LabelSet;
 
 public class AssertDefinition extends FormulaDefinition {
 	public static final String NOT_DEF = "NOT";
 
-
-	static Hashtable<String, AssertDefinition> definitions;
-	static Hashtable<String, AssertDefinition> constraints;
+	public static Hashtable<String, AssertDefinition> definitions;
+	public static Hashtable<String, AssertDefinition> constraints;
 	public static boolean addAsterisk = true;
-	
+
 	private boolean isConstraint;
 	boolean isProperty;
 
-
 	private AssertDefinition(Symbol n, FormulaSyntax f, LabelSet ls,
-			Hashtable ip, Vector p, boolean isConstraint, boolean isProperty) {
+			Hashtable<String, Value> ip, Vector<String> p,
+			boolean isConstraint, boolean isProperty) {
 		super(n, f, ls, ip, p);
 		this.isConstraint = isConstraint;
 		this.isProperty = isProperty;
@@ -52,7 +55,8 @@ public class AssertDefinition extends FormulaDefinition {
 	}
 
 	public static void put(Symbol n, FormulaSyntax f, LabelSet ls,
-			Hashtable ip, Vector p, boolean isConstraint, boolean isProperty) {
+			Hashtable<String, Value> ip, Vector<String> p,
+			boolean isConstraint, boolean isProperty) {
 		if (definitions == null)
 			definitions = new Hashtable<>();
 		if (constraints == null)
@@ -81,11 +85,10 @@ public class AssertDefinition extends FormulaDefinition {
 		if (definitions == null) {
 			return null;
 		}
-		System.out.println(definitions);
-		Enumeration e = definitions.keys();
+		Enumeration<String> e = definitions.keys();
 		List<String> defs = new ArrayList<>();
 		while (e.hasMoreElements()) {
-			String elem = (String) e.nextElement();
+			String elem = e.nextElement();
 			if (!elem.startsWith(AssertDefinition.NOT_DEF)) {
 				defs.add(elem);
 			}
@@ -102,16 +105,17 @@ public class AssertDefinition extends FormulaDefinition {
 		compileAll(constraints, output);
 	}
 
-	private static void compileAll(Hashtable definitions, LTSOutput output) {
+	private static void compileAll(
+			Hashtable<String, AssertDefinition> definitions, LTSOutput output) {
 		if (definitions == null)
 			return;
-		Enumeration e = definitions.keys();
+		Enumeration<String> e = definitions.keys();
 		while (e.hasMoreElements()) {
-			String name = (String) e.nextElement();
-			AssertDefinition p = (AssertDefinition) definitions.get(name);
+			String name = e.nextElement();
+			AssertDefinition p = definitions.get(name);
 			p.fac = new FormulaFactory();
-			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
-					p.initParams));
+			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac,
+					new Hashtable<>(), p.initParams));
 		}
 	}
 
@@ -119,15 +123,16 @@ public class AssertDefinition extends FormulaDefinition {
 		return compile(definitions, output, asserted, false);
 	}
 
-	public static void compileConstraints(LTSOutput output, Hashtable compiled) {
+	public static void compileConstraints(LTSOutput output,
+			Hashtable<String, LabelledTransitionSystem> compiled) {
 		if (constraints == null) {
 			return;
 		}
-		Enumeration e = constraints.keys();
+		Enumeration<String> e = constraints.keys();
 		while (e.hasMoreElements()) {
-			String name = (String) e.nextElement();
+			String name = e.nextElement();
 			if (!name.startsWith(AssertDefinition.NOT_DEF)) {
-				CompactState cm = compileConstraint(output, name);
+				LabelledTransitionSystem cm = compileConstraint(output, name);
 				compiled.put(cm.getName(), cm);
 			}
 		}
@@ -142,8 +147,8 @@ public class AssertDefinition extends FormulaDefinition {
 	 * @param pvalues
 	 * @return
 	 */
-	public static CompactState compileConstraint(LTSOutput output, Symbol name,
-			String refname, Vector pvalues) {
+	public static LabelledTransitionSystem compileConstraint(LTSOutput output, Symbol name,
+			String refname, Vector<Value> pvalues) {
 		if (constraints == null) {
 			return null;
 		}
@@ -157,31 +162,33 @@ public class AssertDefinition extends FormulaDefinition {
 			if (pvalues.size() != p.params.size())
 				Diagnostics.fatal("Actual parameters do not match formals: "
 						+ name, name);
-			Hashtable actualParams = new Hashtable();
+			Hashtable<String, Value> actualParams = new Hashtable<>();
 			for (int i = 0; i < pvalues.size(); ++i)
 				actualParams.put(p.params.elementAt(i), pvalues.elementAt(i));
-			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
-					actualParams));
+			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac,
+					new Hashtable<>(), actualParams));
 		} else {
-			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac, new Hashtable(),
-					p.initParams));
+			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac,
+					new Hashtable<>(), p.initParams));
 		}
 		CompositeState cs = compile(constraints, output, name.toString(), true);
 		if (cs == null) {
 			return null;
 		}
-		if (!cs.isProperty && !cs.name.startsWith(AssertDefinition.NOT_DEF)) {
-			Diagnostics.fatal("LTL constraint must be safety: " + p.getName(),
-					p.getName());
+		if (!cs.isProperty
+				&& !cs.getName().startsWith(AssertDefinition.NOT_DEF)) {
+			Diagnostics.fatal(
+					"LTL constraint must be safety: " + p.getSymbol(),
+					p.getSymbol());
 		}
 		if (!p.isProperty) {
-			cs.composition.unMakeProperty();
+			cs.getComposition().unMakeProperty();
 		}
-		cs.composition.setName(refname);
-		return cs.composition;
+		cs.getComposition().setName(refname);
+		return cs.getComposition();
 	}
 
-	public static CompactState compileConstraint(LTSOutput output,
+	public static LabelledTransitionSystem compileConstraint(LTSOutput output,
 			String constraint) {
 		CompositeState cs = compile(constraints, output, constraint, true);
 		if (cs == null) {
@@ -189,42 +196,44 @@ public class AssertDefinition extends FormulaDefinition {
 		}
 		if (!cs.isProperty) {
 			AssertDefinition p = constraints.get(constraint);
-			if (!cs.name.startsWith(AssertDefinition.NOT_DEF)) {
-				Diagnostics.fatal("LTL constraint must be safety: " + p.getName(),
-						p.getName());
+			if (!cs.getName().startsWith(AssertDefinition.NOT_DEF)) {
+				Diagnostics.fatal(
+						"LTL constraint must be safety: " + p.getSymbol(),
+						p.getSymbol());
 			}
 		}
 		if (!cs.isProperty) {
-			cs.composition.unMakeProperty();
+			cs.getComposition().unMakeProperty();
 		}
-		return cs.composition;
+		return cs.getComposition();
 	}
 
-	private static CompositeState compile(Hashtable definitions,
-			LTSOutput output, String asserted, boolean isconstraint) {
+	private static CompositeState compile(
+			Hashtable<String, AssertDefinition> definitions, LTSOutput output,
+			String asserted, boolean isconstraint) {
+		
 		if (definitions == null || asserted == null) {
 			return null;
 		}
-		AssertDefinition p = (AssertDefinition) definitions.get(asserted);
-		if (p == null) {
+		AssertDefinition assertDefinition = definitions.get(asserted);
+		if (assertDefinition == null) {
 			return null;
 		}
-		if (p.cached != null) {
-			return p.cached;
+		if (assertDefinition.cached != null) {
+			return assertDefinition.cached;
 		}
-		output.outln("Formula !" + p.getName().toString() + " = "
-				+ p.fac.getFormula());
-		Vector alpha = p.alphaExtension != null ? p.alphaExtension
+		output.outln("Formula !" + assertDefinition.getSymbol().toString()
+				+ " = " + assertDefinition.fac.getFormula());
+		Vector<String> alpha = assertDefinition.alphaExtension != null ? assertDefinition.alphaExtension
 				.getActions(null) : null;
 		if (alpha == null)
-			alpha = new Vector();
+			alpha = new Vector<>();
 		if (addAsterisk && !isconstraint)
 			alpha.add("*");
-		
-		System.out.println(p.fac.getFormula().getPropositions());
-		
+
 		GeneralizedBuchiAutomata gba = new GeneralizedBuchiAutomata(
-				p.getName().toString(), p.fac, alpha);
+				assertDefinition.getSymbol().toString(), assertDefinition.fac,
+				alpha);
 		gba.translate();
 		Graph g = gba.makeGBA();
 		output.outln("GBA " + g.getNodeCount() + " states " + g.getEdgeCount()
@@ -235,33 +244,33 @@ public class AssertDefinition extends FormulaDefinition {
 		g1 = Simplify.simplify(g1);
 		g1 = SFSReduction.reduce(g1);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Converter c = new Converter(p.getName().toString(), g1,
-				gba.getLabelFactory());
+		Converter c = new Converter(assertDefinition.getSymbol().toString(),
+				g1, gba.getLabelFactory());
 		output.outln("Buchi automata:");
 		c.printFSP(new PrintStream(baos));
 		output.out(baos.toString());
-		Vector procs = gba.getLabelFactory().propProcs;
+		Vector<LabelledTransitionSystem> procs = gba.getLabelFactory().propProcs;
 		procs.add(c);
 		CompositeState cs = new CompositeState(c.getName(), procs);
-		cs.hidden = gba.getLabelFactory().getPrefix();
+		cs.setHidden(gba.getLabelFactory().getPrefix());
 
 		PredicateDefinition[] fluents = gba.getLabelFactory().getFluents();
 		cs.setFluentTracer(new FluentTrace(fluents));
 		cs.compose(output, true);
-		cs.composition.removeNonDetTau();
-		output.outln("After Tau elimination = " + cs.composition.maxStates
-				+ " state");
-		Minimiser e = new Minimiser(cs.composition, output);
-		cs.composition = e.minimise();
-		if (cs.composition.isSafetyOnly()) {
-			cs.composition.makeSafety();
+		cs.getComposition().removeNonDetTau();
+		output.outln("After Tau elimination = "
+				+ cs.getComposition().getMaxStates() + " state");
+		Minimiser e = new Minimiser(cs.getComposition(), output);
+		cs.setComposition(e.minimise());
+		if (cs.getComposition().isSafetyOnly()) {
+			cs.getComposition().makeSafety();
 			cs.determinise(output);
 			cs.isProperty = true;
 		}
-		cs.composition.removeDetCycles("*");
+		cs.getComposition().removeDetCycles("*");
 
-		if (p.isConstraint && !p.isProperty) {
-			CompactState constrained = cs.getComposition();
+		if (assertDefinition.isConstraint && !assertDefinition.isProperty) {
+			LabelledTransitionSystem constrained = cs.getComposition();
 			// DIPI: temporal, hay que ver cuando aplicamos el constrained de
 			// MTS.
 			if (ltsa.lts.util.MTSUtils.isMTSRepresentation(constrained)) {
@@ -270,7 +279,7 @@ public class AssertDefinition extends FormulaDefinition {
 			}
 		}
 
-		p.cached = cs;
+		assertDefinition.cached = cs;
 		return cs;
 	}
 

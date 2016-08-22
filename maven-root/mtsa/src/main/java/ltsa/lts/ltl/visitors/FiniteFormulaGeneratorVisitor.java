@@ -5,7 +5,6 @@ package ltsa.lts.ltl.visitors;
 
 import java.util.Vector;
 
-import ltsa.lts.ltl.FormulaFactory;
 import ltsa.lts.ltl.formula.And;
 import ltsa.lts.ltl.formula.False;
 import ltsa.lts.ltl.formula.Formula;
@@ -16,6 +15,7 @@ import ltsa.lts.ltl.formula.Proposition;
 import ltsa.lts.ltl.formula.Release;
 import ltsa.lts.ltl.formula.True;
 import ltsa.lts.ltl.formula.Until;
+import ltsa.lts.ltl.formula.factory.FormulaFactory;
 import ltsa.lts.parser.Symbol;
 
 import com.google.common.base.Preconditions;
@@ -26,18 +26,15 @@ import com.google.common.base.Preconditions;
  */
 public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
 
-	private Symbol symbol;
-
+	
 	private FormulaFactory fac;
+	
+	private Formula end;
 
-	public FiniteFormulaGeneratorVisitor(Symbol symbol, FormulaFactory fac) {
-		Preconditions.checkNotNull(symbol, "The symbol cannot be null");
+	public FiniteFormulaGeneratorVisitor(FormulaFactory fac, Formula end) {
 		Preconditions.checkNotNull(fac, "The formula factory cannot be null");
-		this.symbol = symbol;
 		this.fac = fac;
-		Vector<String> vector=new Vector<>();
-		vector.add(symbol.toString());
-		this.fac.getActionPredicates().put(symbol.toString(), vector);
+		this.end=end;
 	}
 
 	/**
@@ -61,7 +58,7 @@ public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
 	 */
 	@Override
 	public Formula visit(Proposition p) {
-		
+
 		return fac.make(new Symbol(p.getSymbol()));
 
 	}
@@ -71,7 +68,7 @@ public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
 	 */
 	@Override
 	public Formula visit(Not n) {
-		return fac.makeNot(n);
+		return fac.makeNot(n.getNext().accept(this));
 	}
 
 	/**
@@ -98,8 +95,7 @@ public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
 		return fac.makeUntil(
 				u.getLeft().accept(this),
 				fac.makeAnd(u.getRight().accept(this),
-						fac.makeNot(
-								new Proposition(symbol).accept(this))));
+						fac.makeNot(end.accept(this))));
 	}
 
 	/**
@@ -107,12 +103,15 @@ public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
 	 */
 	@Override
 	public Formula visit(Release r) {
-		Formula finallyRigth = fac.makeNot(fac.makeUntil(True.make(),
-				fac.makeNot(r.getRight())));
+		//Formula finallyRigth = fac.makeNot(fac.makeUntil(True.make(),
+		//		fac.makeNot(r.getRight())));
 
-		return fac.makeOr(
-				fac.makeUntil(r.getRight(),
-						fac.makeAnd(r.getRight(), r.getLeft())), finallyRigth);
+		//return fac.makeOr(
+		//		fac.makeUntil(r.getRight(),
+		//				fac.makeAnd(r.getRight(), r.getLeft())), finallyRigth);
+		
+		return fac.makeNot(fac.makeUntil(fac.makeNot(r.getLeft()), fac.makeNot(r.getRight())).accept(this));
+		
 	}
 
 	/**
@@ -121,6 +120,6 @@ public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
 	@Override
 	public Formula visit(Next n) {
 		return fac.makeNext(fac.makeAnd(n.getNext().accept(this),
-				fac.makeNot(new Proposition(symbol).accept(this))));
+				fac.makeNot(end)));
 	}
 }

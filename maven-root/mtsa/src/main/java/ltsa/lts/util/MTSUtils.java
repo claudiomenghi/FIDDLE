@@ -7,8 +7,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.util.collections.MyList;
 
 import org.apache.commons.lang.StringUtils;
@@ -89,13 +89,13 @@ public class MTSUtils {
 	 * @param compositeState
 	 */
 	public static boolean isMTSRepresentation(CompositeState compositeState) {
-		CompactState composition = compositeState.composition;
+		LabelledTransitionSystem composition = compositeState.getComposition();
 		if (composition != null) {
 			if (isMTSRepresentation(composition)) {
 				return true;
 			}
 		} else {
-			for (CompactState compactState : compositeState.machines) {
+			for (LabelledTransitionSystem compactState : compositeState.getMachines()) {
 				if (isMTSRepresentation(compactState)) {
 					return true;
 				}
@@ -108,16 +108,23 @@ public class MTSUtils {
 	 * Returns true if there is at least one maybe transition in
 	 * <code>compactState</code>
 	 * 
-	 * @param automata
+	 * @param compactState
 	 */
-	public static boolean isMTSRepresentation(CompactState compactState) {
-		for (int i = 0; i < compactState.states.length; i++) {
-			MyList transitions = compactState
-					.getTransitions(MTSUtils.encode(i));
+	public static boolean isMTSRepresentation(LabelledTransitionSystem compactState) {
+		for (int stateIndex = 0; stateIndex < compactState.getStates().length; stateIndex++) {
+			MyList transitions = compactState.getTransitions(MTSUtils
+					.encode(stateIndex));
 			while (!transitions.empty()) {
-				if (isMaybe(compactState.getAlphabet()[transitions.getAction()])) {
-					return true;
-				}
+				//if (compactState.getAlphabet().length <= transitions.getAction()) {
+				//	throw new IllegalArgumentException("Machine: "
+				//			+ compactState.getName()
+				//			+ " transitions with action: "
+				//			+ transitions.getAction()
+				//			+ " not contained in the automaton");
+				//}
+				//if (isMaybe(compactState.getAlphabet()[transitions.getAction()])) {
+				//	return true;
+				//}
 				transitions.next();
 			}
 		}
@@ -170,7 +177,7 @@ public class MTSUtils {
 	}
 
 	private static String[] removeTauAndDuplicates(String[] oldAlphabet) {
-		Set<String> labels = new HashSet<String>();
+		Set<String> labels = new HashSet<>();
 		for (int i = 0; i < oldAlphabet.length; i++) {
 			String label = MTSUtils.getAction(oldAlphabet[i]);
 			if (!label.equals(MTSConstants.TAU)) {
@@ -225,9 +232,9 @@ public class MTSUtils {
 	 * Returns true if compactState has no transition from initial state.
 	 * 
 	 */
-	public static boolean isEmptyMTS(CompactState compactState) {
+	public static boolean isEmptyMTS(LabelledTransitionSystem compactState) {
 		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert(
-				(CompactState) compactState);
+				(LabelledTransitionSystem) compactState);
 		return mts.getTransitions(mts.getInitialState(),
 				TransitionType.POSSIBLE).size() == 0;
 	}
@@ -238,21 +245,26 @@ public class MTSUtils {
 	 * @param model
 	 * @return
 	 */
-	public static boolean isPropertyModel(CompactState model) {
+	public static boolean isPropertyModel(LabelledTransitionSystem model) {
 		return model.hasERROR();
 	}
 
-	public static MTS<Long, String> getMTSComposition(CompositeState compositeState) {
-		if (compositeState.composition == null) {
+	public static MTS<Long, String> getMTSComposition(
+			CompositeState compositeState) {
+		if (compositeState.getComposition() == null) {
 			List<MTS<Long, String>> toCompose = new ArrayList<>();
-			for (CompactState compactState : (Vector<CompactState>) compositeState.getMachines()) {
-				MTS<Long, String> convert = AutomataToMTSConverter.getInstance().convert(compactState);
+			for (LabelledTransitionSystem compactState : (Vector<LabelledTransitionSystem>) compositeState
+					.getMachines()) {
+				MTS<Long, String> convert = AutomataToMTSConverter
+						.getInstance().convert(compactState);
 				toCompose.add(convert);
 			}
 			CompositionRuleApplier compositionRuleApplier = new CompositionRuleApplier();
-			return new MTSMultipleComposer<Long, String>(compositionRuleApplier).compose(toCompose);
+			return new MTSMultipleComposer<Long, String>(compositionRuleApplier)
+					.compose(toCompose);
 		}
-		return AutomataToMTSConverter.getInstance().convert(compositeState.composition);
+		return AutomataToMTSConverter.getInstance().convert(
+				compositeState.getComposition());
 	}
 
 	/**
@@ -271,7 +283,7 @@ public class MTSUtils {
 	}
 
 	public static void computeHiddenAlphabet(Vector<String> hidden) {
-		Set<String> toAdd = new HashSet<String>();
+		Set<String> toAdd = new HashSet<>();
 		for (String action : hidden) {
 			String maybeAction = getMaybeAction(action);
 			toAdd.add(maybeAction);

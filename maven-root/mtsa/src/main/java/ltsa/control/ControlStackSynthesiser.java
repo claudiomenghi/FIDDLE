@@ -12,11 +12,11 @@ import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import ltsa.control.util.GoalDefToControllerGoal;
 import ltsa.dispatcher.TransitionSystemDispatcher;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.csp.CompositionExpression;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.operations.minimization.Minimiser;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.output.LTSOutput;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
@@ -36,9 +36,9 @@ public class ControlStackSynthesiser
   The controller of lower tiers restricts the environment of the upper tiers.
   Daniel Sykes 2013
   */
-  public static CompactState synthesiseControlStack(CompositeState cStackDef, LTSOutput output)
+  public static LabelledTransitionSystem synthesiseControlStack(CompositeState cStackDef, LTSOutput output)
   {
-    ControlStackDefinition stackDef = ControlStackDefinition.getDefinition(cStackDef.name);
+    ControlStackDefinition stackDef = ControlStackDefinition.getDefinition(cStackDef.getName());
     output.outln("Building control stack '"+stackDef.getName()+"'");
     List<ControlTierDefinition> tiers = stackDef.getTiers();
     
@@ -55,10 +55,10 @@ public class ControlStackSynthesiser
     
     long startTime = System.currentTimeMillis();
     
-    List<CompactState> controllers = new Vector<CompactState>();
-    Vector<CompactState> exceptionControllers = new Vector<CompactState>();
+    List<LabelledTransitionSystem> controllers = new Vector<LabelledTransitionSystem>();
+    Vector<LabelledTransitionSystem> exceptionControllers = new Vector<LabelledTransitionSystem>();
     
-    CompactState envWithInitialTrace = null; //environment where initial states are specified (with a trace)
+    LabelledTransitionSystem envWithInitialTrace = null; //environment where initial states are specified (with a trace)
     List<Long> initialStates = null; //those states
     
     for (int i = tiers.size()-1; i >= 0; i--)
@@ -68,7 +68,7 @@ public class ControlStackSynthesiser
       
       //build environment
       System.out.println("building environment");
-      CompactState envModel = getControlStackEnvironment(cStackDef, tier.getEnvModel().toString(), output);
+      LabelledTransitionSystem envModel = getControlStackEnvironment(cStackDef, tier.getEnvModel().toString(), output);
       if (envModel == null)
         throw new RuntimeException("Failed to get environment model '"+tier.getEnvModel().toString()+"' from "+cStackDef.controlStackEnvironments);
       
@@ -124,7 +124,7 @@ public class ControlStackSynthesiser
       //build a gr goal
       System.out.println("building goal "+tier.getGoal());
       ControllerGoalDefinition tierGoalDef = ControllerGoalDefinition.getDefinition(tier.getGoal());
-      Collection<CompactState> safetyMachines = CompositionExpression.preProcessSafetyReqs(tierGoalDef, output);
+      Collection<LabelledTransitionSystem> safetyMachines = CompositionExpression.preProcessSafetyReqs(tierGoalDef, output);
       GRControllerGoal<String> tierGoal = GoalDefToControllerGoal.getInstance().buildControllerGoal(tierGoalDef);
       //cStackDef.machines.addAll(safetyMachines); //for output
       
@@ -140,15 +140,15 @@ public class ControlStackSynthesiser
       Minimiser d = new Minimiser(envModel, output);
       envModel = d.trace_minimise();
       
-      Vector<CompactState> machines = new Vector<CompactState>();
+      Vector<LabelledTransitionSystem> machines = new Vector<LabelledTransitionSystem>();
       machines.add(envModel);
       CompositeState envComposite = new CompositeState(envModel.getName(), machines);
-      envComposite.composition = envModel;
+      envComposite.setComposition(envModel);
       envComposite.goal = tierGoal;
       
       //System.out.println("ENV-Alpha "+tierNum+"   "+envComposite.composition.getAlphabetV());
       
-      CompactState controller = TransitionSystemDispatcher.synthesiseGR(envComposite, tierGoal, output);
+      LabelledTransitionSystem controller = TransitionSystemDispatcher.synthesiseGR(envComposite, tierGoal, output);
       if (controller != null)
       {
         //System.out.println("Alpha "+tierNum+" pre-clean "+controller.getAlphabetV());
@@ -162,12 +162,12 @@ public class ControlStackSynthesiser
         if (cStackDef.controlStackSpecificTier == tierNum) //return this tier, not the whole shebang
         {
           System.out.println("Stopping at tier "+tierNum);
-          cStackDef.machines.addAll(controllers);
-          cStackDef.composition = controller;
-          return cStackDef.composition;
+          cStackDef.getMachines().addAll(controllers);
+          cStackDef.setComposition(controller);
+          return cStackDef.getComposition();
         }
         
-        CompactState excController = addControllerExceptions(tierNum, controller, stackDef.getControllableActions());
+        LabelledTransitionSystem excController = addControllerExceptions(tierNum, controller, stackDef.getControllableActions());
         excController.setName(excController.getName()+ ".EX");
         exceptionControllers.add(0, excController);
         System.out.println("Exception states added");
@@ -182,26 +182,26 @@ public class ControlStackSynthesiser
     output.outln("Control stack '"+stackDef.getName()+"': composing all tiers...");
     CompositeState controlStack = new CompositeState(stackDef.getName().toString(), exceptionControllers);
     TransitionSystemDispatcher.applyComposition(controlStack, output);
-    cStackDef.composition = controlStack.composition;
-    cStackDef.machines.addAll(controllers);
-    cStackDef.machines.addAll(exceptionControllers);
+    cStackDef.setComposition(controlStack.getComposition());
+    cStackDef.getMachines().addAll(controllers);
+    cStackDef.getMachines().addAll(exceptionControllers);
     //cStackDef.composition = cleanUpAlphabet(cStackDef.composition);
-    System.out.println("Final Alphabet "+cStackDef.composition.getAlphabetV());
+    System.out.println("Final Alphabet "+cStackDef.getComposition().getAlphabetV());
     output.outln("Control stack synthesis took "+(System.currentTimeMillis() - startTime)+" milliseconds");
-    return cStackDef.composition;
+    return cStackDef.getComposition();
   }
 
   public static boolean checkStackSimulation(CompositeState cStackDef, LTSOutput output)
   {
-    List<ControlTierDefinition> tiers = ControlStackDefinition.getDefinition(cStackDef.name).getTiers();
+    List<ControlTierDefinition> tiers = ControlStackDefinition.getDefinition(cStackDef.getName()).getTiers();
     for (int i = tiers.size()-1; i >= 1; i--)
     {
       ControlTierDefinition tierLower = tiers.get(i);
       ControlTierDefinition tierHigher = tiers.get(i-1);
       int tierNum = tiers.size()-i;
 
-      CompactState lowerEnv = getControlStackEnvironment(cStackDef, tierLower.getEnvModel().toString(), output);
-      CompactState higherEnv = getControlStackEnvironment(cStackDef, tierHigher.getEnvModel().toString(), output);
+      LabelledTransitionSystem lowerEnv = getControlStackEnvironment(cStackDef, tierLower.getEnvModel().toString(), output);
+      LabelledTransitionSystem higherEnv = getControlStackEnvironment(cStackDef, tierHigher.getEnvModel().toString(), output);
       
       boolean simulates = true;
       if (higherEnv != lowerEnv) //shortcut for identical environs
@@ -230,7 +230,7 @@ public class ControlStackSynthesiser
     env.setInitialState(SPECIAL_INIT_STATE);
   }
   
-  private static CompactState cleanUpAlphabet(CompactState machine)
+  private static LabelledTransitionSystem cleanUpAlphabet(LabelledTransitionSystem machine)
   {
     MTS<Long,String> m2 = AutomataToMTSConverter.getInstance().convert(machine);
     Vector<String> toRemove = new Vector<String>();
@@ -244,19 +244,19 @@ public class ControlStackSynthesiser
     return MTSToAutomataConverter.getInstance().convert(m2, machine.getName(), false);
   }
   
-  private static CompactState solveSafety(CompactState envModel, Collection<CompactState> safetyMachines, LTSOutput output)
+  private static LabelledTransitionSystem solveSafety(LabelledTransitionSystem envModel, Collection<LabelledTransitionSystem> safetyMachines, LTSOutput output)
   {
     //System.out.println("ENV pre-SAFETY "+envModel.getAlphabetV());
-    Vector<CompactState> machines = new Vector<CompactState>();
+    Vector<LabelledTransitionSystem> machines = new Vector<LabelledTransitionSystem>();
     machines.add(envModel);
     machines.addAll(safetyMachines);
     CompositeState parallel = new CompositeState("SAFE_ENVIRON", machines);
     TransitionSystemDispatcher.applyComposition(parallel, output);
     //System.out.println("ENV post-SAFETY "+parallel.composition.getAlphabetV());
-    return cleanUpAlphabet(parallel.composition);
+    return cleanUpAlphabet(parallel.getComposition());
   }
   
-  public static CompactState addControllerExceptions(int tier, CompactState controller, List<String> controlledActions)
+  public static LabelledTransitionSystem addControllerExceptions(int tier, LabelledTransitionSystem controller, List<String> controlledActions)
   {
     MTS<Long,String> controller2 = AutomataToMTSConverter.getInstance().convert(controller);
     controller2.removeAction("tau"); //what?
@@ -302,21 +302,21 @@ public class ControlStackSynthesiser
     return controller;
   }
 
-  private static CompactState getControlStackEnvironment(CompositeState cStackDef, String name, LTSOutput output)
+  private static LabelledTransitionSystem getControlStackEnvironment(CompositeState cStackDef, String name, LTSOutput output)
   {
     Object compactOrComposite = cStackDef.controlStackEnvironments.get(name);
     if (compactOrComposite instanceof CompositeState)
     {
       TransitionSystemDispatcher.applyComposition((CompositeState) compactOrComposite, output);
-      return ((CompositeState) compactOrComposite).composition;
+      return ((CompositeState) compactOrComposite).getComposition();
     }
     else
-      return (CompactState) compactOrComposite;
+      return (LabelledTransitionSystem) compactOrComposite;
   }
   
-  public static void generatePrismMDP(CompactState lts, List<String> controlledActions)
+  public static void generatePrismMDP(LabelledTransitionSystem lts, List<String> controlledActions)
   {
-    CompactState completed = addControllerExceptions(1, lts, controlledActions);
+    LabelledTransitionSystem completed = addControllerExceptions(1, lts, controlledActions);
     
     MTS<Long,String> lts2 = AutomataToMTSConverter.getInstance().convert(completed);
     //prepare sets of actions

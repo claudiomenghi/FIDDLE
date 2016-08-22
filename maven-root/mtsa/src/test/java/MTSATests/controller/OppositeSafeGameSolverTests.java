@@ -7,8 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.Vector;
 
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -226,25 +226,25 @@ public class OppositeSafeGameSolverTests {
 							controllerGoalName);
 
 			CompositeState safetyComposite = new CompositeState(
-					"safetyComposite", new Vector<CompactState>());
+					"safetyComposite", new Vector<LabelledTransitionSystem>());
 			if (safetyReqs == null)
 				System.out.println("no safetyRequirement");
 			else
 				for (LTS<Long, String> safetyReq : safetyReqs) {
-					safetyComposite.machines.add(MTSToAutomataConverter
+					safetyComposite.getMachines().add(MTSToAutomataConverter
 							.getInstance().convert(new MTSAdapter(safetyReq),
 									"safety_automata"));
 				}
-			safetyComposite.machines.add(MTSToAutomataConverter
+			safetyComposite.getMachines().add(MTSToAutomataConverter
 					.getInstance().convert(new MTSAdapter(env),
 							"environment"));
 			safetyComposite.compose(new StandardOutput());
 			env = new LTSAdapter<Long, String>(AutomataToMTSConverter
-					.getInstance().convert(safetyComposite.composition),
+					.getInstance().convert(safetyComposite.getComposition()),
 					TransitionType.POSSIBLE);
 			
 			LTS<Long, String> envForController = new LTSAdapter<Long, String>(AutomataToMTSConverter
-					.getInstance().convert(safetyComposite.composition),
+					.getInstance().convert(safetyComposite.getComposition()),
 					TransitionType.POSSIBLE); 
 
 			ReportingPerfectInfoStateSpaceCuttingGRControlProblem<Long, String> grControlProblem = new ReportingPerfectInfoStateSpaceCuttingGRControlProblem<Long, String>(

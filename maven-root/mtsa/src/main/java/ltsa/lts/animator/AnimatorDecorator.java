@@ -4,12 +4,13 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Vector;
 
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.checkers.Analyser;
 import ltsa.lts.gui.EventManager;
 import ltsa.lts.ltl.FluentTrace;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.operations.composition.StackCheck;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.operations.composition.parallel.StackCheck;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.util.collections.MyList;
 
 public class AnimatorDecorator implements Animator {
@@ -28,10 +29,10 @@ public class AnimatorDecorator implements Animator {
 	public boolean analyse(FluentTrace tracer) {
 		return analyser.analyse(tracer);
 	}
-	public CompactState compose() {
+	public LabelledTransitionSystem compose() {
 		return analyser.compose();
 	}
-	public CompactState composeNoHide() {
+	public LabelledTransitionSystem composeNoHide() {
 		return analyser.composeNoHide();
 	}
 	public void disablePartialOrder() {
@@ -41,7 +42,7 @@ public class AnimatorDecorator implements Animator {
 		analyser.enablePartialOrder();
 	}
 	public boolean END(byte[] state) {
-		return analyser.END(state);
+		return analyser.end(state);
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -133,7 +134,7 @@ public class AnimatorDecorator implements Animator {
 	}
 	
 	public byte[] START() {
-		return analyser.START();
+		return analyser.start();
 	}
 	@Override
 	public String toString() {

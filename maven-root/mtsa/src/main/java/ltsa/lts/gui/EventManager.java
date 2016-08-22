@@ -4,11 +4,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import ltsa.lts.lts.LTSEvent;
+import ltsa.lts.automata.automaton.event.LTSEvent;
 
 public class EventManager implements Runnable {
-	Hashtable clients = new Hashtable();
-	Vector queue = new Vector(); // queued messages
+	Hashtable<EventClient, EventClient> clients = new Hashtable<>();
+	Vector<LTSEvent> queue = new Vector<>(); // queued messages
 	Thread athread;
 	boolean stopped = false;
 
@@ -41,8 +41,8 @@ public class EventManager implements Runnable {
 			} catch (InterruptedException e) {
 			}
 		}
-		LTSEvent le = (LTSEvent) queue.firstElement();
-		Enumeration e = clients.keys();
+		LTSEvent le =  queue.firstElement();
+		Enumeration<EventClient> e = clients.keys();
 		while (e.hasMoreElements()) {
 			EventClient c = (EventClient) e.nextElement();
 			c.ltsAction(le);

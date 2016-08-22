@@ -4,9 +4,9 @@ import java.util.Collections;
 
 import MTSTools.ac.ic.doc.mtstools.model.impl.BaseSemanticsByRelation;
 import MTSTools.ac.ic.doc.mtstools.model.impl.WeakSemantics;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.LTSATestUtils;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.MTSTestBase;
@@ -22,7 +22,7 @@ public class RefinementBetweenStatesTest extends MTSTestBase {
 		LTSOutput ltsOutput = new TestLTSOuput();
 		CompositeState composite = LTSATestUtils.buildAutomataFromSource(sourceString);
 		TransitionSystemDispatcher.parallelComposition(composite, ltsOutput);
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((CompactState) composite.getComposition());
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) composite.getComposition());
 		
 		BaseSemanticsByRelation weak = new WeakSemantics(Collections.EMPTY_SET);
 		/*

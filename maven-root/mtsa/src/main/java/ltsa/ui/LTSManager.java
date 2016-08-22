@@ -3,8 +3,8 @@ package ltsa.ui;
 
 import java.util.List;
 
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 
 public interface LTSManager {
 	// TODO this is not being used, either use for something apart from just
@@ -15,6 +15,6 @@ public interface LTSManager {
 
 	CompositeState compile(String name);
 
-	void newMachines(List<CompactState> machines);
+	void newMachines(List<LabelledTransitionSystem> machines);
 	// Set<String> getLabelSet(String name);
 }

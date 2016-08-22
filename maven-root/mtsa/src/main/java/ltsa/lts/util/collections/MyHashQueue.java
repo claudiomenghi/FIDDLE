@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import ltsa.lts.animator.StateCodec;
-import ltsa.lts.lts.LTSConstants;
-import ltsa.lts.operations.composition.StackCheck;
+import ltsa.lts.automata.lts.LTSConstants;
+import ltsa.lts.operations.composition.parallel.StackCheck;
 
 /* MyHash is a speciallized Hashtable/Queue for the reachable analyser
  * it includes a queue structure through the hash table entries

@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import ltsa.lts.animator.StateCodec;
-import ltsa.lts.lts.Automata;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.automaton.Automata;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.util.collections.MyHash;
 import ltsa.lts.util.collections.MyList;
 import ltsa.lts.util.collections.MyStack;
@@ -106,7 +106,7 @@ public class SuperTrace {
 	int nTrans = 0; //ntransitions examined
 	
 	private int search() {
-		  byte[] start = mach.START();
+		  byte[] start = mach.start();
 		  MyHash onStack = null;
 		  if (mach.isPartialOrder()) {
 		  	   onStack = new MyHash(DEPTHBOUND+1);
@@ -126,7 +126,7 @@ public class SuperTrace {
 		  	  stack.mark();
 		  	  if (onStack!=null) onStack.put(currentState);
 		  	  MyList transitions = mach.getTransitions(currentState);
-		  		if (transitions.empty() && !mach.END(currentState)) return DEADLOCK;
+		  		if (transitions.empty() && !mach.end(currentState)) return DEADLOCK;
     	  	while (!transitions.empty()) {
   	  	  	  ++nTrans;
               if (transitions.getTo() == null) {
@@ -184,7 +184,7 @@ public class SuperTrace {
  	   MyList t = mach.getTransitions(from);
  	   while (!t.empty()) {
  	   	  if (StateCodec.equals(t.getTo(),to)){
- 	   	  	 return (mach.getAlphabet())[t.getAction()];
+ 	   	  	 return mach.getAlphabet()[t.getAction()];
  	   	  }
  	   	  t.next();
  	   }

@@ -5,12 +5,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.parser.LTSCompiler;
 import ltsa.lts.parser.Symbol;
 import ltsa.lts.parser.ltsinput.LTSInput;
+import ltsa.ui.EmptyLTSOuput;
 import ltsa.ui.FileInput;
 import ltsa.ui.StandardOutput;
 import MTSTools.ac.ic.doc.mtstools.model.LTS;
@@ -46,7 +47,7 @@ public class LTSTestHelper {
 			compiler.compile();
 
 			// get model name
-			CompositeState c = compiler.continueCompilation(controllerName);
+			CompositeState c = compiler.continueCompilation(controllerName, new EmptyLTSOuput());
 			TransitionSystemDispatcher.applyComposition(c, output);
 			return c;
 		} catch (Exception e) {
@@ -68,12 +69,12 @@ public class LTSTestHelper {
 					currentDirectory);
 			compiler.compile();
 			// get model name
-			CompactState c = compiler.getProcessCompactStateByName(modelName);
+			LabelledTransitionSystem c = compiler.getProcessCompactStateByName(modelName);
 			if (c == null) {
-				CompositeState compo = compiler.continueCompilation(modelName);
+				CompositeState compo = compiler.continueCompilation(modelName, new EmptyLTSOuput());
 				compo.compose(output);
 				if (compo != null)
-					c = compo.composition;
+					c = compo.getComposition();
 			}
 			// get model lts
 			LTSAdapter<Long, String> env = new LTSAdapter<Long, String>(
@@ -97,7 +98,7 @@ public class LTSTestHelper {
 			LTSCompiler compiler = new LTSCompiler(input, output,
 					currentDirectory);
 			compiler.compile();
-			compiler.continueCompilation(controllerName);
+			compiler.continueCompilation(controllerName, new EmptyLTSOuput());
 			// CompositeState c = compiler.continueCompilation(controllerName);
 			// TransitionSystemDispatcher.applyComposition(c, output);
 			// get model name
@@ -108,7 +109,7 @@ public class LTSTestHelper {
 
 			Set<LTS<Long, String>> safetyReqs = new HashSet<LTS<Long, String>>();
 			for (Symbol safetyDef : goalDefinition.getSafetyDefinitions()) {
-				CompactState c = compiler
+				LabelledTransitionSystem c = compiler
 						.getProcessCompactStateByName(safetyDef.getValue());
 				// TODO:what happens with assertions? they are not automata
 				if (c == null)
@@ -140,7 +141,7 @@ public class LTSTestHelper {
 			compiler.compile();
 
 			// get model name
-			CompositeState c = compiler.continueCompilation(controllerName);
+			CompositeState c = compiler.continueCompilation(controllerName, new EmptyLTSOuput());
 			TransitionSystemDispatcher.applyComposition(c, output);
 			return c.goal.getControllableActions();
 		} catch (Exception e) {
@@ -162,12 +163,12 @@ public class LTSTestHelper {
 			compiler.compile();
 
 			// get model name
-			CompositeState c = compiler.continueCompilation(controllerName);
+			CompositeState c = compiler.continueCompilation(controllerName, new EmptyLTSOuput());
 			TransitionSystemDispatcher.applyComposition(c, output);
 			GRGameBuilder<Long, String> grGameBuilder = new GRGameBuilder<Long, String>();
 			GRGame<Long> grGame = grGameBuilder
 					.buildGRGameFrom(AutomataToMTSConverter.getInstance()
-							.convert(c.composition), c.goal);
+							.convert(c.getComposition()), c.goal);
 			return grGame.getGoal();
 		} catch (Exception e) {
 			return null;
@@ -188,7 +189,7 @@ public class LTSTestHelper {
 			compiler.compile();
 
 			// get model name
-			CompositeState c = compiler.continueCompilation(controllerName);
+			CompositeState c = compiler.continueCompilation(controllerName, new EmptyLTSOuput());
 			TransitionSystemDispatcher.applyComposition(c, output);
 			return c.goal;
 		} catch (Exception e) {

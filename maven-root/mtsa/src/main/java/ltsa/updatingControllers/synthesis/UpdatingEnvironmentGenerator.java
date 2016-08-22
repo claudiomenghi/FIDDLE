@@ -10,24 +10,17 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.parser.LTSOutput;
-
-import org.apache.commons.collections15.map.HashedMap;
-
+import ltsa.control.util.ControllerUtils;
+import ltsa.lts.output.LTSOutput;
 import ltsa.updatingControllers.UpdateConstants;
 import ltsa.updatingControllers.structures.MappingStructure;
+import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
+import MTSSynthesis.ar.dc.uba.model.condition.FluentUtils;
+import MTSSynthesis.controller.game.util.FluentStateValuation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSImpl;
-import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
-import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
-import MTSSynthesis.ar.dc.uba.model.condition.FluentUtils;
-import ltsa.control.util.ControllerUtils;
-import MTSSynthesis.controller.game.util.FluentStateValuation;
-import ltsa.dispatcher.TransitionSystemDispatcher;
 
 public class UpdatingEnvironmentGenerator {
 

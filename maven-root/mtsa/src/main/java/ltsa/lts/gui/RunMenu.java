@@ -24,13 +24,11 @@ public class RunMenu {
         this.params = params;
         this.actions = actions;
         this.controls = controls;
-        //menus.put(name,this);
     }
 
     public RunMenu(String name, Vector actions) {
         this.name = name;
         this.alphabet = actions;
-        //menus.put(name,this);
     }
     
     public static void add(RunMenu r) {

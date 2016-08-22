@@ -27,13 +27,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import ltsa.lts.automata.automaton.event.LTSEvent;
+import ltsa.lts.automata.lts.Alphabet;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.gui.EventClient;
 import ltsa.lts.gui.EventManager;
-import ltsa.lts.lts.Alphabet;
-import ltsa.lts.lts.LTSEvent;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.output.LTSOutput;
 
 public class AlphabetWindow extends JSplitPane implements LTSOutput,
 		EventClient {
@@ -49,7 +49,7 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 	int selectedMachine = 0;
 	Alphabet current = null;
 	int expandLevel = 0;
-	CompactState[] sm; // an array of machines
+	LabelledTransitionSystem[] sm; // an array of machines
 	Font f1 = new Font("Monospaced", Font.PLAIN, 12);
 	Font f2 = new Font("Monospaced", Font.BOLD, 20);
 	Font f3 = new Font("SansSerif", Font.PLAIN, 12);
@@ -197,18 +197,18 @@ public class AlphabetWindow extends JSplitPane implements LTSOutput,
 
 	
 	private void new_machines(CompositeState cs) {
-		int hasC = (cs != null && cs.composition != null) ? 1 : 0;
-		if (cs != null && cs.machines != null && cs.machines.size() > 0) { // get
+		int hasC = (cs != null && cs.getComposition() != null) ? 1 : 0;
+		if (cs != null && cs.getMachines() != null && cs.getMachines().size() > 0) { // get
 																			// set
 																			// of
 																			// machines
-			sm = new CompactState[cs.machines.size() + hasC];
-			Enumeration e = cs.machines.elements();
+			sm = new LabelledTransitionSystem[cs.getMachines().size() + hasC];
+			Enumeration<LabelledTransitionSystem> e = cs.getMachines().elements();
 			for (int i = 0; e.hasMoreElements(); i++)
-				sm[i] = (CompactState) e.nextElement();
+				sm[i] = (LabelledTransitionSystem) e.nextElement();
 			Nmach = sm.length;
 			if (hasC == 1)
-				sm[Nmach - 1] = cs.composition;
+				sm[Nmach - 1] = cs.getComposition();
 		} else
 			Nmach = 0;
 		DefaultListModel lm = new DefaultListModel();

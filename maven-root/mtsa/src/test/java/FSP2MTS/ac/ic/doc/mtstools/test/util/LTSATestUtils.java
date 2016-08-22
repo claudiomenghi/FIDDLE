@@ -1,8 +1,8 @@
 package FSP2MTS.ac.ic.doc.mtstools.test.util;
 
 import ltsa.dispatcher.TransitionSystemDispatcher;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
 
 public class LTSATestUtils {

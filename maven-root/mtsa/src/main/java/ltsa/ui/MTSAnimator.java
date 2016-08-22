@@ -11,10 +11,10 @@ import java.util.Vector;
 
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 import ltsa.lts.animator.Animator;
+import ltsa.lts.automata.automaton.event.LTSEvent;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.gui.EventManager;
-import ltsa.lts.lts.LTSEvent;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.lts.util.MTSUtils;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
@@ -76,9 +76,9 @@ public class MTSAnimator implements Animator {
 		} else {
 			// Generate the compact state in MTS format
 			
-			for(Object cstate : state.machines) {
-				if(cstate instanceof CompactState)
-					mtss.add(mtsConverter.convert((CompactState)cstate));
+			for(Object cstate : state.getMachines()) {
+				if(cstate instanceof LabelledTransitionSystem)
+					mtss.add(mtsConverter.convert((LabelledTransitionSystem)cstate));
 			}
 		}
 		// Generate MTS composition if there is more than one machine

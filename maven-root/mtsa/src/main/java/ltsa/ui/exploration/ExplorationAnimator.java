@@ -10,10 +10,10 @@ import java.util.Vector;
 
 import ltsa.ui.Transition;
 import ltsa.lts.animator.Animator;
+import ltsa.lts.automata.automaton.event.LTSEvent;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.gui.EventManager;
-import ltsa.lts.lts.LTSEvent;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSSynthesis.controller.game.gr.StrategyState;
 import MTSSynthesis.controller.game.util.GameStrategyToMTSBuilder;
@@ -276,7 +276,7 @@ public class ExplorationAnimator implements Animator {
 		for(; i < transitionIndeces.length - 2; i++)
 			transitionIndeces[i] = 0;	
 		transitionIndeces[i++] = lastTransition.to().intValue();
-		for (CompactState compactState : environmentModel.getOriginalLTS().machines) {
+		for (LabelledTransitionSystem compactState : environmentModel.getOriginalLTS().getMachines()) {
 			transitionIndeces[i++] = chosenTransition.get(compactState.getName()).to().intValue();
 		}
 		

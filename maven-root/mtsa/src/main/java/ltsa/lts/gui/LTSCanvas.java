@@ -16,10 +16,15 @@ import javax.swing.SwingConstants;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 
 public class LTSCanvas extends JPanel implements Scrollable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6942672270422708686L;
+	
 	public static boolean fontFlag = false;
 	public static boolean displayName = false;
 	public static boolean newLabelFormat = true;
@@ -121,7 +126,7 @@ public class LTSCanvas extends JPanel implements Scrollable {
 		repaint();
 	}
 
-	public void draw(int id, CompactState m, int last, int current, String name) {
+	public void draw(int id, LabelledTransitionSystem m, int last, int current, String name) {
 		if (m == null || id >= drawing.length) {
 			drawing = null;
 			repaint();

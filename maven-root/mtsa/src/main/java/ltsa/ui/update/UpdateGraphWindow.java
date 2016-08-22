@@ -1,9 +1,9 @@
 package ltsa.ui.update;
 
 import MTSSynthesis.controller.game.util.GeneralConstants;
-import ltsa.lts.lts.LTSException;
+import ltsa.lts.automata.lts.LTSException;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.LTSOutput;
 
 import org.apache.commons.lang.mutable.MutableInt;
 

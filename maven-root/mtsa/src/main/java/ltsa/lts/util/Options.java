@@ -1,6 +1,6 @@
 package ltsa.lts.util;
 
-import ltsa.lts.lts.LTSConstants;
+import ltsa.lts.automata.lts.LTSConstants;
 
 public class Options {
 	public enum CompositionStrategy {

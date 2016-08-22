@@ -1,13 +1,11 @@
 package ltsa.jung;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
@@ -20,7 +18,6 @@ import ltsa.jung.LTSJUNGCanvas.EnumLayout;
 import ltsa.jung.LTSJUNGCanvas.EnumMode;
 
 import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.functors.ConstantTransformer;
 
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;

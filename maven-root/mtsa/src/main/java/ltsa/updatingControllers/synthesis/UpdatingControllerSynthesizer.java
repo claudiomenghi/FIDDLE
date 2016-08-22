@@ -11,30 +11,22 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
+import ltsa.control.ControllerGoalDefinition;
+import ltsa.control.util.ControllerUtils;
 import ltsa.lts.Diagnostics;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.chart.util.FormulaUtils;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.output.LTSOutput;
+import ltsa.updatingControllers.UpdateConstants;
+import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 
 import org.apache.commons.collections15.map.HashedMap;
 
-import ltsa.updatingControllers.UpdateConstants;
-import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
-import MTSTools.ac.ic.doc.commons.relations.Pair;
-import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
-import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
-import MTSTools.ac.ic.doc.mtstools.model.impl.MTSAdapter;
-import MTSTools.ac.ic.doc.mtstools.model.impl.MTSImpl;
-import MTSTools.ac.ic.doc.mtstools.model.operations.TauRemoval;
-import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
-import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentUtils;
 import MTSSynthesis.ar.dc.uba.model.condition.Formula;
-import ltsa.control.ControllerGoalDefinition;
-import ltsa.control.util.ControllerUtils;
 import MTSSynthesis.controller.game.gr.GRGameSolver;
 import MTSSynthesis.controller.game.gr.GRRankSystem;
 import MTSSynthesis.controller.game.gr.StrategyState;
@@ -53,6 +45,13 @@ import MTSSynthesis.controller.game.util.SubsetConstructionBuilder;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import MTSSynthesis.controller.model.gr.GRGame;
 import MTSSynthesis.controller.model.gr.GRGoal;
+import MTSTools.ac.ic.doc.commons.relations.Pair;
+import MTSTools.ac.ic.doc.mtstools.model.MTS;
+import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
+import MTSTools.ac.ic.doc.mtstools.model.impl.LTSAdapter;
+import MTSTools.ac.ic.doc.mtstools.model.impl.MTSAdapter;
+import MTSTools.ac.ic.doc.mtstools.model.impl.MTSImpl;
+import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
 
 /**
  * Created by Victor Wjugow on 10/06/15.
@@ -121,11 +120,11 @@ public class UpdatingControllerSynthesizer {
 		
 		uccs.setUpdateEnvironment(safetyEnv);
 
-		CompactState compactSafetyEnv = MTSToAutomataConverter.getInstance().convert(safetyEnv, "E_u||G(safety)", false);
+		LabelledTransitionSystem compactSafetyEnv = MTSToAutomataConverter.getInstance().convert(safetyEnv, "E_u||G(safety)", false);
 //		CompactState compactMetaEnv = MTSToAutomataConverter.getInstance().convert(metaEnvironment, "meta E_u", false);
 //		CompactState compactEnv = MTSToAutomataConverter.getInstance().convert(environment, "E_u", false);
 		
-		Vector<CompactState> machines = new Vector<CompactState>();
+		Vector<LabelledTransitionSystem> machines = new Vector<LabelledTransitionSystem>();
 		machines.add(compactSafetyEnv);
 //		machines.add(compactMetaEnv);
 //		machines.add(compactEnv);
@@ -188,10 +187,10 @@ public class UpdatingControllerSynthesizer {
 			MTS<Long, String> plainController = new GenericMTSToLongStringMTSConverter<StrategyState<Set<Long>, Integer>, String>().transform(synthesised);
 
 			output.outln("Controller [" + plainController.getStates().size() + "] generated successfully.");
-			CompactState compactState = MTSToAutomataConverter.getInstance().convert(plainController, uccs.getName(), false);
+			LabelledTransitionSystem compactState = MTSToAutomataConverter.getInstance().convert(plainController, uccs.getName(), false);
 			uccs.setComposition(compactState);
 		} else {
-			output.outln("There is no controller for model " + uccs.name + " for the given setting.");
+			output.outln("There is no controller for model " + uccs.getName() + " for the given setting.");
 			uccs.setComposition(null);		
 		}
 	}
@@ -212,18 +211,18 @@ public class UpdatingControllerSynthesizer {
 			MTS<StrategyState<Long, Integer>, String> result = GameStrategyToMTSBuilder.getInstance().buildMTSFrom(safetyEnv, strategy, worseRank, newGoalGR.getLazyness());
 
 			if (result == null) {
-				output.outln("There is no controller for model " + uccs.name + " for the given setting.");
+				output.outln("There is no controller for model " + uccs.getName() + " for the given setting.");
 				uccs.setComposition(null);
 			} else {
 				GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String> transformer = new GenericMTSToLongStringMTSConverter<StrategyState<Long, Integer>, String>();
 				MTS<Long, String> plainController = transformer.transform(result);
 
 				output.outln("Controller [" + plainController.getStates().size() + "] generated successfully.");
-				CompactState convert = MTSToAutomataConverter.getInstance().convert(plainController, uccs.getName());
+				LabelledTransitionSystem convert = MTSToAutomataConverter.getInstance().convert(plainController, uccs.getName());
 				uccs.setComposition(convert);
 			}
 		} else {
-			output.outln("There is no controller for model " + uccs.name + " for the given setting.");
+			output.outln("There is no controller for model " + uccs.getName() + " for the given setting.");
 			uccs.setComposition(null);
 		}
 		

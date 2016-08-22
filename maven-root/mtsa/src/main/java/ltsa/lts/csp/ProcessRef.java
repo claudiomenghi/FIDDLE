@@ -8,15 +8,16 @@ import java.util.Vector;
 
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.Diagnostics;
+import ltsa.lts.automata.automaton.StateMachine;
+import ltsa.lts.automata.lts.state.AutCompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.chart.TriggeredScenarioDefinition;
 import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
 import ltsa.lts.distribution.DistributionDefinition;
-import ltsa.lts.lts.StateMachine;
-import ltsa.lts.ltscomposition.AutCompactState;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.Expression;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.parser.PostconditionDefinitionManager;
 import ltsa.lts.parser.Symbol;
 import ltsa.lts.parser.Value;
 
@@ -26,12 +27,15 @@ public class ProcessRef {
 	boolean forceCompilation = false;
 	boolean passBackClone = true;
 
-	public ProcessRef() {
+	private final PostconditionDefinitionManager postManager;
+	public ProcessRef(PostconditionDefinitionManager postManager) {
+		this.postManager=postManager;
 	}
 
-	public ProcessRef(boolean forceCompilation, boolean passBackClone) {
+	public ProcessRef(PostconditionDefinitionManager postManager, boolean forceCompilation, boolean passBackClone) {
 		this.forceCompilation = forceCompilation;
 		this.passBackClone = passBackClone;
+		this.postManager=postManager;
 	}
 
 	public void instantiate(CompositionExpression c, Vector machines,
@@ -41,10 +45,10 @@ public class ProcessRef {
 		String refname = (actuals == null) ? name.toString() : name.toString()
 				+ StateMachine.paramString(actuals);
 		// have we already compiled it?
-		CompactState mach = c.compiledProcesses.get(refname);
-		if (mach != null) {
+		LabelledTransitionSystem labeledTransitionSystem= c.compiledProcesses.get(refname);
+		if (labeledTransitionSystem != null) {
 			if (this.passBackClone) {
-				machines.addElement(mach.myclone());
+				machines.addElement(labeledTransitionSystem.myclone());
 			}
 			return;
 		}
@@ -58,30 +62,30 @@ public class ProcessRef {
 			}
 			if (!p.imported()) {
 				StateMachine one = new StateMachine(p, actuals);
-				mach = one.makeCompactState();
+				labeledTransitionSystem = one.makeCompactState();
 			} else {
-				mach = new AutCompactState(p.getSymbol(), p.importFile);
+				labeledTransitionSystem = new AutCompactState(p.getSymbol(), p.importFile);
 			}
 
 			if (this.passBackClone) {
-				machines.addElement(mach.myclone()); // pass back clone
+				machines.addElement(labeledTransitionSystem.myclone()); // pass back clone
 			}
-			c.compiledProcesses.put(mach.getName(), mach); // add to compiled
+			c.compiledProcesses.put(labeledTransitionSystem.getName(), labeledTransitionSystem); // add to compiled
 			// processes
 			if (!p.imported())
-				c.output.outln("Compiled: " + mach.getName());
+				c.output.outln("Compiled: " + labeledTransitionSystem.getName());
 			else
-				c.output.outln("Imported: " + mach.getName());
+				c.output.outln("Imported: " + labeledTransitionSystem.getName());
 			return;
 		}
 		// it could be a constraint
-		mach = ltsa.lts.ltl.AssertDefinition.compileConstraint(output, name,
+		labeledTransitionSystem = ltsa.lts.ltl.AssertDefinition.compileConstraint(output, name,
 				refname, actuals);
-		if (mach != null) {
+		if (labeledTransitionSystem != null) {
 			if (this.passBackClone) {
-				machines.addElement(mach.myclone()); // pass back clone
+				machines.addElement(labeledTransitionSystem.myclone()); // pass back clone
 			}
-			c.compiledProcesses.put(mach.getName(), mach); // add to compiled
+			c.compiledProcesses.put(labeledTransitionSystem.getName(), labeledTransitionSystem); // add to compiled
 			// processes
 			return;
 		}
@@ -89,12 +93,12 @@ public class ProcessRef {
 		// it could be a triggered scenario
 		if (TriggeredScenarioDefinition.contains(name)) {
 			try {
-				mach = TriggeredScenarioDefinition.getDefinition(name)
+				labeledTransitionSystem = TriggeredScenarioDefinition.getDefinition(name)
 						.synthesise(output);
 				if (this.passBackClone) {
-					machines.addElement(mach.myclone()); // pass back clone
+					machines.addElement(labeledTransitionSystem.myclone()); // pass back clone
 				}
-				c.compiledProcesses.put(mach.getName(), mach); // add to
+				c.compiledProcesses.put(labeledTransitionSystem.getName(), labeledTransitionSystem); // add to
 				// compiled
 				// processes
 			} catch (TriggeredScenarioTransformationException e) {
@@ -111,24 +115,24 @@ public class ProcessRef {
 			Symbol systemModelId = distributionDefinition.getSystemModel();
 
 			// system model is a reference to a process
-			ProcessRef systemModelProcessRef = new ProcessRef(true, false);
+			ProcessRef systemModelProcessRef = new ProcessRef(this.postManager, true, false);
 			systemModelProcessRef.name = systemModelId;
 
 			// this should compile the process (if it was not already compiled)
 			systemModelProcessRef.instantiate(c, machines, output, locals);
 
 			// get the system model
-			CompactState systemModel = c.compiledProcesses.get(systemModelId
+			LabelledTransitionSystem systemModel = c.compiledProcesses.get(systemModelId
 					.getValue());
 
 			// try to distribute
-			Collection<CompactState> distributedComponents = new LinkedList<CompactState>();
+			Collection<LabelledTransitionSystem> distributedComponents = new LinkedList<LabelledTransitionSystem>();
 			boolean isDistributionSuccessful = TransitionSystemDispatcher
 					.tryDistribution(systemModel, distributionDefinition,
 							output, distributedComponents);
 
 			// Add the distributed components as compiled
-			for (CompactState compactState : distributedComponents) {
+			for (LabelledTransitionSystem compactState : distributedComponents) {
 				if (this.passBackClone
 						&& compactState.getName().equals(name.getValue())) {
 					// the machine is only the one with the requested name
@@ -160,6 +164,7 @@ public class ProcessRef {
 		}
 		CompositeState cs;
 		if (ce == c) {
+			@SuppressWarnings("unchecked")
 			Hashtable<String, Value> save = (Hashtable<String, Value>) c.constants
 					.clone();
 			cs = ce.compose(actuals);
@@ -168,18 +173,18 @@ public class ProcessRef {
 			cs = ce.compose(actuals);
 		// don't compose if not necessary, maintain as a list of machines
 		if (!this.forceCompilation && cs.compositionNotRequired()) {
-			for (CompactState m : cs.machines) {
-				mach = m;
-				mach.setName( cs.name + "." + mach.getName());
+			for (LabelledTransitionSystem m : cs.getMachines()) {
+				labeledTransitionSystem = m;
+				labeledTransitionSystem.setName( cs.getName() + "." + labeledTransitionSystem.getName());
 			}
 			machines.addElement(cs); // flatten later if correct
 		} else {
-			mach = cs.create(output);
-			c.compiledProcesses.put(mach.getName(), mach); // add to compiled
+			labeledTransitionSystem = cs.create(output);
+			c.compiledProcesses.put(labeledTransitionSystem.getName(), labeledTransitionSystem); // add to compiled
 			// processes
-			c.output.outln("Compiled: " + mach.getName());
+			c.output.outln("Compiled: " + labeledTransitionSystem.getName());
 			if (this.passBackClone) {
-				machines.addElement(mach.myclone()); // pass back clone
+				machines.addElement(labeledTransitionSystem.myclone()); // pass back clone
 			}
 		}
 	}
@@ -198,5 +203,9 @@ public class ProcessRef {
 	@Override
 	public String toString() {
 		return this.name.toString() + " - " + this.getClass();
+	}
+
+	public PostconditionDefinitionManager getPostManager() {
+		return postManager;
 	}
 }

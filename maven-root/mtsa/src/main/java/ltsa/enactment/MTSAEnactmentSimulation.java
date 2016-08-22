@@ -20,7 +20,7 @@ import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import MTSAEnactment.ar.uba.dc.lafhis.enactment.BaseController;
 import MTSAEnactment.ar.uba.dc.lafhis.enactment.TakeFirstController;
 import MTSAEnactment.ar.uba.dc.lafhis.enactment.Enactor;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.ui.enactment.RunEnactorsWindow;
 
 /**
@@ -85,7 +85,7 @@ public class MTSAEnactmentSimulation<State, Action> implements Runnable {
 		}
 
 		
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert(currentComposition.composition);
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert(currentComposition.getComposition());
 		LTSAdapter<Long, String> ltsAdapter = new LTSAdapter<Long, String>(mts, TransitionType.REQUIRED);
 		Set<String> controllableActions;
 		

@@ -15,7 +15,7 @@ import ltsa.lts.chart.ConditionLocation;
 import ltsa.lts.chart.Interaction;
 import ltsa.lts.chart.Location;
 import ltsa.lts.chart.TriggeredScenarioDefinition;
-import ltsa.lts.ltl.FormulaFactory;
+import ltsa.lts.ltl.formula.factory.FormulaFactory;
 
 import java.util.HashSet;
 import java.util.Hashtable;

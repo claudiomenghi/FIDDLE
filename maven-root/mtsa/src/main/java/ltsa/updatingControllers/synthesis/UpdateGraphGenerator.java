@@ -5,13 +5,14 @@ import MTSTools.ac.ic.doc.mtstools.model.impl.MarkedMTS;
 import ltsa.control.util.ControlConstants;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.Diagnostics;
+import ltsa.ui.EmptyLTSOuput;
+import ltsa.updatingControllers.UpdatingControllersDefinition;
 import ltsa.updatingControllers.structures.UpdateGraphDefinition;
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
+import ltsa.lts.automata.lts.LTSException;
 import ltsa.lts.csp.CompositionExpression;
-import ltsa.lts.lts.LTSException;
-import ltsa.lts.lts.UpdatingControllersDefinition;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.LTSOutput;
 import ltsa.lts.parser.Symbol;
 import ltsa.updatingControllers.structures.graph.UpdateGraph;
 import ltsa.updatingControllers.structures.graph.UpdateNode;
@@ -42,7 +43,7 @@ public class UpdateGraphGenerator {
 			for (Symbol controllerSpecSymbol : updateGraphDef.getTransitions()) {
 				UpdatingControllersDefinition updateSpec = getUpdateControllerSpec(controllerSpecSymbol);
 				UpdatingControllerCompositeState updateController = (UpdatingControllerCompositeState) comp
-						.continueCompilation(updateSpec.getName().getValue());
+						.continueCompilation(updateSpec.getName().getValue(), new EmptyLTSOuput());
 				TransitionSystemDispatcher.applyComposition(updateController, output);
 				if (updateController.getComposition().getName().endsWith(ControlConstants.NO_CONTROLLER)) {
 					throw new LTSException("Graph could not be generated because controller " + name + " could " +

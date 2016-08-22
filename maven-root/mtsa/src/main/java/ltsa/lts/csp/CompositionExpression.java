@@ -2,50 +2,53 @@ package ltsa.lts.csp;
 
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.Stack;
+import java.util.Map;
 import java.util.Vector;
 
-import ltsa.lts.Diagnostics;
-import ltsa.lts.chart.TriggeredScenarioDefinition;
-import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
-import ltsa.lts.distribution.DistributionDefinition;
-import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.lts.StateMachine;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.LTSOutput;
-import ltsa.lts.parser.LabelSet;
-import ltsa.lts.parser.Symbol;
-import ltsa.lts.parser.Value;
-import ltsa.lts.util.MTSUtils;
-
-import org.apache.commons.lang.Validate;
-
-import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import ltsa.control.ControllerGoalDefinition;
 import ltsa.control.util.GoalDefToControllerGoal;
 import ltsa.dispatcher.TransitionSystemDispatcher;
+import ltsa.lts.Diagnostics;
+import ltsa.lts.automata.automaton.StateMachine;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.ltl.AssertDefinition;
+import ltsa.lts.output.LTSOutput;
+import ltsa.lts.parser.LTSCompiler;
+import ltsa.lts.parser.PostconditionDefinitionManager;
+import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.LabelSet;
+import ltsa.lts.util.MTSUtils;
 
+import org.apache.commons.lang.Validate;
 
+import MTSTools.ac.ic.doc.mtstools.model.MTS;
 
 public class CompositionExpression {
 	public Symbol name;
 	public CompositeBody body;
 	public Hashtable<String, Value> constants;
-	public Hashtable<String, Value> init_constants = new Hashtable<String, Value>(); // constant
-																				// table
-	public Vector<String> parameters = new Vector<String>(); // position of names in
+	public Hashtable<String, Value> initConstants = new Hashtable<>(); // constant
+																		// table
+	public Vector<String> parameters = new Vector<>(); // position of names in
 														// constants
-	public Hashtable<String, ProcessSpec> processes; // table of process definitions
-	public Hashtable<String, CompactState> compiledProcesses; // table of compiled
+	public Hashtable<String, ProcessSpec> processes; // table of process
 														// definitions
-	private Hashtable composites; // table of composite definitions
+	/**
+	 * table of compiled
+	 */
+	public Hashtable<String, LabelledTransitionSystem> compiledProcesses;
+
+	/**
+	 * table of composite definitions
+	 */
+	private Hashtable composites;
 	public LTSOutput output; // a bit of a hack
 	public boolean priorityIsLow = true;
 	public LabelSet priorityActions; // priority action set
@@ -72,7 +75,9 @@ public class CompositionExpression {
 	public Symbol goal;
 	public Vector<Symbol> controlStackEnvironments;
 	public Symbol enactmentControlled;
-	
+
+	private boolean forPreconditionChecking;
+
 	/**
 	 * If the isComponent flag is true, then this ProcessSpec represents a
 	 * composition of several component processes. The component process can be
@@ -85,6 +90,15 @@ public class CompositionExpression {
 	 * alphabet.
 	 */
 	private LabelSet componentAlphabet;
+
+	private final PostconditionDefinitionManager postManager;
+
+	public CompositionExpression(PostconditionDefinitionManager postManager,
+			boolean forPreconditionChecking) {
+		this.postManager = postManager;
+		this.forPreconditionChecking = forPreconditionChecking;
+
+	}
 
 	public boolean isMakeComponent() {
 		return makeComponent;
@@ -102,39 +116,44 @@ public class CompositionExpression {
 		this.componentAlphabet = componentAlphabet;
 	}
 
+	@SuppressWarnings("unchecked")
 	public CompositeState compose(Vector<Value> actuals) {
-		Vector machines = new Vector(); // list of instantiated machines
-		Hashtable<String, Value> locals = new Hashtable<String, Value>();
-		constants = (Hashtable<String, Value>) init_constants.clone();
-		// Vector references; // list of parsed process references
-		if (actuals != null)
-			doParams(actuals);
-		if (!makeControlStack) // there is no body
-			body.compose(this, machines, locals);
 
-		Vector<CompactState> flatmachines = new Vector<CompactState>();
-		for (Object o : machines) { // machines contains a mixture of two
-									// unrelated classes!
-			if (o instanceof CompactState)
-				flatmachines.addElement((CompactState) o);
-			else {
+		Vector<LabelledTransitionSystem> machines = new Vector<>(); // list of
+																	// instantiated
+		// machines
+		Hashtable<String, Value> locals = new Hashtable<>();
+		constants = (Hashtable<String, Value>) initConstants.clone();
+		// Vector references; // list of parsed process references
+		if (actuals != null) {
+			doParams(actuals);
+		}
+		if (!makeControlStack) { // there is no body
+			body.compose(this, machines, locals);
+		}
+		Vector<LabelledTransitionSystem> flatmachines = new Vector<>();
+
+		Map<String, LabelledTransitionSystem> mapNameMachine = new HashMap<>();
+		// machines contains a mixture of two unrelated classes!
+		for (Object o : machines) {
+			if (o instanceof LabelledTransitionSystem) {
+				LabelledTransitionSystem tmp = (LabelledTransitionSystem) o;
+				flatmachines.addElement(tmp);
+				mapNameMachine.put(tmp.getName(), tmp);
+			} else {
 				CompositeState cs = (CompositeState) o;
-				// if (MTSUtils.isMTSRepresentation(cs)) {
 				// MTSA always works with the composed model.
 				// There is no On-The-Fly model checking algorithm for MTSs yet
-				// assert (cs.getCompositionType() != -1);
 				CompositeState toCompose = cs.clone();
 				TransitionSystemDispatcher.applyComposition(toCompose, output);
-				flatmachines.addElement(toCompose.getComposition());
-				// } else {
-				// for (Enumeration ee = cs.machines.elements();
-				// ee.hasMoreElements();) {
-				// flatmachines.addElement(ee.nextElement());
-				// }
-				// }
+				LabelledTransitionSystem composition = toCompose
+						.getComposition();
+				flatmachines.addElement(composition);
+				mapNameMachine.put(composition.getName(), composition);
 
 			}
 		}
+
 		String refname = (actuals == null || makeControlStack) ? name
 				.toString() : name.toString()
 				+ StateMachine.paramString(actuals);
@@ -162,25 +181,26 @@ public class CompositionExpression {
 			}
 			c.controlStackEnvironments = new Hashtable<String, Object>();
 			for (Symbol env : controlStackEnvironments) {
-				ProcessRef proc = new ProcessRef();
+				ProcessRef proc = new ProcessRef(this.postManager);
 				proc.name = env;
-				Vector result = new Vector(); // another mixture of
-												// compactstate/compositestate
+				// another mixture of compactstate compositestate
+				Vector result = new Vector<>();
 				proc.instantiate(this, result, output, null);
 				Object cs = result.get(0);
 				c.controlStackEnvironments.put(env.toString(), cs);
 			}
 		}
 
-		if (makeEnactment)
-		{
-	    LabelSet labelSet = (LabelSet) LabelSet.getConstants().get(enactmentControlled.toString());
-	    if (labelSet==null)
-	      Diagnostics.fatal("Controllable actions set '"+enactmentControlled.toString()+"' not defined.");
-	    c.enactmentControlled = labelSet.getActions(null);
+		if (makeEnactment) {
+			LabelSet labelSet = (LabelSet) LabelSet.getConstants().get(
+					enactmentControlled.toString());
+			if (labelSet == null)
+				Diagnostics.fatal("Controllable actions set '"
+						+ enactmentControlled.toString() + "' not defined.");
+			c.enactmentControlled = labelSet.getActions(null);
 		}
-		
-		c.hidden = computeAlphabet(alphaHidden);
+
+		c.setHidden(computeAlphabet(alphaHidden));
 		c.exposeNotHide = exposeNotHide;
 		c.makeDeterministic = makeDeterministic;
 		c.makeOptimistic = makeOptimistic;
@@ -216,27 +236,27 @@ public class CompositionExpression {
 
 		ControllerGoalDefinition pendingGoal = ControllerGoalDefinition
 				.getDefinition(goal);
-        c.env = c.machines.get(0);
-		c.machines.addAll(CompositionExpression.preProcessSafetyReqs(
-				pendingGoal, output));
+		c.setEnv(c.getMachines().get(0));
+		c.getMachines()
+				.addAll(CompositionExpression.preProcessSafetyReqs(pendingGoal,
+						output));
 		c.goal = GoalDefToControllerGoal.getInstance().buildControllerGoal(
 				pendingGoal);
 	}
 
-	public static Collection<CompactState> preProcessSafetyReqs(
+	public static Collection<LabelledTransitionSystem> preProcessSafetyReqs(
 			ControllerGoalDefinition goal, LTSOutput output) {
 		ControllerGoalDefinition pendingGoal = ControllerGoalDefinition
 				.getDefinition(goal.getName());
-		Collection<CompactState> safetyReqs = new HashSet<CompactState>();
+		Collection<LabelledTransitionSystem> safetyReqs = new HashSet<>();
 		for (Symbol safetyDef : pendingGoal.getSafetyDefinitions()) {
-			ProcessSpec p = LTSCompiler.processes.get(safetyDef
-					.getValue());
-			CompactState cs = AssertDefinition.compileConstraint(output,
-					safetyDef.getValue());
+			ProcessSpec p = LTSCompiler.getSpec(safetyDef.getValue());
+			LabelledTransitionSystem cs = AssertDefinition.compileConstraint(
+					output, safetyDef.getValue());
 			if (p != null) {
 				StateMachine one = new StateMachine(p);
-				CompactState c = one.makeCompactState();
-				CompactState c2 = c;
+				LabelledTransitionSystem c = one.makeCompactState();
+				LabelledTransitionSystem c2 = c;
 				safetyReqs.add(c2);
 			} else if (cs != null) {
 				Validate.notNull(cs, "LTL PROPERTY: " + safetyDef.getValue()
@@ -248,7 +268,8 @@ public class CompositionExpression {
 						safetyDef.getValue());
 				safetyReqs.add(cs);
 			} else {
-				CompositionExpression ce = LTSCompiler.getComposite(safetyDef.getValue());
+				CompositionExpression ce = LTSCompiler.getComposite(safetyDef
+						.getValue());
 				if (ce == null) {
 					StringBuffer sb = new StringBuffer();
 					sb.append("Safety property ").append(safetyDef.getValue())
@@ -259,16 +280,17 @@ public class CompositionExpression {
 				compile.compose(output);
 
 				MTS<Long, String> convert = AutomataToMTSConverter
-						.getInstance().convert(compile.composition);
-				convert.removeAction("@" + compile.name); // get rid of those
-															// horrible @s
-				
-				CompactState convert2 = MTSToAutomataConverter
-						.getInstance().convert(convert,
-								safetyDef.getValue(), false);
+						.getInstance().convert(compile.getComposition());
+				convert.removeAction("@" + compile.getName()); // get rid of
+																// those
+																// horrible @s
+
+				LabelledTransitionSystem convert2 = MTSToAutomataConverter
+						.getInstance().convert(convert, safetyDef.getValue(),
+								false);
 
 				safetyReqs.add(convert2);
-				
+
 			}
 		}
 		return safetyReqs;
@@ -303,4 +325,3 @@ public class CompositionExpression {
 		this.name = name;
 	}
 }
-

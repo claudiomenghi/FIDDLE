@@ -5,8 +5,8 @@ import java.util.PriorityQueue;
 import java.util.Random;
 
 import ltsa.lts.animator.StateCodec;
-import ltsa.lts.lts.LTSConstants;
-import ltsa.lts.operations.composition.StackCheck;
+import ltsa.lts.automata.lts.LTSConstants;
+import ltsa.lts.operations.composition.parallel.StackCheck;
 
 public class RandomHashStateMap implements StateMap, StackCheck, Iterable {
 

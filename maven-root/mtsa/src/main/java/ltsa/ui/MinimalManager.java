@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import ltsa.lts.lts.LTSError;
-import ltsa.lts.lts.LTSException;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.LTSError;
+import ltsa.lts.automata.lts.LTSException;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.LTSOutput;
-import ltsa.lts.parser.LabelSet;
 import ltsa.lts.parser.SymbolTable;
+import ltsa.lts.parser.actions.LabelSet;
 import ltsa.lts.parser.ltsinput.LTSInput;
 
 public class MinimalManager implements LTSManager {
@@ -57,7 +57,7 @@ public class MinimalManager implements LTSManager {
         LTSCompiler comp = new LTSCompiler(input,output,currentDirectory);
         try {
         	comp.compile();
-            cs = comp.continueCompilation(name);
+            cs = comp.continueCompilation(name, new EmptyLTSOuput());
         } catch (LTSException x) {
             error.displayError(x);
         }
@@ -81,7 +81,7 @@ public class MinimalManager implements LTSManager {
 	}
 
 	public String getTargetChoice() { return null; }
-	public void newMachines(List<CompactState> machines) { }
+	public void newMachines(List<LabelledTransitionSystem> machines) { }
 	public void performAction(Runnable r, boolean showOutputPane) { r.run(); }
 
 }

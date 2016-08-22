@@ -7,86 +7,97 @@ import java.util.Stack;
 import java.util.Vector;
 
 import ltsa.lts.Diagnostics;
-import ltsa.lts.lts.ProbabilisticTransition;
-import ltsa.lts.lts.StateMachine;
-import ltsa.lts.lts.Transition;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.parser.ActionLabels;
+import ltsa.lts.automata.automaton.StateMachine;
+import ltsa.lts.automata.automaton.transition.Transition;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.probabilistic.ProbabilisticTransition;
+import ltsa.lts.operations.composition.sequential.SequentialMergeEngine;
 import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.ActionLabels;
 
 public class StateExpr extends Declaration {
 	// if name !=null then no choices
 	Vector<SeqProcessRef> processes;
 	public Symbol name;
-	public Vector expr; // vector of expressions stacks, one for each subscript
+	public Vector<Stack<Symbol>> expr; // vector of expressions stacks, one for
+										// each subscript
 	public ActionLabels actions;
 	public Vector<ChoiceElement> choices;
-	public Stack boolexpr;
+	public Stack<Symbol> boolexpr;
 	public StateExpr thenpart;
 	public StateExpr elsepart;
 
 	public void addSeqProcessRef(SeqProcessRef sp) {
-		if (processes == null){
+		if (processes == null) {
 			processes = new Vector<>();
 		}
 		processes.addElement(sp);
 	}
 
-	public CompactState makeInserts(Hashtable locals, StateMachine m) {
-		Vector<CompactState> seqs = new Vector<>();
+	public LabelledTransitionSystem makeInserts(Hashtable<String, Value> locals,
+			StateMachine m) {
+		Vector<LabelledTransitionSystem> seqs = new Vector<>();
 		Enumeration<SeqProcessRef> e = processes.elements();
 		while (e.hasMoreElements()) {
 			SeqProcessRef sp = e.nextElement();
-			CompactState mach = sp.instantiate(locals, m.getConstants());
-			if (!mach.isEnd())
+			LabelledTransitionSystem mach = sp.instantiate(locals, m.getConstants());
+			if (!mach.isEnd()) {
 				seqs.addElement(mach);
+			}
 		}
-		if (seqs.size() > 0)
-			return CompactState.sequentialCompose(seqs);
+		if (seqs.size() > 0) {
+			return new SequentialMergeEngine().apply(seqs);
+		}
 		return null;
 	}
 
-	public Integer instantiate(Integer to, Hashtable locals, StateMachine m) {
+	private Integer instantiate(Integer to, Hashtable<String, Value> locals,
+			StateMachine m) {
 		if (processes == null)
 			return to;
-		CompactState seqmach = makeInserts(locals, m);
+		LabelledTransitionSystem seqmach = makeInserts(locals, m);
 		if (seqmach == null)
 			return to;
-		Integer start = m.getStateLabel().interval(seqmach.maxStates);
+		Integer start = m.getStateLabel().interval(seqmach.getMaxStates());
 		seqmach.offsetSeq(start.intValue(), to.intValue());
 		m.addSequential(start, seqmach);
 		return start;
 	}
 
-	public void firstTransition(int from, Hashtable locals, StateMachine m) {
+	public void firstTransition(int from, Hashtable<String, Value> locals,
+			StateMachine stateMachine) {
 		if (boolexpr != null) {
-			if (Expression.evaluate(boolexpr, locals, m.getConstants()).intValue() != 0) {
+			if (Expression.evaluate(boolexpr, locals,
+					stateMachine.getConstants()).intValue() != 0) {
 				if (thenpart.name == null)
-					thenpart.firstTransition(from, locals, m);
+					thenpart.firstTransition(from, locals, stateMachine);
 			} else {
 				if (elsepart.name == null)
-					elsepart.firstTransition(from, locals, m);
+					elsepart.firstTransition(from, locals, stateMachine);
 			}
 		} else {
-			addTransitions(from, locals, m);
+			addTransitions(from, locals, stateMachine);
 		}
 	}
 
-	public void addTransitions(int from, Hashtable locals, StateMachine m) {
+	private void addTransitions(int from, Hashtable<String, Value> locals,
+			StateMachine stateMachine) {
 		if (actions != null) {
-			actions.initContext(locals, m.getConstants());
+			actions.initContext(locals, stateMachine.getConstants());
 			while (actions.hasMoreNames()) {
 				actions.nextName();
-				addTransition(from, locals, m);
+				addTransition(from, locals, stateMachine);
 			}
 			actions.clearContext();
 		} else {
-			addTransition(from, locals, m);
+			addTransition(from, locals, stateMachine);
 		}
 	}
 
-	public void addTransition(int from, Hashtable locals, StateMachine m) {
+	private void addTransition(int from, Hashtable<String, Value> locals,
+			StateMachine m) {
 		Enumeration<ChoiceElement> e = choices.elements();
 		while (e.hasMoreElements()) {
 			ChoiceElement d = e.nextElement();
@@ -95,12 +106,14 @@ public class StateExpr extends Declaration {
 	}
 
 	public void endProbabilisticTransition(int from, Symbol event,
-			Hashtable locals, StateMachine m, BigDecimal prob, int bundle) {
+			Hashtable<String, Value> locals, StateMachine m, BigDecimal prob,
+			int bundle) {
 		// TODO for now this is kept extremely simple. No conditions, no
 		// anything
 		// TODO this will fail for implicit ERROR states
 		if (boolexpr != null) {
-			if (Expression.evaluate(boolexpr, locals, m.getConstants()).intValue() != 0)
+			if (Expression.evaluate(boolexpr, locals, m.getConstants())
+					.intValue() != 0)
 				thenpart.endProbabilisticTransition(from, event, locals, m,
 						prob, bundle);
 			else
@@ -145,10 +158,11 @@ public class StateExpr extends Declaration {
 		}
 	}
 
-	public void endTransition(int from, Symbol event, Hashtable locals,
-			StateMachine m) {
+	public void endTransition(int from, Symbol event,
+			Hashtable<String, Value> locals, StateMachine m) {
 		if (boolexpr != null) {
-			if (Expression.evaluate(boolexpr, locals, m.getConstants()).intValue() != 0)
+			if (Expression.evaluate(boolexpr, locals, m.getConstants())
+					.intValue() != 0)
 				thenpart.endTransition(from, event, locals, m);
 			else
 				elsepart.endTransition(from, event, locals, m);
@@ -186,14 +200,14 @@ public class StateExpr extends Declaration {
 		}
 	}
 
-	public String evalName(Hashtable locals, StateMachine m) {
+	public String evalName(Hashtable<String, Value> locals, StateMachine m) {
 		if (expr == null)
 			return name.toString();
 		else {
-			Enumeration e = expr.elements();
+			Enumeration<Stack<Symbol>> e = expr.elements();
 			String s = name.toString();
 			while (e.hasMoreElements()) {
-				Stack x = (Stack) e.nextElement();
+				Stack<Symbol> x = e.nextElement();
 				s = s + "." + Expression.getValue(x, locals, m.getConstants());
 			}
 			return s;

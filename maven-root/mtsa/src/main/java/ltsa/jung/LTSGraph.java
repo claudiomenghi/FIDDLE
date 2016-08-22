@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ltsa.lts.lts.EventState;
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.visualization.picking.PickedState;
@@ -40,14 +40,14 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 			this(new HashSet<StateVertex>(){{add(v);}});
 		}
 		public LTSNavigator(Set<StateVertex> vs) {
-			reached = new HashSet<StateVertex>();
+			reached = new HashSet<>();
 			current = vs;
 		}
 		/*
 		 * Adds the destination state to the set of current states, and removes those that can reach it
 		 */
 		public void navigateTo(StateVertex to) {
-			Set<StateVertex> froms = new HashSet<StateVertex>(getPredecessors(to));
+			Set<StateVertex> froms = new HashSet<>(getPredecessors(to));
 			froms.retainAll(current);
 			for (StateVertex from: froms) {
 				if (current.contains(from) && getSuccessors(from).contains(to)) {
@@ -62,54 +62,54 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 			return Collections.unmodifiableSet(current);
 		}
 		public Set<StateVertex> getNext(StateVertex v) {
-			return new HashSet<StateVertex>(getSuccessors(v));
+			return new HashSet<>(getSuccessors(v));
 		}
 		public Set<StateVertex> getPrevious(StateVertex v) {
-			return new HashSet<StateVertex>(getPredecessors(v));
+			return new HashSet<>(getPredecessors(v));
 		}
 		public Set<StateVertex> getNext() {
-			Set<StateVertex> r = new HashSet<StateVertex>();
+			Set<StateVertex> r = new HashSet<>();
 			for (StateVertex v: current) {
 				r.addAll(getSuccessors(v));
 			}
 			return r;
 		}
 		public Set<StateVertex> getPrevious() {
-			Set<StateVertex> r = new HashSet<StateVertex>();
+			Set<StateVertex> r = new HashSet<>();
 			for (StateVertex v: current) {
 				r.addAll(getPredecessors(v));
 			}
 			return r;
 		}
 		public Set<TransitionEdge> getPath(StateVertex v) {
-			return new HashSet<TransitionEdge>(getOutEdges(v));
+			return new HashSet<>(getOutEdges(v));
 		}
 		public Set<TransitionEdge> getPath() {
-			Set<TransitionEdge> r = new HashSet<TransitionEdge>();
+			Set<TransitionEdge> r = new HashSet<>();
 			for (StateVertex v: current) {
 				r.addAll(getOutEdges(v));
 			}
 			return r;		
 		}
 		public Set<StateVertex> getReachable() {
-			Set<StateVertex> r = new HashSet<StateVertex>();
+			Set<StateVertex> r = new HashSet<>();
 			for (StateVertex v: current) {
 				r.addAll(getReachable(v));
 			}
 			return r;
 		}
 		public Set<StateVertex> getReaching() {
-			Set<StateVertex> r = new HashSet<StateVertex>();
+			Set<StateVertex> r = new HashSet<>();
 			for (StateVertex v: current) {
 				r.addAll(getReaching(v));
 			}
 			return r;
 		}
 		public Set<StateVertex> getReachable(StateVertex v) {
-			return new HashSet<StateVertex>(getReachableStates(v));
+			return new HashSet<>(getReachableStates(v));
 		}
 		public Set<StateVertex> getReaching(StateVertex v) {
-			return new HashSet<StateVertex>(getReachingStates(v));
+			return new HashSet<>(getReachingStates(v));
 		}
 		public Set<StateVertex> getReached() {
 			return Collections.unmodifiableSet(reached);
@@ -137,31 +137,30 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 		super();
 		name = n;
 		mixed = true;
-		innerGraphs = new HashSet<LTSGraph>();
-		SCCs = new HashMap<LTSGraph,List<Set<StateVertex>>>();
+		innerGraphs = new HashSet<>();
+		SCCs = new HashMap<>();
 	}
 	
-	public LTSGraph(CompactState lts) {
+	public LTSGraph(LabelledTransitionSystem lts) {
 		this(lts.getName());
 		mixed = false;
 		
 		HashMap<Integer,StateVertex> stateByNumber =
-				new HashMap<Integer,StateVertex>(); //Used for edges to efficiently get JUNGState objects
+				new HashMap<>(); //Used for edges to efficiently get JUNGState objects
 		ArrayList<TransitionEdge> transitions =
-				new ArrayList<TransitionEdge>();
+				new ArrayList<>();
 
 		//Convert all states to vertices in the output graph
-		for (int currentState=0; currentState < lts.maxStates; currentState++) {
+		for (int currentState=0; currentState < lts.getMaxStates(); currentState++) {
 			final StateVertex js = new StateVertex(currentState,lts.getName());
 			addVertex(js);
 			stateByNumber.put(currentState, js);
 
 			try {
-    			@SuppressWarnings("unchecked")
-				final Enumeration<EventState> enumEvent = (Enumeration<EventState>)lts.states[currentState].elements();
+				final Enumeration<LTSTransitionList> enumEvent = lts.getStates()[currentState].elements();
     			while (enumEvent.hasMoreElements()) {
-    				final EventState event = enumEvent.nextElement();
-    				final String eventName = lts.alphabet[event.getEvent()];
+    				final LTSTransitionList event = enumEvent.nextElement();
+    				final String eventName = lts.getAlphabet()[event.getEvent()];
     				if (!eventName.startsWith("@")) { 
     					final TransitionEdge jt = new TransitionEdge(eventName,currentState,event.getNext());
     					transitions.add(jt);
@@ -368,7 +367,7 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 	 * Returns all the states labeled "0"
 	 */
 	public Set<StateVertex> getInitials() {
-		Set<StateVertex> initials = new HashSet<StateVertex>();
+		Set<StateVertex> initials = new HashSet<>();
 		if (mixed) {
 			for (LTSGraph g: innerGraphs) {
 				for (StateVertex v: g.getVertices()) {
@@ -394,8 +393,8 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 	 * Returns a set of all the states reachable from v
 	 */
 	public Set<StateVertex> getReachableStates(StateVertex v) {
-		Set<StateVertex> reachables = new HashSet<StateVertex>();
-    	LinkedList<StateVertex> queue = new LinkedList<StateVertex>();
+		Set<StateVertex> reachables = new HashSet<>();
+    	LinkedList<StateVertex> queue = new LinkedList<>();
     	queue.add(v);
     	
     	while (!queue.isEmpty()) {
@@ -416,8 +415,8 @@ public class LTSGraph extends DirectedSparseMultigraph<StateVertex, TransitionEd
 	 * Returns a set of all the states able to reach v
 	 */
 	public Set<StateVertex> getReachingStates(StateVertex v) {
-		Set<StateVertex> reachings = new HashSet<StateVertex>();
-    	LinkedList<StateVertex> queue = new LinkedList<StateVertex>();
+		Set<StateVertex> reachings = new HashSet<>();
+    	LinkedList<StateVertex> queue = new LinkedList<>();
     	queue.add(v);
     	
     	while (!queue.isEmpty()) {

@@ -2,86 +2,59 @@ package ltsa.lts.csp;
 
 import java.util.Hashtable;
 
+import com.google.common.base.Preconditions;
+
 import ltsa.lts.Diagnostics;
-import ltsa.lts.lts.StateMachine;
-import ltsa.lts.lts.Transition;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.parser.ActionLabels;
+import ltsa.lts.automata.automaton.StateMachine;
+import ltsa.lts.automata.automaton.transition.Transition;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.ActionLabels;
 
 /* ----------------------------------------------------------------------- */
 
 public class StateDefn extends Declaration {
-	public Symbol name;
+	private final Symbol name;
+
 	public boolean accept = false;
 	public ActionLabels range; // use label with no name
-	public StateExpr stateExpr;
+	private StateExpr stateExpr;
 
-	private void check_put(String s, StateMachine m) {
-		if (m.getStates().contains(s)) {
-			Diagnostics.fatal("duplicate definition -" + name, name);
-		} else {
-			m.addState(s);
-		}
+	private boolean isFinal = false;
+
+	private static final String ERRORCONST = "ERROR";
+
+	public StateDefn(Symbol name) {
+		Preconditions.checkNotNull(name, "The name cannot be null");
+		this.name = name;
 	}
 
 	@Override
 	public void explicitStates(StateMachine m) {
 		if (range == null) {
 			String s = name.toString();
-			if (s.equals("STOP") || s.equals("ERROR") || s.equals("END"))
+			if ("STOP".equals(s) || ERRORCONST.equals(s) || "END".equals(s)) {
 				Diagnostics.fatal("reserved local process name -" + name, name);
-			check_put(s, m);
+			}
+			checkPut(s, m);
 		} else {
-			Hashtable locals = new Hashtable();
+			Hashtable<String, Value> locals = new Hashtable<>();
 			range.initContext(locals, m.getConstants());
 			while (range.hasMoreNames()) {
-				check_put(name.toString() + "." + range.nextName(), m);
+				checkPut(name.toString() + "." + range.nextName(), m);
 			}
 			range.clearContext();
 		}
 	}
 
-	private void crunchAlias(StateExpr st, String n, Hashtable locals,
-			StateMachine m) {
-		String s = st.evalName(locals, m);
-		Integer i;
-		if (m.getStates().contains(s)) {
-			i = m.getStateIndex(s);
-		} else {
-			if (s.equals("STOP")) {
-				m.addState("STOP");
-				i = m.getStateIndex("STOP");
-			} else if (s.equals("ERROR")) {
-				m.addState("ERROR");
-				i = m.getStateIndex("END");
-			} else if (s.equals("END")) {
-				m.addState("END");
-				i = m.getStateIndex("END");
-			} else {
-				m.addState("ERROR");
-				i = m.getStateIndex("END");
-				Diagnostics.warning(s + " defined to be ERROR",
-						"definition not found- " + s, st.name);
-			}
-		}
-		CompactState mach = null;
-		if (st.processes != null) {
-			mach = st.makeInserts(locals, m);
-		}
-		if (mach != null) {
-			m.preAddSequential(m.getStateIndex(n), i, mach);
-		} else {
-			m.getAliases().put(m.getStateIndex(n), i);
-		}
-	}
-
 	@Override
 	public void crunch(StateMachine m) {
-		if (stateExpr.name == null && stateExpr.boolexpr == null)
+		if (stateExpr == null
+				|| (stateExpr.name == null && stateExpr.boolexpr == null))
 			return;
-		Hashtable locals = new Hashtable();
+		Hashtable<String, Value> locals = new Hashtable<>();
 		if (range == null)
 			crunchit(m, locals, stateExpr, name.toString());
 		else {
@@ -94,8 +67,92 @@ public class StateDefn extends Declaration {
 		}
 	}
 
-	private void crunchit(StateMachine m, Hashtable locals, StateExpr st,
-			String s) {
+	@Override
+	public void transition(StateMachine machine) {
+		if (stateExpr == null || stateExpr.name != null) {
+			return;
+		}
+		// this is an alias definition
+		Hashtable<String, Value> locals = new Hashtable<>();
+		int from;
+		if (range == null) {
+			from = machine.getStateIndex("" + name);
+			stateExpr.firstTransition(from, locals, machine);
+			if (accept) {
+				if (!machine.getAlphabet().contains("@")) {
+					machine.addEvent("@");
+				}
+				Symbol e = new Symbol(Symbol.IDENTIFIER, "@");
+				machine.addTransition(new Transition(from, e, from));
+			}
+		} else {
+			range.initContext(locals, machine.getConstants());
+			while (range.hasMoreNames()) {
+				from = machine
+						.getStateIndex("" + name + "." + range.nextName());
+				stateExpr.firstTransition(from, locals, machine);
+			}
+			range.clearContext();
+		}
+	}
+
+	public StateDefn myclone() {
+		StateDefn sd = new StateDefn(name);
+		sd.accept = accept;
+		if (range != null)
+			sd.range = range.myclone();
+		if (stateExpr != null)
+			sd.stateExpr = stateExpr.myclone();
+		return sd;
+	}
+
+	private void checkPut(String s, StateMachine m) {
+		if (m.getStates().contains(s)) {
+			Diagnostics.fatal("duplicate definition -" + name, name);
+		} else {
+			m.addState(s);
+			if (this.isFinal) {
+				m.addFinalState(s);
+			}
+		}
+	}
+
+	private void crunchAlias(StateExpr st, String n,
+			Hashtable<String, Value> locals, StateMachine m) {
+		String s = st.evalName(locals, m);
+		Integer i;
+		if (m.getStates().contains(s)) {
+			i = m.getStateIndex(s);
+		} else {
+			if (s.equals("STOP")) {
+				m.addState("STOP");
+				i = m.getStateIndex("STOP");
+			} else if (ERRORCONST.equals(s)) {
+				m.addState(ERRORCONST);
+				i = m.getStateIndex(ERRORCONST);
+			} else if (s.equals("END")) {
+				m.addState("END");
+				i = m.getStateIndex("END");
+			} else {
+				m.addState(ERRORCONST);
+				i = m.getStateIndex(ERRORCONST);
+				Diagnostics.warning(s + " defined to be ERROR",
+						"definition not found- " + s, st.name);
+			}
+		}
+		LabelledTransitionSystem mach = null;
+		if (st.processes != null) {
+			mach = st.makeInserts(locals, m);
+		}
+		if (mach != null) {
+			m.preAddSequential(m.getStateIndex(n), i, mach);
+		} else {
+			m.getAliases().put(m.getStateIndex(n), i);
+		}
+	}
+
+	private void crunchit(StateMachine m, Hashtable<String, Value> locals,
+			StateExpr st, String s) {
 		if (st.name != null)
 			crunchAlias(st, s, locals, m);
 		else if (st.boolexpr != null) {
@@ -109,42 +166,23 @@ public class StateDefn extends Declaration {
 		}
 	}
 
-	@Override
-	public void transition(StateMachine m) {
-		if (stateExpr.name != null) {
-			return;
-		}
-		// this is an alias definition
-		Hashtable locals = new Hashtable();
-		int from;
-		if (range == null) {
-			from = m.getStateIndex("" + name);
-			stateExpr.firstTransition(from, locals, m);
-			if (accept) {
-				if (!m.getAlphabet().contains("@"))
-					m.addEvent("@");
-				Symbol e = new Symbol(Symbol.IDENTIFIER, "@");
-				m.addTransition(new Transition(from, e, from));
-			}
-		} else {
-			range.initContext(locals, m.getConstants());
-			while (range.hasMoreNames()) {
-				from = m.getStateIndex("" + name + "." + range.nextName());
-				stateExpr.firstTransition(from, locals, m);
-			}
-			range.clearContext();
-		}
+	public Symbol getName() {
+		return name;
 	}
 
-	public StateDefn myclone() {
-		StateDefn sd = new StateDefn();
-		sd.name = name;
-		sd.accept = accept;
-		if (range != null)
-			sd.range = range.myclone();
-		if (stateExpr != null)
-			sd.stateExpr = stateExpr.myclone();
-		return sd;
+	public void setStateExpr(StateExpr stateExpr) {
+		this.stateExpr = stateExpr;
 	}
 
+	protected StateExpr getStateExpr() {
+		return stateExpr;
+	}
+
+	public boolean isFinal() {
+		return isFinal;
+	}
+
+	public void setFinal(boolean isFinal) {
+		this.isFinal = isFinal;
+	}
 }

@@ -5,9 +5,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
 import ltsa.lts.parser.LTSInputString;
-import ltsa.lts.parser.LTSOutput;
 import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.ui.EmptyLTSOuput;
 

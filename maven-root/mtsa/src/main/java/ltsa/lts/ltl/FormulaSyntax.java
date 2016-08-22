@@ -6,23 +6,25 @@ import java.util.Vector;
 
 import ltsa.lts.Diagnostics;
 import ltsa.lts.ltl.formula.Formula;
-import ltsa.lts.parser.ActionLabels;
+import ltsa.lts.ltl.formula.factory.FormulaFactory;
 import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.ActionLabels;
 
-/*
-* abstract syntax tree for unexpanded (i.e. includes forall ) LTL formlae.
-*/
-
+/**
+ * abstract syntax tree for unexpanded (i.e. includes forall ) LTL formlae.
+ *
+ */
 public class FormulaSyntax  {
 	FormulaSyntax left,right;
 	Symbol operator;
 	Symbol proposition;
 	ActionLabels range;
 	ActionLabels action;
-	Vector parameters;  //overloaded with Stack for "when expr"
+	Vector<Stack<Symbol>> parameters;  //overloaded with Stack for "when expr"
 
-	private FormulaSyntax(FormulaSyntax lt, Symbol op, FormulaSyntax rt, Symbol prop, ActionLabels r, ActionLabels a, Vector v)  {
+	private FormulaSyntax(FormulaSyntax lt, Symbol op, FormulaSyntax rt, Symbol prop, ActionLabels r, ActionLabels a, Vector<Stack<Symbol>> v)  {
 		left = lt;
 		right = rt;
 		operator = op;
@@ -44,11 +46,11 @@ public class FormulaSyntax  {
 		return new FormulaSyntax(null,null,null,prop,r,null,null);
 	}
 
-	public static FormulaSyntax make(Symbol prop, Vector v)  {
+	public static FormulaSyntax make(Symbol prop, Vector<Stack<Symbol>> v)  {
 		return new FormulaSyntax(null,null,null,prop,null,null,v);
 	}
 
-	public static FormulaSyntax makeE(Symbol op, Stack v)  {
+	public static FormulaSyntax makeE(Symbol op, Stack<Stack<Symbol>> v)  {
 		return new FormulaSyntax(null,op,null,null,null,null,v);
 	}
 
@@ -60,13 +62,13 @@ public class FormulaSyntax  {
 		return new FormulaSyntax(null,op,rt,null,r,null,null);
 	}
 
-	public Formula expand(FormulaFactory fac, Hashtable locals, Hashtable globals)  {
+	public Formula expand(FormulaFactory fac, Hashtable<String, Value> locals, Hashtable<String, Value> globals)  {
 		if (proposition!=null)  {
 			if (range == null)  {
 				if (PredicateDefinition.definitions!=null && PredicateDefinition.definitions.containsKey(proposition.toString()))
 				  return fac.make(proposition);
 				else  {
-					AssertDefinition p = (AssertDefinition)AssertDefinition.definitions.get(proposition.toString());
+					AssertDefinition p = AssertDefinition.definitions.get(proposition.toString());
 					if (p==null)
 						Diagnostics.fatal ("LTL fluent or assertion not defined: "+proposition, proposition);
 					if (parameters==null)
@@ -75,8 +77,8 @@ public class FormulaSyntax  {
 						if (parameters.size()!=p.params.size())
 							Diagnostics.fatal ("Actual parameters do not match formals: "+proposition, proposition);
 
-						Hashtable actual_params = new Hashtable();
-						Vector values = paramValues(parameters,locals,globals);
+						Hashtable<String, Value> actual_params = new Hashtable<>();
+						Vector<Value> values = paramValues(parameters,locals,globals);
 						for (int i=0; i<parameters.size(); ++i){
 						    actual_params.put(p.params.elementAt(i),values.elementAt(i));
 						}
@@ -88,8 +90,6 @@ public class FormulaSyntax  {
 			}
 		} else if (action!=null)  {
 			return fac.make(action,locals,globals);
-		} else if (operator.kind==Symbol.RIGID)  {
-			return fac.make((Stack)parameters, locals, globals);
 		} else if (operator!=null && range==null)  {
 			if (left==null)  {
 				return fac.make(null,operator,right.expand(fac,locals,globals));
@@ -116,12 +116,12 @@ public class FormulaSyntax  {
 		return null;
 	}
 
-	private Vector paramValues(Vector paramExprs, Hashtable locals, Hashtable globals) {
+	private Vector<Value> paramValues(Vector<Stack<Symbol>> paramExprs, Hashtable<String, Value> locals, Hashtable<String, Value> globals) {
         if (paramExprs==null) return null;
-        Enumeration e = paramExprs.elements();
-        Vector v = new Vector();
+        Enumeration<Stack<Symbol>> e = paramExprs.elements();
+        Vector<Value> v = new Vector<>();
         while(e.hasMoreElements()) {
-            Stack stk = (Stack)e.nextElement();
+            Stack<Symbol> stk = e.nextElement();
             v.addElement(Expression.getValue(stk,locals,globals));
         }
         return v;

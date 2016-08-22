@@ -2,8 +2,8 @@ package ltsa.updatingControllers.synthesis;
 
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.FormulaSyntax;
-import ltsa.lts.parser.ActionName;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.actions.ActionName;
 import ltsa.updatingControllers.UpdateConstants;
 import ltsa.control.ControllerGoalDefinition;
 import MTSSynthesis.controller.game.util.GeneralConstants;

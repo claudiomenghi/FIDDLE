@@ -8,11 +8,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -24,6 +26,11 @@ import ltsa.control.ControllerGoalDefinition;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.exploration.ExplorerDefinition;
 import ltsa.lts.Diagnostics;
+import ltsa.lts.automata.automaton.StateMachine;
+import ltsa.lts.automata.lts.state.AutCompactState;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.probabilistic.ProbabilisticTransition;
 import ltsa.lts.chart.BasicChartDefinition;
 import ltsa.lts.chart.ConditionDefinition;
 import ltsa.lts.chart.ConditionLocation;
@@ -50,31 +57,36 @@ import ltsa.lts.csp.StateDefn;
 import ltsa.lts.csp.StateExpr;
 import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltl.FormulaFactory;
 import ltsa.lts.ltl.FormulaSyntax;
-import ltsa.lts.ltl.FormulaTransformerVisitor;
 import ltsa.lts.ltl.PredicateDefinition;
-import ltsa.lts.lts.ProbabilisticTransition;
-import ltsa.lts.lts.StateMachine;
-import ltsa.lts.lts.UpdatingControllersDefinition;
-import ltsa.lts.ltscomposition.AutCompactState;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.ltl.formula.factory.FormulaFactory;
+import ltsa.lts.ltl.visitors.FormulaTransformerVisitor;
+import ltsa.lts.output.LTSOutput;
+import ltsa.lts.parser.actions.ActionExpr;
+import ltsa.lts.parser.actions.ActionLabels;
+import ltsa.lts.parser.actions.ActionName;
+import ltsa.lts.parser.actions.ActionRange;
+import ltsa.lts.parser.actions.ActionSet;
+import ltsa.lts.parser.actions.ActionSetExpr;
+import ltsa.lts.parser.actions.ActionVarRange;
+import ltsa.lts.parser.actions.ActionVarSet;
+import ltsa.lts.parser.actions.LabelSet;
 import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.lts.util.LTSUtils;
+import ltsa.updatingControllers.UpdatingControllersDefinition;
 import ltsa.updatingControllers.structures.UpdateGraphDefinition;
 import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.PredicateUtils;
 
-import com.google.common.base.Preconditions;
-
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
 import MTSSynthesis.ar.dc.uba.model.condition.Formula;
 import MTSSynthesis.controller.game.util.GeneralConstants;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
+
+import com.google.common.base.Preconditions;
 
 public class LTSCompiler {
 
@@ -83,15 +95,24 @@ public class LTSCompiler {
 	private String currentDirectory;
 	private Symbol current;
 
-	private final PreconditionDefinitionManager preconditionDefinitionManager;
+	static public PreconditionDefinitionManager preconditionDefinitionManager;
+	private final PostconditionDefinitionManager postconditionDefinitionManager;
 
 	public static Hashtable<String, ProcessSpec> processes;
-	public static Hashtable<String, CompactState> compiled;
+	private static Hashtable<String, ProcessSpec> replacements;
+
+	public static HashMap<String, String> mapBoxReplacementName;
+
+	public static Hashtable<String, LabelledTransitionSystem> compiled;
 	public static Hashtable<String, CompositionExpression> composites;
 	static Hashtable<String, ExplorerDefinition> explorers;
 	private static Hashtable<String, CompositionExpression> allComposites;
 
+	public static Map<String, String> mapsEachPostConditionToTheCorrespondingBox;
 	private int compositionType = -1;
+
+	public static String boxOfInterest;
+	public static boolean forPreconditionChecking = false;
 
 	public LTSCompiler(LTSInput input, LTSOutput output, String currentDirectory) {
 		Preconditions.checkNotNull(input, "The LTSInput cannot be null");
@@ -99,7 +120,7 @@ public class LTSCompiler {
 		Preconditions.checkNotNull(currentDirectory,
 				"The current directory cannot be null");
 
-		lex = new Lex(input);
+		this.lex = new Lex(input);
 		this.output = output;
 		this.currentDirectory = currentDirectory;
 		Diagnostics.init(output);
@@ -110,16 +131,426 @@ public class LTSCompiler {
 		LabelSet.constants = new Hashtable<>();
 		ProgressDefinition.definitions = new Hashtable<>();
 		MenuDefinition.definitions = new Hashtable<>();
+		mapBoxReplacementName = new HashMap<>();
+		processes = new Hashtable<>();
+		replacements = new Hashtable<>();
 		Def.init();
 		PredicateDefinition.init();
 		AssertDefinition.init();
 		TriggeredScenarioDefinition.init();
 		ControllerDefinition.init();
 
-		this.preconditionDefinitionManager = new PreconditionDefinitionManager();
+		preconditionDefinitionManager = new PreconditionDefinitionManager();
+		this.postconditionDefinitionManager = new PostconditionDefinitionManager();
 		ControllerGoalDefinition.init();
 		ControlStackDefinition.initDefinitionList();
 		DistributionDefinition.init();
+		mapsEachPostConditionToTheCorrespondingBox = new HashMap<>();
+	}
+
+	public void parse(Hashtable<String, CompositionExpression> composites,
+			Hashtable<String, ProcessSpec> processes,
+			Hashtable<String, ExplorerDefinition> explorations) {
+		doparse(composites, processes, null);
+	}
+
+	private void doparse(Hashtable<String, CompositionExpression> composites,
+			Hashtable<String, ProcessSpec> processes,
+			Hashtable<String, LabelledTransitionSystem> compiled) {
+		ProbabilisticTransition
+				.setLastProbBundle(ProbabilisticTransition.NO_BUNDLE);
+		nextSymbol();
+		try {
+			while (current.kind != Symbol.EOFSYM) {
+				if (current.kind == Symbol.REPLACEMENT) {
+					nextSymbol();
+					parseReplacement();
+				} else if (current.kind == Symbol.LTLPRECONDITION) {
+					nextSymbol();
+					assertPrecondition();
+				} else if (current.kind == Symbol.LTLPOSTCONDITION) {
+					nextSymbol();
+					assertPostcondition();
+				} else if (current.kind == Symbol.CONSTANT) {
+					nextSymbol();
+					constantDefinition(Expression.constants);
+				} else if (current.kind == Symbol.RANGE) {
+					nextSymbol();
+					rangeDefinition();
+				} else if (current.kind == Symbol.SET) {
+					nextSymbol();
+					setDefinition();
+				} else if (current.kind == Symbol.PROGRESS) {
+					nextSymbol();
+					progressDefinition();
+				} else if (current.kind == Symbol.MENU) {
+					nextSymbol();
+					menuDefinition();
+				} else if (current.kind == Symbol.ANIMATION) {
+					nextSymbol();
+					animationDefinition();
+				} else if (current.kind == Symbol.ASSERT) {
+					nextSymbol();
+					assertDefinition(false, false);
+				} else if (current.kind == Symbol.CONSTRAINT) {
+					nextSymbol();
+					assertDefinition(true, false);
+				} else if (current.kind == Symbol.LTLPROPERTY) {
+					nextSymbol();
+					assertDefinition(true, true);
+				} else if (current.kind == Symbol.PREDICATE) {
+					nextSymbol();
+					predicateDefinition();
+				} else if (current.kind == Symbol.DEF) {
+					nextSymbol();
+					defDefinition();
+				} else if (current.kind == Symbol.GOAL) {
+					nextSymbol();
+
+					currentIs(Symbol.UPPERIDENT, "goal identifier expected");
+
+					this.validateUniqueProcessName(current);
+					ControllerGoalDefinition goal = new ControllerGoalDefinition(
+							current);
+					this.goalDefinition(goal);
+
+				} else if (current.kind == Symbol.EXPLORATION) {
+					nextSymbol();
+
+					currentIs(Symbol.UPPERIDENT,
+							"exploration identifier expected");
+
+					this.validateUniqueProcessName(current);
+					ExplorerDefinition explorerDefinition = new ExplorerDefinition(
+							current);
+					nextSymbol();
+
+					this.explorerDefinition(explorerDefinition);
+
+					output.outln("Explorer: " + explorerDefinition.getName());
+
+				} else if (current.kind == Symbol.UPDATING_CONTROLLER) {
+					nextSymbol();
+
+					currentIs(Symbol.UPPERIDENT,
+							"updating controller identifier expected");
+
+					UpdatingControllersDefinition cuDefinition = new UpdatingControllersDefinition(
+							current);
+
+					this.updateControllerDefinition(cuDefinition);
+
+					if (composites.put(cuDefinition.getName().getValue(),
+							cuDefinition) != null) {
+						Diagnostics.fatal("duplicate composite definition: "
+								+ cuDefinition.getName(),
+								cuDefinition.getName());
+					} else {
+						if (allComposites != null) {
+							allComposites.put(
+									cuDefinition.getName().getValue(),
+									cuDefinition);
+						}
+					}
+
+				} else if (current.kind == Symbol.GRAPH_UPDATE) {
+					expectIdentifier("Graph Update");
+					UpdateGraphDefinition graphDefinition = new UpdateGraphDefinition(
+							current.getValue());
+					expectBecomes();
+					expectLeftCurly();
+					graphDefinition.setInitialProblem(parseInitialState());
+					graphDefinition.setTransitions(parseTransitions());
+					expectRightCurly();
+					UpdateGraphGenerator.addGraphDefinition(graphDefinition);
+				} else if (current.kind == Symbol.CONTROL_STACK) {
+
+					ControlStackDefinition def = this.controlStackDefinition();
+					ControlStackDefinition.addDefinition(def);
+
+					CompositionExpression c = new CompositionExpression(
+							this.postconditionDefinitionManager,
+							forPreconditionChecking);
+					c.name = def.getName();
+					c.setComposites(composites);
+					c.processes = processes;
+					c.compiledProcesses = compiled;
+					c.controlStackEnvironments = new Vector<Symbol>();
+					for (ControlTierDefinition tier : def) {
+						c.controlStackEnvironments.add(tier.getEnvModel());
+					}
+					c.output = output;
+					c.makeControlStack = true;
+					if (allComposites != null) {
+						allComposites.put(c.name.toString(), c);
+					}
+					if (composites.put(c.name.toString(), c) != null) {
+						Diagnostics.fatal("duplicate composite definition: "
+								+ c.name, c.name);
+					}
+
+				} else if (current.kind == Symbol.IMPORT) {
+					nextSymbol();
+					ProcessSpec p = importDefinition();
+					if (processes.put(p.getName().toString(), p) != null) {
+						Diagnostics.fatal(
+								"duplicate process definition: " + p.getName(),
+								p.getName());
+					}
+				} else if (current.kind == Symbol.ETRIGGEREDSCENARIO) {
+					nextSymbol();
+					// Check the syntax
+					currentIs(Symbol.UPPERIDENT, "chart identifier expected");
+
+					this.validateUniqueProcessName(current);
+
+					// create the existential triggeredScenario with the given
+					// identifier
+					TriggeredScenarioDefinition eTSDefinition = new ExistentialTriggeredScenarioDefinition(
+							current);
+
+					nextSymbol();
+					this.triggeredScenarioDefinition(eTSDefinition);
+				} else if (current.kind == Symbol.UTRIGGEREDSCENARIO) {
+					nextSymbol();
+					// Check the syntax
+					currentIs(Symbol.UPPERIDENT, "chart identifier expected");
+
+					this.validateUniqueProcessName(current);
+
+					// create the universal triggered Scenario with the given
+					// identifier
+					TriggeredScenarioDefinition uTSDefinition = new UniversalTriggeredScenarioDefinition(
+							current);
+
+					nextSymbol();
+					this.triggeredScenarioDefinition(uTSDefinition);
+				} else if (current.kind == Symbol.DISTRIBUTION) {
+					this.distributionDefinition();
+				} else if (current.kind == Symbol.DETERMINISTIC
+						|| current.kind == Symbol.MINIMAL
+						|| current.kind == Symbol.PROPERTY
+						|| current.kind == Symbol.COMPOSE
+						|| current.kind == Symbol.OPTIMISTIC
+						|| current.kind == Symbol.PESSIMISTIC
+						|| LTSUtils.isCompositionExpression(current)
+						|| current.kind == Symbol.CLOUSURE
+						|| current.kind == Symbol.ABSTRACT
+						|| current.kind == Symbol.CONTROLLER
+						|| current.kind == Symbol.CHECK_COMPATIBILITY
+						|| current.kind == Symbol.COMPONENT
+						|| current.kind == Symbol.PROBABILISTIC
+						|| current.kind == Symbol.MDP
+						|| current.kind == Symbol.STARENV
+						|| current.kind == Symbol.PLANT
+						|| current.kind == Symbol.CONTROLLED_DET
+						|| current.kind == Symbol.SYNC_CONTROLLER) {
+					// TODO: refactor needed. Some of the operations can be
+					// combined, however
+					// the parser does not allow some valid combinations. Also
+					// the order of the operations
+					// is not kept when the operations are applied
+
+					boolean makeDet = false;
+					boolean makeMin = false;
+					boolean makeProp = false;
+					boolean makeComp = false;
+					boolean makeOptimistic = false;
+					boolean makePessimistic = false;
+					boolean makeClousure = false;
+					boolean makeAbstract = false;
+					boolean makeController = false;
+					boolean makeSyncController = false;
+					boolean checkCompatible = false;
+					boolean makeComponent = false;
+					boolean probabilistic = false;
+					boolean isMDP = false;
+					boolean isEnactment = false;
+					boolean makeStarEnv = false;
+					boolean makePlant = false;
+					boolean makeControlledDet = false;
+					Symbol controlledActions = null;
+
+					if (current.kind == Symbol.CLOUSURE) {
+						makeClousure = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.ABSTRACT) {
+						makeAbstract = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.DETERMINISTIC) {
+						makeDet = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.MINIMAL) {
+						makeMin = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.COMPOSE) {
+						makeComp = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.PROPERTY) {
+						makeProp = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.OPTIMISTIC) {
+						makeOptimistic = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.PESSIMISTIC) {
+						makePessimistic = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.COMPONENT) {
+						makeComponent = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.CONTROLLER) {
+						makeController = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.SYNC_CONTROLLER) {
+						makeSyncController = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.STARENV) {
+						makeStarEnv = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.PLANT) {
+						makePlant = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.CHECK_COMPATIBILITY) {
+						checkCompatible = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.CONTROLLED_DET) {
+						makeControlledDet = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.PROBABILISTIC) {
+						probabilistic = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.MDP) {
+						isMDP = true;
+						nextSymbol();
+					}
+					if (current.kind == Symbol.ENACTMENT) {
+						isEnactment = true;
+						nextSymbol();
+						if (current.kind == Symbol.LCURLY) {
+							nextSymbol();
+							controlledActions = current;
+							nextSymbol();
+							// }
+							nextSymbol();
+						}
+					}
+
+					if (current.kind != Symbol.OR
+							&& current.kind != Symbol.PLUS_CA
+							&& current.kind != Symbol.PLUS_CR
+							&& current.kind != Symbol.MERGE) {
+						ProcessSpec p = stateDefns();
+						if (processes.put(p.getName().toString(), p) != null) {
+							Diagnostics.fatal("duplicate process definition: "
+									+ p.getName(), p.getName());
+						}
+						p.isProperty = makeProp;
+						p.isMinimal = makeMin;
+						p.isDeterministic = makeDet;
+						p.isOptimistic = makeOptimistic;
+						p.isPessimistic = makePessimistic;
+						p.isClousure = makeClousure;
+						p.isAbstract = makeAbstract;
+						p.isProbabilistic = probabilistic;
+						p.isMDP = isMDP;
+						p.isStarEnv = makeStarEnv;
+
+						if (makeController || checkCompatible || makePlant
+								|| makeControlledDet || makeSyncController) {
+							Diagnostics
+									.fatal("The operation requires a composite model.");
+						}
+
+						if (makeComponent) {
+							Diagnostics
+									.fatal("A component can only be created from a composite model.");
+						}
+
+						if (probabilistic
+								&& (makeProp || makeMin || makeDet
+										|| makeOptimistic || makePessimistic
+										|| makeClousure || makeAbstract)) {
+							Diagnostics
+									.fatal("Probabilistic automata cannot be combined with other options.");
+						}
+
+						if (probabilistic != isMDP) { // x to account for future
+														// probabilistic
+														// variations
+							Diagnostics
+									.fatal("Probabilistic automata must be one of: mdp.");
+						}
+					} else if (LTSUtils.isCompositionExpression(current)) {
+						CompositionExpression c = composition();
+						c.setComposites(composites);
+						c.processes = processes;
+						c.compiledProcesses = compiled;
+						c.output = output;
+						c.makeDeterministic = makeDet;
+						c.makeProperty = makeProp;
+						c.makeMinimal = makeMin;
+						c.makeCompose = makeComp;
+						c.makeOptimistic = makeOptimistic;
+						c.makePessimistic = makePessimistic;
+						c.makeClousure = makeClousure;
+						c.makeAbstract = makeAbstract;
+						c.makeMDP = isMDP;
+						c.makeEnactment = isEnactment;
+						c.enactmentControlled = controlledActions;
+						c.makeController = makeController;
+						c.makeSyncController = makeSyncController;
+						c.checkCompatible = checkCompatible;
+						c.isStarEnv = makeStarEnv;
+						c.isPlant = makePlant;
+						c.isControlledDet = makeControlledDet;
+						c.setMakeComponent(makeComponent);
+						c.compositionType = compositionType;
+						compositionType = -1;
+						if (allComposites != null) {
+							allComposites.put(c.name.toString(), c);
+						}
+						if (composites.put(c.name.toString(), c) != null) {
+							Diagnostics
+									.fatal("duplicate composite definition: "
+											+ c.name, c.name);
+						}
+					}
+				} else {
+					ProcessSpec p = stateDefns();
+					if (processes.put(p.getName().toString(), p) != null) {
+						Diagnostics.fatal(
+								"duplicate process definition: " + p.getName(),
+								p.getName());
+					}
+				}
+
+				nextSymbol();
+			}
+		} catch (DuplicatedTriggeredScenarioDefinitionException e) {
+			Diagnostics.fatal("duplicate Chart definition: " + e.getName());
+		}
+	}
+
+	public static ProcessSpec getSpec(String processName) {
+		Preconditions.checkNotNull(processName,
+				"The process name cannot be null");
+		return processes.get(processName);
 	}
 
 	private Symbol nextSymbol() {
@@ -146,7 +577,7 @@ public class LTSCompiler {
 		return name != null ? allComposites.get(name) : null;
 	}
 
-	public static Hashtable<String, CompactState> getCompiled() {
+	public static Hashtable<String, LabelledTransitionSystem> getCompiled() {
 		return compiled;
 	}
 
@@ -183,11 +614,31 @@ public class LTSCompiler {
 		explorers = new Hashtable<>();
 		compiled = new Hashtable<>(); // compiled
 		allComposites = new Hashtable<>(); // All composites
-
+		preconditionDefinitionManager.reset();
+		mapBoxReplacementName = new HashMap<>();
+		this.postconditionDefinitionManager.reset();
 		doparse(composites, processes, compiled);
 	}
 
-	public CompositeState continueCompilation(String name) {
+	public CompositeState checkPrecondition(String name, LTSOutput ltsOutput) {
+
+		ProgressDefinition.compile();
+		MenuDefinition.compile();
+		PredicateDefinition.compileAll();
+		AssertDefinition.compileAll(output);
+		CompositionExpression ce = composites.get(name);
+		if (ce != null) {
+
+			// return ce.compose(null, );
+			// Is a composition expression.
+			// compileProcesses(processes, compiled, ltsOutput);
+			// return noCompositionExpression(compiled);
+
+		}
+		return null;
+	}
+
+	public CompositeState continueCompilation(String name, LTSOutput ltsOutput) {
 
 		ProgressDefinition.compile();
 		MenuDefinition.compile();
@@ -200,7 +651,9 @@ public class LTSCompiler {
 				Enumeration<CompositionExpression> e = composites.elements();
 				CompositionExpression fce = e.nextElement();
 
-				ce = new CompositionExpression();
+				ce = new CompositionExpression(
+						this.postconditionDefinitionManager,
+						forPreconditionChecking);
 				ce.name = new Symbol(123, name);
 				ce.processes = fce.processes;
 				ce.setComposites(fce.getComposites());
@@ -209,23 +662,28 @@ public class LTSCompiler {
 				ce.compositionType = 45;
 				ce.makeController = true;
 				ce.goal = explorerDefinition.getGoal();
-				ce.compiledProcesses = new Hashtable<String, CompactState>(0);
+				ce.compiledProcesses = new Hashtable<String, LabelledTransitionSystem>(
+						0);
 
-				ce.body = new CompositeBody();
+				ce.body = new CompositeBody(forPreconditionChecking);
 				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition
 						.getView().size() + 1);
 
 				for (int i = 0; i < explorerDefinition.getView().size(); i++) {
-					CompositeBody aCompositeBody = new CompositeBody();
-					aCompositeBody.singleton = new ProcessRef(false, true);
+					CompositeBody aCompositeBody = new CompositeBody(
+							forPreconditionChecking);
+					aCompositeBody.singleton = new ProcessRef(
+							this.postconditionDefinitionManager, false, true);
 					aCompositeBody.singleton.name = explorerDefinition
 							.getView().get(i);
 					ce.body.procRefs.add(aCompositeBody);
 				}
 
 				for (int i = 0; i < explorerDefinition.getModel().size(); i++) {
-					CompositeBody aCompositeBody = new CompositeBody();
-					aCompositeBody.singleton = new ProcessRef(false, true);
+					CompositeBody aCompositeBody = new CompositeBody(
+							forPreconditionChecking);
+					aCompositeBody.singleton = new ProcessRef(
+							this.postconditionDefinitionManager, false, true);
 					aCompositeBody.singleton.name = explorerDefinition
 							.getModel().get(i);
 					ce.body.procRefs.add(aCompositeBody);
@@ -236,14 +694,20 @@ public class LTSCompiler {
 			}
 		}
 		if (ce != null) {
-			// Is a composition expression.
+
 			return ce.compose(null);
+			// Is a composition expression.
+			// compileProcesses(processes, compiled, ltsOutput);
+			// return noCompositionExpression(compiled);
+
 		} else {
 
 			if (explorers.containsKey(name)) {
 				ExplorerDefinition explorerDefinition = explorers.get(name);
 
-				ce = new CompositionExpression();
+				ce = new CompositionExpression(
+						this.postconditionDefinitionManager,
+						forPreconditionChecking);
 				ce.name = new Symbol(123, name);
 				ce.processes = processes;
 				ce.output = output;
@@ -251,23 +715,28 @@ public class LTSCompiler {
 				ce.compositionType = 45;
 				ce.makeController = true;
 				ce.goal = explorerDefinition.getGoal();
-				ce.compiledProcesses = new Hashtable<String, CompactState>(0);
+				ce.compiledProcesses = new Hashtable<String, LabelledTransitionSystem>(
+						0);
 
-				ce.body = new CompositeBody();
+				ce.body = new CompositeBody(forPreconditionChecking);
 				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition
 						.getView().size() + 1);
 
 				for (int i = 0; i < explorerDefinition.getView().size(); i++) {
-					CompositeBody aCompositeBody = new CompositeBody();
-					aCompositeBody.singleton = new ProcessRef(false, true);
+					CompositeBody aCompositeBody = new CompositeBody(
+							forPreconditionChecking);
+					aCompositeBody.singleton = new ProcessRef(
+							this.postconditionDefinitionManager, false, true);
 					aCompositeBody.singleton.name = explorerDefinition
 							.getView().get(i);
 					ce.body.procRefs.add(aCompositeBody);
 				}
 
 				for (int i = 0; i < explorerDefinition.getModel().size(); i++) {
-					CompositeBody aCompositeBody = new CompositeBody();
-					aCompositeBody.singleton = new ProcessRef(false, true);
+					CompositeBody aCompositeBody = new CompositeBody(
+							forPreconditionChecking);
+					aCompositeBody.singleton = new ProcessRef(
+							this.postconditionDefinitionManager, false, true);
 					aCompositeBody.singleton.name = explorerDefinition
 							.getModel().get(i);
 					ce.body.procRefs.add(aCompositeBody);
@@ -292,7 +761,7 @@ public class LTSCompiler {
 			for (DistributionDefinition aDistributionDefinition : allDistributionDefinitions) {
 				Symbol systemModelId = aDistributionDefinition.getSystemModel();
 				// check if the system model has been compiled
-				CompactState systemModel = (CompactState) compiled
+				LabelledTransitionSystem systemModel = compiled
 						.get(systemModelId.getValue());
 				if (systemModel == null) {
 					// it needs to be compiled
@@ -300,13 +769,13 @@ public class LTSCompiler {
 							.compileSingleProcess((ProcessSpec) processes
 									.get(systemModelId.getValue()));
 				}
-				Collection<CompactState> distributedComponents = new HashSet<CompactState>();
+				Collection<LabelledTransitionSystem> distributedComponents = new HashSet<>();
 				boolean isDistributionSuccessful = TransitionSystemDispatcher
 						.tryDistribution(systemModel, aDistributionDefinition,
 								output, distributedComponents);
 
 				// Add the distributed components as compiled
-				for (CompactState component : distributedComponents) {
+				for (LabelledTransitionSystem component : distributedComponents) {
 					compiled.put(component.getName(), component); // add to
 																	// compiled
 																	// process
@@ -319,7 +788,7 @@ public class LTSCompiler {
 			}
 
 			// All processes are compiled.
-			compileProcesses(processes, compiled);
+			compileProcesses(processes, compiled, ltsOutput);
 			return noCompositionExpression(compiled);
 		}
 	}
@@ -367,11 +836,13 @@ public class LTSCompiler {
 	 * @return a CompactState representation of an existing process give its
 	 *         name
 	 */
-	public CompactState getProcessCompactStateByName(String processName) {
-		if (!processes.containsKey(processName))
+	public LabelledTransitionSystem getProcessCompactStateByName(
+			String processName) {
+		if (!processes.containsKey(processName)) {
 			return null;
+		}
 		ProcessSpec processSpec = processes.get(processName);
-		CompactState compiled;
+		LabelledTransitionSystem compiled;
 		if (!processSpec.imported()) {
 			StateMachine one = new StateMachine(processSpec);
 			compiled = one.makeCompactState();
@@ -403,183 +874,81 @@ public class LTSCompiler {
 	 * 
 	 * @param compiledToBeAdded
 	 */
-	private void addAllToCompiled(Collection<CompactState> compiledToBeAdded) {
-		for (CompactState compactState : compiledToBeAdded) {
+	private void addAllToCompiled(
+			Collection<LabelledTransitionSystem> compiledToBeAdded) {
+		for (LabelledTransitionSystem compactState : compiledToBeAdded) {
 			compiled.put(compactState.getName(), compactState);
 		}
 	}
 
-	// put compiled definitions in Hashtable compiled
-	private void compileProcesses(Hashtable<String, ProcessSpec> h,
-			Hashtable<String, CompactState> compiled) {
-		for (ProcessSpec processSpec : h.values()) {
-			CompactState compiledProcess = this
+	/**
+	 * put the compiled definitions in Hashtable compiled
+	 * 
+	 * @param processSpecificationMap
+	 * @param compiled
+	 */
+	private void compileProcesses(
+			Hashtable<String, ProcessSpec> processSpecificationMap,
+			Hashtable<String, LabelledTransitionSystem> compiled,
+			LTSOutput ltsOutput) {
+
+		for (ProcessSpec processSpec : processSpecificationMap.values()) {
+
+			LabelledTransitionSystem compiledProcess = this
 					.compileSingleProcess(processSpec);
+
+			Vector<LabelledTransitionSystem> machines = new Vector<>();
+
+			machines.add(compiledProcess);
 			compiled.put(compiledProcess.getName(), compiledProcess);
 		}
+
 		AssertDefinition.compileConstraints(output, compiled);
 	}
 
-	private CompactState compileSingleProcess(ProcessSpec processSpec) {
-		CompactState compiled;
+	private LabelledTransitionSystem compileSingleProcess(
+			ProcessSpec processSpec) {
+		LabelledTransitionSystem compiledProcess;
 		if (!processSpec.imported()) {
 			StateMachine one = new StateMachine(processSpec);
-			compiled = one.makeCompactState();
-			output.outln("Compiled: " + compiled.getName());
+			compiledProcess = one.makeCompactState();
+			output.outln("Compiled: " + compiledProcess.getName());
 
 		} else {
-			compiled = new AutCompactState(processSpec.getSymbol(),
+			compiledProcess = new AutCompactState(processSpec.getSymbol(),
 					processSpec.importFile);
-			output.outln("Imported: " + compiled.getName());
+			output.outln("Imported: " + compiledProcess.getName());
 		}
-		return compiled;
+		return compiledProcess;
 	}
 
-	public void parse(Hashtable<String, CompositionExpression> composites,
-			Hashtable<String, ProcessSpec> processes,
-			Hashtable<String, ExplorerDefinition> explorations) {
-		doparse(composites, processes, null);
-	}
-
-	private void doparse(Hashtable<String, CompositionExpression> composites,
-			Hashtable<String, ProcessSpec> processes,
-			Hashtable<String, CompactState> compiled) {
-		ProbabilisticTransition
-				.setLastProbBundle(ProbabilisticTransition.NO_BUNDLE);
+	private void parseReplacement() {
+		currentIs(Symbol.UPPERIDENT,
+				"You have to specify the name of the process the replacement refers to.");
+		Symbol processName = current;
 		nextSymbol();
-		try {
-			while (current.kind != Symbol.EOFSYM) {
 
-				switch (current.kind) {
+		currentIs(Symbol.UPPERIDENT,
+				"You have to specify the name of the box the replacement refers to.");
+		Symbol box = current;
 
-				case Symbol.CONSTANT:
-					nextSymbol();
-					constantDefinition(Expression.constants);
-					break;
-				case Symbol.RANGE:
-					nextSymbol();
-					rangeDefinition();
-					break;
-				case Symbol.SET:
-					nextSymbol();
-					setDefinition();
-					break;
-				case Symbol.PROGRESS:
-					nextSymbol();
-					progressDefinition();
-					break;
-				case Symbol.MENU:
-					nextSymbol();
-					menuDefinition();
-					break;
-				case Symbol.ANIMATION:
-					nextSymbol();
-					animationDefinition();
-					break;
-				case Symbol.ASSERT:
-					nextSymbol();
-					assertDefinition(false, false);
-					break;
-				case Symbol.CONSTRAINT:
-					nextSymbol();
-					assertDefinition(true, false);
-					break;
-				case Symbol.PRECONDITION:
-					nextSymbol();
-					assertPrecondition();
-					break;
-				case Symbol.LTLPRECONDITION:
-					nextSymbol();
-					assertPrecondition();
-					break;
-				case Symbol.LTLPROPERTY:
-					nextSymbol();
-					assertDefinition(true, true);
-					break;
-				case Symbol.PREDICATE:
-					nextSymbol();
-					predicateDefinition();
-					break;
-				case Symbol.DEF:
-					nextSymbol();
-					defDefinition();
-					break;
-				case Symbol.GOAL:
-					nextSymbol();
-					parseGoal();
-					break;
-				case Symbol.EXPLORATION:
-					nextSymbol();
-					manageExploration();
-					break;
-				case Symbol.UPDATING_CONTROLLER:
-					nextSymbol();
-					updatingTheController(composites);
-					break;
-				case Symbol.GRAPH_UPDATE:
-					graphUpdate();
-					break;
-				case Symbol.CONTROL_STACK:
-					controlStack(composites, processes, compiled);
-					break;
-				case Symbol.IMPORT:
-					nextSymbol();
-					parseImport(processes);
-					break;
-				case Symbol.ETRIGGEREDSCENARIO:
-					nextSymbol();
-					TriggeredScenarioDefinition eTSDefinition = parseETriggeredScenario();
-					nextSymbol();
-					this.triggeredScenarioDefinition(eTSDefinition);
-					break;
-				case Symbol.UTRIGGEREDSCENARIO:
-					nextSymbol();
-					TriggeredScenarioDefinition uTSDefinition = parseUTriggeredScenario();
-					nextSymbol();
-					this.triggeredScenarioDefinition(uTSDefinition);
-					break;
-				case Symbol.DISTRIBUTION:
-					this.distributionDefinition();
-					break;
-				case Symbol.DETERMINISTIC:
-				case Symbol.MINIMAL:
-				case Symbol.PROPERTY:
-				case Symbol.COMPOSE:
-				case Symbol.OPTIMISTIC:
-				case Symbol.PESSIMISTIC:
-				case Symbol.CLOUSURE:
-				case Symbol.ABSTRACT:
-				case Symbol.CONTROLLER:
-				case Symbol.CHECK_COMPATIBILITY:
-				case Symbol.COMPONENT:
-				case Symbol.PROBABILISTIC:
-				case Symbol.MDP:
-				case Symbol.STARENV:
-				case Symbol.PLANT:
-				case Symbol.CONTROLLED_DET:
-				case Symbol.SYNC_CONTROLLER:
-				case Symbol.OR:
-				case Symbol.PLUS_CA:
-				case Symbol.PLUS_CR:
-				case Symbol.MERGE:
-					parseControllerSynthesis(composites, processes, compiled);
-					break;
-				default:
-					ProcessSpec p = stateDefns();
-					if (processes.put(p.getSymbol().toString(), p) != null) {
-						Diagnostics.fatal(
-								"duplicate process definition: "
-										+ p.getSymbol(), p.getSymbol());
-					}
-					break;
-				}
+		nextSymbol();
+		ProcessSpec replacementSpec = stateDefns();
 
-				System.out.println("END: " + current.getValue());
-				nextSymbol();
-			}
-		} catch (DuplicatedTriggeredScenarioDefinitionException e) {
-			Diagnostics.fatal("duplicate Chart definition: " + e.getName());
+		if (mapBoxReplacementName.containsKey(box.getValue())) {
+			Diagnostics.fatal("duplicate replacement for the box: " + box);
+		} else {
+			mapBoxReplacementName
+					.put(box.getValue(), replacementSpec.getName());
 		}
+		if (processes.containsKey(replacementSpec.getName())) {
+			Diagnostics.fatal("duplicate process definition: "
+					+ replacementSpec.getName(), replacementSpec.getName());
+		} else {
+			processes.put(replacementSpec.getName(), replacementSpec);
+			replacements.put(replacementSpec.getName(), replacementSpec);
+		}
+		replacementSpec.setReplacement(true);
 	}
 
 	private TriggeredScenarioDefinition parseETriggeredScenario() {
@@ -619,7 +988,7 @@ public class LTSCompiler {
 	private void parseControllerSynthesis(
 			Hashtable<String, CompositionExpression> composites,
 			Hashtable<String, ProcessSpec> processes,
-			Hashtable<String, CompactState> compiled) {
+			Hashtable<String, LabelledTransitionSystem> compiled) {
 		// TODO: refactor needed. Some of the operations can be
 		// combined, however
 		// the parser does not allow some valid combinations. Also
@@ -822,11 +1191,13 @@ public class LTSCompiler {
 	private void controlStack(
 			Hashtable<String, CompositionExpression> composites,
 			Hashtable<String, ProcessSpec> processes,
-			Hashtable<String, CompactState> compiled) {
+			Hashtable<String, LabelledTransitionSystem> compiled,
+			boolean forPreconditionChecking) {
 		ControlStackDefinition def = this.controlStackDefinition();
 		ControlStackDefinition.addDefinition(def);
 
-		CompositionExpression c = new CompositionExpression();
+		CompositionExpression c = new CompositionExpression(
+				this.postconditionDefinitionManager, forPreconditionChecking);
 		c.name = def.getName();
 		c.setComposites(composites);
 		c.processes = processes;
@@ -887,20 +1258,21 @@ public class LTSCompiler {
 	}
 
 	private CompositeState noCompositionExpression(
-			Hashtable<String, CompactState> h) {
-		Vector<CompactState> v = new Vector<CompactState>(16);
-		v.addAll(h.values());
-		return new CompositeState(v);
+			Hashtable<String, LabelledTransitionSystem> compiledProcesses) {
+		Vector<LabelledTransitionSystem> processesVector = new Vector<>(16);
+		processesVector.addAll(compiledProcesses.values());
+		return new CompositeState(processesVector);
 	}
 
 	private CompositionExpression composition() {
 		currentIs(Symbol.OR, "|| expected");
 		nextSymbol();
-		CompositionExpression c = new CompositionExpression();
+		CompositionExpression c = new CompositionExpression(
+				this.postconditionDefinitionManager, forPreconditionChecking);
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		c.name = current;
 		nextSymbol();
-		paramDefns(c.init_constants, c.parameters);
+		paramDefns(c.initConstants, c.parameters);
 		currentIs(Symbol.BECOMES, "= expected");
 		nextSymbol();
 		c.body = compositebody();
@@ -911,7 +1283,6 @@ public class LTSCompiler {
 			c.exposeNotHide = (current.kind == Symbol.AT);
 			nextSymbol();
 			c.alphaHidden = labelSet();
-			// this.hideMaybeActions(c.alphaHidden);
 		}
 
 		// Controller Synthesis
@@ -932,7 +1303,7 @@ public class LTSCompiler {
 	}
 
 	private CompositeBody compositebody() {
-		CompositeBody b = new CompositeBody();
+		CompositeBody b = new CompositeBody(forPreconditionChecking);
 		if (current.kind == Symbol.IF) {
 			nextSymbol();
 			b.boolexpr = new Stack<Symbol>();
@@ -990,7 +1361,7 @@ public class LTSCompiler {
 	}
 
 	private Vector<CompositeBody> processRefs() {
-		Vector<CompositeBody> procRefs = new Vector<CompositeBody>();
+		Vector<CompositeBody> procRefs = new Vector<>();
 		currentIs(Symbol.LROUND, "( expected");
 		nextSymbol();
 		if (current.kind != Symbol.RROUND) {
@@ -1025,7 +1396,7 @@ public class LTSCompiler {
 	private Vector<RelabelDefn> relabelSet() {
 		currentIs(Symbol.LCURLY, "{ expected");
 		nextSymbol();
-		Vector<RelabelDefn> v = new Vector<RelabelDefn>();
+		Vector<RelabelDefn> v = new Vector<>();
 		relabelBoth(v, relabelDefn());
 		while (current.kind == Symbol.COMMA) {
 			nextSymbol();
@@ -1057,7 +1428,7 @@ public class LTSCompiler {
 	}
 
 	private ProcessRef processRef() {
-		ProcessRef p = new ProcessRef();
+		ProcessRef p = new ProcessRef(this.postconditionDefinitionManager);
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		p.name = current;
 		nextSymbol();
@@ -1071,7 +1442,7 @@ public class LTSCompiler {
 	private Vector<Stack<Symbol>> actualParameters() {
 		if (current.kind != Symbol.LROUND)
 			return null;
-		Vector<Stack<Symbol>> v = new Vector<Stack<Symbol>>();
+		Vector<Stack<Symbol>> v = new Vector<>();
 		nextSymbol();
 		Stack<Symbol> stk = new Stack<Symbol>();
 		expression(stk);
@@ -1093,7 +1464,7 @@ public class LTSCompiler {
 	 * @return a process specification
 	 */
 	private ProcessSpec stateDefns() {
-		ProcessSpec p = new ProcessSpec();
+		ProcessSpec p = new ProcessSpec(this.postconditionDefinitionManager);
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		Symbol temp = current;
 		nextSymbol();
@@ -1122,7 +1493,7 @@ public class LTSCompiler {
 			parseControllerGoal(p);
 		}
 
-		p.getname();
+		p.getName();
 		currentIs(Symbol.DOT, "dot expected");
 		return p;
 	}
@@ -1163,7 +1534,8 @@ public class LTSCompiler {
 
 	private ProcessSpec importDefinition() {
 		currentIs(Symbol.UPPERIDENT, "imported process identifier expected");
-		ProcessSpec p = new ProcessSpec(current);
+		ProcessSpec p = new ProcessSpec(this.postconditionDefinitionManager,
+				current);
 		expectBecomes();
 		nextSymbol();
 		currentIs(Symbol.STRING_VALUE, " - imported file name expected");
@@ -1261,7 +1633,7 @@ public class LTSCompiler {
 		Symbol temp = current;
 		expectBecomes();
 		nextSymbol();
-		LabelSet ls = new LabelSet(temp, setValue());
+		new LabelSet(temp, setValue());
 		pushSymbol();
 	}
 
@@ -1286,7 +1658,7 @@ public class LTSCompiler {
 	private Vector<ActionLabels> setValue() {
 		currentIs(Symbol.LCURLY, "{ expected");
 		nextSymbol();
-		Vector<ActionLabels> v = new Vector<ActionLabels>();
+		Vector<ActionLabels> v = new Vector<>();
 		v.addElement(labelElement());
 		while (current.kind == Symbol.COMMA) {
 			nextSymbol();
@@ -1373,7 +1745,7 @@ public class LTSCompiler {
 		Symbol name = current;
 		expectBecomes();
 		nextSymbol();
-		Stack<Symbol> tmp = new Stack<Symbol>();
+		Stack<Symbol> tmp = new Stack<>();
 		expression(tmp);
 		pushSymbol();
 		if (p.put(name.toString(), Expression.getValue(tmp, null, null)) != null) {
@@ -1392,17 +1764,37 @@ public class LTSCompiler {
 	 */
 	private StateDefn stateDefn() {
 		StateDefn s;
-		if (current.kind == Symbol.BOX) {
-			s = new BoxStateDefn();
+		if (current.kind == Symbol.FINAL) {
 			nextSymbol();
 			currentIs(Symbol.UPPERIDENT, "process identifier expected");
-			s.name = current;
+			s = new StateDefn(current);
+			parseState(s);
+			s.setFinal(true);
 		} else {
-			s = new StateDefn();
-			currentIs(Symbol.UPPERIDENT, "process identifier expected");
-			s.name = current;
+			if (current.kind == Symbol.BOX) {
+				nextSymbol();
+				currentIs(Symbol.UPPERIDENT, "process identifier expected");
+				BoxStateDefn box = new BoxStateDefn(current);
+				parseState(box);
+				box.setInterface(this.parseBoxInterface());
+				s = box;
+
+			} else {
+				currentIs(Symbol.UPPERIDENT, "process identifier expected");
+				s = new StateDefn(current);
+				parseState(s);
+
+			}
 		}
+
+		return s;
+	}
+
+	private void parseState(StateDefn s) {
 		nextSymbol();
+		if(current.kind == Symbol.DOT ){
+			return;
+		}
 		if (current.kind == Symbol.AT) {
 			s.accept = true;
 			nextSymbol();
@@ -1415,8 +1807,16 @@ public class LTSCompiler {
 		}
 		currentIs(Symbol.BECOMES, "= expected");
 		nextSymbol();
-		s.stateExpr = stateExpr();
-		return s;
+		s.setStateExpr(stateExpr());
+	}
+
+	private ActionLabels parseBoxInterface() {
+		currentIs(Symbol.LSQUARE, "[ expected");
+		nextSymbol();
+		ActionLabels ts = labelElement();
+		currentIs(Symbol.RSQUARE, "] expected");
+		nextSymbol();
+		return ts;
 	}
 
 	private Stack<Symbol> getEvaluatedExpression() {
@@ -1486,8 +1886,7 @@ public class LTSCompiler {
 					r = new ActionSet(labelSet());
 				} else if (current.kind == Symbol.UPPERIDENT
 						&& Range.ranges.containsKey(current.toString())) {
-					r = new ActionRange((Range) Range.ranges.get(current
-							.toString()));
+					r = new ActionRange(Range.ranges.get(current.toString()));
 					nextSymbol();
 				} else {
 					low = new Stack<Symbol>();
@@ -1496,7 +1895,7 @@ public class LTSCompiler {
 				}
 				if (current.kind == Symbol.DOT_DOT) {
 					nextSymbol();
-					high = new Stack<Symbol>();
+					high = new Stack<>();
 					expression(high);
 					r = new ActionRange(low, high);
 				}
@@ -1513,22 +1912,22 @@ public class LTSCompiler {
 								(Range) Range.ranges.get(current.toString()));
 						nextSymbol();
 					} else {
-						low = new Stack<Symbol>();
+						low = new Stack<>();
 						expression(low);
 						currentIs(Symbol.DOT_DOT, "..  expected");
 						nextSymbol();
-						high = new Stack<Symbol>();
+						high = new Stack<>();
 						expression(high);
 						r = new ActionVarRange(varname, low, high);
 					}
 				} else {
 					pushSymbol();
 					current = varname;
-					low = new Stack<Symbol>();
+					low = new Stack<>();
 					expression(low);
 					if (current.kind == Symbol.DOT_DOT) {
 						nextSymbol();
-						high = new Stack<Symbol>();
+						high = new Stack<>();
 						expression(high);
 						r = new ActionRange(low, high);
 					} else
@@ -1554,7 +1953,7 @@ public class LTSCompiler {
 		} else {
 			if (current.kind == Symbol.IF) {
 				nextSymbol();
-				s.boolexpr = new Stack<Symbol>();
+				s.boolexpr = new Stack<>();
 				expression(s.boolexpr);
 				currentIs(Symbol.THEN, "keyword then expected");
 				nextSymbol();
@@ -1592,7 +1991,8 @@ public class LTSCompiler {
 		nextSymbol();
 		while (current.kind == Symbol.SEMICOLON
 				|| current.kind == Symbol.LROUND) {
-			s.addSeqProcessRef(new SeqProcessRef(s.name, actualParameters()));
+			s.addSeqProcessRef(new SeqProcessRef(s.name, actualParameters(),
+					forPreconditionChecking));
 			nextSymbol();
 			currentIs(Symbol.UPPERIDENT, "process identifier expected");
 			s.name = current;
@@ -1926,7 +2326,7 @@ public class LTSCompiler {
 	// _______________________________________________________________________________________
 	// EXCLUSIVE_OR
 
-	private void exclusive_or(Stack<Symbol> expr) { // ^
+	private void exclusiveOr(Stack<Symbol> expr) { // ^
 		and(expr);
 		while (current.kind == Symbol.CIRCUMFLEX) {
 			Symbol op = current;
@@ -1940,11 +2340,11 @@ public class LTSCompiler {
 	// INCLUSIVE_OR
 
 	private void inclusive_or(Stack<Symbol> expr) { // |
-		exclusive_or(expr);
+		exclusiveOr(expr);
 		while (current.kind == Symbol.BITWISE_OR) {
 			Symbol op = current;
 			nextSymbol();
-			exclusive_or(expr);
+			exclusiveOr(expr);
 			expr.push(op);
 		}
 	}
@@ -2024,7 +2424,7 @@ public class LTSCompiler {
 		currentIs(Symbol.BECOMES, "= expected");
 		next_symbol_mod();
 
-		FormulaSyntax formula = ltl_unary();
+		FormulaSyntax formula = ltlUnary();
 
 		if (current.kind == Symbol.PLUS) {
 			nextSymbol();
@@ -2055,6 +2455,56 @@ public class LTSCompiler {
 		Hashtable<String, Value> initparams = new Hashtable<>();
 		Vector<String> params = new Vector<>();
 		LabelSet ls = null;
+		currentIs(Symbol.UPPERIDENT, "process identifier expected");
+		Symbol process = current;
+		nextSymbol();
+
+		currentIs(Symbol.UPPERIDENT, "black box state identifier expected");
+		Symbol box = current;
+		nextSymbol();
+
+		currentIs(Symbol.UPPERIDENT, "LTL property identifier expected");
+		Symbol name = current;
+		// LTLAdditionalSymbolTable.preconditionBoxMap.put(name, box);
+		nextSymbol();
+		mapsEachPostConditionToTheCorrespondingBox.put(name.getValue(),
+				box.getValue());
+		paramDefns(initparams, params);
+		currentIs(Symbol.BECOMES, "= expected");
+		next_symbol_mod();
+
+		FormulaSyntax formula = ltlUnary();
+
+		if (current.kind == Symbol.PLUS) {
+			nextSymbol();
+			ls = labelSet();
+		}
+		pushSymbol();
+		this.validateUniqueProcessName(name);
+		preconditionDefinitionManager.put(name, formula, ls, initparams,
+				params, process.getValue(), box.getValue());
+
+		Symbol notName = new Symbol(name);
+		notName.setString(AssertDefinition.NOT_DEF + notName.getValue());
+		Symbol s = new Symbol(Symbol.PLING);
+		FormulaSyntax notF = FormulaSyntax.make(null, s, formula);
+
+		this.validateUniqueProcessName(notName);
+		preconditionDefinitionManager.put(notName, notF, ls, initparams,
+				params, process.getValue(), box.getValue());
+	}
+
+	private void assertPostcondition() {
+		Hashtable<String, Value> initparams = new Hashtable<>();
+		Vector<String> params = new Vector<>();
+		LabelSet ls = null;
+		currentIs(Symbol.UPPERIDENT, "process identifier expected");
+		Symbol process = current;
+		nextSymbol();
+
+		currentIs(Symbol.UPPERIDENT, "black box state identifier expected");
+		Symbol box = current;
+		nextSymbol();
 
 		currentIs(Symbol.UPPERIDENT, "LTL property identifier expected");
 		Symbol name = current;
@@ -2063,7 +2513,7 @@ public class LTSCompiler {
 		currentIs(Symbol.BECOMES, "= expected");
 		next_symbol_mod();
 
-		FormulaSyntax formula = ltl_unary();
+		FormulaSyntax formula = ltlUnary();
 
 		if (current.kind == Symbol.PLUS) {
 			nextSymbol();
@@ -2071,17 +2521,14 @@ public class LTSCompiler {
 		}
 		pushSymbol();
 		this.validateUniqueProcessName(name);
-		this.preconditionDefinitionManager.put(name, formula, ls, initparams,
-				params);
+		this.postconditionDefinitionManager.put(name, formula, ls, initparams,
+				params, box.toString(), process.toString());
 
 		Symbol notName = new Symbol(name);
 		notName.setString(AssertDefinition.NOT_DEF + notName.getValue());
-		Symbol s = new Symbol(Symbol.PLING);
-		FormulaSyntax notF = FormulaSyntax.make(null, s, formula);
 
 		this.validateUniqueProcessName(notName);
-		this.preconditionDefinitionManager.put(notName, notF, ls, initparams,
-				params);
+
 	}
 
 	/**
@@ -2134,7 +2581,7 @@ public class LTSCompiler {
 	// _______________________________________________________________________________________
 	// LINEAR TEMPORAL LOGIC EXPRESSION
 
-	private FormulaSyntax ltl_unary() { // !,<>,[]
+	private FormulaSyntax ltlUnary() { // !,<>,[]
 		Symbol op = current;
 		switch (current.kind) {
 		case Symbol.PLING:
@@ -2142,7 +2589,7 @@ public class LTSCompiler {
 		case Symbol.EVENTUALLY:
 		case Symbol.ALWAYS:
 			next_symbol_mod();
-			return FormulaSyntax.make(null, op, ltl_unary());
+			return FormulaSyntax.make(null, op, ltlUnary());
 		case Symbol.UPPERIDENT:
 			next_symbol_mod();
 			if (current.kind == Symbol.LSQUARE) {
@@ -2157,7 +2604,7 @@ public class LTSCompiler {
 			}
 		case Symbol.LROUND:
 			next_symbol_mod();
-			FormulaSyntax right = ltl_or();
+			FormulaSyntax right = ltlOr();
 			currentIs(Symbol.RROUND, ") expected to end LTL expression");
 			next_symbol_mod();
 			return right;
@@ -2173,20 +2620,13 @@ public class LTSCompiler {
 			ActionLabels ff = forallRanges();
 			pushSymbol();
 			next_symbol_mod();
-			return FormulaSyntax.make(new Symbol(Symbol.OR), ff, ltl_unary());
+			return FormulaSyntax.make(new Symbol(Symbol.OR), ff, ltlUnary());
 		case Symbol.FORALL:
 			next_symbol_mod();
 			ff = forallRanges();
 			pushSymbol();
 			next_symbol_mod();
-			return FormulaSyntax.make(new Symbol(Symbol.AND), ff, ltl_unary());
-		case Symbol.RIGID:
-			next_symbol_mod();
-			Stack<Symbol> tmp = new Stack<Symbol>();
-			simpleExpression(tmp);
-			pushSymbol();
-			next_symbol_mod();
-			return FormulaSyntax.makeE(op, tmp);
+			return FormulaSyntax.make(new Symbol(Symbol.AND), ff, ltlUnary());
 		default:
 			Diagnostics.fatal("syntax error in LTL expression", current);
 		}
@@ -2196,12 +2636,12 @@ public class LTSCompiler {
 	// _______________________________________________________________________________________
 	// LTL_AND
 
-	private FormulaSyntax ltl_and() { // &
-		FormulaSyntax left = ltl_unary();
+	private FormulaSyntax ltlAnd() { // &
+		FormulaSyntax left = ltlUnary();
 		while (current.kind == Symbol.AND) {
 			Symbol op = current;
 			next_symbol_mod();
-			FormulaSyntax right = ltl_unary();
+			FormulaSyntax right = ltlUnary();
 			left = FormulaSyntax.make(left, op, right);
 		}
 		return left;
@@ -2210,28 +2650,28 @@ public class LTSCompiler {
 	// _______________________________________________________________________________________
 	// LTL_OR
 
-	private FormulaSyntax ltl_or() { // |
-		FormulaSyntax left = ltl_binary();
+	private FormulaSyntax ltlOr() { // |
+		FormulaSyntax left = ltlBinary();
 		while (LTSUtils.isOrSymbol(current)) {
 			Symbol op = current;
 			next_symbol_mod();
-			FormulaSyntax right = ltl_binary();
+			FormulaSyntax right = ltlBinary();
 			left = FormulaSyntax.make(left, op, right);
 		}
 		return left;
 	}
 
 	// _______________________________________________________________________________________
-	// LTS_BINARY
+	// LTLBINARY
 
-	private FormulaSyntax ltl_binary() { // until, ->
-		FormulaSyntax left = ltl_and();
+	private FormulaSyntax ltlBinary() { // until, ->
+		FormulaSyntax left = ltlAnd();
 		if (current.kind == Symbol.UNTIL || current.kind == Symbol.WEAKUNTIL
 				|| current.kind == Symbol.ARROW
 				|| current.kind == Symbol.EQUIVALENT) {
 			Symbol op = current;
 			next_symbol_mod();
-			FormulaSyntax right = ltl_and();
+			FormulaSyntax right = ltlAnd();
 			left = FormulaSyntax.make(left, op, right);
 		}
 		return left;
@@ -2246,27 +2686,30 @@ public class LTSCompiler {
 		Symbol name = current;
 		ActionLabels range = null;
 		nextSymbol();
-		if (current.kind == Symbol.LSQUARE)
+		if (current.kind == Symbol.LSQUARE) {
 			range = forallRanges();
+		}
 		currentIs(Symbol.BECOMES, "= expected");
 		nextSymbol();
 		currentIs(Symbol.LESS_THAN, "< expected");
 		nextSymbol();
-		ActionLabels ts = labelElement();
+		ActionLabels initialFluentActions = labelElement();
 		currentIs(Symbol.COMMA, ", expected");
 		nextSymbol();
-		ActionLabels fs = labelElement();
+		ActionLabels finalFluentActions = labelElement();
 		currentIs(Symbol.GREATER_THAN, "> expected");
 		nextSymbol();
 		if (current.kind == Symbol.INIT) {
 			nextSymbol();
-			Stack<Symbol> tmp = new Stack<Symbol>();
+			Stack<Symbol> tmp = new Stack<>();
 			simpleExpression(tmp);
 			pushSymbol();
-			PredicateDefinition.put(name, range, ts, fs, tmp);
+			PredicateDefinition.put(name, range, initialFluentActions,
+					finalFluentActions, tmp);
 		} else {
 			pushSymbol();
-			PredicateDefinition.put(name, range, ts, fs, null);
+			PredicateDefinition.put(name, range, initialFluentActions,
+					finalFluentActions, null);
 		}
 	}
 
@@ -2283,15 +2726,15 @@ public class LTSCompiler {
 					getMaybeAction(symbol.getValue())));
 		} else if (actionLabel instanceof ActionSet) {
 			ActionSet actionSet = (ActionSet) actionLabel;
-			Vector<ActionLabels> maybeSetLabels = new Vector<ActionLabels>();
-			for (ActionLabels setLabel : (Vector<ActionLabels>) actionSet.set.labels)
+			Vector<ActionLabels> maybeSetLabels = new Vector<>();
+			for (ActionLabels setLabel : actionSet.set.labels)
 				maybeSetLabels.add(getMaybeActionLabels(setLabel));
 			result = new ActionSet(new LabelSet(maybeSetLabels));
 		}
 		return result;
 	}
 
-	/*
+	/**
 	 * This method extends the set of labels to be relabeled with the maybe or
 	 * the required labels.
 	 */
@@ -2307,8 +2750,9 @@ public class LTSCompiler {
 			// actions are not supported
 			// A possibility is to extend the computeName method in order to
 			// take into account MTSs
-			String message = "Relabeling with maybe actions can only be made over labels and sets.";
-			Diagnostics.warning(message, message, null);
+			// String message =
+			// "Relabeling with maybe actions can only be made over labels and sets.";
+			// Diagnostics.warning(message, message, null);
 		}
 	}
 
@@ -2319,10 +2763,10 @@ public class LTSCompiler {
 		}
 	}
 
-	private void processMTSActions(Vector<ActionName> allLabels) {
-		Set<ActionName> addLabels = new HashSet<ActionName>();
-		for (Iterator<ActionName> it = allLabels.iterator(); it.hasNext();) {
-			ActionLabels action = (ActionLabels) it.next();
+	private void processMTSActions(Vector<ActionLabels> allLabels) {
+		Set<ActionName> addLabels = new HashSet<>();
+		for (Iterator<ActionLabels> it = allLabels.iterator(); it.hasNext();) {
+			ActionLabels action = it.next();
 			if (action instanceof ActionSet) {
 				this.processActionSet((ActionSet) action, addLabels);
 			} else if (action instanceof ActionName) {
@@ -2370,33 +2814,6 @@ public class LTSCompiler {
 				name));
 		tempActionName2.follower = actionName.follower;
 		toAdd.add(tempActionName2);
-	}
-
-	/*
-	 * Not used yet
-	 */
-	private void controllerDefinition(ControllerDefinition controllerDefinition) {
-		currentIs(Symbol.BECOMES, "= expected after controller identifier");
-		expectLeftCurly();
-		nextSymbol();
-
-		currentIs(Symbol.UPPERIDENT, "goal identifier expected");
-		controllerDefinition.setProcess(current);
-		nextSymbol();
-
-		currentIs(Symbol.COMMA, ", expected after goal identifier");
-		nextSymbol();
-
-		currentIs(Symbol.UPPERIDENT, "goal identifier expected");
-		controllerDefinition.setGoal(current);
-		nextSymbol();
-
-		currentIs(Symbol.RCURLY, "} expected");
-		nextSymbol();
-
-		ControllerDefinition.put(controllerDefinition);
-
-		pushSymbol();
 	}
 
 	private void goalDefinition(ControllerGoalDefinition goal) {
@@ -2555,8 +2972,8 @@ public class LTSCompiler {
 		}
 		// if (current.kind == Symbol.HAT_ENVIRONMENT) {
 		// ucDefinition.setHatEnvironment(this.controllerSubUpdateController());
-		// current_is(Symbol.COMMA, ", expected");
-		// next_symbol();
+		// currentIs(Symbol.COMMA, ", expected");
+		// nextSymbol();
 		// }
 		if (current.kind == Symbol.NEW_ENVIRONMENT) {
 			ucDefinition
@@ -2719,7 +3136,7 @@ public class LTSCompiler {
 
 	private List<Symbol> controllerSubGoal() {
 		expectBecomes();
-		List<Symbol> definitions = new ArrayList<Symbol>();
+		List<Symbol> definitions = new ArrayList<>();
 		expectLeftCurly();
 		nextSymbol();
 		boolean finish = false;
@@ -2739,7 +3156,7 @@ public class LTSCompiler {
 	}
 
 	private List<Symbol> componentsNotEmpty() {
-		List<Symbol> definitions = new ArrayList<Symbol>();
+		List<Symbol> definitions = new ArrayList<>();
 		currentIs(Symbol.BECOMES, "= expected");
 		nextSymbol();
 
@@ -2771,7 +3188,7 @@ public class LTSCompiler {
 	}
 
 	private List<Symbol> componentsByCount(int count) {
-		List<Symbol> definitions = new ArrayList<Symbol>();
+		List<Symbol> definitions = new ArrayList<>();
 		currentIs(Symbol.BECOMES, "= expected");
 		nextSymbol();
 
@@ -2815,46 +3232,6 @@ public class LTSCompiler {
 
 		return definitions;
 
-	}
-
-	private ArrayList<Pair<Symbol, Symbol>> controllerFluentsUpdateController() {
-		ArrayList<Pair<Symbol, Symbol>> definitions = new ArrayList<Pair<Symbol, Symbol>>();
-		currentIs(Symbol.BECOMES, "= expected");
-		nextSymbol();
-
-		currentIs(Symbol.LCURLY, "{ expected");
-		nextSymbol();
-		boolean finish = false;
-		while (current.kind == Symbol.LCURLY && !finish) {
-			boolean innerFinish = false;
-			currentIs(Symbol.LCURLY, "{ expected");
-			nextSymbol();
-			Symbol first = null;
-			Symbol second = null;
-			if (current.kind == Symbol.UPPERIDENT) {
-				first = current;
-				nextSymbol();
-			}
-			currentIs(Symbol.COMMA, ", expected");
-			nextSymbol();
-			if (current.kind == Symbol.UPPERIDENT) {
-				second = current;
-				nextSymbol();
-			}
-			Pair<Symbol, Symbol> subDefinition = new Pair<Symbol, Symbol>(
-					first, second);
-			definitions.add(subDefinition);
-			nextSymbol();
-			if (current.kind != Symbol.COMMA) {
-				finish = true;
-				break;
-			}
-			nextSymbol();
-		}
-		currentIs(Symbol.RCURLY, "} expected");
-		nextSymbol();
-
-		return definitions;
 	}
 
 	private ArrayList<Symbol> controllerCheckTraceUpdateController() {
@@ -2922,14 +3299,12 @@ public class LTSCompiler {
 
 		nextSymbol();
 
-		int tiers = 0;
 		while (current.kind == Symbol.CONTROL_TIER) {
-			tiers++;
 			def.addTier(controlTierDefinition());
 		}
 
 		currentIs(Symbol.RCURLY, "} expected");
-		// next_symbol(); //it's swallowed elsewhere
+		// nextSymbol(); //it's swallowed elsewhere
 
 		return def;
 	}
@@ -2957,7 +3332,7 @@ public class LTSCompiler {
 			expectLeftCurly();
 			nextSymbol();
 
-			List<String> initialTrace = new ArrayList<String>();
+			List<String> initialTrace = new ArrayList<>();
 			while (current.kind == Symbol.IDENTIFIER) {
 				// only flat dotted IDs
 				String label = current.toString();
@@ -2993,9 +3368,9 @@ public class LTSCompiler {
 	 */
 	private void distributionDefinition() {
 		// parse the components name
-		List<Symbol> componentsName = new LinkedList<Symbol>();
+		List<Symbol> componentsName = new LinkedList<>();
 
-		List<Integer> expected = new LinkedList<Integer>();
+		List<Integer> expected = new LinkedList<>();
 		expected.add(Symbol.BECOMES);
 		expected.add(Symbol.COMMA);
 
@@ -3082,11 +3457,11 @@ public class LTSCompiler {
 		expectBecomes();
 
 		expectLeftCurly();
-		List<Integer> expected = new LinkedList<Integer>();
+		List<Integer> expected = new LinkedList<>();
 		expected.add(Symbol.RCURLY);
 		expected.add(Symbol.COMMA);
 
-		List<Symbol> result = new ArrayList<Symbol>();
+		List<Symbol> result = new ArrayList<>();
 		do {
 			nextSymbol();
 			// Check the syntax and that the process name for the component is
@@ -3156,7 +3531,7 @@ public class LTSCompiler {
 		expectBecomes();
 
 		next_symbol_mod();
-		FormulaSyntax formula = ltl_unary();
+		FormulaSyntax formula = ltlUnary();
 
 		if (!formula.isPropositionalLogic()) {
 			error("Condition must be a Fluent Propositional Logic formula");
@@ -3293,7 +3668,7 @@ public class LTSCompiler {
 			String name) {
 		Symbol updateControllableSetSymbol = new Symbol(Symbol.SET,
 				"controller_update_" + name + "_controllable_set");
-		Vector<ActionLabels> vector = new Vector();
+		Vector<ActionLabels> vector = new Vector<>();
 		for (String action : controllableSet) {
 			ActionName actionName = new ActionName(new Symbol(
 					Symbol.IDENTIFIER, action));
@@ -3325,5 +3700,9 @@ public class LTSCompiler {
 
 	public PreconditionDefinitionManager getPreconditionDefinitionManager() {
 		return preconditionDefinitionManager;
+	}
+
+	public PostconditionDefinitionManager getPostconditionDefinitionManager() {
+		return postconditionDefinitionManager;
 	}
 }

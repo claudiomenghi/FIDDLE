@@ -7,10 +7,10 @@ import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.chart.util.FormulaUtils;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltl.FormulaFactory;
 import ltsa.lts.ltl.PredicateDefinition;
-import ltsa.lts.parser.LabelSet;
+import ltsa.lts.ltl.formula.factory.FormulaFactory;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.actions.LabelSet;
 
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -37,7 +37,6 @@ public class GoalDefToControllerGoal {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void buildControllableActionSet(ControllerGoal<String> goal, ControllerGoalDefinition goalDef) {
 
 		Hashtable<?, ?> constants = LabelSet.getConstants();

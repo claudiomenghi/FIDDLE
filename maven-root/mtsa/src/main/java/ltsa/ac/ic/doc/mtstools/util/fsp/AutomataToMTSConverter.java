@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.collections.MyList;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
@@ -34,9 +34,9 @@ public class AutomataToMTSConverter {
 		return instance;
 	}
 
-	public MTS<Long, String> convert(CompactState automata) {
+	public MTS<Long, String> convert(LabelledTransitionSystem automata) {
 		// TODO this isn't converting anything about the probabilistic transitions yet. 
-		this.mts = new MTSImpl<>(modelConverterUtils.rank(automata.START()));
+		this.mts = new MTSImpl<>(modelConverterUtils.rank(automata.start()));
 		
 		indexToAction = new String[automata.getAlphabet().length];
 		indexToTransitionType = new TransitionType[automata.getAlphabet().length];
@@ -52,7 +52,7 @@ public class AutomataToMTSConverter {
 	 * 
 	 * @param automata
 	 */
-	private void addActions(CompactState automata) {
+	private void addActions(LabelledTransitionSystem automata) {
 		String[] alphabet = automata.getAlphabet();
 		Map<String,Integer> reverseMap = new HashMap<>();
 
@@ -75,7 +75,7 @@ public class AutomataToMTSConverter {
 	}
 
 
-	private void addTransitions(CompactState automata) {
+	private void addTransitions(LabelledTransitionSystem automata) {
 		Queue<Long> toProcess = new LinkedList<Long>();
 		
 		toProcess.offer(mts.getInitialState());

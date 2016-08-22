@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import MTSSynthesis.controller.ControllerSynthesisFacade;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.CompositeState;
 
 import org.junit.Test;
 

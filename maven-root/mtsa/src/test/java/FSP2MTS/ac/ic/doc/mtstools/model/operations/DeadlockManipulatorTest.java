@@ -2,9 +2,9 @@ package FSP2MTS.ac.ic.doc.mtstools.model.operations;
 
 import MTSTools.ac.ic.doc.mtstools.model.operations.MTSDeadLockManipulator;
 import MTSTools.ac.ic.doc.mtstools.model.operations.MTSDeadLockManipulatorImpl;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTS.TransitionType;
 import MTSTools.ac.ic.doc.mtstools.model.MTSTrace;
@@ -31,7 +31,7 @@ public class DeadlockManipulatorTest extends MTSTestBase {
 		String sourceString = "A = (a?->STOP). \r\n";
 		CompositeState compositeB = LTSATestUtils.buildAutomataFromSource(sourceString);
 		TransitionSystemDispatcher.parallelComposition(compositeB, ltsOutput);
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((CompactState) compositeB.getComposition());
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) compositeB.getComposition());
 		assertTrue(deadlockFinder.getDeadlockStatus(mts)==1);
 	}
 
@@ -39,7 +39,7 @@ public class DeadlockManipulatorTest extends MTSTestBase {
 		String sourceString = "A = (a->b->STOP). \r\n";
 		CompositeState compositeB = LTSATestUtils.buildAutomataFromSource(sourceString);
 		TransitionSystemDispatcher.parallelComposition(compositeB, ltsOutput);
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((CompactState) compositeB.getComposition());
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) compositeB.getComposition());
 		MTSTrace<String, Long> trace = new LinkedListMTSTrace<String, Long>();
 		assertTrue(deadlockFinder.getTransitionsToDeadlock(mts, trace));
 		MTSTrace<String, Long> expectedTrace = new LinkedListMTSTrace<String, Long>();
@@ -54,7 +54,7 @@ public class DeadlockManipulatorTest extends MTSTestBase {
 		String sourceString = "A = (a->b->A). B = (b->a->B). ||C = (A||B). \r\n";
 		CompositeState compositeB = LTSATestUtils.buildAutomataFromSource(sourceString);
 		TransitionSystemDispatcher.parallelComposition(compositeB, ltsOutput);
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((CompactState) compositeB.getComposition());
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) compositeB.getComposition());
 		MTSTrace<String, Long> trace = new LinkedListMTSTrace<String, Long>();
 		assertTrue(deadlockFinder.getTransitionsToDeadlock(mts, trace));
 		MTSTrace<String, Long> expectedTrace = new LinkedListMTSTrace<String, Long>();
@@ -65,7 +65,7 @@ public class DeadlockManipulatorTest extends MTSTestBase {
 	public void testSimpleDeadlock() throws Exception {
 		String sourceString = "A = (a->b->c?->A). \r\n";
 		CompositeState composite = LTSATestUtils.buildCompositeState(sourceString, ltsOutput);
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((CompactState) composite.getComposition());
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) composite.getComposition());
 		MTSTrace<String, Long> trace = new LinkedListMTSTrace<String, Long>();
 		assertFalse(deadlockFinder.getTransitionsToDeadlock(mts, trace));
 		MTSTrace<String, Long> expectedTrace = new LinkedListMTSTrace<String, Long>();
@@ -76,7 +76,7 @@ public class DeadlockManipulatorTest extends MTSTestBase {
 	public void testDeadLockPathForDeadlockState() throws Exception {
 		String sourceString = "A = (a->(c?->A|llegaElDeadlock->STOP)).\r\n";
 		CompositeState composite = LTSATestUtils.buildCompositeState(sourceString, ltsOutput);
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((CompactState) composite.getComposition());
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) composite.getComposition());
 		MTSTrace<String, Long> trace = new LinkedListMTSTrace<String, Long>();
 		assertTrue(deadlockFinder.getTransitionsToDeadlock(mts, trace));
 		MTSTrace<String, Long> expectedTrace = new LinkedListMTSTrace<String, Long>();
@@ -93,7 +93,7 @@ public class DeadlockManipulatorTest extends MTSTestBase {
 								"D = (d->D).\r\n";
 		
 		CompositeState composite = LTSATestUtils.buildCompositeState(sourceString, ltsOutput);
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((CompactState) composite.getComposition());
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) composite.getComposition());
 		MTSTrace<String, Long> trace = new LinkedListMTSTrace<String, Long>();
 		assertTrue(deadlockFinder.getTransitionsToDeadlock(mts, trace));
 		System.out.println("A = (b->XY | c->D ), XY = (x->v->STOP | y->D), D = (d->D).");
@@ -104,8 +104,8 @@ public class DeadlockManipulatorTest extends MTSTestBase {
 		String sourceString = "A = (g->w->A | c->z?->A).\r\n";
 		CompositeState composite = LTSATestUtils.buildAutomataFromSource(sourceString);
 		TransitionSystemDispatcher.parallelComposition(composite, ltsOutput);
-		CompactState compactState = TransitionSystemDispatcher.getPessimistModel(composite.getComposition());
-		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((CompactState) compactState);
+		LabelledTransitionSystem compactState = TransitionSystemDispatcher.getPessimistModel(composite.getComposition());
+		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) compactState);
 		for (Long state : mts.getStates()) {
 			assertTrue(mts.getTransitions(state, TransitionType.POSSIBLE).size()==1);
 		}

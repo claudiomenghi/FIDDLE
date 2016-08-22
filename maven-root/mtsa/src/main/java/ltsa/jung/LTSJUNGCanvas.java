@@ -81,7 +81,7 @@ public class LTSJUNGCanvas extends JPanel {
     public static int KK_max_iterations = 500;
     public static double FR_attraction = 0.75;
     public static double FR_repulsion = 0.75;
-    public static int FR_max_iterations = 500;
+    public static int FRMaxIterations = 500;
     public static int Tree_distX = 100;
     public static int Tree_distY = 100;
     public static int Radial_distX = 100;
@@ -433,7 +433,7 @@ public class LTSJUNGCanvas extends JPanel {
 	    		 out.setSize(dms);
 	    		 out.setAttractionMultiplier(FR_attraction);
 	    		 out.setRepulsionMultiplier(FR_repulsion);
-	    		 out.setMaxIterations(FR_max_iterations);
+	    		 out.setMaxIterations(FRMaxIterations);
 	    		 return out;
 	    	}
 	    	case Circle: {

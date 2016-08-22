@@ -1,15 +1,15 @@
 package ltsa.exploration.model;
 
-import ltsa.lts.lts.EventState;
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
 
 public class Model
 {
-    private CompactState[] components;
+    private LabelledTransitionSystem[] components;
     private Integer[] currentStates;
 
     //region Constructor
-    public Model(CompactState[] components)
+    public Model(LabelledTransitionSystem[] components)
     {
         this.components = components;
         this.currentStates = new Integer[components.length];
@@ -19,45 +19,45 @@ public class Model
     //endregion
 
     //region Public methods
-    public EventState execute(int componentNumber, String nextViewAction)
+    public LTSTransitionList execute(int componentNumber, String nextViewAction)
     {
         if (nextViewAction.equals("WAIT"))
-            return EventState.copy(this.components[componentNumber].states[this.currentStates[componentNumber]]);
+            return LTSTransitionList.copy(this.components[componentNumber].getStates()[this.currentStates[componentNumber]]);
 
         String nextAction = nextViewAction;
 
         int event = -1;
-        for (int i = 0; i < this.components[componentNumber].alphabet.length; i++)
-            if (nextAction.equals(this.components[componentNumber].alphabet[i]))
+        for (int i = 0; i < this.components[componentNumber].getAlphabet().length; i++)
+            if (nextAction.equals(this.components[componentNumber].getAlphabet()[i]))
                 event = i;
 
         if (event > -1)
         {
-            int[] events = this.components[componentNumber].states[this.currentStates[componentNumber]].getEvents();
+            int[] events = this.components[componentNumber].getStates()[this.currentStates[componentNumber]].getEvents();
             for (int anEvent : events)
             {
                 if (event == anEvent)
                 {
-                    this.currentStates[componentNumber] = this.components[componentNumber].states[this.currentStates[componentNumber]].getNext(event);
-                    return EventState.copy(this.components[componentNumber].states[this.currentStates[componentNumber]]);
+                    this.currentStates[componentNumber] = this.components[componentNumber].getStates()[this.currentStates[componentNumber]].getNext(event);
+                    return LTSTransitionList.copy(this.components[componentNumber].getStates()[this.currentStates[componentNumber]]);
                 }
             }
         }
 
         nextAction = nextAction + "?";
-        for (int i = 0; i < this.components[componentNumber].alphabet.length; i++)
-            if (nextAction.equals(this.components[componentNumber].alphabet[i]))
+        for (int i = 0; i < this.components[componentNumber].getAlphabet().length; i++)
+            if (nextAction.equals(this.components[componentNumber].getAlphabet()[i]))
                 event = i;
 
         if (event > -1)
         {
-            int[] events = this.components[componentNumber].states[this.currentStates[componentNumber]].getEvents();
+            int[] events = this.components[componentNumber].getStates()[this.currentStates[componentNumber]].getEvents();
             for (int anEvent : events)
             {
                 if (event == anEvent)
                 {
-                    this.currentStates[componentNumber] = this.components[componentNumber].states[this.currentStates[componentNumber]].getNext(event);
-                    return EventState.copy(this.components[componentNumber].states[this.currentStates[componentNumber]]);
+                    this.currentStates[componentNumber] = this.components[componentNumber].getStates()[this.currentStates[componentNumber]].getNext(event);
+                    return LTSTransitionList.copy(this.components[componentNumber].getStates()[this.currentStates[componentNumber]]);
                 }
             }
         }

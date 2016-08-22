@@ -2,8 +2,8 @@ package FSP2MTS.ac.ic.doc.mtstools.model.impl;
 
 import java.util.Collections;
 
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;
@@ -66,10 +66,10 @@ public class MTSMinimiserTest extends MTSTestBase {
 	private void assertMinimisation(String sourceString) throws Exception {
 		TestLTSOuput testLTSOuput = new TestLTSOuput();
 		CompositeState composite = LTSATestUtils.buildCompositeState(sourceString, testLTSOuput);
-		MTS<Long, String> originalMTS = AutomataToMTSConverter.getInstance().convert((CompactState) composite.getComposition());
+		MTS<Long, String> originalMTS = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) composite.getComposition());
 		
 		TransitionSystemDispatcher.minimise(composite, testLTSOuput);
-		MTS<Long, String> finalMTS = AutomataToMTSConverter.getInstance().convert((CompactState) composite.getComposition());
+		MTS<Long, String> finalMTS = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) composite.getComposition());
 
 		assertFalse(finalMTS.equals(originalMTS));
 		MTSTestUtils.areEquivalent(originalMTS, finalMTS, Collections.singleton(MTSConstants.TAU));

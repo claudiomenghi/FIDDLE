@@ -40,13 +40,13 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import ltsa.lts.automata.automaton.event.LTSEvent;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.gui.DrawMachine;
 import ltsa.lts.gui.EventClient;
 import ltsa.lts.gui.EventManager;
 import ltsa.lts.gui.LTSCanvas;
-import ltsa.lts.lts.LTSEvent;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
 import ltsa.dclap.Gr2PICT;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 
@@ -59,7 +59,7 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 	String lastName;
 	int Nmach = 0; // the number of machines
 	int hasC = 0; // 1 if last machine is composition
-	CompactState[] sm; // an array of machines
+	LabelledTransitionSystem[] sm; // an array of machines
 	boolean[] machineHasAction;
 	boolean[] machineToDrawSet;
 
@@ -283,19 +283,19 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 	}
 
 	protected void new_machines(CompositeState cs) {
-		hasC = (cs != null && cs.composition != null) ? 1 : 0;
-		if (cs != null && cs.machines != null && !cs.machines.isEmpty()) { // get
+		hasC = (cs != null && cs.getComposition() != null) ? 1 : 0;
+		if (cs != null && cs.getMachines() != null && !cs.getMachines().isEmpty()) { // get
 																			// set
 																			// of
 																			// machines
 
-			sm = new CompactState[cs.machines.size() + hasC];
-			Enumeration e = cs.machines.elements();
+			sm = new LabelledTransitionSystem[cs.getMachines().size() + hasC];
+			Enumeration e = cs.getMachines().elements();
 			for (int i = 0; e.hasMoreElements(); i++)
-				sm[i] = (CompactState) e.nextElement();
+				sm[i] = (LabelledTransitionSystem) e.nextElement();
 			Nmach = sm.length;
 			if (hasC == 1) {
-				sm[Nmach - 1] = cs.composition;
+				sm[Nmach - 1] = cs.getComposition();
 			}
 			machineHasAction = new boolean[Nmach];
 			machineToDrawSet = new boolean[Nmach];

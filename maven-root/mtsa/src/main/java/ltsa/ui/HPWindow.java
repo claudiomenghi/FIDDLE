@@ -31,14 +31,19 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -83,7 +88,6 @@ import ltsa.custom.SceneAnimator;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.editor.ColoredEditorKit;
 import ltsa.enactment.EnactmentOptions;
-import ltsa.enactment.EnactorFactory;
 import ltsa.enactment.MTSAEnactmentSimulation;
 import ltsa.enactment.SchedulerFactory;
 import ltsa.exploration.Explorer;
@@ -102,10 +106,17 @@ import ltsa.exploration.view.ViewNextConfigurationTrace;
 import ltsa.jung.LTSJUNGCanvas;
 import ltsa.jung.LTSJUNGCanvas.EnumLayout;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.animator.Analyser;
 import ltsa.lts.animator.Animator;
+import ltsa.lts.automata.automaton.event.LTSEvent;
+import ltsa.lts.automata.lts.LTSError;
+import ltsa.lts.automata.lts.LTSException;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.checkers.Analyser;
 import ltsa.lts.checkers.ProgressCheck;
+import ltsa.lts.csp.CompositionExpression;
 import ltsa.lts.csp.MenuDefinition;
+import ltsa.lts.csp.ProcessSpec;
 import ltsa.lts.csp.Relation;
 import ltsa.lts.gui.EventManager;
 import ltsa.lts.gui.LTSCanvas;
@@ -114,18 +125,16 @@ import ltsa.lts.gui.RandomSeedDialog;
 import ltsa.lts.gui.RunMenu;
 import ltsa.lts.gui.SuperTrace;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltl.FormulaFactory;
 import ltsa.lts.ltl.PreconditionDefinition;
-import ltsa.lts.lts.LTSError;
-import ltsa.lts.lts.LTSEvent;
-import ltsa.lts.lts.LTSException;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.ltl.formula.factory.FormulaFactory;
+import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
+import ltsa.lts.operations.composition.sequential.SequentialCompositionEngine;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.LTSOutput;
-import ltsa.lts.parser.LabelSet;
+import ltsa.lts.parser.PostconditionDefinitionManager;
 import ltsa.lts.parser.PreconditionDefinitionManager;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.actions.LabelSet;
 import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.Options;
@@ -137,51 +146,61 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.google.common.base.Preconditions;
-
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import MTSTools.ac.ic.doc.mtstools.model.SemanticType;
 
+import com.google.common.base.Preconditions;
+
 public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		LTSOutput, LTSError, Runnable {
+
+	private final static String fileType = "*.lts";
+	private String openFile = fileType;
+	String currentDirectory;
+	private String savedText = "";
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8073353695841782352L;
 
 	private static final String DEFAULT = "DEFAULT";
 
 	// ------------------------------------------------------------------------
 	private static final int DOSAFETY = 1;
 
-	private static final int DO_safety_no_deadlock = 2;
+	private static final int DOSAFETYNODEADLOCK = 2;
 
 	private static final int DOEXECUTE = 3;
 	private static final int DOREACHABLE = 4;
 	private static final int DOCOMPILE = 5;
 	private static final int DOCOMPOSITION = 6;
-	private static final int DO_minimiseComposition = 7;
-	private static final int DO_progress = 8;
-	private static final int DO_liveness = 9;
-	private static final int DO_parse = 10;
+	private static final int DOMINIMISECOMPOSITION = 7;
+	private static final int DOPROGRESS = 8;
+	private static final int DOLIVENESS = 9;
+	private static final int DOPARSE = 10;
 
 	// Dipi
-	private static final int DO_PLUS_CR = 11;
-	private static final int DO_PLUS_CA = 12;
-	private static final int DO_DETERMINISE = 13;
-	private static final int DO_REFINEMENT = 14;
-	private static final int DO_DEADLOCK = 15;
-	private static final int DO_CONSISTENCY = 16;
+	private static final int DOPLUSCR = 11;
+	private static final int DOPLUSCA = 12;
+	private static final int DODETERMINISE = 13;
+	private static final int DOREFINEMENT = 14;
+	private static final int DODEADLOCK = 15;
+	private static final int DOCONSISTENCY = 16;
 	// Dipi
 
-	static final int DO_ARRANGED_ANIMATOR = 19;
-	static final int DO_EXPLORATION = 21;
-	static final int DO_EXPLORATION_STEPOVER = 25;
-	static final int DO_EXPLORATION_RESUME = 23;
-	static final int DO_EXPLORATION_MANUAL = 24;
-	static final int DO_deterministic = 999;
+	static final int DOARRANGEDANIMATOR = 19;
+	static final int DOEXPLORATION = 21;
+	static final int DOEXPLORATIONSTEPOVER = 25;
+	static final int DOEXPLORATIONRESUME = 23;
+	static final int DOEXPLORATIONMANUAL = 24;
+	static final int DODETERMINISTIC = 999;
 
-	private static final int DO_RUNENACTORS = 17;
-	private static final int DO_ENACTORSOPTIONS = 18;
+	private static final int DORUNENACTORS = 17;
+	private static final int DOENACTORSOPTIONS = 18;
 
-	private static final int DO_safety_multi_ce = 20;
-	private static final int DO_GRAPH_UPDATE = 22;
+	private static final int DOSAFERYMULTICE = 20;
+	private static final int DOGRAPHUPDATE = 22;
+	private static final int DOPRECONDITION = 26;
 
 	private int theAction = 0;
 	private Thread executer;
@@ -198,7 +217,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JToolBar tools;
 	JTextField stepscount;
 
-	MTSAEnactmentSimulation<Long, String> enactmentSimulation = new MTSAEnactmentSimulation<Long, String>();
+	MTSAEnactmentSimulation<Long, String> enactmentSimulation = new MTSAEnactmentSimulation<>();
 	UpdateGraphSimulation updateGraphSimulation;
 
 	FindDialog findDialog;
@@ -232,8 +251,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JMenu mts;
 	JMenu menu_enactment;
 	JMenu menu_enactment_enactors;
-	JMenuItem file_new;
-	JMenuItem file_open;
+	JMenuItem fileNew;
+	JMenuItem fileOpen;
 	JMenuItem file_save;
 	JMenuItem file_saveAs;
 	JMenuItem file_export;
@@ -269,12 +288,17 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	JMenuItem edit_find;
 
-	JMenu check_run, file_example, checkLiveness, compositionStrategy,
-			checkPreconditions;
+	JMenu checkRun, file_example, checkLiveness, compositionStrategy;
+
+	JMenu checkPreconditions;
+	JMenu checkPostconditions;
 	JMenuItem default_run;
-	JMenuItem[] run_items, assertItems, preconditionsItems;
+	JMenuItem[] runItems;
+	JMenuItem[] assertItems;
+	JMenuItem[] preconditionsItems;
+	JMenuItem[] postconditionsItems;
+
 	String[] runNames, assertNames;
-	Set<String> preconditionsNames;
 	boolean[] runEnabled;
 	JCheckBoxMenuItem setWarnings;
 	JCheckBoxMenuItem setWarningsAreErrors;
@@ -321,6 +345,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private ApplicationContext applicationContext = null;
 
 	private EnactmentOptions<Long, String> enactmentOptions = new EnactmentOptions<>();
+
+	private String lastCompiled = "";
 
 	public HPWindow(AppletButton isap) {
 
@@ -415,12 +441,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		// file menu
 		file = new JMenu("File");
 		mb.add(file);
-		file_new = new JMenuItem("New");
-		file_new.addActionListener(new NewFileAction());
-		file.add(file_new);
-		file_open = new JMenuItem("Open...");
-		file_open.addActionListener(new OpenFileAction());
-		file.add(file_open);
+		fileNew = new JMenuItem("New");
+		fileNew.addActionListener(new NewFileAction());
+		file.add(fileNew);
+		fileOpen = new JMenuItem("Open...");
+		fileOpen.addActionListener(new OpenFileAction());
+		file.add(fileOpen);
 		file_save = new JMenuItem("Save");
 		file_save.addActionListener(new SaveFileAction());
 		file.add(file_save);
@@ -470,11 +496,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		check.add(check_safe);
 
 		checkDeadlock = new JMenuItem("Deadlock");
-		checkDeadlock.addActionListener(new DoAction(DO_DEADLOCK));
+		checkDeadlock.addActionListener(new DoAction(DODEADLOCK));
 		check.add(checkDeadlock);
 
 		check_progress = new JMenuItem("Progress");
-		check_progress.addActionListener(new DoAction(DO_progress));
+		check_progress.addActionListener(new DoAction(DOPROGRESS));
 		check.add(check_progress);
 		checkLiveness = new JMenu("LTL property");
 		if (hasLTL2BuchiJar()) {
@@ -483,24 +509,27 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		checkPreconditions = new JMenu("LTL preconditions");
 		check.add(checkPreconditions);
 
-		check_run = new JMenu("Run");
-		check.add(check_run);
+		checkPostconditions = new JMenu("LTL postconditions");
+		check.add(checkPostconditions);
+
+		checkRun = new JMenu("Run");
+		check.add(checkRun);
 		default_run = new JMenuItem(DEFAULT);
 		default_run.addActionListener(new ExecuteAction(DEFAULT));
-		check_run.add(default_run);
+		checkRun.add(default_run);
 		check_reachable = new JMenuItem("Supertrace");
 		check_reachable.addActionListener(new DoAction(DOREACHABLE));
 		check.add(check_reachable);
 
 		check_deterministic = new JMenuItem("is Deterministic");
-		check_deterministic.addActionListener(new DoAction(DO_deterministic));
+		check_deterministic.addActionListener(new DoAction(DODETERMINISTIC));
 		check.add(check_deterministic);
 
 		// build menu
 		build = new JMenu("Build");
 		mb.add(build);
 		build_parse = new JMenuItem("Parse");
-		build_parse.addActionListener(new DoAction(DO_parse));
+		build_parse.addActionListener(new DoAction(DOPARSE));
 		build.add(build_parse);
 		build_compile = new JMenuItem("Compile");
 		build_compile.addActionListener(new DoAction(DOCOMPILE));
@@ -509,7 +538,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		build_compose.addActionListener(new DoAction(DOCOMPOSITION));
 		build.add(build_compose);
 		build_minimise = new JMenuItem("Minimise");
-		build_minimise.addActionListener(new DoAction(DO_minimiseComposition));
+		build_minimise.addActionListener(new DoAction(DOMINIMISECOMPOSITION));
 		build.add(build_minimise);
 
 		// MTS Menu
@@ -517,11 +546,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		mb.add(mts);
 
 		mtsRefinement = new JMenuItem("Refinement");
-		mtsRefinement.addActionListener(new DoAction(DO_REFINEMENT));
+		mtsRefinement.addActionListener(new DoAction(DOREFINEMENT));
 		mts.add(mtsRefinement);
 
 		mtsConsistency = new JMenuItem("Consistency");
-		mtsConsistency.addActionListener(new DoAction(DO_CONSISTENCY));
+		mtsConsistency.addActionListener(new DoAction(DOCONSISTENCY));
 		mts.add(mtsConsistency);
 
 		// window menu
@@ -659,11 +688,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		// fillEnactorsMenu(menu_enactment_enactors);
 
 		menu_enactment_options = new JMenuItem("Options");
-		menu_enactment_options.addActionListener(new DoAction(
-				DO_ENACTORSOPTIONS));
+		menu_enactment_options
+				.addActionListener(new DoAction(DOENACTORSOPTIONS));
 		menu_enactment.add(menu_enactment_options);
 		menu_enactment_run = new JMenuItem("Run model");
-		menu_enactment_run.addActionListener(new DoAction(DO_RUNENACTORS));
+		menu_enactment_run.addActionListener(new DoAction(DORUNENACTORS));
 		menu_enactment.add(menu_enactment_run);
 		JMenu graphUpdateMenu = new GraphUpdateMenu();
 		mb.add(graphUpdateMenu);
@@ -706,7 +735,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		tools.addSeparator();
 		tools.add(parseTool = createTool(
 				"src/main/java/ltsa/ui/icon/parse.gif", "Parse", new DoAction(
-						DO_parse)));
+						DOPARSE)));
 		tools.add(compileTool = createTool(
 				"src/main/java/ltsa/ui/icon/compile.gif", "Compile",
 				new DoAction(DOCOMPILE)));
@@ -715,9 +744,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				new DoAction(DOCOMPOSITION)));
 		tools.add(minimizeTool = createTool(
 				"src/main/java/ltsa/ui/icon/minimize.gif", "Minimize",
-				new DoAction(DO_minimiseComposition)));
+				new DoAction(DOMINIMISECOMPOSITION)));
 		// status field used to name the composition we are wrking on
-		targetChoice = new JComboBox();
+		targetChoice = new JComboBox<>();
 		targetChoice.setEditable(false);
 		targetChoice.addItem(DEFAULT);
 		targetChoice.setToolTipText("Target Composition");
@@ -730,24 +759,21 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				new DoAction(DOSAFETY)));
 		tools.add(progressTool = createTool(
 				"src/main/java/ltsa/ui/icon/progress.gif", "Check Progress",
-				new DoAction(DO_progress)));
-		// tools.add(stopTool =
-		// createTool("src/main/java/ltsa/ui/icon/stop.gif", "Stop",
-		// new StopAction()));
-		// stopTool.setEnabled(false);
+				new DoAction(DOPROGRESS)));
+
 		tools.addSeparator();
 		tools.add(createTool("src/main/java/ltsa/ui/icon/alphabet.gif",
-				"Run Arranged Animation", new DoAction(DO_ARRANGED_ANIMATOR)));
+				"Run Arranged Animation", new DoAction(DOARRANGEDANIMATOR)));
 		tools.addSeparator();
 		tools.add(createTool("src/main/java/ltsa/ui/icon/exploration.gif",
-				"Do Exploration", new DoAction(DO_EXPLORATION)));
+				"Do Exploration", new DoAction(DOEXPLORATION)));
 		tools.add(createTool("src/main/java/ltsa/ui/icon/manual.png", "Manual",
-				new DoAction(DO_EXPLORATION_MANUAL)));
+				new DoAction(DOEXPLORATIONMANUAL)));
 		tools.add(stepscount = createTextBox());
 		tools.add(createTool("src/main/java/ltsa/ui/icon/stepover.png",
-				"Step Over", new DoAction(DO_EXPLORATION_STEPOVER)));
+				"Step Over", new DoAction(DOEXPLORATIONSTEPOVER)));
 		tools.add(createTool("src/main/java/ltsa/ui/icon/resume.png", "Resume",
-				new DoAction(DO_EXPLORATION_RESUME)));
+				new DoAction(DOEXPLORATIONRESUME)));
 
 		getContentPane().add("North", tools);
 		tools.addSeparator();
@@ -839,14 +865,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	void menuEnable(boolean flag) {
 		boolean application = (isApplet == null);
-		file_new.setEnabled(flag && tabindex == 0);
+		fileNew.setEnabled(flag && tabindex == 0);
 		file_example.setEnabled(flag && tabindex == 0);
-		file_open.setEnabled(application && flag && tabindex == 0);
+		fileOpen.setEnabled(application && flag && tabindex == 0);
 		file_exit.setEnabled(flag);
 		check_safe.setEnabled(flag);
 
 		check_progress.setEnabled(flag);
-		check_run.setEnabled(flag);
+		checkRun.setEnabled(flag);
 		check_reachable.setEnabled(flag);
 		build_parse.setEnabled(flag);
 		build_compile.setEnabled(flag);
@@ -872,48 +898,45 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	public void run() {
 		try {
 			switch (theAction) {
+			case DOPRECONDITION:
+				showOutput();
+				precondition();
+				break;
 			case DOSAFETY:
 				showOutput();
 				safety();
 				break;
-
-			// >>> AMES: Deadlock Insensitive Analysis
-			case DO_safety_no_deadlock:
+			case DOSAFETYNODEADLOCK:
 				showOutput();
 				safety(false, false);
 				break;
-			// <<< AMES
-
-			// >>> AMES: multiple ce
-			case DO_safety_multi_ce:
+			case DOSAFERYMULTICE:
 				showOutput();
 				safety(false, true);
 				break;
-			// <<< AMES
-
-			case DO_ARRANGED_ANIMATOR:
+			case DOARRANGEDANIMATOR:
 				animate();
 				break;
-			case DO_EXPLORATION:
+			case DOEXPLORATION:
 				showOutput();
 				compile();
 				doComposition();
-				exploration_new();
+				explorationNew();
 				break;
-			case DO_EXPLORATION_STEPOVER:
-				exploration_stepover();
+			case DOEXPLORATIONSTEPOVER:
+				explorationStepover();
 				break;
-			case DO_EXPLORATION_MANUAL:
-				exploration_manual();
+			case DOEXPLORATIONMANUAL:
+				explorationManual();
 				break;
-			case DO_EXPLORATION_RESUME:
-				exploration_resume();
+			case DOEXPLORATIONRESUME:
+				explorationResume();
 				break;
 			case DOREACHABLE:
 				showOutput();
 				reachable();
 				break;
-			case DO_deterministic:
+			case DODETERMINISTIC:
 				showOutput();
 				checkDeterministic();
 				break;
@@ -925,49 +948,48 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				showOutput();
 				doComposition();
 				break;
-			case DO_minimiseComposition:
+			case DOMINIMISECOMPOSITION:
 				showOutput();
 				minimiseComposition();
 				break;
-			case DO_progress:
+			case DOPROGRESS:
 				showOutput();
 				progress();
 				break;
-			case DO_liveness:
+			case DOLIVENESS:
 				showOutput();
 				liveness();
 				break;
-			case DO_parse:
+			case DOPARSE:
 				parse();
 				break;
-			case DO_PLUS_CR:
+			case DOPLUSCR:
 				doApplyPlusCROperator();
 				break;
-			case DO_PLUS_CA:
+			case DOPLUSCA:
 				doApplyPlusCAOperator();
 				break;
-			case DO_DETERMINISE:
+			case DODETERMINISE:
 				doDeterminise();
 				break;
-			case DO_REFINEMENT:
+			case DOREFINEMENT:
 				doRefinement();
 				break;
-			case DO_DEADLOCK:
+			case DODEADLOCK:
 				doDeadlockCheck();
 				break;
-			case DO_CONSISTENCY:
+			case DOCONSISTENCY:
 				doConsistency();
 				break;
-			case DO_RUNENACTORS:
+			case DORUNENACTORS:
 				doRunEnactors();
 				break;
-			case DO_ENACTORSOPTIONS:
+			case DOENACTORSOPTIONS:
 				doEnactorOptions();
 				break;
-			case DO_GRAPH_UPDATE:
+			case DOGRAPHUPDATE:
 				doGraphUpdate();
 				break;
-
 			}
 		} catch (Throwable e) {
 			showOutput();
@@ -988,7 +1010,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			outln("*** Compile an LTS before checking determinism");
 
 		} else {
-			CompactState currentCS = current.getComposition();
+			LabelledTransitionSystem currentCS = current.getComposition();
 			if (currentCS.isNonDeterministic()) {
 				outln("This is a non deterministic LTS");
 			} else {
@@ -1025,13 +1047,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		explorerDefinitions = null;
 		targetChoice.removeAllItems();
 		targetChoice.addItem(DEFAULT);
-		check_run.removeAll();
-		check_run.add(default_run);
-		run_items = null;
+		checkRun.removeAll();
+		checkRun.add(default_run);
+		runItems = null;
 		assertItems = null;
 		preconditionsItems = null;
 		runNames = null;
 		checkLiveness.removeAll();
+		this.checkPreconditions.removeAll();
 		validate();
 		eman.post(new LTSEvent(LTSEvent.INVALID, null));
 		if (animator != null) {
@@ -1051,11 +1074,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// ------------------------------------------------------------------------
 	// File handling
 	// -----------------------------------------------------------------------
-
-	private final static String fileType = "*.lts";
-	private String openFile = fileType;
-	String currentDirectory;
-	private String savedText = "";
 
 	private void newFile() {
 		if (checkSave()) {
@@ -1186,12 +1204,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private void exportFile() {
 		String message = "Export as Aldebaran format (.aut) to:";
 		FileDialog fd = new FileDialog(this, message, FileDialog.SAVE);
-		if (current == null || current.composition == null) {
+		if (current == null || current.getComposition() == null) {
 			JOptionPane.showMessageDialog(this,
 					"No target composition to export");
 			return;
 		}
-		String fname = current.composition.getName();
+		String fname = current.getComposition().getName();
 		fd.setFile(fname + ".aut");
 		fd.setDirectory(currentDirectory);
 		fd.setVisible(true);
@@ -1204,7 +1222,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				FileOutputStream fout = new FileOutputStream(file);
 				// now convert the FileOutputStream into a PrintStream
 				PrintStream myOutput = new PrintStream(fout);
-				current.composition.printAUT(myOutput);
+				current.getComposition().printAUT(myOutput);
 				myOutput.close();
 				fout.close();
 				outln("Exported to: " + fd.getDirectory() + file);
@@ -1354,7 +1372,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				PreconditionDefinitionManager.addAsterisk = !setAlphaLTL
 						.isSelected();
 			} else if (source == setSynchLTL)
-				FormulaFactory.normalLTL = !setSynchLTL.isSelected();
+				FormulaFactory.setNormalLTL(!setSynchLTL.isSelected());
 			else if (source == setPartialOrder)
 				Analyser.partialOrderReduction = setPartialOrder.isSelected();
 			else if (source == setObsEquiv)
@@ -1472,7 +1490,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 			frpanel.add(new JLabel("Max iterations"));
 			final JSpinner fr_it_spinner = new JSpinner(new SpinnerNumberModel(
-					LTSJUNGCanvas.FR_max_iterations, 1, 10000, 1));
+					LTSJUNGCanvas.FRMaxIterations, 1, 10000, 1));
 			frpanel.add(fr_it_spinner);
 
 			container.add(frpanel);
@@ -1495,7 +1513,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 						f.dispose();
 					}
 				}
-				
+
 				private void updateValues() {
 					try {
 						Object o = KK_length_factor_spinner.getValue();
@@ -1557,7 +1575,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 						Object o = fr_it_spinner.getValue();
 						if (o == null)
 							return;
-						LTSJUNGCanvas.FR_max_iterations = Integer.parseInt(o
+						LTSJUNGCanvas.FRMaxIterations = Integer.parseInt(o
 								.toString()) < 0 ? 0 : (Integer.parseInt(o
 								.toString()) > 10000 ? 10000 : Integer
 								.parseInt(o.toString()));
@@ -1654,16 +1672,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 					}
 				}
 				outln("\n");
-				// if (executer != null && executer.isAlive()) {
-				// executer.stop();
-				// menuEnable(true);
-				// check_stop.setEnabled(false);
-				// stopTool.setEnabled(false);
-				// outln("\n\t-- process was killed");
-				// executer = null;
-				// } {
-				// outln("\n\t-- process stopped by itself");
-				// }
 				executer = null;
 			}
 		}
@@ -1675,6 +1683,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		ExecuteAction(String s) {
 			runtarget = s;
 		}
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			run_menu = runtarget;
@@ -1692,7 +1701,27 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			asserted = asserttarget;
-			doAction(DO_liveness);
+			doAction(DOLIVENESS);
+		}
+	}
+
+	class ReplacementCheckerAction implements ActionListener {
+		String box;
+		String process;
+		String postCondition;
+
+		ReplacementCheckerAction(String box, String process,
+				String postCondition) {
+			this.box = box;
+			this.process = process;
+			this.postCondition = postCondition;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			showOutput();
+
+			checkReplacement(this.postCondition, this.process, this.box);
 		}
 	}
 
@@ -1748,10 +1777,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			if (choice == null)
 				return;
 			runEnabled = MenuDefinition.enabled(choice);
-			if (run_items != null && runEnabled != null) {
-				if (run_items.length == runEnabled.length)
-					for (int i = 0; i < run_items.length; ++i)
-						run_items[i].setEnabled(runEnabled[i]);
+			if (runItems != null && runEnabled != null) {
+				if (runItems.length == runEnabled.length)
+					for (int i = 0; i < runItems.length; ++i)
+						runItems[i].setEnabled(runEnabled[i]);
 			}
 		}
 	}
@@ -1841,9 +1870,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		cutTool.setEnabled(b);
 		edit_paste.setEnabled(b);
 		pasteTool.setEnabled(b);
-		file_new.setEnabled(b);
+		fileNew.setEnabled(b);
 		file_example.setEnabled(b);
-		file_open.setEnabled(app && b);
+		fileOpen.setEnabled(app && b);
 		file_saveAs.setEnabled(app && b);
 		file_export.setEnabled(app && (b || pp.equals("Transitions")));
 		newFileTool.setEnabled(b);
@@ -1924,6 +1953,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			return '\u0000';
 		}
 	}
+
 	@Override
 	public char backChar() {
 		fPos = fPos - 1;
@@ -1939,13 +1969,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return fPos;
 	}
 
-	// >>> AMES: Enhanced Modularity
 	@Override
 	public void resetMarker() {
 		fPos = -1;
 	}
-
-	// <<< AMES
 
 	public void resetInput() {
 		this.resetMarker();
@@ -1991,8 +2018,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				return null;
 			}
 
-			cs = comp.continueCompilation((String) targetChoice
-					.getSelectedItem());
+			System.out.println("compiling: " + targetChoice.getSelectedItem());
+			cs = comp.continueCompilation(
+					(String) targetChoice.getSelectedItem(), this);
 
 		} catch (LTSException x) {
 			displayError(x);
@@ -2000,7 +2028,30 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return cs;
 	}
 
-	private void doparse(Hashtable cs, Hashtable ps, Hashtable ex) {
+	private CompositeState docompile(String processName) {
+		resetInput();
+		CompositeState cs = null;
+		comp = new LTSCompiler(this, this, currentDirectory);
+		try {
+			comp.compile();
+			if (!parse(comp.getComposites(), comp.getProcesses(),
+					comp.getExplorers())) {
+				return null;
+			}
+
+			System.out.println("compiling: " + targetChoice.getSelectedItem());
+			cs = comp.continueCompilation(
+					(String) targetChoice.getSelectedItem(), this);
+
+		} catch (LTSException x) {
+			displayError(x);
+		}
+		return cs;
+	}
+
+	private void doparse(Hashtable<String, CompositionExpression> cs,
+			Hashtable<String, ProcessSpec> ps,
+			Hashtable<String, ExplorerDefinition> ex) {
 		resetInput();
 		comp = new LTSCompiler(this, this, currentDirectory);
 		try {
@@ -2011,9 +2062,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			cs = null;
 		}
 	}
-
-
-	private String lastCompiled = "";
 
 	private boolean compileIfChange() {
 		String tmp = input.getText();
@@ -2037,8 +2085,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			TransitionSystemDispatcher.checkSafety(current, this);
 
 		}
-	}
 
+	}
 
 	// ------------------------------------------------------------------------
 
@@ -2052,14 +2100,161 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private void checkPrecondition(String precondition) {
 		Preconditions.checkNotNull(precondition,
 				"The precondition cannot be null");
-		
+
+		LTSCompiler.forPreconditionChecking = true;
+		LTSCompiler.boxOfInterest = LTSCompiler.mapsEachPostConditionToTheCorrespondingBox
+				.get(precondition);
+		clearOutput();
+		compile();
+		if (current != null) {
+			TransitionSystemDispatcher.applyComposition(current, this);
+			System.out.println("%COMPOSITION: "
+					+ current.getComposition().getGraphDensity());
+			System.out.println("%COMPOSITION STATES: "
+					+ current.getComposition().getStates().length);
+			System.out.println("%COMPOSITION TRANSITIONS: "
+					+ current.getComposition().getTransitionNumber());
+			System.out.println("%COMPOSITION SIZE: "
+					+ current.getComposition().size());
+			System.out.println("%COMPOSITION Alphabet:"
+					+ current.getComposition().getAlphabet().length);
+			postState(current);
+		}
+
+		CompositeState ltlPrecondition = this.comp
+				.getPreconditionDefinitionManager().toProperty(this,
+						Arrays.asList(current.getComposition().getAlphabet()),
+						precondition);
+		ltlPrecondition.setName(precondition);
+		current.checkLTL(this, ltlPrecondition);
+		LTSCompiler.forPreconditionChecking = false;
+		postState(current);
+	}
+
+	private void checkReplacement(String postcondition, String process,
+			String box) {
+		Preconditions.checkNotNull(postcondition,
+				"The precondition cannot be null");
+
+		clearOutput();
+		if (compileIfChange() && current != null) {
+
+			current.compose(new EmptyLTSOuput());
+
+			LabelledTransitionSystem environment = current.getComposition();
+			if (!LTSCompiler.mapBoxReplacementName.containsKey(box)) {
+				this.displayError(new LTSException(
+						"No sub-design found for the component: " + box));
+			} else {
+
+				String replacementProcessName = LTSCompiler.mapBoxReplacementName
+						.get(box);
+
+				if (!LTSCompiler.processes.containsKey(replacementProcessName)) {
+					this.displayError(new LTSException(
+							"No compiled process with name: "
+									+ replacementProcessName));
+				} else {
+
+					this.outln("REPLACEMENT: " + replacementProcessName
+							+ " transformed into a compact state");
+
+					LabelledTransitionSystem replacementLTS = comp
+							.getProcessCompactStateByName(replacementProcessName);
+					replacementLTS.setName(replacementProcessName);
+
+					replacementLTS.setName(replacementProcessName);
+					current.addMachine(replacementLTS);
+
+					PreconditionDefinition precondition = LTSCompiler.preconditionDefinitionManager
+							.getPrecondition(process, box);
+
+					// transform pre-condition in LTS
+					LabelledTransitionSystem preConditionLTS = transformPreconditioninLTS(
+							process, box, environment, replacementLTS,
+							precondition);
+
+					current.addMachine(preConditionLTS);
+
+					// integrating the post-condition and the replacement
+					LabelledTransitionSystem preconditionPlusReplacement = new SequentialCompositionEngine()
+							.apply(LTLf2LTS.initSymbol.getValue(),
+									preConditionLTS, replacementLTS);
+
+					current.addMachine(preconditionPlusReplacement);
+					int endEventIndex = preconditionPlusReplacement
+							.addEvent(LTLf2LTS.endSymbol.getValue());
+					// add end selfLoopTransition
+					preconditionPlusReplacement.getFinalStateIndexes().forEach(
+							inded -> preconditionPlusReplacement.addTransition(
+									inded, endEventIndex, inded));
+
+					this.outln("MACHINE: "
+							+ preconditionPlusReplacement.getName()
+							+ " of the sequential composition between the precondition and the replacement loaded");
+					// compute the composition between the
+					// preconditionPlusReplacement
+					// and the environment
+
+					Vector<LabelledTransitionSystem> machines = new Vector<>();
+					machines.add(preconditionPlusReplacement);
+					machines.add(environment);
+					CompositeState environmentParallelPrePlusReplacement = new CompositeState(
+							machines);
+					environmentParallelPrePlusReplacement.compose(this);
+
+					// TODO: add end labeled transition over the final states of
+					// the
+					// replacement
+					// preparing the postcondition
+					PostconditionDefinitionManager postDefMan = this.comp
+							.getPostconditionDefinitionManager();
+					CompositeState ltlPostCondition = postDefMan
+							.compilePostConditionForReplacementChecking(
+									this,
+									Arrays.asList(environmentParallelPrePlusReplacement
+											.getComposition().getAlphabet()),
+									postcondition);
+					ltlPostCondition.setName(postcondition);
+
+					ltlPostCondition.compose(new EmptyLTSOuput());
+					current.addMachine(ltlPostCondition.getComposition());
+					this.outln("POST-CONDTION: " + postcondition
+							+ " transformed into a compact state");
+
+					environmentParallelPrePlusReplacement.checkLTL(this,
+							ltlPostCondition);
+
+					current.addMachine(environmentParallelPrePlusReplacement
+							.getComposition());
+					postState(current);
+				}
+			}
+		}
+	}
+
+	private LabelledTransitionSystem transformPreconditioninLTS(String process,
+			String box, LabelledTransitionSystem environment,
+			LabelledTransitionSystem replacementLTS,
+			PreconditionDefinition precondition) {
+		String preconditionName = LTSCompiler.preconditionDefinitionManager
+				.getPreconditionName(process, box);
+		// transform the precondition in an automaton
+		System.out.println("Transformed formula: "
+				+ precondition.getFormula(true));
+
+		List<String> ltsAlphabet = new ArrayList<>(
+				environment.getAlphabetCharacters());
+		LabelledTransitionSystem preConditionLTS = new LTLf2LTS()
+				.toLTSForPostChecking(precondition.getFormula(true),
+						new EmptyLTSOuput(), ltsAlphabet, preconditionName);
+
+		return preConditionLTS;
+	}
+
+	private void precondition() {
 		clearOutput();
 		compileIfChange();
-		CompositeState ltlPrecondition = this.comp
-				.getPreconditionDefinitionManager().compile(this, precondition);
-		current.checkLTL(this, ltlPrecondition);
-		postState(current);
-
 	}
 
 	private void liveness() {
@@ -2069,11 +2264,23 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		// Silent compilation for negated formula
 		CompositeState notLtlProperty = AssertDefinition.compile(
 				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
+		current.compose(new EmptyLTSOuput());
+		System.out.println("MODEL TO BE CHECHED: states: "
+				+ current.getComposition().getStates().length
+				+ "\t transitions: "
+				+ current.getComposition().getTransitionNumber());
+		
+		System.out.println("PROPERTY TO BE CHECHED: states: "
+				+ ltlProperty.getComposition().getStates().length
+				+ "\t transitions: "
+				+ ltlProperty.getComposition().getTransitionNumber());
 		if (current != null && ltlProperty != null) {
+
 			TransitionSystemDispatcher.checkFLTL(current, ltlProperty,
 					notLtlProperty, this.setFair.isSelected(), this);
 			postState(current);
 		}
+
 	}
 
 	// ------------------------------------------------------------------------
@@ -2082,7 +2289,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		clearOutput();
 		compileIfChange();
 		if (compileIfChange() && current != null) {
-			if (current.composition == null)
+			if (current.getComposition() == null)
 				TransitionSystemDispatcher.applyComposition(current, this);
 			TransitionSystemDispatcher.minimise(current, this);
 			postState(current);
@@ -2097,6 +2304,16 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		if (current != null) {
 			TransitionSystemDispatcher.applyComposition(current, this);
 			postState(current);
+			System.out.println("%GRAPH DENSITY: "
+					+ current.getComposition().getGraphDensity());
+			System.out.println("%COMPOSITION STATES: "
+					+ current.getComposition().getStates().length);
+			System.out.println("%COMPOSITION TRANSITIONS: "
+					+ current.getComposition().getTransitionNumber());
+			System.out.println("%COMPOSITION SIZE: "
+					+ current.getComposition().size());
+			System.out.println("%COMPOSITION Alphabet:"
+					+ current.getComposition().getAlphabet().length);
 		}
 	}
 
@@ -2115,7 +2332,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return false;
 	}
 
-	private void exploration_new() {
+	private void explorationNew() {
 		// Definition
 		String choice = (String) targetChoice.getSelectedItem();
 		if (explorerDefinitions == null
@@ -2126,41 +2343,42 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		ExplorerDefinition explorerDefinition = explorerDefinitions.get(choice);
 
 		// View
-		CompactState[] components = new CompactState[explorerDefinition
+		LabelledTransitionSystem[] components = new LabelledTransitionSystem[explorerDefinition
 				.getView().size()];
 		for (int i = 0; i < explorerDefinition.getView().size(); i++)
-			for (int j = 0; j < current.machines.size(); j++)
+			for (int j = 0; j < current.getMachines().size(); j++)
 				if (explorerDefinition.getView().get(i).getValue()
-						.equals(current.machines.elementAt(j).getName()))
-					components[i] = current.machines.elementAt(j);
+						.equals(current.getMachines().elementAt(j).getName()))
+					components[i] = current.getMachines().elementAt(j);
 
 		List<List<Symbol>> environmentActions = explorerDefinition
 				.getEnvironmentActions();
-		ViewNextConfiguration[] view_configurations = new ViewNextConfiguration[current.machines
-				.size() - 1];
+		ViewNextConfiguration[] viewConfigurations = new ViewNextConfiguration[current
+				.getMachines().size() - 1];
 		for (int i = 1; i < components.length; i++) {
 			if (environmentActions != null && environmentActions.size() > i - 1) {
 				String[] trace = new String[environmentActions.get(i - 1)
 						.size()];
 				for (int j = 0; j < trace.length; j++)
 					trace[j] = environmentActions.get(i - 1).get(j).toString();
-				view_configurations[i] = new ViewNextConfigurationTrace(trace);
+				viewConfigurations[i] = new ViewNextConfigurationTrace(trace);
 			} else
-				view_configurations[i] = new ViewNextConfigurationRandom();
+				viewConfigurations[i] = new ViewNextConfigurationRandom();
 		}
 
-		View view = new View(components, view_configurations);
+		View view = new View(components, viewConfigurations);
 
 		// Model
-		CompactState[] knowledge_configurations = new CompactState[explorerDefinition
+		LabelledTransitionSystem[] knowledge_configurations = new LabelledTransitionSystem[explorerDefinition
 				.getModel().size()];
 		for (int i = 0; i < explorerDefinition.getView().size(); i++)
-			for (int j = 0; j < current.machines.size(); j++)
+			for (int j = 0; j < current.getMachines().size(); j++)
 				if (explorerDefinition.getModel().get(i).getValue()
-						.equals(current.machines.elementAt(j).getName()))
-					knowledge_configurations[i] = current.machines.elementAt(j);
+						.equals(current.getMachines().elementAt(j).getName()))
+					knowledge_configurations[i] = current.getMachines()
+							.elementAt(j);
 
-		CompactState[] model_configurations = new CompactState[knowledge_configurations.length];
+		LabelledTransitionSystem[] model_configurations = new LabelledTransitionSystem[knowledge_configurations.length];
 		for (int i = 0; i < model_configurations.length; i++)
 			model_configurations[i] = knowledge_configurations[i].myclone();
 
@@ -2194,15 +2412,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			state = " " + state;
 		this.outln(action + "  ->  " + state);
 
-		current.composition = null;
+		current.setComposition(null);
 		current.makeController = false;
 		postState(current);
 		draws.setCurrentState(this.explorer.getCurrentStateNumbers());
 		layouts.setCurrentState(this.explorer.getCurrentStateNumbers());
 	}
 
-	
-	private void exploration_manual() {
+	private void explorationManual() {
 		if (this.explorer == null)
 			throw new UnsupportedOperationException("Primero hay que explorar");
 
@@ -2233,7 +2450,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		exploration_output();
 	}
 
-	private String exploration_stepover() {
+	private String explorationStepover() {
 		if (this.explorer == null)
 			throw new UnsupportedOperationException("Primero hay que explorar");
 
@@ -2265,11 +2482,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return mtsControlProblemAnswer;
 	}
 
-	private void exploration_resume() {
-		String mtsControlProblemAnswer = exploration_stepover();
+	private void explorationResume() {
+		String mtsControlProblemAnswer = explorationStepover();
 		while (mtsControlProblemAnswer.equals("SOME")
 				|| mtsControlProblemAnswer.equals("RESET"))
-			mtsControlProblemAnswer = exploration_stepover();
+			mtsControlProblemAnswer = explorationStepover();
 	}
 
 	private void exploration_output() {
@@ -2298,16 +2515,16 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	private Integer getStepsCount() {
-		Integer count_integer = 1;
+		Integer countInteger = 1;
 		try {
-			String count_string = this.stepscount.getText();
-			count_integer = Integer.parseInt(count_string);
+			String countString = this.stepscount.getText();
+			countInteger = Integer.parseInt(countString);
 		} catch (NumberFormatException ignored) {
 
 		}
-		if (count_integer < 1)
-			count_integer = 1;
-		return count_integer;
+		if (countInteger < 1)
+			countInteger = 1;
+		return countInteger;
 	}
 
 	private void animate() {
@@ -2320,7 +2537,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				throw new UnsupportedOperationException(
 						"Please, do parallel composition before animate");
 			}
-			if (current.machines.size() > 1
+			if (current.getMachines().size() > 1
 					&& MTSUtils.isMTSRepresentation(current)) {
 				throw new UnsupportedOperationException(
 						"Animation for more than one MTS is not developed yet");
@@ -2378,7 +2595,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private void reachable() {
 		clearOutput();
 		compileIfChange();
-		if (current != null && !current.machines.isEmpty()) {
+		if (current != null && !current.getMachines().isEmpty()) {
 			Analyser a = new Analyser(current, this, null);
 			SuperTrace s = new SuperTrace(a, this);
 			current.setErrorTrace(s.getErrorTrace());
@@ -2485,20 +2702,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	// -------------------------------------------------------------------------
 
-	private void doOptimist() {
-		if (compileIfChange() && current != null) {
-			TransitionSystemDispatcher.makeOptimisticModel(current, this);
-			postState(current);
-		}
-	}
-
-	private void doPesimist() {
-		if (compileIfChange() && current != null) {
-			TransitionSystemDispatcher.makePessimisticModel(current, this);
-			postState(current);
-		}
-	}
-
 	private void doApplyPlusCROperator() {
 		if (compileIfChange() && current != null) {
 			TransitionSystemDispatcher.applyPlusCROperator(current, this);
@@ -2586,7 +2789,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	private void doRunEnactors() {
 
-		if (current == null || current.composition == null
+		if (current == null || current.getComposition() == null
 				|| current.goal == null) {
 			this.outln("There is no composite state or goal available");
 			return;
@@ -2649,16 +2852,18 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	}
 
 	private String[] getMachinesNames() {
-		CompactState composition = current.composition;
-		int size = current.machines.size();
+		LabelledTransitionSystem composition = current.getComposition();
+		int size = current.getMachines().size();
 		if (composition != null) {
 			size++;
 		}
 		String[] result = new String[size];
 
 		int i = 0;
-		for (Iterator<CompactState> it = current.machines.iterator(); it.hasNext(); i++) {
-			CompactState compactState = (CompactState) it.next();
+		for (Iterator<LabelledTransitionSystem> it = current.getMachines()
+				.iterator(); it.hasNext(); i++) {
+			LabelledTransitionSystem compactState = (LabelledTransitionSystem) it
+					.next();
 			result[i] = compactState.getName();
 		}
 		if (composition != null) {
@@ -2667,12 +2872,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return result;
 	}
 
-	private CompactState selectMachine(int machineIndex) {
-		Vector machines = current.machines;
+	private LabelledTransitionSystem selectMachine(int machineIndex) {
+		Vector machines = current.getMachines();
 		if (machineIndex < machines.size()) {
-			return (CompactState) machines.get(machineIndex);
+			return (LabelledTransitionSystem) machines.get(machineIndex);
 		} else {
-			return current.composition;
+			return current.getComposition();
 		}
 	}
 
@@ -2682,43 +2887,46 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return parse(null, null, null);
 	}
 
-	public boolean parse(Hashtable cs, Hashtable ps, Hashtable ex) {
+	private boolean parse(Hashtable<String, CompositionExpression> cs,
+			Hashtable<String, ProcessSpec> ps,
+			Hashtable<String, ExplorerDefinition> ex) {
 
 		String oldChoice = (String) targetChoice.getSelectedItem();
 
 		if (cs == null && ps == null) {
-			cs = new Hashtable();
-			ps = new Hashtable();
-			ex = new Hashtable();
+			cs = new Hashtable<>();
+			ps = new Hashtable<>();
+			ex = new Hashtable<>();
 			doparse(cs, ps, ex);
 		}
 
-		if (cs == null)
+		if (cs == null) {
 			return false;
+		}
 		targetChoice.removeAllItems();
 
 		if (ex.size() == 0) {
 			if (cs.size() == 0) {
 				targetChoice.addItem(DEFAULT);
 			} else {
-				Enumeration e = cs.keys();
-				java.util.List forSort = new ArrayList();
+				Enumeration<String> e = cs.keys();
+				List<String> forSort = new ArrayList<>();
 				while (e.hasMoreElements()) {
 					forSort.add(e.nextElement());
 				}
 				Collections.sort(forSort);
-				for (Object aForSort : forSort) {
+				for (String aForSort : forSort) {
 					targetChoice.addItem(aForSort);
 				}
 			}
 		} else {
-			Enumeration e = ex.keys();
-			java.util.List forSort = new ArrayList();
+			Enumeration<String> e = ex.keys();
+			List<String> forSort = new ArrayList<>();
 			while (e.hasMoreElements()) {
 				forSort.add(e.nextElement());
 			}
 			Collections.sort(forSort);
-			for (Object aForSort : forSort) {
+			for (String aForSort : forSort) {
 				targetChoice.addItem(aForSort);
 			}
 		}
@@ -2739,18 +2947,18 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				(labelSetConstants = LabelSet.getConstants()).keySet()));
 
 		// deal with run menu
-		check_run.removeAll();
+		checkRun.removeAll();
 		runNames = MenuDefinition.names();
 		runEnabled = MenuDefinition.enabled((String) targetChoice
 				.getSelectedItem());
-		check_run.add(default_run);
+		checkRun.add(default_run);
 		if (runNames != null) {
-			run_items = new JMenuItem[runNames.length];
+			runItems = new JMenuItem[runNames.length];
 			for (int i = 0; i < runNames.length; ++i) {
-				run_items[i] = new JMenuItem(runNames[i]);
-				run_items[i].setEnabled(runEnabled[i]);
-				run_items[i].addActionListener(new ExecuteAction(runNames[i]));
-				check_run.add(run_items[i]);
+				runItems[i] = new JMenuItem(runNames[i]);
+				runItems[i].setEnabled(runEnabled[i]);
+				runItems[i].addActionListener(new ExecuteAction(runNames[i]));
+				checkRun.add(runItems[i]);
 			}
 		}
 		// deal with assert menu
@@ -2765,11 +2973,17 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				checkLiveness.add(assertItems[i]);
 			}
 		}
-		preconditionsNames = comp.getPreconditionDefinitionManager().names();
+		// deal with preconditions
+		checkPreconditions.removeAll();
+		Set<String> preconditionsNames = comp
+				.getPreconditionDefinitionManager().names();
+		SortedSet<String> orderedPreconditions = new TreeSet<>(
+				preconditionsNames);
+
 		if (preconditionsNames != null) {
 			preconditionsItems = new JMenuItem[preconditionsNames.size()];
 			int i = 0;
-			for (String name : preconditionsNames) {
+			for (String name : orderedPreconditions) {
 				preconditionsItems[i] = new JMenuItem(name);
 				preconditionsItems[i].addActionListener(new PreconditionAction(
 						name));
@@ -2777,7 +2991,38 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				i++;
 			}
 		}
-		// validate(); //seems to cause deadlock in GUI
+
+		// deal with postconditions
+		checkPostconditions.removeAll();
+
+		Map<String, Map<String, String>> map = comp
+				.getPostconditionDefinitionManager().getMapBoxPostcondition();
+
+		int num = 0;
+		for (String process : map.keySet()) {
+			num = num + map.get(process).size();
+		}
+
+		int i = 0;
+
+		if (map != null) {
+			postconditionsItems = new JMenuItem[num];
+
+			for (String process : map.keySet()) {
+				for (Entry<String, String> boxPre : map.get(process).entrySet()) {
+					postconditionsItems[i] = new JMenuItem("process: "
+							+ process + "box: " + boxPre.getKey()
+							+ "\t postcondition: " + boxPre.getValue());
+					postconditionsItems[i]
+							.addActionListener(new ReplacementCheckerAction(
+									boxPre.getKey(), process, boxPre.getValue()));
+
+					checkPostconditions.add(postconditionsItems[i]);
+					i++;
+				}
+			}
+		}
+
 		return true;
 	}
 
@@ -2873,10 +3118,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	public CompositeState compile(String name) {
 		resetInput();
 		CompositeState cs = null;
-		LTSCompiler comp = new LTSCompiler(this, this, currentDirectory);
+		comp = new LTSCompiler(this, this, currentDirectory);
 		try {
 			comp.compile();
-			cs = comp.continueCompilation(name);
+			cs = comp.continueCompilation(name, this);
 		} catch (LTSException x) {
 			displayError(x);
 		}
@@ -2896,7 +3141,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	 * machines.
 	 */
 	@Override
-	public void newMachines(java.util.List<CompactState> machines) {
+	public void newMachines(java.util.List<LabelledTransitionSystem> machines) {
 		CompositeState c = new CompositeState(new Vector<>(machines));
 		postState(c);
 		this.current = c;
@@ -2966,20 +3211,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		executer.start();
 	}
 
-	// <<< AMES
-
-	private void fillEnactorsMenu(JMenuItem parent_menu) {
-		EnactorFactory<Long, String> enactorFactory = applicationContext
-				.getBean(EnactorFactory.class);
-		for (String enactorName : enactorFactory.getEnactorNames()) {
-			JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(enactorName);
-			menuItem.setSelected(false);
-			parent_menu.add(menuItem);
-
-		}
-
-	}
-
 	/**
 	 * Returns the instantiated Spring Application Context
 	 * 
@@ -2992,11 +3223,15 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// TODO move this class to a file. refactor needed to organize the menu
 	// related code.
 	class GraphUpdateMenu extends JMenu {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		JMenuItem startMenu = new JMenuItem("Begin Simulation");
 
 		public GraphUpdateMenu() {
 			super("Update");
-			startMenu.addActionListener(new DoAction(DO_GRAPH_UPDATE));
+			startMenu.addActionListener(new DoAction(DOGRAPHUPDATE));
 			this.add(startMenu);
 		}
 	}

@@ -1,7 +1,7 @@
 package FSP2MTS.ac.ic.doc.mtstools.test.util;
 
 import junit.framework.TestCase;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.output.LTSOutput;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSImpl;
 
 

@@ -8,8 +8,8 @@ import MTSSynthesis.ar.dc.uba.model.language.Symbol;
 import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.exploration.Synthesis;
 import ltsa.exploration.knowledge.Knowledge;
-import ltsa.lts.lts.EventState;
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.LTSTransitionList;
 
 import java.util.*;
 
@@ -31,8 +31,8 @@ public class StrategyNewAction extends Strategy
     public String chooseNextAction(HashSet<String> availableActions)
     {
         // The new action is in the current state
-        String[] alphabet = this.knowledge.getCmponents()[0].alphabet;
-        for (int anEvent : this.knowledge.getCmponents()[0].states[this.knowledge.getCurrentStates()[0]].getEvents())
+        String[] alphabet = this.knowledge.getCmponents()[0].getAlphabet();
+        for (int anEvent : this.knowledge.getCmponents()[0].getStates()[this.knowledge.getCurrentStates()[0]].getEvents())
             for (String anAvailableAction : availableActions)
                 if (alphabet[anEvent].equals(anAvailableAction + '?'))
                     return anAvailableAction;
@@ -43,7 +43,7 @@ public class StrategyNewAction extends Strategy
     //endregion
 
     //region Private methods
-    private Boolean fullyExplored(EventState aState, Boolean onlyControllable)
+    private Boolean fullyExplored(LTSTransitionList aState, Boolean onlyControllable)
     {
         for (int anEvent : aState.getEvents())
             if (isPossibleAction(anEvent, onlyControllable))
@@ -53,11 +53,11 @@ public class StrategyNewAction extends Strategy
     }
     private Boolean isPossibleAction(int i, Boolean onlyControllable)
     {
-        String action = this.knowledge.getCmponents()[0].alphabet[i];
+        String action = this.knowledge.getCmponents()[0].getAlphabet()[i];
 
         if (onlyControllable)
             for (int componentNumber = 1; componentNumber < this.knowledge.getCmponents().length; componentNumber++)
-                for (String anAction : this.knowledge.getCmponents()[componentNumber].alphabet)
+                for (String anAction : this.knowledge.getCmponents()[componentNumber].getAlphabet())
                     if (Objects.equals(action, anAction))
                         return false;
 
@@ -65,19 +65,19 @@ public class StrategyNewAction extends Strategy
     }
     private String getControllerNextAction(HashSet<String> availableActions)
     {
-        CompactState[] machines = this.knowledge.cloneForSynthesisFromCurrentState();
+        LabelledTransitionSystem[] machines = this.knowledge.cloneForSynthesisFromCurrentState();
         int stateZero = this.knowledge.getCurrentStates()[0];
 
         // To controllable action
-        if (!this.fullyExplored(machines[0].states[stateZero], true))
+        if (!this.fullyExplored(machines[0].getStates()[stateZero], true))
         {
             String controllerAction = getActionFromController(machines[0], stateZero, availableActions);
             if (!controllerAction.equals("WAIT"))
                 return controllerAction;
         }
-        for (int i = 1; i < machines[0].states.length; i++)
+        for (int i = 1; i < machines[0].getStates().length; i++)
         {
-            if (!this.fullyExplored(machines[0].states[i], true))
+            if (!this.fullyExplored(machines[0].getStates()[i], true))
             {
                 String controllerAction = getActionFromController(machines[0], i, availableActions);
                  if (!controllerAction.equals("WAIT"))
@@ -86,15 +86,15 @@ public class StrategyNewAction extends Strategy
         }
 
         // To shared action
-        if (!this.fullyExplored(machines[0].states[stateZero], false))
+        if (!this.fullyExplored(machines[0].getStates()[stateZero], false))
         {
             String controllerAction = getActionFromController(machines[0], stateZero, availableActions);
             if (!controllerAction.equals("WAIT"))
                 return controllerAction;
         }
-        for (int i = 1; i < machines[0].states.length; i++)
+        for (int i = 1; i < machines[0].getStates().length; i++)
         {
-            if (!this.fullyExplored(machines[0].states[i], false))
+            if (!this.fullyExplored(machines[0].getStates()[i], false))
             {
                 String controllerAction = getActionFromController(machines[0], i, availableActions);
                 if (!controllerAction.equals("WAIT"))
@@ -104,7 +104,7 @@ public class StrategyNewAction extends Strategy
 
         return "WAIT";
     }
-    private CompactState getControllerToState(CompactState machine, int stateNumber)
+    private LabelledTransitionSystem getControllerToState(LabelledTransitionSystem machine, int stateNumber)
     {
         // Controlable actions
         ArrayList<String> controllableActions = new ArrayList<>();
@@ -139,31 +139,31 @@ public class StrategyNewAction extends Strategy
         goal.addAllControllableActions(goalControllableActions);
 
         // Machine
-        CompactState compositionMachine = machine.myclone();
-        compositionMachine.alphabet = Arrays.copyOf(compositionMachine.alphabet, compositionMachine.alphabet.length + 2);
-        compositionMachine.alphabet[compositionMachine.alphabet.length - 2] = "fluent_on?";
-        compositionMachine.alphabet[compositionMachine.alphabet.length - 1] = "fluent_on";
-        compositionMachine.states[stateNumber] = EventState.addEvent(compositionMachine.states[stateNumber], compositionMachine.alphabet.length - 1, stateNumber);
+        LabelledTransitionSystem compositionMachine = machine.myclone();
+        compositionMachine.setAlphabet(Arrays.copyOf(compositionMachine.getAlphabet(), compositionMachine.getAlphabet().length+ 2));
+        compositionMachine.getAlphabet()[compositionMachine.getAlphabet().length- 2] = "fluent_on?";
+        compositionMachine.getAlphabet()[compositionMachine.getAlphabet().length - 1] ="fluent_on";
+        compositionMachine.getStates()[stateNumber] = LTSTransitionList.addTransition(compositionMachine.getStates()[stateNumber], compositionMachine.getAlphabet().length - 1, stateNumber);
 
         // Transform MTS to LTS
-        for (int j = 0; j < compositionMachine.states.length; j++)
-            for (int k = 0; k < machine.alphabet.length; k++)
-                if (machine.alphabet[k].contains("tau") || machine.alphabet[k].contains("?"))
-                    compositionMachine.states[j] = EventState.removeEvent(compositionMachine.states[j], k);
+        for (int j = 0; j < compositionMachine.getStates().length; j++)
+            for (int k = 0; k < machine.getAlphabet().length; k++)
+                if (machine.getAlphabet()[k].contains("tau") || machine.getAlphabet()[k].contains("?"))
+                    compositionMachine.getStates()[j] = LTSTransitionList.removeEvent(compositionMachine.getStates()[j], k);
 
         // Sinthesis
-        CompactState[] compositionMachineArray = new CompactState[1];
+        LabelledTransitionSystem[] compositionMachineArray = new LabelledTransitionSystem[1];
         compositionMachineArray[0] = compositionMachine;
         Synthesis synthesis = new Synthesis(compositionMachineArray, goal);
-        return synthesis.getComposition().composition;
+        return synthesis.getComposition().getComposition();
     }
-    private String getActionFromController(CompactState machine, int stateNumber, HashSet<String> availableActions)
+    private String getActionFromController(LabelledTransitionSystem machine, int stateNumber, HashSet<String> availableActions)
     {
-        CompactState controllerToNextUnexploredState = getControllerToState(machine, stateNumber);
+        LabelledTransitionSystem controllerToNextUnexploredState = getControllerToState(machine, stateNumber);
         if (controllerToNextUnexploredState.getMtsControlProblemAnswer().equals("ALL"))
-            for (int anEvent : controllerToNextUnexploredState.states[0].getEvents())
-                if (availableActions.contains(controllerToNextUnexploredState.alphabet[anEvent]))
-                    return controllerToNextUnexploredState.alphabet[anEvent];
+            for (int anEvent : controllerToNextUnexploredState.getStates()[0].getEvents())
+                if (availableActions.contains(controllerToNextUnexploredState.getAlphabet()[anEvent]))
+                    return controllerToNextUnexploredState.getAlphabet()[anEvent];
         return "WAIT";
     }
     //endregion

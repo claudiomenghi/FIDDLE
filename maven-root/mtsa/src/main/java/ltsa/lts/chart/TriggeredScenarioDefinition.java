@@ -9,10 +9,10 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import ltsa.lts.Diagnostics;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.chart.util.MTSSynthesiserFacade;
 import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.Symbol;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
@@ -118,8 +118,8 @@ public abstract class TriggeredScenarioDefinition {
 	/* (non-Javadoc)
 	 * @see ic.doc.ltsa.common.iface.IChartDefinition#synthesiseAll(ic.doc.ltsa.common.iface.LTSOutput)
 	 */
-	public static Collection<CompactState> synthesiseAll(LTSOutput output) throws TriggeredScenarioTransformationException {
-		Collection<CompactState> compactStateCollection = new LinkedList<CompactState>();
+	public static Collection<LabelledTransitionSystem> synthesiseAll(LTSOutput output) throws TriggeredScenarioTransformationException {
+		Collection<LabelledTransitionSystem> compactStateCollection = new LinkedList<LabelledTransitionSystem>();
 		Enumeration<TriggeredScenarioDefinition> lscDefinitions = definitions.elements();
 		while (lscDefinitions.hasMoreElements()) {
 			TriggeredScenarioDefinition definition = (TriggeredScenarioDefinition) lscDefinitions.nextElement();
@@ -129,7 +129,7 @@ public abstract class TriggeredScenarioDefinition {
 	}
 
 
-	public CompactState synthesise(LTSOutput output) throws TriggeredScenarioTransformationException {
+	public LabelledTransitionSystem synthesise(LTSOutput output) throws TriggeredScenarioTransformationException {
 		TriggeredScenario triggeredScenario = this.adapt(new LocationNamingStrategyImpl());
 		output.outln("Synthesising from triggered scenario: ");
 		output.outln(this.getName().toString());

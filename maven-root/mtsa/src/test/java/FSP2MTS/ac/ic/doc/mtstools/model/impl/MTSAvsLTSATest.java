@@ -8,9 +8,9 @@ import java.util.List;
 
 import MTSTools.ac.ic.doc.mtstools.model.impl.CompositionRuleApplier;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSMultipleComposer;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import FSP2MTS.ac.ic.doc.mtstools.MTSUtilsTest;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import FSP2MTS.ac.ic.doc.mtstools.test.util.LTSATestUtils;
@@ -66,9 +66,9 @@ public class MTSAvsLTSATest extends MTSTestBase {
 	@SuppressWarnings("unchecked")
 	private List<MTS<Long, String>> buildMTSCollection(CompositeState compositeByMTSA) {
 		List<MTS<Long, String>> result = new ArrayList<MTS<Long,String>>();
-		for (Iterator<CompactState> it = compositeByMTSA.getMachines().iterator(); it.hasNext();) {
-			CompactState compactState = it.next();
-			result.add(AutomataToMTSConverter.getInstance().convert((CompactState) compactState));
+		for (Iterator<LabelledTransitionSystem> it = compositeByMTSA.getMachines().iterator(); it.hasNext();) {
+			LabelledTransitionSystem compactState = it.next();
+			result.add(AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) compactState));
 		}
 		return result;
 	}

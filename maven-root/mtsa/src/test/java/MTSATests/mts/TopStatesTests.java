@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import junit.framework.TestCase;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.ui.StandardOutput;
 import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;

@@ -2,58 +2,59 @@ package ltsa.lts.util.collections;
 
 import java.math.BigDecimal;
 
-import ltsa.lts.lts.ProbabilisticTransition;
+import ltsa.lts.automata.probabilistic.ProbabilisticTransition;
 
-/* MyList is a speciallized List for the analyser
- *  -- its stores transitions*/
+/**
+ * It is a specialized List for the analyzer. 
+ * Its stores transitions
+ */
 
-class MyListEntry {
+class MyTransitionListEntry {
 	int fromState;
 	byte[] toState;
 	int actionNo;
-	MyListEntry next;
+	MyTransitionListEntry next;
 
-	MyListEntry(int from, byte[] to, int action) {
-		fromState= from;
-		toState= to;
-		actionNo= action;
-		this.next= null;
+	MyTransitionListEntry(int from, byte[] to, int action) {
+		fromState = from;
+		toState = to;
+		actionNo = action;
+		this.next = null;
 	}
 }
 
-
 public class MyList {
-	protected MyListEntry head= null;
-	protected MyListEntry tail= null;
-	protected int count= 0;
+	protected MyTransitionListEntry head = null;
+	protected MyTransitionListEntry tail = null;
+	protected int count = 0;
 
-	public MyListEntry peek() {
+	public MyTransitionListEntry peek() {
 		return head;
 	}
-	
-	public void add(MyListEntry e) {
+
+	public void add(MyTransitionListEntry e) {
 		if (head == null) {
-			head= tail= e;
+			head = tail = e;
 		} else {
-			tail.next= e;
-			tail= e;
+			tail.next = e;
+			tail = e;
 		}
 		++count;
 	}
 
 	public void add(int from, byte[] to, int action) {
-		MyListEntry e= new MyListEntry(from, to, action);
+		MyTransitionListEntry e = new MyTransitionListEntry(from, to, action);
 		add(e);
 	}
 
 	public void add(int from, byte[] to, int action, int bundle, BigDecimal prob) {
-		MyProbListEntry e= new MyProbListEntry(from, to, action, bundle, prob);
+		MyProbListEntry e = new MyProbListEntry(from, to, action, bundle, prob);
 		add(e);
 	}
 
 	public void next() {
 		if (head != null)
-			head= head.next;
+			head = head.next;
 	}
 
 	public boolean empty() {
@@ -80,18 +81,18 @@ public class MyList {
 		if (head == null) {
 			return ProbabilisticTransition.BUNDLE_ERROR;
 		} else if (head instanceof MyProbListEntry) {
-			MyProbListEntry probHead= (MyProbListEntry) head;
+			MyProbListEntry probHead = (MyProbListEntry) head;
 			return probHead.bundle;
 		} else {
 			return ProbabilisticTransition.NO_BUNDLE;
 		}
 	}
-	
+
 	public BigDecimal getProb() {
 		if (head == null) {
 			return BigDecimal.ZERO;
 		} else if (head instanceof MyProbListEntry) {
-			MyProbListEntry probHead= (MyProbListEntry) head;
+			MyProbListEntry probHead = (MyProbListEntry) head;
 			return probHead.prob;
 		} else {
 			return BigDecimal.ONE;

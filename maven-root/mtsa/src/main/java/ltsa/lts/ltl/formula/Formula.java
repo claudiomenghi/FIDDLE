@@ -197,13 +197,3 @@ class Sub2 implements FormulaVisitor {
 		return r.getLeft();
 	}
 }
-
-
-
-
-
-
-
-
-
-

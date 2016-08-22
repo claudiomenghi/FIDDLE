@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ltsa.ui.Transition;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import MTSTools.ac.ic.doc.commons.relations.BinaryRelation;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
@@ -30,10 +30,10 @@ CompositeState originalLTS;
 		AutomataToMTSConverter mtsConverter = AutomataToMTSConverter.getInstance();
 		mtss = new HashMap<String, MTS<Long, String>>();
 		Set<String> modelActions = new HashSet<String>();  
-		for (Object machine : _environmentModel.machines) {
-			if(machine instanceof CompactState){
-				String name = ((CompactState) machine).getName();
-				MTS<Long, String> mts = mtsConverter.convert((CompactState)machine);
+		for (Object machine : _environmentModel.getMachines()) {
+			if(machine instanceof LabelledTransitionSystem){
+				String name = ((LabelledTransitionSystem) machine).getName();
+				MTS<Long, String> mts = mtsConverter.convert((LabelledTransitionSystem)machine);
 				modelActions.addAll(mts.getActions()) ;
 				mtss.put(name, mts);
 			}

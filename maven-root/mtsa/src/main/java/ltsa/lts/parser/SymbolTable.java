@@ -13,8 +13,8 @@ public class SymbolTable {
 		keyword.put("box", new Integer(Symbol.BOX));
 		keyword.put("ltl_precondition", new Integer(Symbol.LTLPRECONDITION));
 		keyword.put("ltl_postcondition", new Integer(Symbol.LTLPOSTCONDITION));
-		keyword.put("precondition", new Integer(Symbol.PRECONDITION));
-		keyword.put("postcondition", new Integer(Symbol.POSTCONDITION));
+		keyword.put("final", new Integer(Symbol.FINAL));
+		keyword.put("replacement", new Integer(Symbol.REPLACEMENT));
 		keyword.put("const", new Integer(Symbol.CONSTANT));
 		keyword.put("property", new Integer(Symbol.PROPERTY));
 		keyword.put("range", new Integer(Symbol.RANGE));

@@ -8,26 +8,31 @@ import java.util.Vector;
 import com.google.common.base.Preconditions;
 
 import ltsa.lts.Diagnostics;
-import ltsa.lts.lts.StateMachine;
-import ltsa.lts.parser.LabelSet;
+import ltsa.lts.automata.automaton.StateMachine;
+import ltsa.lts.parser.PostconditionDefinitionManager;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.LabelSet;
 
 /**
  * contains the declaration of a process
+ * 
  * @author Claudio Menghi
  *
  */
 public class ProcessSpec extends Declaration {
-	
+
 	private Symbol name;
+
+	private final PostconditionDefinitionManager postManager;
 	
-	public Hashtable constants;
-	public Hashtable init_constants = new Hashtable();
-	public Vector parameters = new Vector();
+	public Hashtable<String, Value> constants;
+	public Hashtable<String, Value> init_constants = new Hashtable<>();
+	public Vector<String> parameters = new Vector<>();
 	public Vector<StateDefn> stateDefns = new Vector<>();
 	public LabelSet alphaAdditions;
 	public LabelSet alphaHidden;
-	public Vector alphaRelabel;
+	public Vector<RelabelDefn> alphaRelabel;
 	public boolean isProperty = false;
 	public boolean isMinimal = false;
 	public boolean isDeterministic = false;
@@ -41,36 +46,57 @@ public class ProcessSpec extends Declaration {
 	public boolean isProbabilistic = false;
 	public boolean isMDP = false;
 	public boolean isStarEnv = false;
+
+	public boolean isReplacement=false;
+	
 	public Symbol goal;
 
 	public File importFile = null; // used if the process is imported from a
 									// .aut file
 
-	public ProcessSpec(){
-		
-	}
-	public ProcessSpec(Symbol name){
-		Preconditions.checkNotNull(name, "The name of the process cannot be null");
-		this.name=name;
+	public ProcessSpec(PostconditionDefinitionManager postManager) {
+		this.postManager=postManager;
+
 	}
 	
-	public Symbol getSymbol(){
+	
+
+	public boolean isReplacement() {
+		return isReplacement;
+	}
+
+
+
+	public void setReplacement(boolean isReplacement) {
+		this.isReplacement = isReplacement;
+	}
+
+
+
+	public ProcessSpec(PostconditionDefinitionManager postManager, Symbol name) {
+		Preconditions.checkNotNull(name,
+				"The name of the process cannot be null");
+		this.name = name;
+		this.postManager=postManager;
+	}
+
+	public Symbol getSymbol() {
 		return name;
 	}
-	
+
 	public boolean imported() {
 		return importFile != null;
 	}
 
-	public String getname() {
-		constants = (Hashtable) init_constants.clone();
+	public String getName() {
+		constants = (Hashtable<String, Value>) init_constants.clone();
 		StateDefn s = stateDefns.firstElement();
-		name = s.name;
+		this.name = s.getName();
 		if (s.range != null)
 			Diagnostics.fatal("process name cannot be indexed", name);
-		return s.name.toString();
+		return s.getName().toString();
 	}
-	
+
 	@Override
 	public void explicitStates(StateMachine m) {
 		Enumeration<StateDefn> e = stateDefns.elements();
@@ -82,8 +108,8 @@ public class ProcessSpec extends Declaration {
 
 	public void addAlphabet(StateMachine m) {
 		if (alphaAdditions != null) {
-			Vector a = alphaAdditions.getActions(constants);
-			Enumeration e = a.elements();
+			Vector<String> a = alphaAdditions.getActions(constants);
+			Enumeration<String> e = a.elements();
 			while (e.hasMoreElements()) {
 				String s = (String) e.nextElement();
 				if (!m.getAlphabet().contains(s))
@@ -100,13 +126,13 @@ public class ProcessSpec extends Declaration {
 	}
 
 	public void relabelAlphabet(StateMachine m) {
-		if (alphaRelabel == null){
+		if (alphaRelabel == null) {
 			return;
 		}
 		m.setRelabels(new Relation());
-		Enumeration e = alphaRelabel.elements();
+		Enumeration<RelabelDefn> e = alphaRelabel.elements();
 		while (e.hasMoreElements()) {
-			RelabelDefn r = (RelabelDefn) e.nextElement();
+			RelabelDefn r = e.nextElement();
 			r.makeRelabels(constants, m.getRelabels());
 		}
 	}
@@ -129,15 +155,15 @@ public class ProcessSpec extends Declaration {
 		}
 	}
 
-	public void doParams(Vector actuals) {
-		Enumeration a = actuals.elements();
-		Enumeration f = parameters.elements();
+	public void doParams(Vector<Value> actuals) {
+		Enumeration<Value> a = actuals.elements();
+		Enumeration<String> f = parameters.elements();
 		while (a.hasMoreElements() && f.hasMoreElements())
 			constants.put(f.nextElement(), a.nextElement());
 	}
 
 	public ProcessSpec myclone() {
-		ProcessSpec p = new ProcessSpec(name);
+		ProcessSpec p = new ProcessSpec(this.postManager, name);
 		p.constants = (Hashtable) constants.clone();
 		p.init_constants = init_constants;
 		p.parameters = parameters;
@@ -156,4 +182,12 @@ public class ProcessSpec extends Declaration {
 		return p;
 	}
 
+	@Override
+	public String toString(){
+		return this.name.getValue();
+	}
+
+	public PostconditionDefinitionManager getPostManager() {
+		return postManager;
+	}
 }

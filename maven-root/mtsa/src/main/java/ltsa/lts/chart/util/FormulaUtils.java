@@ -2,7 +2,7 @@ package ltsa.lts.chart.util;
 
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.Formula;
-import ltsa.lts.ltl.FormulaTransformerVisitor;
+import ltsa.lts.ltl.visitors.FormulaTransformerVisitor;
 
 import java.util.Set;
 

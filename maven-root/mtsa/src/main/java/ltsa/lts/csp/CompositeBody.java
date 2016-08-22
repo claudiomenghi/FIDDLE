@@ -4,12 +4,12 @@ import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
 
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.ActionLabels;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.Symbol;
 import ltsa.lts.parser.Value;
+import ltsa.lts.parser.actions.ActionLabels;
 
 /* -----------------------------------------------------------------------*/
 public class CompositeBody {
@@ -22,20 +22,26 @@ public class CompositeBody {
 	public CompositeBody thenpart; // overloaded as body of replicator
 	public CompositeBody elsepart;
 	// forall[i:R][j:S].
-	public ActionLabels range; // used to store forall range/ranges
+	public ActionLabels range; // used to store for all range/ranges
 	// the following are only applied to singletons & procRefs (...)
 	private ActionLabels prefix; // a:
 	public ActionLabels accessSet; // S::
-	public Vector<RelabelDefn> relabelDefns; // list of relabelling defns
+	public Vector<RelabelDefn> relabelDefns; // list of relabeling defns
 
 	// private Vector accessors = null; //never used?
 	// private Relation relabels = null;
+
+	private boolean forPreconditionChecking;
+
+	public CompositeBody(boolean forPreconditionChecking) {
+		this.forPreconditionChecking = forPreconditionChecking;
+	}
 
 	/**
 	 * This method fills the <i>machines</i> with the compiled version of the
 	 * processes referenced in the composition expression <i>c</i>. In addition
 	 * to handling conditionals and applying accessors it also applies
-	 * relabelling if necessary.
+	 * relabeling if necessary.
 	 */
 	void compose(CompositionExpression c, Vector machines,
 			Hashtable<String, Value> locals) {
@@ -43,7 +49,7 @@ public class CompositeBody {
 				.getActions(locals, c.constants);
 		Relation relabels = RelabelDefn.getRelabels(relabelDefns, c.constants,
 				locals);
-		// conditional compostion
+		// conditional composition
 		if (boolexpr != null) {
 			if (Expression.evaluate(boolexpr, locals, c.constants).intValue() != 0)
 				thenpart.compose(c, machines, locals);
@@ -63,8 +69,8 @@ public class CompositeBody {
 			// apply accessors
 			if (accessors != null)
 				for (Object o : tempMachines) {
-					if (o instanceof CompactState) {
-						CompactState mach = (CompactState) o;
+					if (o instanceof LabelledTransitionSystem) {
+						LabelledTransitionSystem mach = (LabelledTransitionSystem) o;
 						mach.addAccess(accessors);
 					} else {
 						CompositeState cs = (CompositeState) o;
@@ -75,12 +81,13 @@ public class CompositeBody {
 			if (relabels != null)
 				for (int i = 0; i < tempMachines.size(); ++i) {
 					Object o = tempMachines.elementAt(i);
-					if (o instanceof CompactState) {
-						CompactState mach = (CompactState) o;
+					if (o instanceof LabelledTransitionSystem) {
+						LabelledTransitionSystem mach = (LabelledTransitionSystem) o;
 						mach.relabel(relabels);
 					} else {
 						CompositeState cs = (CompositeState) o;
-						CompactState mm = cs.relabel(relabels, c.output);
+						LabelledTransitionSystem mm = cs.relabel(relabels,
+								c.output);
 						if (mm != null)
 							tempMachines.setElementAt(mm, i);
 					}
@@ -98,14 +105,14 @@ public class CompositeBody {
 		if (prefix == null) {
 			return getMachines(c, locals);
 		} else {
-			Vector pvm = new Vector();
+			Vector pvm = new Vector<>();
 			prefix.initContext(locals, c.constants);
 			while (prefix.hasMoreNames()) {
 				String px = prefix.nextName();
 				Vector vm = getMachines(c, locals);
 				for (Object o : vm) {
-					if (o instanceof CompactState) {
-						CompactState m = (CompactState) o;
+					if (o instanceof LabelledTransitionSystem) {
+						LabelledTransitionSystem m = (LabelledTransitionSystem) o;
 						m.prefixLabels(px);
 						pvm.addElement(m);
 					} else {
@@ -125,7 +132,7 @@ public class CompositeBody {
 	 */
 	private Vector getMachines(CompositionExpression c,
 			Hashtable<String, Value> locals) {
-		Vector vm = new Vector();
+		Vector vm = new Vector<>();
 		if (singleton != null) {
 			singleton.instantiate(c, vm, c.output, locals);
 		} else if (procRefs != null) {
@@ -136,9 +143,7 @@ public class CompositeBody {
 		return vm;
 	}
 
-	public ActionLabels getPrefix() {
-		return prefix;
-	}
+	
 
 	public void setPrefix(ActionLabels prefix) {
 		this.prefix = prefix;

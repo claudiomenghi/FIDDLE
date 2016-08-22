@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import ltsa.lts.Diagnostics;
-import ltsa.lts.parser.LabelSet;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.actions.LabelSet;
 
 public class ControlStackDefinition implements Iterable<ControlTierDefinition>
 {

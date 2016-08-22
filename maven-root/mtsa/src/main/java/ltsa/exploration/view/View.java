@@ -4,19 +4,19 @@ import MTSTools.ac.ic.doc.commons.relations.Pair;
 
 import com.google.common.primitives.Ints;
 
-import ltsa.lts.ltscomposition.CompactState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
 public class View
 {
-    private CompactState[] components;
+    private LabelledTransitionSystem[] components;
     private int[] currentStates;
     private ViewNextConfiguration[] nextConfigurations;
 
     //region Constructor
-    public View(CompactState[] components, ViewNextConfiguration[] nextConfigurations)
+    public View(LabelledTransitionSystem[] components, ViewNextConfiguration[] nextConfigurations)
     {
         this.components = components;
         this.nextConfigurations = nextConfigurations;
@@ -28,7 +28,7 @@ public class View
     //endregion
 
     //region Getters
-    public CompactState[] getComponents()
+    public LabelledTransitionSystem[] getComponents()
     {
         return this.components;
     }
@@ -56,9 +56,9 @@ public class View
         for (String anAction : currentStateActions)
             for (int i = 0; i < components.length; i++)
                 if (i != component)
-                    for (int j = 0; j < components[i].alphabet.length; j++)
-                        if (anAction.equals(components[i].alphabet[j]))
-                            if (!Ints.contains(components[i].states[this.currentStates[i]].getEvents(), j))
+                    for (int j = 0; j < components[i].getAlphabet().length; j++)
+                        if (anAction.equals(components[i].getAlphabet()[j]))
+                            if (!Ints.contains(components[i].getStates()[this.currentStates[i]].getEvents(), j))
                                 lockedActions.add(anAction);
 
         HashSet<String> currentStateAvaibleActions = new HashSet<>();
@@ -91,16 +91,16 @@ public class View
     //region Private methods
     private HashSet<String> getCurrentStateActions(int component)
     {
-        int[] currentStateEvents = this.components[component].states[this.currentStates[component]].getEvents();
+        int[] currentStateEvents = this.components[component].getStates()[this.currentStates[component]].getEvents();
         HashSet<String> currentStateActions = new HashSet<>(0);
         for (int currentStateEvent : currentStateEvents)
-            currentStateActions.add(this.components[component].alphabet[currentStateEvent]);
+            currentStateActions.add(this.components[component].getAlphabet()[currentStateEvent]);
         return currentStateActions;
     }
     private Boolean moveComponent(Integer component, String nextAction)
     {
         Boolean isInAlphabet = false;
-        for (String anAction : this.components[component].alphabet)
+        for (String anAction : this.components[component].getAlphabet())
             if (anAction.equals(nextAction))
                 isInAlphabet = true;
 
@@ -110,14 +110,14 @@ public class View
         int nextEvent = this.components[component].getEvent(nextAction);
 
         Boolean isInState = false;
-        for (Integer anEvent : this.components[component].states[this.currentStates[component]].getEvents())
+        for (Integer anEvent : this.components[component].getStates()[this.currentStates[component]].getEvents())
             if (anEvent == nextEvent)
                 isInState = true;
 
         if (!isInState)
             return false;
 
-        int nextState = this.components[component].states[this.currentStates[component]].getNext(nextEvent);
+        int nextState = this.components[component].getStates()[this.currentStates[component]].getNext(nextEvent);
         this.currentStates[component] = nextState;
 
         return true;

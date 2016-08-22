@@ -1,7 +1,7 @@
 package ltsa.lts.util.collections;
 
 import ltsa.lts.animator.StateCodec;
-import ltsa.lts.operations.composition.StackCheck;
+import ltsa.lts.operations.composition.parallel.StackCheck;
 
 
 /* MyHash is a speciallized Hashtable for the analyser

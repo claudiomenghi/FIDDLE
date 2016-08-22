@@ -4,9 +4,9 @@ import java.util.Collections;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.output.LTSOutput;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import MTSTools.ac.ic.doc.mtstools.model.impl.WeakSemantics;
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
@@ -26,7 +26,7 @@ public class MTSTestUtils extends TestCase {
 
 	public static MTS<Long, String> buildMTSFrom(String sourceString, LTSOutput ltsOuput) throws Exception {
 		CompositeState compositeOriginal = LTSATestUtils.buildCompositeState(sourceString, ltsOuput);
-		MTS<Long, String> originalMTS = AutomataToMTSConverter.getInstance().convert((CompactState) compositeOriginal.getComposition());
+		MTS<Long, String> originalMTS = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) compositeOriginal.getComposition());
 		return originalMTS;
 	}
 

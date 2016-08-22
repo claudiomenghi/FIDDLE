@@ -15,8 +15,8 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import MTSTools.ac.ic.doc.commons.relations.Pair;
 import MTSAClient.ac.ic.doc.mtsa.MTSCompiler;
 import MTSTools.ac.ic.doc.mtstools.model.MTS;
@@ -101,7 +101,7 @@ public class MTSChecker {
 		AutomataToMTSConverter converter = AutomataToMTSConverter.getInstance();
 		
 		Map<String,MTS<Long,String>> MTSs = new HashMap<String,MTS<Long,String>>();
-		for(CompactState automata:(Vector<CompactState>)state.getMachines()) {
+		for(LabelledTransitionSystem automata:(Vector<LabelledTransitionSystem>)state.getMachines()) {
 			MTS<Long,String> mts = converter.convert(automata);
 			MTSs.put(automata.getName(),mts);
 		}
@@ -115,7 +115,7 @@ public class MTSChecker {
 	
 
 	private void loadSemantics() {
-		Set<String> invisibleActions = new HashSet<String>();
+		Set<String> invisibleActions = new HashSet<>();
 		invisibleActions.add("_tau");
 		invisibleActions.add(MTSConstants.TAU);
 		

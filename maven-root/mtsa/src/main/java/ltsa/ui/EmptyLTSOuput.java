@@ -1,6 +1,6 @@
 package ltsa.ui;
 
-import ltsa.lts.parser.LTSOutput;
+import ltsa.lts.output.LTSOutput;
 
 
 public class EmptyLTSOuput implements LTSOutput {

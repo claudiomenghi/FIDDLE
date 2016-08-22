@@ -7,11 +7,11 @@ import ltsa.jung.LTSJUNGCanvas.EnumMode;
 import ltsa.jung.StateVertex;
 import ltsa.jung.TransitionEdge;
 import ltsa.lts.*;
+import ltsa.lts.automata.automaton.event.LTSEvent;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.gui.EventClient;
 import ltsa.lts.gui.EventManager;
-import ltsa.lts.lts.LTSEvent;
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
 
 import org.freehep.graphics2d.VectorGraphics;
 import org.freehep.graphicsio.pdf.PDFGraphics2D;
@@ -52,7 +52,7 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
     String lastName; //name of the last event
     int Nmach = 0;  //the number of machines
     int hasC = 0;   //1 if last machine is composition
-    CompactState [] sm; //an array of machines
+    LabelledTransitionSystem [] sm; //an array of machines
     
     LTSGraph[] graphs; //array of graphs corresponding to a lts
     boolean[] graphValidity; //true for a graph index if it has been generated already and is still valid
@@ -276,9 +276,9 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
 	        if (machine<0 || machine >=Nmach) return;
 	        	
 	        if (singleMode) {
-		        if (stateLimit > 0 && sm[machine].maxStates > stateLimit) {
+		        if (stateLimit > 0 && sm[machine].getMaxStates() > stateLimit) {
 			    	  int o = JOptionPane.showConfirmDialog(getParent(),
-			    			  "The number of states of this LTS ("+sm[machine].maxStates+") is above the set limit of "+stateLimit+".\nDo you want to display it?",
+			    			  "The number of states of this LTS ("+sm[machine].getMaxStates()+") is above the set limit of "+stateLimit+".\nDo you want to display it?",
 			    			  "Limit reached",
 			    			  JOptionPane.YES_NO_OPTION);
 			    	  if (o == JOptionPane.NO_OPTION) {
@@ -300,9 +300,9 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
         		machineLayout.put(machine, layout);
 	        } else {
 	        	if (!machineToDrawSet[machine]) { //toggle between whether to draw or remove the machine in multiple display mode
-	    	        if (stateLimit > 0 && sm[machine].maxStates > stateLimit) {
+	    	        if (stateLimit > 0 && sm[machine].getMaxStates() > stateLimit) {
 	    	        	int o = JOptionPane.showConfirmDialog(getParent(),
-	  		    			  "The number of states of this LTS ("+sm[machine].maxStates+") is above the set limit of "+stateLimit+".\nDo you want to display it?",
+	  		    			  "The number of states of this LTS ("+sm[machine].getMaxStates()+") is above the set limit of "+stateLimit+".\nDo you want to display it?",
 	  		    			  "Limit reached",
 	  		    			  JOptionPane.YES_NO_OPTION);
 	    	        	if (o == JOptionPane.NO_OPTION) {
@@ -413,7 +413,7 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
     	if (graphValidity != null && graphValidity[machine]) {
     		return graphs[machine];
     	} else {
-     		final CompactState lts = sm[machine];
+     		final LabelledTransitionSystem lts = sm[machine];
     		
     		final LTSGraph g = new LTSGraph(lts);
 
@@ -440,16 +440,16 @@ public class LTSLayoutWindow extends JSplitPane implements EventClient {
 	 */
 	@SuppressWarnings("unchecked")
 	private void new_machines(CompositeState cs) {
-	  	hasC = (cs!=null && cs.composition!=null)?1:0;
-	  	if (cs !=null && cs.machines !=null && cs.machines.size()>0) { // get set of machines
-			sm = new CompactState[cs.machines.size()+hasC];
+	  	hasC = (cs!=null && cs.getComposition()!=null)?1:0;
+	  	if (cs !=null && cs.getMachines() !=null && cs.getMachines().size()>0) { // get set of machines
+			sm = new LabelledTransitionSystem[cs.getMachines().size()+hasC];
 			
-			final Enumeration<CompactState> e = cs.machines.elements();
+			final Enumeration<LabelledTransitionSystem> e = cs.getMachines().elements();
 			for(int i=0; e.hasMoreElements(); i++)
-				sm[i] = (CompactState)e.nextElement();
+				sm[i] = (LabelledTransitionSystem)e.nextElement();
 			Nmach = sm.length;
 			if (hasC==1)
-				sm[Nmach-1]=cs.composition;
+				sm[Nmach-1]=cs.getComposition();
 			machineHasAction = new boolean[Nmach];
 			machineToDrawSet = new boolean[Nmach];
 			machineLayout = new HashMap<Integer,EnumLayout>();

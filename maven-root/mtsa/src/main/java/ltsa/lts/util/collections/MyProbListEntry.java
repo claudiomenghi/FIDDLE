@@ -3,7 +3,7 @@ package ltsa.lts.util.collections;
 import java.math.BigDecimal;
 
 
-public class MyProbListEntry extends MyListEntry {
+public class MyProbListEntry extends MyTransitionListEntry {
 	int bundle;
 	BigDecimal prob;
 

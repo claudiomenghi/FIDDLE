@@ -2,7 +2,7 @@ package MTSATests.controller;
 
 import static MTSAClient.ac.ic.doc.mtsa.MTSCompiler.getInstance;
 import static org.junit.Assert.assertTrue;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.CompositeState;
 
 import org.junit.Test;
 

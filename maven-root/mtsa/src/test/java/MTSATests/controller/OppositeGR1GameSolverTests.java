@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.Vector;
 
-import ltsa.lts.ltscomposition.CompactState;
-import ltsa.lts.ltscomposition.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.automata.lts.state.CompositeState;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -107,18 +107,18 @@ public class OppositeGR1GameSolverTests {
 				System.out.println("no safetyRequirement");
 			else {
 				CompositeState safetyComposite = new CompositeState(
-						"safetyComposite", new Vector<CompactState>());
+						"safetyComposite", new Vector<LabelledTransitionSystem>());
 				for (LTS<Long, String> safetyReq : safetyReqs) {
-					safetyComposite.machines.add(MTSToAutomataConverter
+					safetyComposite.getMachines().add(MTSToAutomataConverter
 							.getInstance().convert(new MTSAdapter(safetyReq),
 									"safety_automata"));
 				}
-				safetyComposite.machines.add(MTSToAutomataConverter
+				safetyComposite.getMachines().add(MTSToAutomataConverter
 						.getInstance().convert(new MTSAdapter(env),
 								"environment"));
 				safetyComposite.compose(new StandardOutput());
 				env = new LTSAdapter<Long, String>(AutomataToMTSConverter
-						.getInstance().convert(safetyComposite.composition),
+						.getInstance().convert(safetyComposite.getComposition()),
 						TransitionType.POSSIBLE);
 			}
 

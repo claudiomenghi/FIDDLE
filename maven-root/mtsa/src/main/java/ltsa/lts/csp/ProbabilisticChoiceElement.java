@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ltsa.lts.lts.ProbabilisticTransition;
-import ltsa.lts.lts.StateMachine;
-import ltsa.lts.parser.ActionLabels;
+import ltsa.lts.automata.automaton.StateMachine;
+import ltsa.lts.automata.probabilistic.ProbabilisticTransition;
 import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.Symbol;
+import ltsa.lts.parser.actions.ActionLabels;
 
 /* ----------------------------------------------------------------------- */
 public class ProbabilisticChoiceElement extends ChoiceElement {
