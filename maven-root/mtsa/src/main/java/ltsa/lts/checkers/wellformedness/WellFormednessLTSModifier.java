@@ -168,8 +168,9 @@ public class WellFormednessLTSModifier {
 			Map<String, LabelledTransitionSystem> mapBoxPostCondition)
 			throws InternalError {
 		LabelledTransitionSystem machinePostCondition;
-		output.outln("\t \t post condition: " + postCondition);
 
+		output.outln("\t \t post condition: " + postCondition);
+		System.out.println("processing the post condition: "+postCondition);
 		machinePostCondition = mapBoxPostCondition.get(box);
 
 		Set<String> postConditionCharacters = new HashSet<>(

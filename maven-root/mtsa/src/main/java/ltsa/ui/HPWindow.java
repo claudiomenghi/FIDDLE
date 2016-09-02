@@ -114,6 +114,7 @@ import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.Analyser;
 import ltsa.lts.checkers.ProgressCheck;
+import ltsa.lts.checkers.substitutability.SubstitutabilityChecker;
 import ltsa.lts.csp.CompositionExpression;
 import ltsa.lts.csp.MenuDefinition;
 import ltsa.lts.csp.ProcessSpec;
@@ -125,10 +126,9 @@ import ltsa.lts.gui.RandomSeedDialog;
 import ltsa.lts.gui.RunMenu;
 import ltsa.lts.gui.SuperTrace;
 import ltsa.lts.ltl.AssertDefinition;
+import ltsa.lts.ltl.PostconditionDefinition;
 import ltsa.lts.ltl.PreconditionDefinition;
 import ltsa.lts.ltl.formula.factory.FormulaFactory;
-import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
-import ltsa.lts.operations.composition.sequential.SequentialCompositionEngine;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
 import ltsa.lts.parser.PostconditionDefinitionManager;
@@ -2136,6 +2136,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		Preconditions.checkNotNull(postcondition,
 				"The precondition cannot be null");
 
+		// preparing the postcondition
+		PostconditionDefinitionManager postDefMan = this.comp
+				.getPostconditionDefinitionManager();
+
+		PostconditionDefinition post = postDefMan.getpostConditions().get(
+				postcondition);
+
 		clearOutput();
 		if (compileIfChange() && current != null) {
 
@@ -2146,7 +2153,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				this.displayError(new LTSException(
 						"No sub-design found for the component: " + box));
 			} else {
-
 				String replacementProcessName = LTSCompiler.mapBoxReplacementName
 						.get(box);
 
@@ -2156,100 +2162,29 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 									+ replacementProcessName));
 				} else {
 
-					this.outln("REPLACEMENT: " + replacementProcessName
-							+ " transformed into a compact state");
-
-					LabelledTransitionSystem replacementLTS = comp
+					LabelledTransitionSystem subControllerLTS = comp
 							.getProcessCompactStateByName(replacementProcessName);
-					replacementLTS.setName(replacementProcessName);
-
-					replacementLTS.setName(replacementProcessName);
-					current.addMachine(replacementLTS);
+					subControllerLTS.setName(replacementProcessName);
+					current.addMachine(subControllerLTS);
 
 					PreconditionDefinition precondition = LTSCompiler.preconditionDefinitionManager
 							.getPrecondition(process, box);
 
-					// transform pre-condition in LTS
-					LabelledTransitionSystem preConditionLTS = transformPreconditioninLTS(
-							process, box, environment, replacementLTS,
-							precondition);
-
-					current.addMachine(preConditionLTS);
-
-					// integrating the post-condition and the replacement
-					LabelledTransitionSystem preconditionPlusReplacement = new SequentialCompositionEngine()
-							.apply(LTLf2LTS.initSymbol.getValue(),
-									preConditionLTS, replacementLTS);
-
-					current.addMachine(preconditionPlusReplacement);
-					int endEventIndex = preconditionPlusReplacement
-							.addEvent(LTLf2LTS.endSymbol.getValue());
-					// add end selfLoopTransition
-					preconditionPlusReplacement.getFinalStateIndexes().forEach(
-							inded -> preconditionPlusReplacement.addTransition(
-									inded, endEventIndex, inded));
-
-					this.outln("MACHINE: "
-							+ preconditionPlusReplacement.getName()
-							+ " of the sequential composition between the precondition and the replacement loaded");
-					// compute the composition between the
-					// preconditionPlusReplacement
-					// and the environment
-
-					Vector<LabelledTransitionSystem> machines = new Vector<>();
-					machines.add(preconditionPlusReplacement);
-					machines.add(environment);
-					CompositeState environmentParallelPrePlusReplacement = new CompositeState(
-							machines);
-					environmentParallelPrePlusReplacement.compose(this);
-
-					// TODO: add end labeled transition over the final states of
-					// the
-					// replacement
-					// preparing the postcondition
-					PostconditionDefinitionManager postDefMan = this.comp
-							.getPostconditionDefinitionManager();
-					CompositeState ltlPostCondition = postDefMan
-							.compilePostConditionForReplacementChecking(
-									this,
-									Arrays.asList(environmentParallelPrePlusReplacement
-											.getComposition().getAlphabet()),
-									postcondition);
-					ltlPostCondition.setName(postcondition);
-
-					ltlPostCondition.compose(new EmptyLTSOuput());
-					current.addMachine(ltlPostCondition.getComposition());
-					this.outln("POST-CONDTION: " + postcondition
-							+ " transformed into a compact state");
-
-					environmentParallelPrePlusReplacement.checkLTL(this,
-							ltlPostCondition);
-
-					current.addMachine(environmentParallelPrePlusReplacement
-							.getComposition());
+					SubstitutabilityChecker ck = new SubstitutabilityChecker(
+							environment, subControllerLTS, precondition.getFormula(true), precondition.getName(), post.getFormula(true),
+							post.getName(),
+							this);
+					ck.check();
+					current.addMachine(ck.getPreconditionLTS());
+					current.addMachine(ck.getPreconditionPlusReplacementLTS());
+					current.addMachine(ck.getPostConditionLTS());
+					current.addMachine(ck
+							.getEnvironmentParallelPrePlusReplacement());
 					postState(current);
+
 				}
 			}
 		}
-	}
-
-	private LabelledTransitionSystem transformPreconditioninLTS(String process,
-			String box, LabelledTransitionSystem environment,
-			LabelledTransitionSystem replacementLTS,
-			PreconditionDefinition precondition) {
-		String preconditionName = LTSCompiler.preconditionDefinitionManager
-				.getPreconditionName(process, box);
-		// transform the precondition in an automaton
-		System.out.println("Transformed formula: "
-				+ precondition.getFormula(true));
-
-		List<String> ltsAlphabet = new ArrayList<>(
-				environment.getAlphabetCharacters());
-		LabelledTransitionSystem preConditionLTS = new LTLf2LTS()
-				.toLTSForPostChecking(precondition.getFormula(true),
-						new EmptyLTSOuput(), ltsAlphabet, preconditionName);
-
-		return preConditionLTS;
 	}
 
 	private void precondition() {
@@ -2269,7 +2204,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				+ current.getComposition().getStates().length
 				+ "\t transitions: "
 				+ current.getComposition().getTransitionNumber());
-		
+
 		System.out.println("PROPERTY TO BE CHECHED: states: "
 				+ ltlProperty.getComposition().getStates().length
 				+ "\t transitions: "

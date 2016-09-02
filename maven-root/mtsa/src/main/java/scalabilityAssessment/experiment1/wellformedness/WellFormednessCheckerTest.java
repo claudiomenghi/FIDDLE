@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -24,36 +25,35 @@ import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.PredicateDefinition;
 import ltsa.lts.ltl.formula.Formula;
-import ltsa.lts.ltl.formula.Proposition;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
-import ltsa.lts.ltl.toba.LTL2BA;
 import ltsa.lts.parser.Def;
-import ltsa.lts.parser.PostconditionDefinitionManager;
-import ltsa.lts.parser.PreconditionDefinitionManager;
-import ltsa.lts.parser.Symbol;
 import ltsa.lts.parser.actions.LabelSet;
 import ltsa.ui.EmptyLTSOuput;
+import ltsa.ui.StandardOutput;
+import scalabilityAssessment.modelgenerator.ModelConfiguration;
 import scalabilityAssessment.modelgenerator.RandomControllerGenerator;
 import scalabilityAssessment.modelgenerator.RandomLTSGenerator;
-import scalabilityAssessment.modelgenerator.Size;
 import scalabilityAssessment.postconditiongenerator.PostConditionGenerator;
 import scalabilityAssessment.preconditionGenerator.PreconditionGenerator;
-import scalabilityAssessment.propertygenerator.PropertyGenerator;
 
 public class WellFormednessCheckerTest implements Callable<Void> {
 
 	public static final SimpleDateFormat time_formatter = new SimpleDateFormat(
 			"HH:mm:ss.SSS");
 
-	private Size[] sizes = Size.values();
-
 	private File outputFile;
 
 	private int testNumber;
 
-	public WellFormednessCheckerTest(File outputFile, int testNumber) {
+	private final ModelConfiguration c;
+	private final int propertyOfInterest;
+
+	public WellFormednessCheckerTest(File outputFile, int testNumber,
+			ModelConfiguration size, int propertyOfInterest) {
 		this.outputFile = outputFile;
 		this.testNumber = testNumber;
+		this.c = size;
+		this.propertyOfInterest = propertyOfInterest;
 	}
 
 	@Override
@@ -62,112 +62,114 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 		long start;
 		long end;
 
-		int propertyOfInterest = 1;
+		int num = 0;
+
+		System.out.println("Number of configurations environment" + num);
+
 		int postConditionOfInterest = 0;
 
-		for (int i = 0; i < sizes.length; i++) {
+		try {
+			Def.init();
+			PredicateDefinition.init();
+			AssertDefinition.init();
+			TriggeredScenarioDefinition.init();
+			ControllerDefinition.init();
+			LabelSet.constants = new Hashtable<>();
+			ControllerGoalDefinition.init();
+			ControlStackDefinition.initDefinitionList();
+			DistributionDefinition.init();
 
-			try {
-				Def.init();
-				PredicateDefinition.init();
-				AssertDefinition.init();
-				TriggeredScenarioDefinition.init();
-				ControllerDefinition.init();
-				LabelSet.constants = new Hashtable<>();
-				ControllerGoalDefinition.init();
-				ControlStackDefinition.initDefinitionList();
-				DistributionDefinition.init();
+			Writer outputWriter = new FileWriter(outputFile, true);
 
-				Writer outputWriter = new FileWriter(outputFile, true);
+			int numberOfStates = c.getStatesEnviromnet();
+			System.out.println("__________________________________________");
+			System.out.println("STATES: " + numberOfStates);
 
-				int numberOfStates = sizes[i].getNumberOfStates();
-				System.out
-						.println("__________________________________________");
-				System.out.println("STATES: " + numberOfStates);
+			printMessage("Generating the environment.....");
+			start = System.currentTimeMillis();
+			LabelledTransitionSystem environment = new RandomLTSGenerator(
+					c.getStatesEnviromnet(), c.getEventsEnvironment(),
+					c.getTransitionPerStateEnvironment())
+					.getRandomLTS("ENVIRONMENT");
+			end = System.currentTimeMillis();
+			printMessage("END- Environment generated in:", start, end);
+			List<String> eventsEnvironment = new ArrayList<>(
+					environment.getAlphabetCharacters());
 
-				printMessage("Generating the environment.....");
-				start = System.currentTimeMillis();
-				LabelledTransitionSystem environment = new RandomLTSGenerator(
-						sizes[i].getNumberOfStates(),
-						sizes[i].getNumberOfEvents(),
-						sizes[i].getTransitionsPerState())
-						.getRandomLTS("ENVIRONMENT");
-				end = System.currentTimeMillis();
-				printMessage("END- Environment generated in:", start, end);
-				String event1 = environment.getAlphabetCharacters().get(0);
-				String event2 = environment.getAlphabetCharacters().get(1);
-				printMessage("Generating the partial controller.....");
-				start = System.currentTimeMillis();
-				LabelledTransitionSystem partialController = new RandomControllerGenerator()
-						.getComponent(sizes[i]);
+			Collections.shuffle(eventsEnvironment);
 
-				List<String> alphabet = new ArrayList<>();
-				alphabet.addAll(environment.getAlphabetCharacters());
-				alphabet.addAll(partialController.getAlphabetCharacters());
+			printMessage("Generating the partial controller.....");
+			start = System.currentTimeMillis();
+			LabelledTransitionSystem partialController = new RandomControllerGenerator()
+					.getComponent(c);
 
-				end = System.currentTimeMillis();
-				printMessage("END- Partial controller generated in: ", start,
-						end);
+			List<String> alphabet = new ArrayList<>();
+			alphabet.addAll(environment.getAlphabetCharacters());
+			alphabet.addAll(partialController.getAlphabetCharacters());
 
-				String boxOfInterest = partialController.getBoxIndexes()
-						.keySet().iterator().next();
+			end = System.currentTimeMillis();
+			printMessage("END- Partial controller generated in: ", start, end);
 
-				PostConditionGenerator postConditionGen = new PostConditionGenerator(
-						new ArrayList<>(
-								partialController.mapBoxInterface
-										.get(boxOfInterest)), event1, event2);
-				Formula postConditionFormula = postConditionGen.getFormulae()
-						.get(postConditionOfInterest);
+			String boxOfInterest = partialController.getBoxIndexes().keySet()
+					.iterator().next();
 
-				printMessage("Converting the post condition in automaton....");
-				start = System.currentTimeMillis();
-				Map<String, LabelledTransitionSystem> mapBoxPostCondition = new HashMap<>();
-				System.out.println("post-condition size.. "+partialController.mapBoxInterface
-				.get("box").size());
-				LabelledTransitionSystem postConditionLTS = new LTLf2LTS()
-						.toLTS(postConditionFormula,
-								new EmptyLTSOuput(),
-								new ArrayList<>(
-										partialController.mapBoxInterface
-												.get("box")), "post");
-				end = System.currentTimeMillis();
-				long step1ConvertionOfThePostCondition = end - start;
-				printMessage("END- Post condition converted in: ", start, end);
+			List<String> controllerAlphabet = new ArrayList<>(
+					partialController.mapBoxInterface.get(boxOfInterest));
+			Collections.shuffle(controllerAlphabet);
+			String event1 = controllerAlphabet.get(0);
+			String event2 = controllerAlphabet.get(1);
 
-				mapBoxPostCondition.put(boxOfInterest, postConditionLTS);
+			PostConditionGenerator postConditionGen = new PostConditionGenerator(
+					new ArrayList<>(
+							partialController.mapBoxInterface
+									.get(boxOfInterest)), event1, event2);
+			Formula postConditionFormula = postConditionGen.getFormulae().get(
+					postConditionOfInterest);
 
-				start = System.currentTimeMillis();
-				partialController = new WellFormednessLTSModifier(
-						new EmptyLTSOuput()).modify(partialController,
-						mapBoxPostCondition, true, boxOfInterest);
-				end = System.currentTimeMillis();
-				long step2Integration = end - start;
-				printMessage("Integrating post in partial controller: ", start,
-						end);
+			printMessage("Converting the post condition in automaton....");
+			start = System.currentTimeMillis();
+			Map<String, LabelledTransitionSystem> mapBoxPostCondition = new HashMap<>();
+			System.out.println("post-condition size.. "
+					+ partialController.mapBoxInterface.get("box").size());
 
-				printMessage("Transforming the pre....");
-				start = System.currentTimeMillis();
+			LabelledTransitionSystem postConditionLTS = new LTLf2LTS().toLTS(
+					postConditionFormula, new EmptyLTSOuput(), new ArrayList<>(
+							partialController.mapBoxInterface.get("box")),
+					"post");
+			end = System.currentTimeMillis();
+			long step1ConvertionOfThePostCondition = end - start;
+			printMessage("END- Post condition converted in: ", start, end);
 
-				PropertyGenerator pg = new PropertyGenerator(
-						environment.getAlphabetCharacters(), event1, event2);
-				Formula ltlFormula = pg.getFormulae().get(propertyOfInterest);
+			mapBoxPostCondition.put(boxOfInterest, postConditionLTS);
 
-				// long verificationTime = checkFinalController(environment,
-				// partialController, ltlFormula);
+			start = System.currentTimeMillis();
+			partialController = new WellFormednessLTSModifier(
+					new EmptyLTSOuput()).modify(partialController,
+					mapBoxPostCondition, true, boxOfInterest);
+			end = System.currentTimeMillis();
+			long step2Integration = end - start;
+			printMessage("Integrating post in partial controller: ", start, end);
 
-				checkWellFormedness(start, outputWriter, numberOfStates,
-						environment, event1, event2, partialController,
-						alphabet, step1ConvertionOfThePostCondition,
-						step2Integration, 1);
+			printMessage("Transforming the pre....");
+			start = System.currentTimeMillis();
 
-				outputWriter.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			/*
+			 * LabelledTransitionSystem partialController = new
+			 * RandomLTSGenerator( c.getStatesController(),
+			 * c.getEventsController(), c.getTransitionsPerStateController())
+			 * .getRandomLTS("CONTROLLER");
+			 */
+			checkWellFormedness(start, outputWriter, numberOfStates,
+					environment, event1, event2, partialController, alphabet,
+					step1ConvertionOfThePostCondition, step2Integration,
+					propertyOfInterest, c);
+
+			outputWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
-
 	}
 
 	private void checkWellFormedness(long start, Writer outputWriter,
@@ -175,15 +177,25 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 			String event1, String event2,
 			LabelledTransitionSystem partialController, List<String> alphabet,
 			long step1ConvertionOfThePostCondition, long step2Integration,
-			int propertyOfInterest) throws IOException {
+			int propertyOfInterest, ModelConfiguration c) throws IOException {
 		long end;
-		Formula fltlPrecondition = new PreconditionGenerator(alphabet, event1,
-				event2).getFormulae().get(propertyOfInterest);
+		List<String> newAlphaPre = new ArrayList<>(alphabet);
+		newAlphaPre.remove(event1);
+		newAlphaPre.remove(event2);
+		Formula fltlPrecondition = new PreconditionGenerator(newAlphaPre,
+				event1, event2).getFormulae().get(propertyOfInterest);
 		System.out.println(fltlPrecondition);
-		CompositeState precondition = new LTLf2LTS()
-				.toProperty(fltlPrecondition, new EmptyLTSOuput(), alphabet,
-						"precondition");
+		// TODO change
+		CompositeState precondition = new LTLf2LTS().toProperty(
+				fltlPrecondition, new EmptyLTSOuput(), newAlphaPre,
+				"precondition");
+		// CompositeState precondition = new LTL2BA(new EmptyLTSOuput())
+		// .getCompactState("property", fltlPrecondition, new Vector<>(
+		// newAlphaPre));
 
+		// CompositeState precondition =new
+		// LTLf2LTS().toPropertyWithInit(fltlPrecondition, new EmptyLTSOuput(),
+		// newAlphaPre, "AAA");
 		System.out.println("DIMENSION of the precondition: states: "
 				+ precondition.getComposition().getStates().length
 				+ " transitions: "
@@ -198,13 +210,19 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 		CompositeState system = new CompositeState(machines);
 
 		String environmentSize = "environment states:"
-				+ environment.getStates().length;
+				+ environment.getStates().length + " transitions: "
+				+ environment.getTransitionNumber();
+
 		String controllerSize = "partial controller states:"
-				+ partialController.getStates().length
-				+ " partial controller transitions: "
+				+ partialController.getStates().length + "  transitions: "
 				+ partialController.getTransitionNumber();
+		String propertySize = "property states: "
+				+ precondition.getComposition().getStates().length
+				+ " property transitions: "
+				+ precondition.getComposition().getTransitionNumber();
+
 		printMessage("Well-formedness checker....\t" + environmentSize + "\t"
-				+ controllerSize);
+				+ controllerSize + "\t" + propertySize);
 
 		start = System.currentTimeMillis();
 		system.checkLTL(new EmptyLTSOuput(), precondition);
@@ -215,63 +233,21 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 		long wellFormednessChecking = step1ConvertionOfThePostCondition
 				+ step2Integration + loadingThePrecondition + checkingThePre;
 
-		outputWriter.write(testNumber + "\t" + numberOfStates + "\t"
-				+ wellFormednessChecking + "\t"
+		outputWriter.write("P" + propertyOfInterest + "\t" + testNumber + "\t"
+				+ c.toString() + "\t" + environment.getStates().length + "\t"
+				+ environment.getTransitionNumber() + "\t"
+				+ partialController.getStates().length + "\t"
+				+ partialController.getTransitionNumber() + "\t"
+				+ precondition.getComposition().getStates().length + "\t"
+				+ precondition.getComposition().getTransitionNumber() + "\t"
 				+ step1ConvertionOfThePostCondition + "\t" + step2Integration
-				+ "\t" + (loadingThePrecondition + checkingThePre) + "\n");
+				+ "\t" + (loadingThePrecondition + checkingThePre) + "\t"
+				+ wellFormednessChecking + "\n");
 
-		System.out.println(testNumber + "\t" + numberOfStates + "\t"
-				+ wellFormednessChecking + "\t"
+		System.out.println("P" + propertyOfInterest + "\t" + testNumber + "\t"
+				+ c.toString() + "\t" + wellFormednessChecking + "\t"
 				+ step1ConvertionOfThePostCondition + "\t" + step2Integration
 				+ "\t" + (loadingThePrecondition + checkingThePre));
-	}
-
-	private long checkFinalController(LabelledTransitionSystem environment,
-			LabelledTransitionSystem finalController, Formula ltlFormula) {
-		
-
-		long start;
-		long end;
-		Vector<LabelledTransitionSystem> machines = new Vector<>();
-		machines.add(environment);
-		machines.add(finalController);
-
-		CompositeState system = new CompositeState(machines);
-
-		System.out.println(time_formatter.format(System.currentTimeMillis())
-				+ "-Converting the properties into a LTS.....");
-		start = System.currentTimeMillis();
-		CompositeState formula = new LTL2BA(new EmptyLTSOuput())
-				.getCompactState("property", ltlFormula,
-						system.getComponentAlphabet());
-		System.out.println("DIMENSION: "
-				+ formula.getComposition().getStates().length);
-
-		System.out.println("DIMENSION of the formula: states: "
-				+ formula.getComposition().getStates().length
-				+ " transitions: "
-				+ formula.getComposition().getTransitionNumber());
-		
-		end = System.currentTimeMillis();
-		long propertyConvertionTime = (end - start);
-		System.out.println("END- Properties convertend in: "
-				+ propertyConvertionTime);
-
-		String environmentSize = "environment states: "
-				+ environment.getStates().length+" environment transitions: "+environment.getTransitionNumber();
-		String controllerSize = "controller states: "
-				+ finalController.getStates().length+" controller transitions: "+finalController.getTransitionNumber();
-		System.out.println(time_formatter.format(System.currentTimeMillis())
-				+ "-Checking the properties...." + environmentSize + "\t"
-				+ controllerSize);
-		start = System.currentTimeMillis();
-		system.checkLTL(new EmptyLTSOuput(), formula);
-		end = System.currentTimeMillis();
-		System.out.println("END- Properties checked into: " + ((end - start))
-				+ "s");
-		long verification = (end - start);
-		return propertyConvertionTime + verification;
-
 	}
 
 	private void printMessage(String message) {

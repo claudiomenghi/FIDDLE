@@ -27,7 +27,6 @@ public class RandomLTSGenerator {
 		this.numberOfStates = numberOfStates;
 		this.numberOfEvents = numberOfEvents;
 		this.transitionPerstates = transitionsPerStates;
-		System.out.println("Transition per state "+transitionsPerStates);
 	}
 
 	public LabelledTransitionSystem getRandomLTS(String name) {

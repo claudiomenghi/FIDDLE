@@ -9,19 +9,19 @@ import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 
 public class RandomControllerGenerator {
 
-	public LabelledTransitionSystem getComponent(Size size) {
+	public LabelledTransitionSystem getComponent(ModelConfiguration size) {
 
 		LabelledTransitionSystem ltsCopy = new RandomLTSGenerator(
-				size.getControllerStates(), size.getControllerEvents(),size.getTransitionsPerState())
-				.getRandomLTS("CONTROLLER");
+				size.getStatesController(), size.getEventsController(),
+				size.getTransitionsPerStateController()).getRandomLTS("CONTROLLER");
 
 		int boxIndex = new Random().nextInt(ltsCopy.getStates().length);
 
 		List<String> events = new ArrayList<>(ltsCopy.getAlphabetCharacters());
-		List<String> interfaceBox = events.subList(0, size.getControllerEventInterface());
+		List<String> interfaceBox = events.subList(0,
+				size.getEventsControllerInterface());
 		ltsCopy.addBoxIndex("box", boxIndex);
-		ltsCopy.mapBoxInterface.put("box",
-				new HashSet<>(interfaceBox));
+		ltsCopy.mapBoxInterface.put("box", new HashSet<>(interfaceBox));
 
 		return ltsCopy;
 	}

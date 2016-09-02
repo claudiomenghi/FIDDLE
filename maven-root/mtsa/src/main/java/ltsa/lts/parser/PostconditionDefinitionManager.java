@@ -1,12 +1,10 @@
 package ltsa.lts.parser;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
@@ -15,14 +13,8 @@ import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.ltl.FormulaSyntax;
 import ltsa.lts.ltl.PostconditionDefinition;
-import ltsa.lts.ltl.PredicateDefinition;
-import ltsa.lts.ltl.formula.Formula;
-import ltsa.lts.ltl.formula.factory.FormulaFactory;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.output.LTSOutput;
-import ltsa.lts.parser.actions.ActionLabels;
-import ltsa.lts.parser.actions.ActionName;
-import ltsa.lts.parser.actions.ActionSetExpr;
 import ltsa.lts.parser.actions.LabelSet;
 
 import com.google.common.base.Preconditions;
@@ -86,7 +78,7 @@ public class PostconditionDefinitionManager {
 		mapProcessBoxes.get(process).add(box);
 
 		if (postconditions.put(postConditionName.toString(),
-				new PostconditionDefinition(postConditionName, f, ls, ip, p,
+				new PostconditionDefinition(postConditionName.getValue(), postConditionName, f, ls, ip, p,
 						box)) != null) {
 			Diagnostics.fatal("duplicate preconditions definition: "
 					+ postConditionName, postConditionName);
@@ -158,21 +150,5 @@ public class PostconditionDefinitionManager {
 				output, alphabetCharacters, name);
 	}
 
-	public CompositeState compilePostConditionForReplacementChecking(
-			LTSOutput output, List<String> alphabetCharacters, String name) {
-		Preconditions
-				.checkArgument(
-						postconditions.containsKey(name),
-						"The precondition "
-								+ name
-								+ " is not contained into the set of the preconditions");
-
-		PostconditionDefinition post = postconditions.get(name);
-		FormulaFactory formulaFactory = post.getFac();
-		Formula postConditionFormula = formulaFactory.getFormula();
-
-		return new LTLf2LTS().toPropertyWithInit(postConditionFormula, output,
-				alphabetCharacters, name);
-	}
 
 }

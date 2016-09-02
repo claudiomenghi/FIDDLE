@@ -25,25 +25,23 @@ public class PropertyGenerator {
 		alphabetNew.remove(event1);
 		this.makePredicate(event1, alphabetNew);
 
-		Formula finalAndFormula = generateP1(alphabet);
-		returnFormulae.add(finalAndFormula);
+		alphabetNew = new ArrayList<>(alphabet);
+		alphabetNew.remove(event2);
+		this.makePredicate(event2, alphabetNew);
 
-		Formula p2 = generateP2(alphabet);
-		returnFormulae.add(p2);
+		// EXPERIMENT 1
+		// Formula p1 = generateP1(alphabet);
+		// returnFormulae.add(p1);
 
-		/*
-		 * Formula p3 = generateP3(formulaFactory); finalAndFormula =
-		 * formulaFactory.makeAnd(finalAndFormula, p3);
-		 * returnFormulae.add(newFormula);
-		 * 
-		 * newFormula = generateP4(formulaFactory); finalAndFormula =
-		 * formulaFactory.makeAnd(finalAndFormula, newFormula);
-		 * returnFormulae.add(newFormula);
-		 * 
-		 * newFormula = generateP5(formulaFactory); finalAndFormula =
-		 * formulaFactory.makeAnd(finalAndFormula, newFormula);
-		 * returnFormulae.add(newFormula);
-		 */
+		// Formula p2 = generateP2(alphabet);
+		// returnFormulae.add(p2);
+
+		// Formula p3 = generateP3(alphabet);
+		// returnFormulae.add(p3);
+
+		// THREATS TO VALIDITY
+		Formula p4 = generateP4(alphabet);
+		returnFormulae.add(p4);
 
 	}
 
@@ -58,26 +56,53 @@ public class PropertyGenerator {
 		return Collections.unmodifiableList(returnFormulae);
 	}
 
+	// [](!Q) | <>(Q & <>P))
 	private Formula generateP1(List<String> alphabet) {
 		FormulaFactory formulaFactory = new FormulaFactory();
-		Formula ap = formulaFactory.make(new Symbol("F_" + event1,
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
 				Symbol.UPPERIDENT));
-		return formulaFactory.makeEventually(ap);
+
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
+				Symbol.UPPERIDENT));
+		return formulaFactory.makeOr(formulaFactory.makeAlways(formulaFactory
+				.makeNot(ap1)), formulaFactory.makeEventually(formulaFactory
+				.makeAnd(ap1, formulaFactory.makeEventually(ap2))));
+
+		// formulaFactory.makeEventually(ap1);
 
 	}
 
 	// p is false before r <>R -> (!P U R)
 	private Formula generateP2(List<String> alphabet) {
 		FormulaFactory formulaFactory = new FormulaFactory();
-		Formula ap1 = formulaFactory.make(new Symbol("F_" +event1,
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
 				Symbol.UPPERIDENT));
-		Formula ap2 = formulaFactory.make(new Symbol("F_" +event1,
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
 				Symbol.UPPERIDENT));
-		return 
-				formulaFactory.makeImplies(
-				formulaFactory.makeEventually(ap1),
+		return formulaFactory.makeImplies(formulaFactory.makeEventually(ap1),
 				formulaFactory.makeUntil(formulaFactory.makeNot(ap2), ap1));
-		
+
+	}
+
+	private Formula generateP3(List<String> alphabet) {
+		FormulaFactory formulaFactory = new FormulaFactory();
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
+				Symbol.UPPERIDENT));
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
+				Symbol.UPPERIDENT));
+		return formulaFactory.makeAlways(formulaFactory.makeImplies(ap1, ap2));
+
+	}
+
+	private Formula generateP4(List<String> alphabet) {
+		FormulaFactory formulaFactory = new FormulaFactory();
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
+				Symbol.UPPERIDENT));
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
+				Symbol.UPPERIDENT));
+		return formulaFactory.makeEventually(formulaFactory.makeImplies(ap1,
+				formulaFactory.makeAlways(ap2)));
+
 	}
 
 	private void makePredicate(String end, List<String> alphabet) {
@@ -85,10 +110,10 @@ public class PropertyGenerator {
 		Symbol eventSymbol = new Symbol(end, Symbol.UPPERIDENT);
 		Symbol fluentEventSymbol = new Symbol("F_" + eventSymbol.getValue(),
 				Symbol.UPPERIDENT);
-		List<String> alphabet2=new ArrayList<>();
+		List<String> alphabet2 = new ArrayList<>();
 		alphabet2.add(alphabet.get(0));
 		PredicateDefinition.makePredicate(new EmptyLTSOuput(),
-				fluentEventSymbol, eventSymbol,alphabet2);
+				fluentEventSymbol, eventSymbol, alphabet2);
 
 	}
 

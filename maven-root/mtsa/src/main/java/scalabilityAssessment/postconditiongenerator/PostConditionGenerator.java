@@ -7,7 +7,6 @@ import java.util.List;
 import ltsa.lts.ltl.PredicateDefinition;
 import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.ltl.formula.factory.FormulaFactory;
-import ltsa.lts.ltl.visitors.FiniteFormulaGeneratorVisitor;
 import ltsa.lts.parser.Symbol;
 import ltsa.ui.EmptyLTSOuput;
 
@@ -17,31 +16,37 @@ public class PostConditionGenerator {
 	private final String event1;
 	private final String event2;
 
-	public PostConditionGenerator(List<String> alphabet, String event1, String event2) {
+	public PostConditionGenerator(List<String> alphabet, String event1,
+			String event2) {
+		this.event1 = event1;
+		this.event2 = event2;
+
 		this.makePredicate("end", alphabet);
 
-		List<String> alphabetNew=new ArrayList<>(alphabet);
+		List<String> alphabetNew = new ArrayList<>(alphabet);
 		alphabetNew.remove(event1);
 		this.makePredicate(event1, alphabetNew);
+		alphabetNew = new ArrayList<>(alphabet);
+		alphabetNew.remove(event2);
+		this.makePredicate(event2, alphabetNew);
+
 		returnFormulae = new ArrayList<>();
-		this.event1=event1;
-		this.event2=event2;
 		FormulaFactory formulaFactory = new FormulaFactory();
 
-		Formula f1=generateP1(formulaFactory);
-		f1=f1.accept(new FiniteFormulaGeneratorVisitor(formulaFactory, formulaFactory
-				.make(new Symbol("F_end", Symbol.IDENTIFIER))));
-		
-		returnFormulae.add(f1);
-		// returnFormulae.add(generateP2(formulaFactory));
-		// returnFormulae.add(generateP3(formulaFactory));
-		// returnFormulae.add(generateP4(formulaFactory));
-		// returnFormulae.add(generateP5(formulaFactory));
+		// EXPERIMENT 1
+		//Formula f1 = generateP1(formulaFactory);
+		//returnFormulae.add(f1);
 
+		//Formula f2 = generateP2(formulaFactory);
+		//returnFormulae.add(f2);
+
+		//Formula f3 = generateP3(formulaFactory);
+		//returnFormulae.add(f3);
+		// THREATS TO VALIDITY
+		Formula f4 = generateP4(formulaFactory);
+		returnFormulae.add(f4);
 	}
 
-	
-	
 	private void makePredicate(String end, List<String> alphabet) {
 
 		Symbol eventSymbol = new Symbol(end, Symbol.UPPERIDENT);
@@ -65,9 +70,39 @@ public class PostConditionGenerator {
 
 	private Formula generateP1(FormulaFactory formulaFactory) {
 
-		Formula ap = formulaFactory.make(new Symbol("F_" +event1,
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
 				Symbol.UPPERIDENT));
-		return formulaFactory.makeEventually(ap);
+
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
+				Symbol.UPPERIDENT));
+		return formulaFactory.makeEventually(formulaFactory.makeAnd(ap1,
+				formulaFactory.makeEventually(ap2)));
+
 	}
 
+	private Formula generateP2(FormulaFactory formulaFactory) {
+
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
+				Symbol.UPPERIDENT));
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
+				Symbol.UPPERIDENT));
+		return formulaFactory.makeImplies(formulaFactory.makeEventually(ap1),
+				formulaFactory.makeUntil(formulaFactory.makeNot(ap2), ap1));
+	}
+
+	private Formula generateP3(FormulaFactory formulaFactory) {
+
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
+				Symbol.UPPERIDENT));
+		return formulaFactory.makeAlways(formulaFactory.makeNot(ap1));
+	}
+	
+	private Formula generateP4(FormulaFactory formulaFactory) {
+
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
+				Symbol.UPPERIDENT));
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
+				Symbol.UPPERIDENT));
+		return formulaFactory.makeAlways(formulaFactory.makeAnd(ap1, ap2));
+	}
 }

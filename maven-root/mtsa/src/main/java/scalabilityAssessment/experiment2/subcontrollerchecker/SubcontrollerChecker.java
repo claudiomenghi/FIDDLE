@@ -1,4 +1,4 @@
-package scalabilityAssessment.experiment1.modelchecker;
+package scalabilityAssessment.experiment2.subcontrollerchecker;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -12,42 +12,31 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import ltsa.lts.ltl.AssertDefinition;
 import scalabilityAssessment.experiment1.Configuration;
 import scalabilityAssessment.modelgenerator.ConfigurationGenerator;
 import scalabilityAssessment.modelgenerator.ModelConfiguration;
-import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
-import ltsa.lts.parser.Symbol;
 
-public class ModelCheckerExperiment {
-
-	public static final Symbol endSymbol = new Symbol("end", Symbol.UPPERIDENT);
-
-	public static final Symbol endFluent = new Symbol("F_"
-			+ LTLf2LTS.endSymbol.toString(), Symbol.UPPERIDENT);
-
+public class SubcontrollerChecker {
 	public static final SimpleDateFormat time_formatter = new SimpleDateFormat(
 			"HH:mm:ss.SSS");
-
-	private static File outputFile;
 
 	private static Writer outputWriter;
 
 	public static void main(String[] args) throws IOException {
 
-		outputFile = new File(args[0]);
+		File outputFile = new File(args[0]);
 
 		outputWriter = new FileWriter(outputFile);
 
 		outputWriter
-				.write("TESTNUMBER \t NUMBEROFSTATES \t VERIFICATIONTIME(ms) \t WELLFORMEDNESSTIME(ms) \t POSTPROCESSINGTIME(ms) \t INTEGRATIONTIME(ms) \t MODELCHECKINGTIME(ms)\n");
+				.write("TESTNUMBER \t NUMBEROFSTATES \t WELLFORMEDNESSTIME(ms) \t POSTPROCESSINGTIME(ms) \t INTEGRATIONTIME(ms) \t MODELCHECKINGTIME(ms)\n");
 		outputWriter.close();
 		AssertDefinition.init();
 
 		long startOfExperiment = System.currentTimeMillis();
 
 		for (int testNumber = 1; testNumber <= Configuration.numberOfTest; testNumber++) {
-
 			for (int propertyOfInterest = 0; propertyOfInterest < Configuration.numberOfFormulae; propertyOfInterest++) {
 				ConfigurationGenerator configurationGenerator = new ConfigurationGenerator();
 
@@ -61,8 +50,9 @@ public class ModelCheckerExperiment {
 
 					long testStart = System.currentTimeMillis();
 
-					Future<?> future = executor.submit(new ModelCheckerTest(
-							outputFile, testNumber, c, propertyOfInterest));
+					Future<?> future = executor
+							.submit(new SubcontrollerCheckerTest(outputFile,
+									testNumber, c, propertyOfInterest));
 
 					try {
 						future.get(Configuration.timeoutMinutes,
@@ -76,7 +66,7 @@ public class ModelCheckerExperiment {
 						outputWriter = new FileWriter(outputFile, true);
 						outputWriter.write("timeout\n");
 						outputWriter.close();
-						executor.shutdownNow();
+						executor.shutdown();
 					}
 
 					long testEnd = System.currentTimeMillis();
@@ -95,6 +85,6 @@ public class ModelCheckerExperiment {
 				+ (endOfExperiment - startOfExperiment) / 1000 / 60 + "m");
 
 		outputWriter.close();
-	}
 
+	}
 }

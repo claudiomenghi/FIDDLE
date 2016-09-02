@@ -9,11 +9,16 @@ import ltsa.lts.parser.actions.LabelSet;
 
 public class PostconditionDefinition extends FormulaDefinition {
 
-	public PostconditionDefinition(Symbol n, FormulaSyntax f, LabelSet ls,
+	private final String name;
+	public PostconditionDefinition(String name, Symbol n, FormulaSyntax f, LabelSet ls,
 			Hashtable<String, Value> ip, Vector<String> p, String box) {
 		super(n, f, ls, ip, p);
+		this.name=name;
 		this.getFac().setFormula(
 				this.getLTLFormula().expand(this.getFac(), new Hashtable<>(),
 						this.getInitialParams()));
+	}
+	public String getName() {
+		return name;
 	}	
 }

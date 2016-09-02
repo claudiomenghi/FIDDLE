@@ -13,7 +13,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import ltsa.lts.ltl.AssertDefinition;
-import scalabilityAssessment.modelgenerator.Size;
+import scalabilityAssessment.experiment1.Configuration;
+import scalabilityAssessment.modelgenerator.ModelConfiguration;
+import scalabilityAssessment.modelgenerator.ConfigurationGenerator;
 
 public class ExWellFormednessChecker {
 
@@ -22,15 +24,7 @@ public class ExWellFormednessChecker {
 
 	private static Writer outputWriter;
 
-	static int numberOfTest = 20;
-
-	static int timeoutMinutes = 20;
-
 	public static void main(String[] args) throws IOException {
-
-		for (int i = 0; i < Size.values().length; i++) {
-			System.out.println(Size.values()[i].toString());
-		}
 
 		File outputFile = new File(args[0]);
 
@@ -43,36 +37,51 @@ public class ExWellFormednessChecker {
 
 		long startOfExperiment = System.currentTimeMillis();
 
-		for (int testNumber = 1; testNumber <= numberOfTest; testNumber++) {
+		for (int testNumber = 1; testNumber <= Configuration.numberOfTest; testNumber++) {
+			for (int propertyOfInterest = 0; propertyOfInterest < Configuration.numberOfFormulae; propertyOfInterest++) {
+				ConfigurationGenerator configurationGenerator = new ConfigurationGenerator();
 
-			ExecutorService executor = Executors.newSingleThreadExecutor();
-			System.out.println("********************** TEST " + testNumber
-					+ " **********************");
+				while (configurationGenerator.hasNext()) {
+					ModelConfiguration c = configurationGenerator.next();
 
-			long testStart = System.currentTimeMillis();
+					ExecutorService executor = Executors
+							.newSingleThreadExecutor();
+					System.out.println("********************** TEST "
+							+ testNumber + " **********************");
 
-			Future<?> future = executor
-					.submit(new WellFormednessCheckerTest(outputFile, testNumber));
+					long testStart = System.currentTimeMillis();
 
-			try {
-				future.get(timeoutMinutes, TimeUnit.MINUTES);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			} catch (TimeoutException e) {
-				future.cancel(true); // <-- interrupt the job
-				outputWriter = new FileWriter(outputFile, true);
-				outputWriter.write("timeout\n");
-				outputWriter.close();
-				executor.shutdown();
+					Future<?> future = executor
+							.submit(new WellFormednessCheckerTest(outputFile,
+									testNumber, c, propertyOfInterest));
+
+					try {
+						future.get(Configuration.timeoutMinutes,
+								TimeUnit.MINUTES);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						future.cancel(true);
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+						future.cancel(true);
+					} catch (TimeoutException e) {
+						future.cancel(true); // <-- interrupt the job
+						outputWriter = new FileWriter(outputFile, true);
+						outputWriter.write("timeout\n");
+						outputWriter.close();
+						
+					}
+					executor.shutdown();
+
+					long testEnd = System.currentTimeMillis();
+					System.out
+							.println("***************** END: Test performed in: "
+									+ (testEnd - testStart)
+									/ 1000
+									/ 60
+									+ "m *****************");
+				}
 			}
-
-			long testEnd = System.currentTimeMillis();
-			System.out
-					.println("***************** END: Test performed in: "
-							+ (testEnd - testStart) / 1000 / 60
-							+ "m *****************");
 		}
 		long endOfExperiment = System.currentTimeMillis();
 
@@ -80,5 +89,6 @@ public class ExWellFormednessChecker {
 				+ (endOfExperiment - startOfExperiment) / 1000 / 60 + "m");
 
 		outputWriter.close();
+
 	}
 }

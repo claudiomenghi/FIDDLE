@@ -24,7 +24,10 @@ public class IntegratorEngine
 
 		LabelledTransitionSystem secondMachineclone = postConditionMachine
 				.myclone();
-
+		System.out.println("POSTCONDITIONLTS: states: "
+				+ secondMachineclone.getStates().length + 
+				" transitions: "
+				+ secondMachineclone.getTransitionNumber());
 		LabelledTransitionSystem newMachine = new LabelledTransitionSystem("");
 		newMachine.setAlphabet(sharedAlphabet(controllerMachine,
 				secondMachineclone));
@@ -41,21 +44,20 @@ public class IntegratorEngine
 				secondMachineclone)]);
 
 		int offset = 0;
-		copyFirstMachine(newMachine, offset, newMachine.getStates(), controllerMachine,
-				false, boxIndex);
+		copyFirstMachine(newMachine, offset, newMachine.getStates(),
+				controllerMachine, false, boxIndex);
 
 		offset = controllerMachine.getStates().length;
 		LTSTransitionList tauTransition = new LTSTransitionList(0, offset);
 		newMachine.setState(boxIndex, tauTransition);
 
-		copySecondMachine(newMachine, offset, newMachine.getStates(), secondMachineclone,
-				true);
+		copySecondMachine(newMachine, offset, newMachine.getStates(),
+				secondMachineclone, true);
 		newMachine.setEndOfSequence(secondMachineclone.getEndOfSequenceIndex()
 				+ offset);
 
 		// removes the accepting states
 		LTSTransitionList boxList = controllerMachine.getTransitions(boxIndex);
-
 
 		for (Integer index : postConditionMachine.getAccepting()) {
 			newMachine.setState(index + offset,
@@ -66,6 +68,17 @@ public class IntegratorEngine
 							newMachine.getTransitions(index + offset)));
 
 		}
+		/*
+		 * for (String box : controllerMachine.getBoxIndexes().keySet()) { if
+		 * (controllerMachine.getBoxIndexes().get(box) != boxIndex) { if
+		 * (controllerMachine.getBoxIndexes().get(box) > offset) {
+		 * newMachine.getBoxIndexes() .put(box,
+		 * controllerMachine.getBoxIndexes().get(box) + offset); } else {
+		 * newMachine.getBoxIndexes().put(box,
+		 * controllerMachine.getBoxIndexes().get(box)); }
+		 * 
+		 * } }
+		 */
 
 		return newMachine;
 	}
@@ -204,8 +217,9 @@ public class IntegratorEngine
 		return length;
 	}
 
-	private void copySecondMachine(LabelledTransitionSystem newMachine, int offset, LTSTransitionList[] dest,
-			LabelledTransitionSystem m, boolean last) {
+	private void copySecondMachine(LabelledTransitionSystem newMachine,
+			int offset, LTSTransitionList[] dest, LabelledTransitionSystem m,
+			boolean last) {
 		for (int i = 0; i < m.getStates().length; i++) {
 			if (!last) {
 				dest[i + offset] = LTSTransitionList.offsetSeq(offset,
@@ -218,22 +232,24 @@ public class IntegratorEngine
 
 			}
 		}
-		m.getFinalStateIndexes().forEach(e -> newMachine.addFinalStateIndex(e+offset));
+		m.getFinalStateIndexes().forEach(
+				e -> newMachine.addFinalStateIndex(e + offset));
 	}
 
-	private void copyFirstMachine(LabelledTransitionSystem newMachine, int offset, LTSTransitionList[] dest,
-			LabelledTransitionSystem m, boolean last, int boxPosition) {
+	private void copyFirstMachine(LabelledTransitionSystem newMachine,
+			int offset, LTSTransitionList[] dest, LabelledTransitionSystem m,
+			boolean last, int boxPosition) {
 		for (int i = 0; i < m.getStates().length; i++) {
 
 			if (i != boxPosition) {
 				dest[i + offset] = offsetSeq(offset, m.getEndOfSequenceIndex(),
 						m.getEndOfSequenceIndex() + offset, m.getStates()[i]);
-				
-				
+
 			}
 		}
-		
-		m.getFinalStateIndexes().forEach(e -> newMachine.addFinalStateIndex(e+offset));
+
+		m.getFinalStateIndexes().forEach(
+				e -> newMachine.addFinalStateIndex(e + offset));
 
 	}
 

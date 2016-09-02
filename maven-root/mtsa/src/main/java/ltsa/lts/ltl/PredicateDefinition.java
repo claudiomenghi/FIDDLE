@@ -18,6 +18,7 @@ import ltsa.lts.parser.actions.ActionLabels;
 import ltsa.lts.parser.actions.ActionName;
 import ltsa.lts.parser.actions.ActionSetExpr;
 import ltsa.lts.parser.actions.LabelSet;
+import ltsa.ui.EmptyLTSOuput;
 
 import com.google.common.base.Preconditions;
 
@@ -256,6 +257,7 @@ public class PredicateDefinition {
 		LabelSet endEnd = new LabelSet(actionsLabelsEnd);
 
 		ActionSetExpr end = new ActionSetExpr(endEnd, predicateSymboleSet);
+		
 		PredicateDefinition.put(fluentName, null, new ActionName(
 				predicateSymbol), end, null);
 		PredicateDefinition.compile(PredicateDefinition.get(fluentName

@@ -49,6 +49,10 @@ public class FormulaDefinition {
 		this.params = finalParams;
 		this.fac = new FormulaFactory();
 	}
+	
+	public String getName(){
+		return this.symbol.getValue();
+	}
 
 	public boolean isCached() {
 		return cached != null;
