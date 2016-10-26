@@ -1,6 +1,5 @@
 package ltsa.lts.automata.automaton;
 
-import java.util.List;
 import java.util.Vector;
 
 import ltsa.lts.operations.composition.parallel.StackCheck;

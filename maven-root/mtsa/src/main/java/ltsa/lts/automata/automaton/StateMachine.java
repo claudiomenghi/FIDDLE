@@ -32,7 +32,6 @@ import ltsa.lts.csp.Relation;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
 import ltsa.lts.parser.PostconditionDefinitionManager;
-import ltsa.lts.parser.PreconditionDefinitionManager;
 import ltsa.lts.parser.Value;
 import ltsa.lts.util.Counter;
 import ltsa.ui.EmptyLTSOuput;
@@ -40,21 +39,41 @@ import ltsa.ui.StandardOutput;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * specifies the behavior of a state machine
+ *
+ */
 public class StateMachine {
 
+	/**
+	 * the name of the state machine
+	 */
+	private final String name;
+
+	/**
+	 * maps the name of the box to the index in which the box is stored
+	 */
 	private Map<String, Integer> boxIndexes = new HashMap<>();
 
+	/**
+	 * maps each box to its interface
+	 */
 	public Map<String, Set<String>> mapBoxInterface = new HashMap<>();
 
+	/**
+	 * the set of the final states
+	 */
 	private Set<String> finalStates = new HashSet<>();
+
+	/**
+	 * the alphabet of the state machine
+	 */
+	private Map<String, Integer> alphabet = new HashMap<>();
 
 	private PostconditionDefinitionManager postManager;
 
-	private PreconditionDefinitionManager preconditionManager;
-
-	private final String name;
 	private final String kludgeName;
-	private Map<String, Integer> alphabet = new HashMap<>();
+
 	Vector<String> hidden;
 	Relation relabels;
 
@@ -145,11 +164,24 @@ public class StateMachine {
 		this.isStarEnv = spec.isStarEnv;
 	}
 
+	/**
+	 * returns the final states of the state machine
+	 * 
+	 * @return the final states of the state machine
+	 */
 	public Set<String> getFinalStates() {
 		return this.finalStates;
 	}
 
+	/**
+	 * add a final state to the state machine
+	 * 
+	 * @param stateName
+	 *            the name of the final state to be added
+	 */
 	public void addFinalState(String stateName) {
+		Preconditions.checkNotNull(stateName,
+				"The name of the final state cannot be null");
 		this.finalStates.add(stateName);
 	}
 
@@ -260,7 +292,6 @@ public class StateMachine {
 			Map<String, String> mapBoxPost = this.postManager
 					.getMapBoxPostcondition().get(name);
 
-
 			if (mapBoxPost != null) {
 				Map<String, LabelledTransitionSystem> boxPostLTS = new HashMap<>();
 				for (Entry<String, String> mapEntry : mapBoxPost.entrySet()) {
@@ -270,11 +301,10 @@ public class StateMachine {
 							new StandardOutput(), mapEntry.getValue(),
 							new ArrayList<>(this.mapBoxInterface.get(box)),
 							mapEntry.getValue());
-					System.out.println();
 					boxPostLTS.put(box, cs);
 				}
-				c = new WellFormednessLTSModifier(new EmptyLTSOuput()).modify(c,
-						boxPostLTS, LTSCompiler.forPreconditionChecking,
+				c = new WellFormednessLTSModifier(new EmptyLTSOuput()).modify(
+						c, boxPostLTS, LTSCompiler.forPreconditionChecking,
 						LTSCompiler.boxOfInterest);
 			}
 

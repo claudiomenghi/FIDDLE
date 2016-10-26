@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import ltsa.lts.EventStateUtils;
 import ltsa.lts.animator.ModelExplorerContext;
@@ -39,14 +37,22 @@ import ltsa.lts.util.collections.StateMap;
 import com.google.common.base.Preconditions;
 
 /**
- * contains an automaton. The states of the automaton are stored into the state
- * attribute. The alphabet of the automaton is stored in an appropriate
- * attribute. A boolean variable specified whether the automaton specifies a
- * property
+ * contains a Labeled Transition System (LTS).<br>
+ * The states of the LTS are stored into the states attribute. <br>
+ * The alphabet of the automaton is stored in an appropriate attribute. <br>
+ * A boolean variable specified whether the automaton specifies a property
  *
  */
 public class LabelledTransitionSystem implements Automata {
 
+	/**
+	 * The name of the LTS
+	 */
+	private String name;
+
+	/**
+	 * maps each box to the corresponding index
+	 */
 	private Map<String, Integer> boxIndexes = new HashMap<>();
 
 	/**
@@ -54,8 +60,6 @@ public class LabelledTransitionSystem implements Automata {
 	 * the automaton
 	 */
 	public Map<String, Set<String>> mapBoxInterface = new HashMap<>();
-
-	private String name;
 
 	/**
 	 * The alphabet of the automaton
@@ -67,6 +71,11 @@ public class LabelledTransitionSystem implements Automata {
 	 * exit that state contained in the LTSTransitionList
 	 */
 	private LTSTransitionList[] states;
+
+	/**
+	 * contains the index of the final states
+	 */
+	private Set<Integer> finalStateIndexes;
 
 	private String mtsControlProblemAnswer;
 
@@ -83,8 +92,6 @@ public class LabelledTransitionSystem implements Automata {
 	private boolean prop = false;
 
 	private boolean hasDuplicates = false;
-
-	private Set<Integer> finalStateIndexes;
 
 	/**
 	 * create a new compact state
@@ -378,7 +385,7 @@ public class LabelledTransitionSystem implements Automata {
 	public void removeStates(List<Integer> stateIndexes) {
 		// removing the transitions that reach the states to be removed
 		for (int stateIndex = 0; stateIndex < this.states.length; stateIndex++) {
-			
+
 			if (stateIndexes.contains(stateIndex)) {
 				this.states[stateIndex] = null;
 			} else {
@@ -386,55 +393,7 @@ public class LabelledTransitionSystem implements Automata {
 						this.states[stateIndex], stateIndexes);
 			}
 		}
-		//removeStatesFromAutomaton(stateIndexes);
-	}
-
-	private void removeStatesFromAutomaton(List<Integer> stateIndexes)
-			throws InternalError {
-		// move the null to the end
-		Collections.sort(stateIndexes);
-
-		List<Integer> keepedStates = IntStream
-				.range(0, this.getStates().length)
-				.filter(s -> !stateIndexes.contains(s)).boxed()
-				.collect(Collectors.toList());
-		Collections.sort(keepedStates);
-
-		// tries to move the "biggest keeped states"
-		keepedStates = keepedStates.subList(
-				Math.max(0, keepedStates.size() - stateIndexes.size()),
-				keepedStates.size());
-		int minimalFreeRemovedIndex = 0;
-
-		for (int keepedIndex = keepedStates.size() - 1; keepedIndex > 0; keepedIndex--) {
-
-			int currentKeepedIndex = keepedStates.get(keepedIndex);
-
-			int freeRemovedStateIndex = stateIndexes
-					.get(minimalFreeRemovedIndex);
-
-			if (currentKeepedIndex > freeRemovedStateIndex) {
-				this.swapStates(currentKeepedIndex, freeRemovedStateIndex);
-				minimalFreeRemovedIndex++;
-			}
-		}
-
-		for (int index = this.states.length - stateIndexes.size(); index < this.states.length - 1; index++) {
-			if (this.states[index] != null) {
-				System.out.println(this.states);
-				System.out.println("REMOVED STATES: " + stateIndexes.size());
-				System.out.println("total states " + this.states.length);
-				System.out.println("Not null state " + index);
-				throw new InternalError("Error in the state removal");
-			}
-		}
-
-		LTSTransitionList[] holdStates = this.states;
-		this.states = new LTSTransitionList[this.states.length
-				- stateIndexes.size()];
-		for (int index = 0; index < this.states.length - 1; index++) {
-			this.states[index] = holdStates[index];
-		}
+		// removeStatesFromAutomaton(stateIndexes);
 	}
 
 	/**

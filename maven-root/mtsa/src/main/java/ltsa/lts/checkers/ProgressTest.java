@@ -3,7 +3,6 @@ package ltsa.lts.checkers;
 import java.util.BitSet;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Vector;
 
 public class ProgressTest {

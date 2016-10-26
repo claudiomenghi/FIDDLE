@@ -9,28 +9,56 @@ import ltsa.lts.util.Counter;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Given a Labeled Transition System, one of its boxes and the post-condition of
+ * the box, it substitutes the LTS corresponding to the post-condition of the
+ * box to the box it self. <br/>
+ * The traces of the obtained automaton contain all the traces that satisfy the
+ * post-condition of the box
+ *
+ */
 public class IntegratorEngine
 		implements
-		TriFunction<Integer, LabelledTransitionSystem, LabelledTransitionSystem, LabelledTransitionSystem> {
+		TriFunction<LabelledTransitionSystem, Integer, LabelledTransitionSystem, LabelledTransitionSystem> {
 
+	/**
+	 * Given a Labeled Transition System, one of its boxes and the
+	 * post-condition of the box, it substitutes the LTS corresponding to the
+	 * post-condition of the box to the box it self. <br/>
+	 * The traces of the obtained automaton contain all the traces that satisfy
+	 * the post-condition of the box
+	 * 
+	 * @param controllerMachine
+	 *            the LTS of the machine that contains the box
+	 * @param boxIndex
+	 *            the Index of the considered box
+	 * @param postConditionMachine
+	 *            the postCondition of the box
+	 * @throws NullPointerException
+	 *             if one of the machine is null
+	 * @throws IllegalArgumentException
+	 *             if the index of the box is not an index of a box of the
+	 *             original machine
+	 */
 	@Override
-	public LabelledTransitionSystem apply(Integer boxIndex,
-			LabelledTransitionSystem controllerMachine,
+	public LabelledTransitionSystem apply(
+			LabelledTransitionSystem controllerMachine, Integer boxIndex,
 			LabelledTransitionSystem postConditionMachine) {
 		Preconditions.checkNotNull(controllerMachine,
 				"The first machine cannot be null");
 		Preconditions.checkNotNull(postConditionMachine,
 				"The second machine cannot be null");
+		Preconditions
+				.checkArgument(controllerMachine.getBoxIndexes().values()
+						.contains(boxIndex),
+						"The specified index is not an index of the box of the state machine");
 
-		LabelledTransitionSystem secondMachineclone = postConditionMachine
+		LabelledTransitionSystem postConditionClone = postConditionMachine
 				.myclone();
-		System.out.println("POSTCONDITIONLTS: states: "
-				+ secondMachineclone.getStates().length + 
-				" transitions: "
-				+ secondMachineclone.getTransitionNumber());
+		
 		LabelledTransitionSystem newMachine = new LabelledTransitionSystem("");
 		newMachine.setAlphabet(sharedAlphabet(controllerMachine,
-				secondMachineclone));
+				postConditionClone));
 
 		newMachine.setBoxIndexes(new HashMap<String, Integer>(controllerMachine
 				.getBoxIndexes()));
@@ -41,7 +69,7 @@ public class IntegratorEngine
 		newMachine.mapBoxInterface.remove(postConditionMachine);
 		// the number of states minus the box
 		newMachine.setStates(new LTSTransitionList[seqSize(controllerMachine,
-				secondMachineclone)]);
+				postConditionClone)]);
 
 		int offset = 0;
 		copyFirstMachine(newMachine, offset, newMachine.getStates(),
@@ -52,8 +80,8 @@ public class IntegratorEngine
 		newMachine.setState(boxIndex, tauTransition);
 
 		copySecondMachine(newMachine, offset, newMachine.getStates(),
-				secondMachineclone, true);
-		newMachine.setEndOfSequence(secondMachineclone.getEndOfSequenceIndex()
+				postConditionClone, true);
+		newMachine.setEndOfSequence(postConditionClone.getEndOfSequenceIndex()
 				+ offset);
 
 		// removes the accepting states
@@ -61,24 +89,9 @@ public class IntegratorEngine
 
 		for (Integer index : postConditionMachine.getAccepting()) {
 			newMachine.setState(index + offset,
-			// LTSTransitionList
-			// .removeAccept(this.getMixTransitionList(boxList,
-			// newMachine.getTransitions(index + offset)))
-					this.getMixTransitionList(boxList,
+			this.getMixTransitionList(boxList,
 							newMachine.getTransitions(index + offset)));
-
 		}
-		/*
-		 * for (String box : controllerMachine.getBoxIndexes().keySet()) { if
-		 * (controllerMachine.getBoxIndexes().get(box) != boxIndex) { if
-		 * (controllerMachine.getBoxIndexes().get(box) > offset) {
-		 * newMachine.getBoxIndexes() .put(box,
-		 * controllerMachine.getBoxIndexes().get(box) + offset); } else {
-		 * newMachine.getBoxIndexes().put(box,
-		 * controllerMachine.getBoxIndexes().get(box)); }
-		 * 
-		 * } }
-		 */
 
 		return newMachine;
 	}
@@ -253,7 +266,7 @@ public class IntegratorEngine
 
 	}
 
-	public LTSTransitionList offsetSeq(int off, int seq, int max,
+	private LTSTransitionList offsetSeq(int off, int seq, int max,
 			LTSTransitionList head) {
 		LTSTransitionList p = head;
 		while (p != null) {

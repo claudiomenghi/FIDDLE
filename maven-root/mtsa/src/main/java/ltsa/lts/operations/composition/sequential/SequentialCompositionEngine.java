@@ -9,13 +9,20 @@ import ltsa.lts.util.Counter;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Computes the sequential composition between the first and the second machine.
+ * Connects the accepting states of the first machine to the initial state of
+ * the second machine.
+ *
+ */
 public class SequentialCompositionEngine
 		implements
 		TriFunction<String, LabelledTransitionSystem, LabelledTransitionSystem, LabelledTransitionSystem> {
 
 	/**
 	 * connect the accepting states of the first machine to the initial state of
-	 * the second machine. Remove the self-loops labeled with end from the first
+	 * the second machine. <br/>
+	 * Remove the self-loops labeled with end from the first machine in the new
 	 * machine
 	 * 
 	 * @param event
@@ -42,35 +49,53 @@ public class SequentialCompositionEngine
 		LabelledTransitionSystem secondMachineclone = secondMachine.myclone();
 
 		LabelledTransitionSystem newMachine = new LabelledTransitionSystem("");
-		newMachine.setAlphabet(alphabetUnion(firstMachineclone,
+
+		// sets the name of the new machine
+		newMachine.setName(firstMachine.getName() + "."
+				+ secondMachine.getName());
+
+		// sets the alphabet of the new machine
+		newMachine.setAlphabet(this.alphabetUnion(firstMachineclone,
 				secondMachineclone));
 
 		firstMachineclone.getBoxIndexes().entrySet()
 				.forEach(e -> newMachine.addBoxIndex(e.getKey(), e.getValue()));
-		
 
 		// the number of states minus the box
 		newMachine.setStates(new LTSTransitionList[firstMachine
 				.getNumberOfStates() + secondMachineclone.getNumberOfStates()]);
 
 		int offset = 0;
+		// copy the first machine
 		copyMachine(offset, firstMachineclone, newMachine);
-		firstMachine.getFinalStateIndexes().forEach(newMachine::addFinalStateIndex);
-		
+		// adds each final state of the first machine to the newMachine
+		firstMachine.getFinalStateIndexes().forEach(
+				newMachine::addFinalStateIndex);
+		// adds the boxes of the first machine to the newMachine
+		firstMachine.getBoxIndexes().entrySet()
+				.forEach(e -> newMachine.addBoxIndex(e.getKey(), e.getValue()));
+
+		// copy the second machine
 		final int offsetSecondMachine = firstMachine.getStates().length;
 		copyMachine(offsetSecondMachine, secondMachineclone, newMachine);
-		secondMachine.getFinalStateIndexes().forEach(e -> newMachine.addFinalStateIndex(e+offsetSecondMachine));
+		// adds the final states of the second machine to the newMachine
+		secondMachine.getFinalStateIndexes().forEach(
+				e -> newMachine.addFinalStateIndex(e + offsetSecondMachine));
 
-		secondMachineclone.getBoxIndexes().entrySet()
-		.forEach(e -> newMachine.addBoxIndex(e.getKey(), e.getValue()+offsetSecondMachine));
+		// adds the boxes of the second machine to the newMachine
+		secondMachineclone
+				.getBoxIndexes()
+				.entrySet()
+				.forEach(
+						e -> newMachine.addBoxIndex(e.getKey(), e.getValue()
+								+ offsetSecondMachine));
 
-		int eventIndex=newMachine.addEvent(event);
+		// creates the event that must connect the two machines
+		int eventIndex = newMachine.addEvent(event);
 
 		for (Integer index : firstMachineclone.getAccepting()) {
 			newMachine.addTransition(index, eventIndex, offsetSecondMachine);
 		}
-
-		newMachine.setName(firstMachine.getName()+"."+secondMachine.getName());
 		return newMachine;
 	}
 
@@ -118,16 +143,13 @@ public class SequentialCompositionEngine
 			LabelledTransitionSystem machineToBeCopied,
 			LabelledTransitionSystem destinationMachine) {
 		for (int i = 0; i < machineToBeCopied.getStates().length; i++) {
-			destinationMachine.setState(
-					i + offset,
-					applyOffset(offset,
-							machineToBeCopied.getStates()[i]));
+			destinationMachine.setState(i + offset,
+					applyOffset(offset, machineToBeCopied.getStates()[i]));
 		}
 
 	}
 
-	public LTSTransitionList applyOffset(int off,
-			LTSTransitionList head) {
+	private LTSTransitionList applyOffset(int off, LTSTransitionList head) {
 		LTSTransitionList p = head;
 		while (p != null) {
 			LTSTransitionList q = p;
