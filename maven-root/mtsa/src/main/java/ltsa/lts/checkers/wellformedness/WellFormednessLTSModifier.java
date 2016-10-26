@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import com.google.common.base.Preconditions;
+
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.automaton.StateMachine;
 import ltsa.lts.automata.automaton.transition.Transition;
@@ -17,23 +19,62 @@ import ltsa.lts.parser.LTSCompiler;
 import ltsa.lts.parser.Symbol;
 import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;
 
+/**
+ * Modifies the Labeled Transition System to check well formedness.<br/>
+ * For each box that is not the box of interest, it injects the LTS associated
+ * with the post condition of the box <br/>
+ *
+ */
 public class WellFormednessLTSModifier {
 
+	/**
+	 * The suffix used to rename the machine of interest
+	 */
+	private static final String POST_CONDITION_SUFFIX = "_WITH_POST";
+
+	/**
+	 * The output used to write messages on the screen
+	 */
 	private LTSOutput output;
 
+	/**
+	 * 
+	 * @param output
+	 *            the output used to print messages
+	 * @throws NullPointerException
+	 *             if the output is null
+	 */
 	public WellFormednessLTSModifier(LTSOutput output) {
+		Preconditions.checkNotNull(output, "The output cannot be null");
 		this.output = output;
 	}
 
+	/**
+	 * modifies the LTS lts to check its well formedness.<br/>
+	 * 
+	 * For each box that is not the box of interest, it injects the LTS
+	 * associated with the post condition of the box <br/>
+	 * 
+	 * @param lts
+	 *            is the LTS whose well-formedness must be verified
+	 * @param mapBoxPostCondition
+	 *            map each black box state to its corresponding LTS
+	 * @param forPreconditionChecking
+	 *            true if the obtained LTS must be used for precondition
+	 *            checking
+	 * @param boxOfInterest
+	 *            the box of interest
+	 * @return the LTS modified with post conditions
+	 */
 	public LabelledTransitionSystem modify(LabelledTransitionSystem lts,
-			Map<String, LabelledTransitionSystem> mapBoxPostCondition, boolean forPreconditionChecking, String boxOfInterest) {
+			Map<String, LabelledTransitionSystem> mapBoxPostCondition,
+			boolean forPreconditionChecking, String boxOfInterest) {
 
 		LabelledTransitionSystem returnLts = lts;
 		boolean first = true;
 		for (String box : lts.mapBoxInterface.keySet()) {
 
-			if (forPreconditionChecking
-					&& boxOfInterest.equals(box)) {
+			if (forPreconditionChecking && boxOfInterest.equals(box)) {
 				returnLts = this.processPre(returnLts, box, first,
 						mapBoxPostCondition);
 			} else {
@@ -55,7 +96,7 @@ public class WellFormednessLTSModifier {
 		if (mapBoxPostCondition.containsKey(box)) {
 			Set<String> boxInterface = compiledProcess.mapBoxInterface.get(box);
 			LabelledTransitionSystem boxInterfaceAutomaton = this
-					.createInterfaceCompactState(boxInterface);
+					.createInterfaceLTS(boxInterface);
 
 			Vector<LabelledTransitionSystem> machines = new Vector<>();
 			machines.add(boxInterfaceAutomaton);
@@ -80,9 +121,9 @@ public class WellFormednessLTSModifier {
 			machinePostCondition.addTransition(0, eventIndex, endStateIndex);
 
 			int boxPosition = compiledProcess.getBoxIndexes().get(box);
-			cs = new IntegratorEngine().apply(boxPosition, compiledProcess,
+			cs = new IntegratorEngine().apply(compiledProcess, boxPosition,
 					machinePostCondition);
-			cs.setName(compiledProcess.getName() + "_WITH_POST");
+			cs.setName(compiledProcess.getName() + POST_CONDITION_SUFFIX);
 
 		} else {
 			cs = this.addInterfaceSelfLoop(compiledProcess, box);
@@ -133,7 +174,7 @@ public class WellFormednessLTSModifier {
 		if (mapBoxPostCondition.containsKey(box)) {
 			Set<String> boxInterface = compiledProcess.mapBoxInterface.get(box);
 			LabelledTransitionSystem boxInterfaceAutomaton = this
-					.createInterfaceCompactState(boxInterface);
+					.createInterfaceLTS(boxInterface);
 
 			Vector<LabelledTransitionSystem> machines = new Vector<>();
 			machines.add(boxInterfaceAutomaton);
@@ -143,14 +184,13 @@ public class WellFormednessLTSModifier {
 
 			machinePostCondition = processPost(compiledProcess, box,
 					boxInterface, postCondition, mapBoxPostCondition);
-			// return machinePostCondition;
-			// TOFIX
-			// machines.add(machinePostCondition);
 
 			int boxPosition = compiledProcess.getBoxIndexes().get(box);
-			cs = new IntegratorEngine().apply(boxPosition, compiledProcess,
+			cs = new IntegratorEngine().apply(compiledProcess, boxPosition,
 					machinePostCondition);
-			cs.setName(compiledProcess.getName() + "_WITH_POST");
+			if (first) {
+				cs.setName(compiledProcess.getName() + POST_CONDITION_SUFFIX);
+			}
 
 		} else {
 			cs = this.addInterfaceSelfLoop(compiledProcess, box);
@@ -170,7 +210,7 @@ public class WellFormednessLTSModifier {
 		LabelledTransitionSystem machinePostCondition;
 
 		output.outln("\t \t post condition: " + postCondition);
-		System.out.println("processing the post condition: "+postCondition);
+		System.out.println("processing the post condition: " + postCondition);
 		machinePostCondition = mapBoxPostCondition.get(box);
 
 		Set<String> postConditionCharacters = new HashSet<>(
@@ -187,21 +227,29 @@ public class WellFormednessLTSModifier {
 		if (!compiledProcess.mapBoxInterface.containsKey(box)) {
 			Diagnostics.fatal("No interface provided for the box: " + box);
 		}
-		// machines.add(machinePostCondition);
-		// compiled.put(postCondition, machinePostCondition.myclone());
 		return machinePostCondition;
 	}
 
-	private LabelledTransitionSystem createInterfaceCompactState(
-			Set<String> boxInterface) {
+	/**
+	 * returns a LTS with a single state and a self-loop labeled with the events
+	 * of the interface of the box
+	 * 
+	 * @param boxInterface
+	 *            the set of the events in the interface of the box
+	 * @return a LTS with a single state and a self-loop labeled with the events
+	 *         of the interface of the box
+	 * @throws NullPointerException
+	 *             if the interface of the box is null
+	 */
+	private LabelledTransitionSystem createInterfaceLTS(Set<String> boxInterface) {
 
+		
 		StateMachine mc = new StateMachine(LTSCompiler.boxOfInterest
 				+ "-interface");
 		String initStateName = LTSCompiler.boxOfInterest + "-interface";
 		mc.addState(initStateName);
-		
 
-		boxInterface.stream().forEach(event -> mc.addEvent(event));
+		boxInterface.stream().forEach(mc::addEvent);
 		boxInterface.stream().forEach(
 				event -> mc.addTransition(new Transition(mc
 						.getStateIndex(initStateName), new Symbol(event,
