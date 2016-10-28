@@ -125,9 +125,6 @@ public class Synthesis {
 		return composition;
 	}
 
-	public String getMTSControlProblemAnswer() {
-		return this.composition.getComposition().getMtsControlProblemAnswer();
-	}
 
 	public HashSet<String> getControllerAvailableActions() {
 		LabelledTransitionSystem machine = this.composition.getComposition();

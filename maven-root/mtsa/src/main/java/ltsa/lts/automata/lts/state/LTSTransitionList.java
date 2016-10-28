@@ -1,6 +1,7 @@
 package ltsa.lts.automata.lts.state;
 
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import ltsa.lts.EventStateUtils;
-import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
 import ltsa.lts.csp.Declaration;
 import ltsa.lts.csp.Relation;
 import ltsa.lts.output.LTSOutput;
@@ -589,20 +589,6 @@ public class LTSTransitionList {
 			while (q != null) {
 				int event = oldtonew.get(q.event);
 				LTSTransitionList child = new LTSTransitionList(event, q.next);
-				if (q instanceof ProbabilisticEventState) {
-					ProbabilisticEventState q2 = (ProbabilisticEventState) q;
-					child = new ProbabilisticEventState(event, q2.getNext(),
-							q2.getProbability(), q2.getBundle());
-					ProbabilisticEventState r = (ProbabilisticEventState) q2
-							.getProbTr();
-					while (r != null) {
-						ProbabilisticEventState child2 = new ProbabilisticEventState(
-								oldtonew.get(r.getEvent()), r.getNext(),
-								r.getProbability(), r.getBundle());
-						child = EventStateUtils.add(child, child2);
-						r = (ProbabilisticEventState) r.getProbTr();
-					}
-				}
 				newhead = EventStateUtils.add(newhead, child);
 				q = q.nondet;
 			}
@@ -720,7 +706,7 @@ public class LTSTransitionList {
 	}
 
 	private static LTSTransitionList removeNonDetTransToState(
-			LTSTransitionList head, List<Integer> destinationStates) {
+			LTSTransitionList head, Collection<Integer> destinationStates) {
 		if (head == null) {
 			return null;
 		}
@@ -745,7 +731,7 @@ public class LTSTransitionList {
 	}
 
 	public static LTSTransitionList removeTransToState(LTSTransitionList head,
-			List<Integer> destinationStates) {
+			Collection<Integer> destinationStates) {
 		if (head == null) {
 			return null;
 		}

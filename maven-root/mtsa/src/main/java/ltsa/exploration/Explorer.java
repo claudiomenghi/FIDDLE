@@ -1,18 +1,18 @@
 package ltsa.exploration;
 
-import MTSTools.ac.ic.doc.commons.relations.Pair;
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import ltsa.exploration.knowledge.Knowledge;
 import ltsa.exploration.model.Model;
-import ltsa.exploration.strategy.Strategy;
-import ltsa.exploration.strategy.StrategyManager;
 import ltsa.exploration.view.View;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import MTSSynthesis.controller.game.model.Strategy;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+import MTSTools.ac.ic.doc.commons.relations.Pair;
 
 public class Explorer
 {
@@ -21,11 +21,10 @@ public class Explorer
     private Knowledge knowledge;
     private GRControllerGoal<String> goal;
     private ArrayList<String> traceLastActions, traceLastStates;
-    private StrategyManager strategyManager;
     private ArrayList<Integer> traceStatesCurrentStrategy;
 
     //region Constructor
-    public Explorer(View view, Model model, Knowledge knowledge, GRControllerGoal<String> goal, StrategyManager strategyManager)
+    public Explorer(View view, Model model, Knowledge knowledge, GRControllerGoal<String> goal)
     {
         this.goal = goal;
         this.view = view;
@@ -33,7 +32,6 @@ public class Explorer
         this.knowledge = knowledge;
         this.traceLastStates = new ArrayList<>();
         this.traceLastActions = new ArrayList<>();
-        this.strategyManager = strategyManager;
         this.traceStatesCurrentStrategy = new ArrayList<>();
         this.updateKnowledgeFromCurrentStateActions(0, this.view.getCurrentStateActions());
     }
@@ -50,31 +48,7 @@ public class Explorer
     }
     //endregion
 
-    //region Public methods
-    public String getMTSControlProblemAnswer()
-    {
-    	Synthesis synthesis = new Synthesis(this.knowledge.cloneForSynthesisFromCurrentState(), this.goal.copy());
-        String mtsControlProblemAnswer = synthesis.getMTSControlProblemAnswer();
-        if (mtsControlProblemAnswer.equals("NONE"))
-        {
-        	synthesis = new Synthesis(this.knowledge.cloneForSynthesisFromStart(), this.goal.copy());
-            mtsControlProblemAnswer = synthesis.getMTSControlProblemAnswer();
-            if (!mtsControlProblemAnswer.equals("NONE"))
-                return "RESET";
-        }
-
-        return mtsControlProblemAnswer;
-    }
-    public void explore()
-    {
-        if (this.strategyManager.inLoop(this.traceStatesCurrentStrategy))
-            this.traceStatesCurrentStrategy = new ArrayList<>();
-
-        Strategy currentStrategy = this.strategyManager.getCurrentStrategy();
-        HashSet<String> currentStateAvailableActions = this.view.getCurrentStateAvailableActions(0);
-        String nextAction = currentStrategy.chooseNextAction(currentStateAvailableActions);
-        this.execute(nextAction);
-    }
+   
     public void explore(String nextAction)
     {
         this.execute(nextAction);

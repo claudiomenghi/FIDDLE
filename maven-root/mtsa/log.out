@@ -2,7 +2,7 @@ Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
 Initialized StandardEnvironment with PropertySources [systemProperties,systemEnvironment]
-Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@61a52fbd: startup date [Thu Oct 27 11:44:37 CEST 2016]; root of context hierarchy
+Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@61a52fbd: startup date [Fri Oct 28 10:20:31 CEST 2016]; root of context hierarchy
 Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
@@ -12,7 +12,7 @@ Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
 Initialized StandardEnvironment with PropertySources [systemProperties,systemEnvironment]
-Refreshing org.springframework.context.support.FileSystemXmlApplicationContext@7085bdee: startup date [Thu Oct 27 11:44:37 CEST 2016]; root of context hierarchy
+Refreshing org.springframework.context.support.FileSystemXmlApplicationContext@7085bdee: startup date [Fri Oct 28 10:20:31 CEST 2016]; root of context hierarchy
 Initializing new StandardEnvironment
 Adding [systemProperties] PropertySource with lowest search precedence
 Adding [systemEnvironment] PropertySource with lowest search precedence
@@ -45,8 +45,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -66,8 +66,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -87,8 +87,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -108,8 +108,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -129,8 +129,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -150,8 +150,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -171,8 +171,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -192,8 +192,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -213,8 +213,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -234,8 +234,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -255,8 +255,8 @@ org.springframework.core.NestedIOException: ASM ClassReader failed to parse clas
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:461)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Caused by: java.lang.IllegalArgumentException
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
 	at org.springframework.asm.ClassReader.<init>(Unknown Source)
@@ -309,8 +309,8 @@ java.lang.IllegalArgumentException
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:479)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Eagerly caching bean 'ARDrone' to allow for resolving potential circular references
 Finished creating instance of bean 'ARDrone'
 Creating shared instance of singleton bean 'enviromentChange'
@@ -336,8 +336,8 @@ java.lang.IllegalArgumentException
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:479)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Eagerly caching bean 'enviromentChange' to allow for resolving potential circular references
 Finished creating instance of bean 'enviromentChange'
 Creating shared instance of singleton bean 'ARDroneII'
@@ -363,8 +363,8 @@ java.lang.IllegalArgumentException
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:479)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Eagerly caching bean 'ARDroneII' to allow for resolving potential circular references
 Finished creating instance of bean 'ARDroneII'
 Creating shared instance of singleton bean 'enviromentChangeII'
@@ -394,8 +394,8 @@ java.lang.IllegalArgumentException
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:479)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Eagerly caching bean 'ARDroneUpdatingController' to allow for resolving potential circular references
 Finished creating instance of bean 'ARDroneUpdatingController'
 Creating shared instance of singleton bean 'counterEnactor'
@@ -421,8 +421,8 @@ java.lang.IllegalArgumentException
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:479)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Eagerly caching bean 'counterEnactor' to allow for resolving potential circular references
 Finished creating instance of bean 'counterEnactor'
 Creating shared instance of singleton bean 'enactorFactory'
@@ -472,8 +472,8 @@ java.lang.IllegalArgumentException
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:479)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Eagerly caching bean 'controllerScheduler' to allow for resolving potential circular references
 Finished creating instance of bean 'controllerScheduler'
 Creating shared instance of singleton bean 'randomScheduler'
@@ -512,8 +512,8 @@ java.lang.IllegalArgumentException
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:479)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 No property editor [MTSTools.ac.ic.doc.mtstools.model.LTSEditor] found for type MTSTools.ac.ic.doc.mtstools.model.LTS according to 'Editor' suffix convention
 Eagerly caching bean 'randomScheduler' to allow for resolving potential circular references
 Finished creating instance of bean 'randomScheduler'
@@ -553,8 +553,8 @@ java.lang.IllegalArgumentException
 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:479)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:140)
 	at org.springframework.context.support.FileSystemXmlApplicationContext.<init>(FileSystemXmlApplicationContext.java:84)
-	at ltsa.ui.HPWindow.<init>(HPWindow.java:359)
-	at ltsa.ui.HPWindow.main(HPWindow.java:3016)
+	at ltsa.ui.HPWindow.<init>(HPWindow.java:350)
+	at ltsa.ui.HPWindow.main(HPWindow.java:2886)
 Eagerly caching bean 'UIController' to allow for resolving potential circular references
 Finished creating instance of bean 'UIController'
 Autowiring by type from bean name 'enactorFactory' to bean named 'ARDrone'

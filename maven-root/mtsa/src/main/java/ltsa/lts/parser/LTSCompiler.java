@@ -1482,6 +1482,13 @@ public class LTSCompiler {
 			nextSymbol();
 			p.alphaAdditions = labelSet();
 		}
+		for (StateDefn state : p.stateDefns) {
+			if (state instanceof BoxStateDefn) {
+				p.alphaAdditions.labels.add(((BoxStateDefn) state)
+						.getInterface());
+
+			}
+		}
 		p.alphaRelabel = relabelDefns();
 		if (current.kind == Symbol.BACKSLASH || current.kind == Symbol.AT) {
 			p.exposeNotHide = (current.kind == Symbol.AT);
@@ -1792,7 +1799,7 @@ public class LTSCompiler {
 
 	private void parseState(StateDefn s) {
 		nextSymbol();
-		if(current.kind == Symbol.DOT ){
+		if (current.kind == Symbol.DOT) {
 			return;
 		}
 		if (current.kind == Symbol.AT) {

@@ -1,7 +1,6 @@
 package ltsa.lts.automata.lts.state;
 
 import java.io.PrintStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -22,7 +21,6 @@ import ltsa.lts.EventStateUtils;
 import ltsa.lts.animator.ModelExplorerContext;
 import ltsa.lts.automata.automaton.Automata;
 import ltsa.lts.automata.lts.LTSConstants;
-import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
 import ltsa.lts.csp.Declaration;
 import ltsa.lts.csp.Relation;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
@@ -31,7 +29,6 @@ import ltsa.lts.util.Counter;
 import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.collections.MyIntHash;
 import ltsa.lts.util.collections.MyList;
-import ltsa.lts.util.collections.MyProbListEntry;
 import ltsa.lts.util.collections.StateMap;
 
 import com.google.common.base.Preconditions;
@@ -127,19 +124,10 @@ public class LabelledTransitionSystem implements Automata {
 			int fromState = transitions.getFrom();
 			int toState = transitions.getTo() == null ? -1 : statemap
 					.get(transitions.getTo());
-			int bundle = 0;
-			BigDecimal prob = BigDecimal.ZERO;
-			if (transitions.peek() instanceof MyProbListEntry) {
-				bundle = transitions.getBundle();
-				prob = transitions.getProb();
-				this.states[fromState] = EventStateUtils.add(states[fromState],
-						new ProbabilisticEventState(transitions.getAction(),
-								toState, prob, bundle));
-			} else {
-				this.states[fromState] = EventStateUtils
-						.add(states[fromState], new LTSTransitionList(
-								transitions.getAction(), toState));
-			}
+
+			this.states[fromState] = EventStateUtils.add(states[fromState],
+					new LTSTransitionList(transitions.getAction(), toState));
+
 			transitions.next();
 		}
 		for (byte[] finalState : context.finalStates) {
@@ -160,19 +148,10 @@ public class LabelledTransitionSystem implements Automata {
 			int fromState = transitions.getFrom();
 			int toState = transitions.getTo() == null ? -1 : statemap
 					.get(transitions.getTo());
-			int bundle = 0;
-			BigDecimal prob = BigDecimal.ZERO;
-			if (transitions.peek() instanceof MyProbListEntry) {
-				bundle = transitions.getBundle();
-				prob = transitions.getProb();
-				this.states[fromState] = EventStateUtils.add(states[fromState],
-						new ProbabilisticEventState(transitions.getAction(),
-								toState, prob, bundle));
-			} else {
-				this.states[fromState] = EventStateUtils
-						.add(states[fromState], new LTSTransitionList(
-								transitions.getAction(), toState));
-			}
+
+			this.states[fromState] = EventStateUtils.add(states[fromState],
+					new LTSTransitionList(transitions.getAction(), toState));
+
 			transitions.next();
 		}
 
@@ -263,12 +242,7 @@ public class LabelledTransitionSystem implements Automata {
 		return this.name;
 	}
 
-	public String getMtsControlProblemAnswer() {
-		if (this.mtsControlProblemAnswer.equals(""))
-			return "NONE";
-		else
-			return this.mtsControlProblemAnswer;
-	}
+	
 
 	public void setMtsControlProblemAnswer(String answer) {
 		this.mtsControlProblemAnswer = answer;
@@ -382,7 +356,7 @@ public class LabelledTransitionSystem implements Automata {
 	 *             if the index does not correspond to an index of the state of
 	 *             the LTS
 	 */
-	public void removeStates(List<Integer> stateIndexes) {
+	public void removeStates(Collection<Integer> stateIndexes) {
 		// removing the transitions that reach the states to be removed
 		for (int stateIndex = 0; stateIndex < this.states.length; stateIndex++) {
 
@@ -513,9 +487,6 @@ public class LabelledTransitionSystem implements Automata {
 
 	// output LTS in aldebaran format
 	public void printAUT(PrintStream out) {
-		// modified aldebaran in case of probabilistic systems
-		if (states[0] instanceof ProbabilisticEventState)
-			out.print("// probabilistic\n");
 
 		out.print("des(0," + ntransitions() + "," + this.states.length + ")\n");
 		for (int i = 0; i < states.length; i++)
@@ -1371,6 +1342,22 @@ public class LabelledTransitionSystem implements Automata {
 		}
 	}
 
+	
+	public LabelledTransitionSystem clone(){
+		LabelledTransitionSystem returnLTS=new LabelledTransitionSystem(this.name);
+		returnLTS.boxIndexes=new HashMap<String, Integer>(this.boxIndexes);
+		returnLTS.mapBoxInterface=new HashMap<String, Set<String>>(this.mapBoxInterface);
+		returnLTS.alphabet=new String[this.alphabet.length];
+		for(int i=0; i<this.alphabet.length; i++){
+			returnLTS.alphabet[i]=this.alphabet[i];
+		}
+		returnLTS.states=new LTSTransitionList[this.states.length];
+		for(int i=0; i<this.states.length; i++){
+			returnLTS.states[i]=LTSTransitionList.copy(this.states[i]);
+		}
+		returnLTS.finalStateIndexes=new HashSet<Integer>(this.finalStateIndexes);
+		return returnLTS;
+	}
 	static private boolean isPrefix(String prefix, String s) {
 		int prefix_end = s.lastIndexOf('.');
 		if (prefix_end < 0)

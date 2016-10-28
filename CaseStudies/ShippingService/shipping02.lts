@@ -59,48 +59,41 @@ CONTROLLER =	INIT,
 // requirement 1
 // 1 the purchase and delivery must only check for some product or shipping info if the user has placed an order.
 // the system should not query the services if no user request is received
-assert CHECK_PRODUCT = []((F_ShipInfoReq || F_ProdInfoReq) -> F_UsrReq)
-// expected: NOT OK
+assert P1 = ([](((F_ShipInfoReq || F_ProdInfoReq) -> (F_UsrReq))) && <>F_UsrAck && [](F_UsrAck->!<>F_ReqCancelled) && [](F_UsrAck-><>F_RespOk))
 // returned: NOT OK
 
 // requirement 2
 // 2 an offer is provided to the user only if the furniture and shipping services have confirmed the availability
-assert CHECK_OFFER	=	[](F_OfferRcvd -> (F_CostAndTime && F_InfoRcvd))
-// expected: NOT OK
-// returned:  NOT OK
+assert P2	=	[](F_OfferRcvd -> (F_CostAndTime && F_InfoRcvd))
+// returned: OK
 
 // requirement 3
 // 3 the furniture and the shipping requirements are activated only if the user has decided to purchase
-assert FURNITURE_AND_SHIPPING_IF_PURCHASE =	[]((F_ShipReq || F_ProdReq) -> F_UsrAck)
-// expected: NOT OK
-// returned:  NOT OK
+assert P3 =	[]((F_ShipReq || F_ProdReq) -> F_UsrAck)
+// returned: OK
 
 // requirement 4
 // 4 the purchase and delivery system allows canceling an order only if the user canceled the order
-assert ORDER_CANCELING= []((F_ProdCancel || F_ShipCancel) -> F_ReqNacked)
-// expected: NOT OK
-// returned:  NOT OK
+assert P4= []((F_ProdCancel || F_ShipCancel) -> F_ReqNacked)
+// returned: OK
 
 
 // requirement 5
 // 5 a request is marked as canceled when both the product ordering and the shipping services have canceled the request
-assert CANCELING_AN_ORDER=[](F_ReqCancelled -> (F_ProdCancelled && F_ShipCancelled))
-// expected: NOT OK
-// returned: NOT OK
+assert P5=[](F_ReqCancelled -> (F_ProdCancelled && F_ShipCancelled))
+// returned: OK
 
 
 // requirement 6
 // 6 the purchase and delivery system finishes successfully only when both the product ordering and the shupping service have handled correctly their requests
-assert FINISH_SUCCESS=[](F_RespOk -> (F_ProdRequested && F_ShipRequested))
-// expected: NOT OK
-// returned:  NOT OK
+assert P6=[](F_RespOk -> (F_ProdRequested && F_ShipRequested))
+// returned: OK
 
 
 // requirement 7
 // 7 the controller should guarantee that infinitely many producs are shipped, the service does not stop its execution
-assert  INFINITE_SHIPPING= [](F_RespOk)
-// expected: NOT OK
-// returned: NOT OK
+assert P7= [](<>F_RespOk)
+// returned: OK
 
 //***************************************************************************************************
 // FLUENTS

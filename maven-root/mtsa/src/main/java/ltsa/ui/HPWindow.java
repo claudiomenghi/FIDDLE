@@ -92,17 +92,6 @@ import ltsa.enactment.MTSAEnactmentSimulation;
 import ltsa.enactment.SchedulerFactory;
 import ltsa.exploration.Explorer;
 import ltsa.exploration.ExplorerDefinition;
-import ltsa.exploration.knowledge.Knowledge;
-import ltsa.exploration.model.Model;
-import ltsa.exploration.strategy.Strategy;
-import ltsa.exploration.strategy.StrategyManager;
-import ltsa.exploration.strategy.StrategyNewAction;
-import ltsa.exploration.strategy.StrategySynthesis;
-import ltsa.exploration.strategy.StrategySynthesisNewAction;
-import ltsa.exploration.view.View;
-import ltsa.exploration.view.ViewNextConfiguration;
-import ltsa.exploration.view.ViewNextConfigurationRandom;
-import ltsa.exploration.view.ViewNextConfigurationTrace;
 import ltsa.jung.LTSJUNGCanvas;
 import ltsa.jung.LTSJUNGCanvas.EnumLayout;
 import ltsa.lts.Diagnostics;
@@ -133,7 +122,6 @@ import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
 import ltsa.lts.parser.PostconditionDefinitionManager;
 import ltsa.lts.parser.PreconditionDefinitionManager;
-import ltsa.lts.parser.Symbol;
 import ltsa.lts.parser.actions.LabelSet;
 import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.lts.util.MTSUtils;
@@ -146,7 +134,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import MTSTools.ac.ic.doc.mtstools.model.SemanticType;
 
 import com.google.common.base.Preconditions;
@@ -201,6 +188,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private static final int DOSAFERYMULTICE = 20;
 	private static final int DOGRAPHUPDATE = 22;
 	private static final int DOPRECONDITION = 26;
+	
+	private static final int DOREALIZABILITY = 27;
 
 	private int theAction = 0;
 	private Thread executer;
@@ -289,12 +278,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JMenuItem edit_find;
 
 	JMenu checkRun, file_example, checkLiveness, compositionStrategy;
-
+	JMenu checkRealizability;
+	
 	JMenu checkPreconditions;
 	JMenu checkPostconditions;
 	JMenuItem default_run;
 	JMenuItem[] runItems;
 	JMenuItem[] assertItems;
+	JMenuItem[] realizabilityItems;
 	JMenuItem[] preconditionsItems;
 	JMenuItem[] postconditionsItems;
 
@@ -502,14 +493,20 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		check_progress = new JMenuItem("Progress");
 		check_progress.addActionListener(new DoAction(DOPROGRESS));
 		check.add(check_progress);
-		checkLiveness = new JMenu("LTL property");
+		
+		checkRealizability=new JMenu("Realizability checker");
+		if (hasLTL2BuchiJar()) {
+			check.add(checkRealizability);
+		}
+		
+		checkLiveness = new JMenu("Model checker");
 		if (hasLTL2BuchiJar()) {
 			check.add(checkLiveness);
 		}
-		checkPreconditions = new JMenu("LTL preconditions");
+		checkPreconditions = new JMenu("Well-formedness checker");
 		check.add(checkPreconditions);
 
-		checkPostconditions = new JMenu("LTL postconditions");
+		checkPostconditions = new JMenu("Substitutability checker");
 		check.add(checkPostconditions);
 
 		checkRun = new JMenu("Run");
@@ -917,21 +914,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			case DOARRANGEDANIMATOR:
 				animate();
 				break;
-			case DOEXPLORATION:
-				showOutput();
-				compile();
-				doComposition();
-				explorationNew();
-				break;
-			case DOEXPLORATIONSTEPOVER:
-				explorationStepover();
-				break;
-			case DOEXPLORATIONMANUAL:
-				explorationManual();
-				break;
-			case DOEXPLORATIONRESUME:
-				explorationResume();
-				break;
 			case DOREACHABLE:
 				showOutput();
 				reachable();
@@ -959,6 +941,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			case DOLIVENESS:
 				showOutput();
 				liveness();
+				break;
+			case DOREALIZABILITY:
+				showOutput();
+				realizability();
 				break;
 			case DOPARSE:
 				parse();
@@ -1121,7 +1107,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		if (f != null)
 			try {
 				openFile = f;
-				setTitle("MTSA - " + openFile);
+				setTitle("FIDDLE " + openFile);
 				InputStream fin;
 				if (!resource)
 					fin = new FileInputStream(dir + openFile);
@@ -1169,7 +1155,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		if (tmp != null) { // if not cancelled
 			currentDirectory = fd.getDirectory();
 			openFile = tmp;
-			setTitle("MTSA - " + openFile);
+			setTitle("FIDDLE - " + openFile);
 			saveFile();
 		}
 	}
@@ -1705,6 +1691,20 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 	}
 
+	class RealizabilityAction implements ActionListener {
+		String asserttarget;
+
+		RealizabilityAction(String s) {
+			asserttarget = s;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			asserted = asserttarget;
+			doAction(DOREALIZABILITY);
+		}
+	}
+	
 	class ReplacementCheckerAction implements ActionListener {
 		String box;
 		String process;
@@ -2192,6 +2192,22 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		compileIfChange();
 	}
 
+	private void realizability(){
+		clearOutput();
+		compileIfChange();
+		CompositeState ltlProperty = AssertDefinition.compile(this, asserted);
+		// Silent compilation for negated formula
+		CompositeState notLtlProperty = AssertDefinition.compile(
+				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
+		current.compose(new EmptyLTSOuput());
+	
+		if (ltlProperty != null) {
+
+			TransitionSystemDispatcher.checkRealizability(current, ltlProperty,
+					notLtlProperty,  this);
+			postState(current);
+		}
+	}
 	private void liveness() {
 		clearOutput();
 		compileIfChange();
@@ -2200,16 +2216,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		CompositeState notLtlProperty = AssertDefinition.compile(
 				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
 		current.compose(new EmptyLTSOuput());
-		System.out.println("MODEL TO BE CHECHED: states: "
-				+ current.getComposition().getStates().length
-				+ "\t transitions: "
-				+ current.getComposition().getTransitionNumber());
-
-		System.out.println("PROPERTY TO BE CHECHED: states: "
-				+ ltlProperty.getComposition().getStates().length
-				+ "\t transitions: "
-				+ ltlProperty.getComposition().getTransitionNumber());
-		if (current != null && ltlProperty != null) {
+		
+		if (ltlProperty != null) {
 
 			TransitionSystemDispatcher.checkFLTL(current, ltlProperty,
 					notLtlProperty, this.setFair.isSelected(), this);
@@ -2267,162 +2275,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		return false;
 	}
 
-	private void explorationNew() {
-		// Definition
-		String choice = (String) targetChoice.getSelectedItem();
-		if (explorerDefinitions == null
-				|| !explorerDefinitions.containsKey(choice)) {
-			this.outln(choice + " is not a valid explorer");
-			return;
-		}
-		ExplorerDefinition explorerDefinition = explorerDefinitions.get(choice);
+	
 
-		// View
-		LabelledTransitionSystem[] components = new LabelledTransitionSystem[explorerDefinition
-				.getView().size()];
-		for (int i = 0; i < explorerDefinition.getView().size(); i++)
-			for (int j = 0; j < current.getMachines().size(); j++)
-				if (explorerDefinition.getView().get(i).getValue()
-						.equals(current.getMachines().elementAt(j).getName()))
-					components[i] = current.getMachines().elementAt(j);
-
-		List<List<Symbol>> environmentActions = explorerDefinition
-				.getEnvironmentActions();
-		ViewNextConfiguration[] viewConfigurations = new ViewNextConfiguration[current
-				.getMachines().size() - 1];
-		for (int i = 1; i < components.length; i++) {
-			if (environmentActions != null && environmentActions.size() > i - 1) {
-				String[] trace = new String[environmentActions.get(i - 1)
-						.size()];
-				for (int j = 0; j < trace.length; j++)
-					trace[j] = environmentActions.get(i - 1).get(j).toString();
-				viewConfigurations[i] = new ViewNextConfigurationTrace(trace);
-			} else
-				viewConfigurations[i] = new ViewNextConfigurationRandom();
-		}
-
-		View view = new View(components, viewConfigurations);
-
-		// Model
-		LabelledTransitionSystem[] knowledge_configurations = new LabelledTransitionSystem[explorerDefinition
-				.getModel().size()];
-		for (int i = 0; i < explorerDefinition.getView().size(); i++)
-			for (int j = 0; j < current.getMachines().size(); j++)
-				if (explorerDefinition.getModel().get(i).getValue()
-						.equals(current.getMachines().elementAt(j).getName()))
-					knowledge_configurations[i] = current.getMachines()
-							.elementAt(j);
-
-		LabelledTransitionSystem[] model_configurations = new LabelledTransitionSystem[knowledge_configurations.length];
-		for (int i = 0; i < model_configurations.length; i++)
-			model_configurations[i] = knowledge_configurations[i].myclone();
-
-		Model model = new Model(model_configurations);
-
-		// Knowledge
-		Knowledge knowledge = new Knowledge(knowledge_configurations);
-
-		// Goal
-		GRControllerGoal<String> goal = current.goal;
-		HashSet<String> controlableActions = new HashSet<>(0);
-		for (String anAction : goal.getControllableActions())
-			if (!anAction.contains("["))
-				controlableActions.add(anAction);
-		goal.setControllableActions(controlableActions);
-
-		// Strategy manager
-		Strategy[] strategies = new Strategy[1];
-		strategies[0] = new StrategySynthesisNewAction(new StrategySynthesis(
-				knowledge, goal.copy()), new StrategyNewAction(knowledge,
-				goal.copy()));
-		// strategies[0] = new StrategyNewAction(knowledge, goal.copy());
-		StrategyManager strategyManager = new StrategyManager(strategies);
-
-		// Explorer
-		this.explorer = new Explorer(view, model, knowledge, goal,
-				strategyManager);
-		String action = "      ";
-		String state = String.valueOf(knowledge.getCurrentStates()[0]);
-		while (state.length() < 3)
-			state = " " + state;
-		this.outln(action + "  ->  " + state);
-
-		current.setComposition(null);
-		current.makeController = false;
-		postState(current);
-		draws.setCurrentState(this.explorer.getCurrentStateNumbers());
-		layouts.setCurrentState(this.explorer.getCurrentStateNumbers());
-	}
-
-	private void explorationManual() {
-		if (this.explorer == null)
-			throw new UnsupportedOperationException("Primero hay que explorar");
-
-		String mtsControlProblemAnswer = this.explorer
-				.getMTSControlProblemAnswer();
-
-		if (mtsControlProblemAnswer.equals("ALL")) {
-			this.outln("All implementations can be controlled");
-			return;
-		}
-
-		if (mtsControlProblemAnswer.equals("NONE")) {
-			this.outln("There is no controller for model for the given setting");
-			return;
-		}
-
-		String[] aviableActions = this.explorer.getAviableActions();
-		int choice = JOptionPane.showOptionDialog(null,
-				"Choose the next action", "Next action",
-				JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-				aviableActions, aviableActions[0]);
-
-		if (choice == -1)
-			return;
-
-		this.explorer.explore(aviableActions[choice]);
-
-		exploration_output();
-	}
-
-	private String explorationStepover() {
-		if (this.explorer == null)
-			throw new UnsupportedOperationException("Primero hay que explorar");
-
-		String mtsControlProblemAnswer = "";
-		Integer steps_count = getStepsCount();
-		for (int i = 0; i < steps_count; i++) {
-			mtsControlProblemAnswer = this.explorer
-					.getMTSControlProblemAnswer();
-
-			if (mtsControlProblemAnswer.equals("ALL")) {
-				this.outln("All implementations can be controlled");
-				break;
-			}
-
-			if (mtsControlProblemAnswer.equals("NONE")) {
-				this.outln("There is no controller for model for the given setting");
-				break;
-			}
-
-			if (mtsControlProblemAnswer.equals("RESET"))
-				explorer.reset();
-
-			if (mtsControlProblemAnswer.equals("SOME"))
-				this.explorer.explore();
-
-			exploration_output();
-		}
-
-		return mtsControlProblemAnswer;
-	}
-
-	private void explorationResume() {
-		String mtsControlProblemAnswer = explorationStepover();
-		while (mtsControlProblemAnswer.equals("SOME")
-				|| mtsControlProblemAnswer.equals("RESET"))
-			mtsControlProblemAnswer = explorationStepover();
-	}
 
 	private void exploration_output() {
 		ArrayList<String> traceStates = this.explorer.getTraceLastStates();
@@ -2896,6 +2750,20 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				checkRun.add(runItems[i]);
 			}
 		}
+		
+		// deals with checkRealizability menu
+		this.checkRealizability.removeAll();
+		assertNames = AssertDefinition.names();
+		if (assertNames != null) {
+			realizabilityItems = new JMenuItem[assertNames.length];
+			for (int i = 0; i < assertNames.length; ++i) {
+				realizabilityItems[i] = new JMenuItem(assertNames[i]);
+				realizabilityItems[i].addActionListener(new RealizabilityAction(
+						assertNames[i]));
+				checkRealizability.add(realizabilityItems[i]);
+			}
+		}
+		
 		// deal with assert menu
 		checkLiveness.removeAll();
 		assertNames = AssertDefinition.names();
@@ -2908,6 +2776,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				checkLiveness.add(assertItems[i]);
 			}
 		}
+		
+		
 		// deal with preconditions
 		checkPreconditions.removeAll();
 		Set<String> preconditionsNames = comp
@@ -3014,7 +2884,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		} catch (Exception ignored) {
 		}
 		HPWindow window = new HPWindow(null);
-		window.setTitle("MTS Analyser");
+		window.setTitle("FIDDLE");
 		window.pack();
 		HPWindow.centre(window);
 		window.setVisible(true);
