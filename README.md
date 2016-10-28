@@ -7,3 +7,10 @@ The scalability results are contained in the [Results](Results) folder. Further 
 
 To main class of FIDDLE is <code>HPWindow.java</code>
 
+
+# Running the realizability checker
+
+
+[![Running the Realizability Checker](/md-files/FIDDLE.png
+)](https://www.youtube.com/watch?v=Cz_YFBb0YJI "Realizabilty checker")
+

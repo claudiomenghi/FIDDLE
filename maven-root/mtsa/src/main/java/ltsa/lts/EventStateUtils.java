@@ -4,7 +4,6 @@ import java.io.PrintStream;
 import java.util.Hashtable;
 
 import ltsa.lts.automata.lts.state.LTSTransitionList;
-import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
 import ltsa.lts.csp.Declaration;
 import ltsa.lts.util.collections.MyIntHash;
 
@@ -27,30 +26,10 @@ public class EventStateUtils {
 				int next = q.getNext() < 0 ? Declaration.ERROR
 						: ((Integer) oldtonew.get(new Integer(q.getNext())))
 								.intValue();
-				if (q instanceof ProbabilisticEventState) {
-					newhead = EventStateUtils.add(
-							newhead,
-							new ProbabilisticEventState(q.getEvent(), next,
-									((ProbabilisticEventState) q)
-											.getProbability(),
-									((ProbabilisticEventState) q).getBundle()));
-					ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q)
-							.getProbTr();
-					while (probSt != null) {
-						next = probSt.getNext() < 0 ? Declaration.ERROR
-								: ((Integer) oldtonew.get(new Integer(probSt
-										.getNext()))).intValue();
-						newhead = EventStateUtils.add(
-								newhead,
-								new ProbabilisticEventState(probSt.getEvent(),
-										next, probSt.getProbability(), probSt
-												.getBundle()));
-						probSt = (ProbabilisticEventState) probSt.getProbTr();
-					}
-				} else {
-					newhead = EventStateUtils.add(newhead,
-							new LTSTransitionList(q.getEvent(), next));
-				}
+
+				newhead = EventStateUtils.add(newhead,
+						new LTSTransitionList(q.getEvent(), next));
+
 				q = q.getNondet();
 			}
 			p = p.getList();
@@ -67,32 +46,9 @@ public class EventStateUtils {
 			while (q != null) {
 				int next = q.getNext() < 0 ? Declaration.ERROR : oldtonew.get(q
 						.getNext());
-				if (q instanceof ProbabilisticEventState) {
-					newhead = EventStateUtils.add(
-							newhead,
-							new ProbabilisticEventState(q.getEvent(), next,
-									((ProbabilisticEventState) q)
-											.getProbability(),
-									((ProbabilisticEventState) q).getBundle()));
-					ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q)
-							.getProbTr();
-					while (probSt != null) {
-						next = probSt.getNext() < 0 ? Declaration.ERROR
-								: oldtonew.get(probSt.getNext());
-						newhead = EventStateUtils.add(
-								newhead,
-								new ProbabilisticEventState(probSt.getEvent(),
-										next,
-										((ProbabilisticEventState) probSt)
-												.getProbability(),
-										((ProbabilisticEventState) probSt)
-												.getBundle()));
-						probSt = (ProbabilisticEventState) probSt.getProbTr();
-					}
-				} else {
-					newhead = EventStateUtils.add(newhead,
-							new LTSTransitionList(q.getEvent(), next));
-				}
+
+				newhead = EventStateUtils.add(newhead,
+						new LTSTransitionList(q.getEvent(), next));
 				q = q.getNondet();
 			}
 			p = p.getList();
@@ -124,20 +80,6 @@ public class EventStateUtils {
 								&& !visited.containsKey(q.getNext()))
 							stack = LTSTransitionList.push(stack, q);
 
-						if (q instanceof ProbabilisticEventState) {
-							ProbabilisticEventState probSt = (ProbabilisticEventState) ((ProbabilisticEventState) q)
-									.getProbTr();
-							while (probSt != null) {
-								if (probSt.getNext() >= 0
-										&& !visited.containsKey(probSt
-												.getNext()))
-									stack = LTSTransitionList.push(stack,
-											probSt);
-								probSt = (ProbabilisticEventState) probSt
-										.getProbTr();
-							}
-						}
-
 						q = q.getNondet();
 					}
 					p = p.getList();
@@ -157,26 +99,9 @@ public class EventStateUtils {
 			LTSTransitionList q = p;
 			while (q != null) {
 				LTSTransitionList evSt;
-				if (q instanceof ProbabilisticEventState) {
-					ProbabilisticEventState probQ = (ProbabilisticEventState) q;
-					evSt = new ProbabilisticEventState(probQ.getEvent(),
-							probQ.getNext(), probQ.getProbability(),
-							probQ.getBundle());
-					res = EventStateUtils.add(res, evSt);
 
-					ProbabilisticEventState probSt = (ProbabilisticEventState) probQ
-							.getProbTr();
-					while (probSt != null) {
-						evSt = new ProbabilisticEventState(probSt.getEvent(),
-								probSt.getNext(), probSt.getProbability(),
-								probSt.getBundle());
-						res = EventStateUtils.add(res, evSt);
-						probSt = (ProbabilisticEventState) probSt.getProbTr();
-					}
-				} else {
-					evSt = new LTSTransitionList(q.getEvent(), q.getNext());
-					res = EventStateUtils.add(res, evSt);
-				}
+				evSt = new LTSTransitionList(q.getEvent(), q.getNext());
+				res = EventStateUtils.add(res, evSt);
 
 				q = q.getNondet();
 			}
@@ -219,44 +144,20 @@ public class EventStateUtils {
 
 		if (p.getEvent() == transitionToBeAdded.getEvent()) {
 			// check if probabilistic
-			if (transitionToBeAdded instanceof ProbabilisticEventState) {
-				// p must also be ProbabilisticEventState
-				ProbabilisticEventState newP, newTr;
-				try {
-					newP = (ProbabilisticEventState) p;
-					newTr = (ProbabilisticEventState) transitionToBeAdded;
-					// check if it is for existing bundle
-					while (newP != null && newP.getEvent() == newTr.getEvent()
-							&& newTr.getBundle() != newP.getBundle()) {
-						newP = (ProbabilisticEventState) newP.getNondet();
-					}
 
-					if (newP != null) {
-						// it is a known bundle
-						newTr.setProbTr(newP.getProbTr());
-						newP.setProbTr(newTr);
-					} else {
-						// is a new bundle, a nondet transition on event
-						newTr.setNondet(p.getNondet());
-						p.setNondet(newTr);
-					}
-				} catch (ClassCastException e) {
-					Diagnostics.fatal("Probabilistic transitions expected", e);
-				}
-			} else {
-				// add to nondet
-				LTSTransitionList q = p;
+			// add to nondet
+			LTSTransitionList q = p;
+			if (q.getNext() == transitionToBeAdded.getNext()) {
+				return head;
+			}
+			while (q.getNondet() != null) {
+				q = q.getNondet();
 				if (q.getNext() == transitionToBeAdded.getNext()) {
 					return head;
 				}
-				while (q.getNondet() != null) {
-					q = q.getNondet();
-					if (q.getNext() == transitionToBeAdded.getNext()) {
-						return head;
-					}
-				}
-				q.setNondet(transitionToBeAdded);
 			}
+			q.setNondet(transitionToBeAdded);
+
 		} else { // unknown event, add after p
 			transitionToBeAdded.setList(p.getList());
 			p.setList(transitionToBeAdded);
@@ -275,24 +176,13 @@ public class EventStateUtils {
 		while (p != null) {
 			LTSTransitionList q = p;
 			while (q != null) {
-				if (q instanceof ProbabilisticEventState) {
-					ProbabilisticEventState probQ = (ProbabilisticEventState) q;
-					do {
-						res = EventStateUtils.add(
-								res,
-								new ProbabilisticEventState(probQ.getNext(),
-										probQ.getEvent(), probQ
-												.getProbability(), probQ
-												.getBundle()));
-						probQ = (ProbabilisticEventState) probQ.getProbTr();
-					} while (probQ != null);
-				} else {
-					res = EventStateUtils.add(res,
-							new LTSTransitionList(q.getNext(), q.getEvent())); // swap
-																				// event
-																				// &
-																				// next
-				}
+
+				res = EventStateUtils.add(res,
+						new LTSTransitionList(q.getNext(), q.getEvent())); // swap
+																			// event
+																			// &
+																			// next
+
 				q = q.getNondet();
 			}
 			p = p.getList();
@@ -305,16 +195,7 @@ public class EventStateUtils {
 				int n = q.getNext();
 				q.setNext(q.getEvent());
 				q.setEvent(n);
-				if (q instanceof ProbabilisticEventState) {
-					ProbabilisticEventState probQ = (ProbabilisticEventState) q;
-					probQ = (ProbabilisticEventState) probQ.getProbTr();
-					while (probQ != null) {
-						n = probQ.getNext();
-						probQ.setNext(probQ.getEvent());
-						probQ.setEvent(n);
-						probQ = (ProbabilisticEventState) probQ.getProbTr();
-					}
-				}
+
 				q = q.getNondet();
 			}
 			p = p.getList();
@@ -325,25 +206,13 @@ public class EventStateUtils {
 	public static void printAUT(LTSTransitionList head, int from,
 			String[] alpha, PrintStream output) {
 		LTSTransitionList p = head;
-		ProbabilisticEventState probP;
 		while (p != null) {
 			LTSTransitionList q = p;
 			while (q != null) {
 
-				if (q instanceof ProbabilisticEventState) {
-					probP = (ProbabilisticEventState) q;
-					while (probP != null) {
-						output.print("(" + from + "," + alpha[probP.getEvent()]
-								+ "{" + probP.getBundle() + ":"
-								+ probP.getProbability() + "},"
-								+ probP.getNext() + ")\n");
-						probP = (ProbabilisticEventState) probP.getProbTr();
-					}
+				output.print("(" + from + "," + alpha[q.getEvent()] + ","
+						+ q.getNext() + ")\n");
 
-				} else {
-					output.print("(" + from + "," + alpha[q.getEvent()] + ","
-							+ q.getNext() + ")\n");
-				}
 				q = q.getNondet();
 			}
 			p = p.getList();
@@ -357,14 +226,7 @@ public class EventStateUtils {
 			LTSTransitionList q = p;
 			while (q != null) {
 				n++;
-				if (q instanceof ProbabilisticEventState) {
-					ProbabilisticEventState probP = (ProbabilisticEventState) q;
-					probP = (ProbabilisticEventState) probP.getProbTr();
-					while (probP != null) {
-						n++;
-						probP = (ProbabilisticEventState) probP.getProbTr();
-					}
-				}
+				
 				q = q.getNondet();
 			}
 			p = p.getList();

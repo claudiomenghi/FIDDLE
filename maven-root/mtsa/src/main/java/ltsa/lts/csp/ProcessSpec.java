@@ -16,8 +16,6 @@ import ltsa.lts.parser.actions.LabelSet;
 
 /**
  * contains the declaration of a process
- * 
- * @author Claudio Menghi
  *
  */
 public class ProcessSpec extends Declaration {
@@ -25,7 +23,7 @@ public class ProcessSpec extends Declaration {
 	private Symbol name;
 
 	private final PostconditionDefinitionManager postManager;
-	
+
 	public Hashtable<String, Value> constants;
 	public Hashtable<String, Value> init_constants = new Hashtable<>();
 	public Vector<String> parameters = new Vector<>();
@@ -47,37 +45,31 @@ public class ProcessSpec extends Declaration {
 	public boolean isMDP = false;
 	public boolean isStarEnv = false;
 
-	public boolean isReplacement=false;
-	
+	public boolean isReplacement = false;
+
 	public Symbol goal;
 
 	public File importFile = null; // used if the process is imported from a
 									// .aut file
 
 	public ProcessSpec(PostconditionDefinitionManager postManager) {
-		this.postManager=postManager;
-
+		this.postManager = postManager;
+		this.alphaAdditions = new LabelSet(new Vector<>());
 	}
-	
-	
 
 	public boolean isReplacement() {
 		return isReplacement;
 	}
 
-
-
 	public void setReplacement(boolean isReplacement) {
 		this.isReplacement = isReplacement;
 	}
-
-
 
 	public ProcessSpec(PostconditionDefinitionManager postManager, Symbol name) {
 		Preconditions.checkNotNull(name,
 				"The name of the process cannot be null");
 		this.name = name;
-		this.postManager=postManager;
+		this.postManager = postManager;
 	}
 
 	public Symbol getSymbol() {
@@ -183,7 +175,7 @@ public class ProcessSpec extends Declaration {
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		return this.name.getValue();
 	}
 

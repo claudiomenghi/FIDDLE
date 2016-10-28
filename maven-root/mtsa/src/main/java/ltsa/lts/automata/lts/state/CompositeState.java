@@ -6,20 +6,18 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import com.google.common.base.Preconditions;
-
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.automata.automaton.Automata;
-import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
 import ltsa.lts.checkers.Analyser;
 import ltsa.lts.checkers.CounterExample;
 import ltsa.lts.checkers.ProgressCheck;
 import ltsa.lts.csp.Relation;
 import ltsa.lts.ltl.FluentTrace;
-import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.lts.output.LTSOutput;
+import MTSSynthesis.controller.model.gr.GRControllerGoal;
+
+import com.google.common.base.Preconditions;
 
 /**
  * a composite state contains a vector of state machines that must be performed
@@ -78,6 +76,8 @@ public class CompositeState {
 	public boolean makeEnactment = false;
 	public boolean makeControlStack = false;
 
+	public boolean satisfied=true;
+	
 	public Hashtable<String, Object> controlStackEnvironments;
 	public int controlStackSpecificTier = -1;
 	public List<String> enactmentControlled;
@@ -112,9 +112,9 @@ public class CompositeState {
 		this.name = "DEFAULT";
 		this.machines = machine;
 	}
-	
-	public void setName(String name){
-		this.name=name;
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public CompositeState(String name, Vector<LabelledTransitionSystem> machine) {
@@ -182,9 +182,6 @@ public class CompositeState {
 	}
 
 	public void compose(LTSOutput output, boolean ignoreAsterisk) {
-		this.checkProbabilistic();
-
-		
 		if (machines != null && !machines.isEmpty()) {
 
 			Analyser analyzer = new Analyser(this, output, null, ignoreAsterisk);
@@ -193,24 +190,8 @@ public class CompositeState {
 		}
 	}
 
-	public void addMachine(LabelledTransitionSystem machine){
+	public void addMachine(LabelledTransitionSystem machine) {
 		this.machines.addElement(machine);
-	}
-	private void checkProbabilistic() {
-		if (machines != null && !machines.isEmpty()) {
-			if (machines.stream().anyMatch(this::isProbabilisticMachine)) {
-				isProbabilistic = true;
-			}
-		}
-	}
-
-	private boolean isProbabilisticMachine(LabelledTransitionSystem cs) {
-		for (LTSTransitionList evSt : cs.getStates()) {
-			if (evSt instanceof ProbabilisticEventState)
-				return true;
-		}
-
-		return false;
 	}
 
 	public void applyLTSOperations(LTSOutput output) {
@@ -248,16 +229,8 @@ public class CompositeState {
 			TransitionSystemDispatcher.makeAbstractModel(this, output);
 			applyHiding();
 		}
-		if (this.makeController && !this.checkCompatible) {
-			TransitionSystemDispatcher.synthesiseGR(this, output);
-			applyHiding();
-		}
 		if (this.makeSyncController) {
 			TransitionSystemDispatcher.synthesiseSyncController(this, output);
-			applyHiding();
-		}
-		if (this.makeControlStack) {
-			TransitionSystemDispatcher.synthesiseControlStack(this, output);
 			applyHiding();
 		}
 
@@ -315,18 +288,12 @@ public class CompositeState {
 			TransitionSystemDispatcher.makeAbstractModel(this, output);
 			applyHiding();
 		}
-		if (makeController && !checkCompatible) {
-			TransitionSystemDispatcher.synthesiseGRNoText(this, output);
-			applyHiding();
-		}
+
 		if (makeSyncController) {
 			TransitionSystemDispatcher.synthesiseSyncController(this, output);
 			applyHiding();
 		}
-		if (makeControlStack) {
-			TransitionSystemDispatcher.synthesiseControlStack(this, output);
-			applyHiding();
-		}
+		
 
 		if (isStarEnv) {
 			TransitionSystemDispatcher.makeStarEnv(this, output);
@@ -409,15 +376,16 @@ public class CompositeState {
 	 *            the composite state encoding the LTL property
 	 * @throws NullPointerException
 	 *             if the composite state is null
+	 * @return true if the property is satisfied, false otherwise
 	 */
-	public void checkLTL(LTSOutput output, CompositeState cs) {
+	public boolean checkLTL(LTSOutput output, CompositeState cs) {
 
 		Preconditions.checkNotNull(output, "The output cannot be null");
 		Preconditions.checkNotNull(cs, "The composite state cannot be null");
 
 		LabelledTransitionSystem ltlProperty = cs.composition;
 		ltlProperty.setName(cs.getName());
-		
+
 		if (name.equals("DEFAULT") && machines.isEmpty()) {
 			// debug feature for producing consituent machines
 			machines = cs.machines;
@@ -448,6 +416,7 @@ public class CompositeState {
 			hidden = saveHidden;
 			exposeNotHide = saveExposeNotHide;
 		}
+		return this.satisfied;
 	}
 
 	public void minimise(LTSOutput output) {
@@ -601,7 +570,13 @@ public class CompositeState {
 
 	@Override
 	public CompositeState clone() {
-		CompositeState c = new CompositeState(getName(), machines);
+		
+		Vector<LabelledTransitionSystem> newMachines=new Vector<LabelledTransitionSystem>();
+		for (LabelledTransitionSystem currentMachine : machines) {
+			newMachines.add(currentMachine.clone());
+		}
+		
+		CompositeState c = new CompositeState(getName(), newMachines);
 		c.setCompositionType(getCompositionType());
 		c.makeAbstract = makeAbstract;
 		c.makeClousure = makeClousure;
@@ -629,9 +604,10 @@ public class CompositeState {
 		return hidden;
 	}
 
-	public void addHiddenAction(String action){
+	public void addHiddenAction(String action) {
 		this.hidden.add(action);
 	}
+
 	public void setHidden(Vector<String> hidden) {
 		this.hidden = hidden;
 	}

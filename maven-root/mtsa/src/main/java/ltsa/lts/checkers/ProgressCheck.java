@@ -60,12 +60,21 @@ public class ProgressCheck {
 		findCC(); // compute components
 		// output.outln("#connected components = "+ncomp);
 		long finish = System.currentTimeMillis();
-		if (hasERROR)
+		if (hasERROR){
+			if(mach instanceof Analyser){
+				((Analyser) mach).cs.satisfied=false;
+			}
 			output.outln("Safety property violation detected - check safety.");
+		}
 		else if (violation == 0)
 			output.outln("No progress violations detected.");
-		else if (violation > Maxviolation)
+		else if (violation > Maxviolation){
+			if(mach instanceof Analyser){
+				((Analyser) mach).cs.satisfied=false;
+					
+			}
 			output.outln("More than " + Maxviolation + " violations");
+		}
 		output.outln("Progress Check in: " + (finish - start) + "ms");
 	}
 
@@ -81,12 +90,22 @@ public class ProgressCheck {
 		stack = new Stack<>();
 		findCC(); // compute components
 		long finish = System.currentTimeMillis();
-		if (hasERROR)
+		if (hasERROR){
+			if(mach instanceof Analyser){
+				((Analyser) mach).cs.satisfied=false;
+					
+			}
 			output.outln("Safety property violation detected - check safety.");
+
+		}
 		else {
 			if (violation == 0) {
 				output.outln("No LTL Property violations detected.");
 			} else {
+				if(mach instanceof Analyser){
+					((Analyser) mach).cs.satisfied=false;
+						
+				}
 				if (violation > Maxviolation) {
 					output.outln("More than " + Maxviolation + " violations");
 				}

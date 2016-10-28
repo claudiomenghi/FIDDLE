@@ -10,14 +10,13 @@ import java.util.BitSet;
 
 import javax.swing.JPanel;
 
-import com.google.common.base.Preconditions;
-
 import ltsa.lts.EventStateUtils;
 import ltsa.lts.automata.lts.Alphabet;
-import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
-import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.csp.Declaration;
+
+import com.google.common.base.Preconditions;
 
 public class DrawMachine {
 
@@ -334,25 +333,7 @@ public class DrawMachine {
 									ntrans[tr.getNext() + 1], i == lastselected
 											&& tr.getNext() == selected
 											&& lastaction != null, false);
-							if (tr instanceof ProbabilisticEventState) {
-								ProbabilisticEventState probTr = (ProbabilisticEventState) ((ProbabilisticEventState) tr)
-										.getProbTr();
-								while (probTr != null) {
-									ntrans[probTr.getNext() + 1]++;
-									drawTransition(
-											g,
-											i,
-											probTr,
-											event,
-											ntrans[probTr.getNext() + 1],
-											i == lastselected
-													&& probTr.getNext() == selected
-													&& lastaction != null,
-											false);
-									probTr = (ProbabilisticEventState) probTr
-											.getProbTr();
-								}
-							}
+						
 							tr = tr.getNondet();
 						}
 					}
@@ -376,24 +357,6 @@ public class DrawMachine {
 										i == lastselected
 												&& tr.getNext() == selected,
 										true);
-								if (tr instanceof ProbabilisticEventState) {
-									ProbabilisticEventState probTr = (ProbabilisticEventState) ((ProbabilisticEventState) tr)
-											.getProbTr();
-									while (probTr != null) {
-										ntrans[probTr.getNext() + 1]++;
-										drawTransition(
-												g,
-												i,
-												probTr,
-												event,
-												ntrans[probTr.getNext() + 1],
-												i == lastselected
-														&& probTr.getNext() == selected,
-												true);
-										probTr = (ProbabilisticEventState) probTr
-												.getProbTr();
-									}
-								}
 							} else {
 								if (ntrans[tr.getNext() + 1] == 1) {
 									// drawTransition(g,i,tr.next,labels[i+1][tr.next+1],ntrans[tr.next+1],
@@ -405,29 +368,6 @@ public class DrawMachine {
 											i == lastselected
 													&& tr.getNext() == selected
 													&& lastaction != null, true);
-									if (tr instanceof ProbabilisticEventState) {
-										ProbabilisticEventState probTr = (ProbabilisticEventState) ((ProbabilisticEventState) tr)
-												.getProbTr();
-										while (probTr != null) {
-											ntrans[probTr.getNext() + 1]++;
-											if (ntrans[probTr.getNext() + 1] == 1) {
-												drawTransition(
-														g,
-														i,
-														probTr,
-														labels[i + 1][probTr
-																.getNext() + 1],
-														ntrans[probTr.getNext() + 1],
-														i == lastselected
-																&& probTr
-																		.getNext() == selected
-																&& lastaction != null,
-														true);
-											}
-											probTr = (ProbabilisticEventState) probTr
-													.getProbTr();
-										}
-									}
 								}
 							}
 							tr = tr.getNondet();
@@ -521,11 +461,6 @@ public class DrawMachine {
 		else
 			g.setColor(Color.black);
 
-		if (toState instanceof ProbabilisticEventState) {
-			ProbabilisticEventState probToState = (ProbabilisticEventState) toState;
-			s = s + " {" + probToState.getBundle() + ":"
-					+ probToState.getProbability() + "}";
-		}
 		g.drawString(s, px, py);
 	}
 

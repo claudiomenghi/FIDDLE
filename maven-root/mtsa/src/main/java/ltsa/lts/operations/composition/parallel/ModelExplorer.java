@@ -1,18 +1,12 @@
 package ltsa.lts.operations.composition.parallel;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import ltsa.lts.Diagnostics;
 import ltsa.lts.animator.ModelExplorerContext;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
-import ltsa.lts.automata.probabilistic.ProbabilisticEventState;
-import ltsa.lts.automata.probabilistic.ProbabilisticTransition;
-import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.util.LTSUtils;
 
 public class ModelExplorer {
@@ -148,13 +142,7 @@ public class ModelExplorer {
 					if (tr.getNondet() != null) {
 						nonDeterministic = true;
 					}
-					if (tr instanceof ProbabilisticEventState) {
-						ProbabilisticEventState probTr = (ProbabilisticEventState) tr;
-						// if (probTr.probTr != null)
-						if (probTr.getProbability().compareTo(BigDecimal.ZERO) != 0
-								|| probTr.getProbTr() != null)
-							probabilistic = true;
-					}
+					
 
 					if (nonDeterministic || probabilistic)
 						break;
@@ -182,12 +170,7 @@ public class ModelExplorer {
 						computeNonDetTransitions(ctx, tr, state,
 								asteriskTransitions = new ArrayList<>(4));
 					}
-				} else {
-					// probabilistic (and possibly nondeterministic)
-					// transitions
-					computeProbabilisticTransitions(ctx, state, tr, state,
-							null, null, transitions);
-				}
+				} 
 
 			}
 			++ac[actionNo];
@@ -250,64 +233,7 @@ public class ModelExplorer {
 		}
 	}
 
-	/**
-	 * Computes probabilistic (and potentially nondeterministic) transitions
-	 * 
-	 * @param ctx
-	 * @param first
-	 *            holds the first EventState on the chain of possible
-	 *            synchronisations
-	 * @param state
-	 * @param v
-	 */
-	private static void computeProbabilisticTransitions(
-			ModelExplorerContext ctx, int[] sourceStates,
-			LTSTransitionList first, int[] state, int[] bundles,
-			BigDecimal[] probs, List v) {
-
-		if (!(first instanceof ProbabilisticEventState)) {
-			Diagnostics.fatal("Probabilistic transitions expected");
-		}
-
-		ProbabilisticEventState tr = (ProbabilisticEventState) first;
-		// outer loop nondeterministic, inner loop probabilistic
-		while (tr != null) {
-			ProbabilisticEventState probTr = tr;
-			while (probTr != null) {
-				if (bundles == null) {
-					bundles = new int[ctx.Nmach];
-					for (int i = 0; i < ctx.Nmach; i++)
-						bundles[i] = ProbabilisticTransition.NO_BUNDLE;
-				}
-
-				if (probs == null)
-					probs = new BigDecimal[ctx.Nmach];
-
-				int[] next = LTSUtils.myclone(state);
-				next[tr.getMachine()] = probTr.getNext();
-				bundles[tr.getMachine()] = probTr.getBundle();
-				probs[tr.getMachine()] = probTr.getProbability();
-
-				if (first.getPath() != null) {
-					computeProbabilisticTransitions(ctx, sourceStates,
-							first.getPath(), next, bundles, probs, v);
-				} else {
-					// last machine
-					ProbabilisticEligibleTransition probNext = new ProbabilisticEligibleTransition();
-					next[ctx.Nmach] = first.getEvent();
-					probNext.next = next;
-					probNext.sourceBundles = LTSUtils.myclone(bundles);
-					probNext.sourceProbs = LTSUtils.myclone(probs);
-					probNext.sourceStates = LTSUtils.myclone(sourceStates);
-					v.add(probNext);
-				}
-
-				probTr = (ProbabilisticEventState) probTr.getProbTr();
-			}
-
-			tr = (ProbabilisticEventState) tr.getNondet();
-		}
-	}
+	
 
 	private static List<int[]> mergeAsterisk(ModelExplorerContext ctx,
 			List<int[]> transitions, List<int[]> asteriskTransitions) {

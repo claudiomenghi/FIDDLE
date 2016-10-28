@@ -80,7 +80,7 @@ public class Analyser implements Animator, Automata {
 	/**
 	 * the composite being operated on
 	 */
-	private CompositeState cs;
+	protected CompositeState cs;
 
 	/**
 	 * array of state machines to be composed
@@ -411,11 +411,13 @@ public class Analyser implements Animator, Automata {
 		if (ret == LTSConstants.DEADLOCK) {
 			output.outln("Trace to DEADLOCK:");
 			tracer.print(output, trace, true);
+			
 		} else {
 			if (ret == LTSConstants.ERROR) {
 				output.outln("Trace to property violation in "
 						+ stateMachines[errorMachine].getName() + ":");
 				tracer.print(output, trace, true);
+				cs.satisfied=false;
 			} else {
 				hasErrors = false;
 				output.outln("No deadlocks/errors");
