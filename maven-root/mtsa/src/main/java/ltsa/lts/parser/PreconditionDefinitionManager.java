@@ -15,6 +15,7 @@ import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.FormulaSyntax;
 import ltsa.lts.ltl.PreconditionDefinition;
+import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.actions.LabelSet;
@@ -149,21 +150,16 @@ public class PreconditionDefinitionManager {
 				.getFormula(), output, alphabetCharacters, name);
 	}
 
-	public CompositeState toProperty(LTSOutput output,
-			List<String> alphabetCharacters, String name) {
+
+
+	public Formula getPrecondition(String name) {
 		Preconditions
 				.checkArgument(
 						preconditions.containsKey(name),
 						"The precondition "
 								+ name
 								+ " is not contained into the set of the preconditions");
-		PreconditionDefinition precondition = preconditions.get(name);
-
-		output.outln("FORMULA: " + precondition.getFac().getFormula()
-				+ " considered");
-
-		return new LTLf2LTS().toProperty(precondition.getFac().getFormula(),
-				output, alphabetCharacters, name);
+		return preconditions.get(name).getFac().getFormula();
 	}
 
 	/**

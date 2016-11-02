@@ -40,15 +40,19 @@ USER = 									(	userReq		->	REQUESTED		),
 //***************************************************************************************************
 // CONTROLLER
 //***************************************************************************************************
-CONTROLLER =	INIT,
+ControllerDefinition =	INIT,
 				INIT 			= 	(	userReq -> 	MANAGEREQUEST 	),
 				box MANAGEREQUEST 	= 	(	respOk 	-> 	INIT	
 										|
 										reqCancelled -> INIT		
 									)[A\{userReq,respOk,reqCancelled}].
 
+|| Controller = ControllerDefinition.
 
-|| System = (Environment || CONTROLLER).
+//***************************************************************************************************
+// SYSTEM
+//***************************************************************************************************
+|| System= (Controller||Environment).
 
 //***************************************************************************************************
 // REQUIREMENTS
@@ -140,12 +144,14 @@ const True = 1
 //***************************************************************************************************
 // PRECONDITIONS
 //***************************************************************************************************
+
+ltl_precondition Controller MANAGEREQUEST MANAGE_REQUEST_REQUIRES_PENDING_REQUEST=<>(F_UserReq && !<>(F_RespOk || F_ReqCancelled))
+
 // the MANAGEREQUEST black box state can be entered only if there is a pending request
-// violated since when I left the box there is no guarantee that respOk or reqCanceled occurs.
+// violated since when I left the box there is no guarantee that a F_ShipRequested is terminated.
 // Then, I can re-enter the box by making the precondition violated.
 // POSTCONDITIONS must be considered as well!
-ltl_precondition CONTROLLER MANAGEREQUEST MANAGE_REQUEST_REQUIRES_PENDING_REQUEST=<>(F_UserReq && !<>(F_RespOk || F_ReqCancelled))
-
+ltl_precondition Controller MANAGEREQUEST MANAGE_REQUEST_PRODUCT_INFO=<>(F_UserReq && !<>(F_ShipRequested))
 
 
 

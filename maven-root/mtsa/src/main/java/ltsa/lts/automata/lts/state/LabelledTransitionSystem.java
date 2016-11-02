@@ -56,7 +56,7 @@ public class LabelledTransitionSystem implements Automata {
 	 * maps each box to the corresponding set of String, i.e., the interface of
 	 * the automaton
 	 */
-	public Map<String, Set<String>> mapBoxInterface = new HashMap<>();
+	private Map<String, Set<String>> mapBoxInterface = new HashMap<>();
 
 	/**
 	 * The alphabet of the automaton
@@ -73,8 +73,6 @@ public class LabelledTransitionSystem implements Automata {
 	 * contains the index of the final states
 	 */
 	private Set<Integer> finalStateIndexes;
-
-	private String mtsControlProblemAnswer;
 
 	/**
 	 * contains the number of end of sequence state if any
@@ -102,6 +100,7 @@ public class LabelledTransitionSystem implements Automata {
 		Preconditions.checkNotNull(name, "The name cannot be null");
 		this.name = name;
 		this.finalStateIndexes = new HashSet<>();
+		this.boxIndexes=new HashMap<>();
 	}
 
 	public LabelledTransitionSystem(String name, int maxStates) {
@@ -116,7 +115,6 @@ public class LabelledTransitionSystem implements Automata {
 			int endSequence) {
 		this(name);
 
-		this.mtsControlProblemAnswer = "";
 		this.alphabet = alphabet;
 		this.states = new LTSTransitionList[context.stateCount];
 
@@ -141,7 +139,6 @@ public class LabelledTransitionSystem implements Automata {
 			int endSequence) {
 		this(name);
 
-		this.mtsControlProblemAnswer = "";
 		this.alphabet = alphabet;
 		this.states = new LTSTransitionList[stateNumber];
 		while (!transitions.empty()) {
@@ -183,6 +180,15 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	/**
+	 * returns the name of the boxes of the LTS
+	 * 
+	 * @return the name of the boxes of the LTS
+	 */
+	public Set<String> getBoxes() {
+		return Collections.unmodifiableSet(this.mapBoxInterface.keySet());
+	}
+
+	/**
 	 * adds the specified event to the set of events of the automaton
 	 * 
 	 * @param event
@@ -207,6 +213,7 @@ public class LabelledTransitionSystem implements Automata {
 
 	public void addBoxIndex(String boxName, Integer boxPosition) {
 		this.boxIndexes.put(boxName, boxPosition);
+		this.mapBoxInterface.put(boxName, new HashSet<String>());
 	}
 
 	/**
@@ -214,7 +221,7 @@ public class LabelledTransitionSystem implements Automata {
 	 * 
 	 * @return
 	 */
-	public List<String> getAlphabetCharacters() {
+	public List<String> getAlphabetEvents() {
 		List<String> alphabetCharacters = new ArrayList<>();
 		for (int i = 0; i < this.alphabet.length; i++) {
 			if (!this.alphabet[i].startsWith("?")
@@ -240,12 +247,6 @@ public class LabelledTransitionSystem implements Automata {
 
 	public String getName() {
 		return this.name;
-	}
-
-	
-
-	public void setMtsControlProblemAnswer(String answer) {
-		this.mtsControlProblemAnswer = answer;
 	}
 
 	public void reachable() {
@@ -918,6 +919,57 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	/**
+	 * sets the interface of the specified box
+	 * 
+	 * @param boxName
+	 *            the name of the box
+	 * @param boxInterface
+	 *            the interface of the box
+	 */
+	public void setBoxInterface(String boxName, Set<String> boxInterface) {
+
+		Preconditions.checkNotNull(boxName,
+				"The name of the box cannot be null");
+		Preconditions.checkNotNull(boxInterface,
+				"The interface of the box cannot be null");
+
+		Preconditions.checkArgument(this.boxIndexes.keySet().contains(boxName),
+				"The box " + boxName
+						+ " is not contained in the boxes of the LTS");
+
+		Preconditions
+				.checkArgument(
+						new HashSet<String>(Arrays.asList(this.alphabet))
+								.containsAll(boxInterface),
+						"The interface of the box includes some events that do not belong to the LTS");
+
+		this.mapBoxInterface.put(boxName, new HashSet<String>(boxInterface));
+	}
+
+	/**
+	 * returns the interface of the box
+	 * 
+	 * @param boxName
+	 *            the name of the box
+	 * @return the interface of the box, i.e., the set of events that can occur
+	 *         while the system is in the box
+	 * @throws NullPointerException
+	 *             if the name of the box is null
+	 * @throws IllegalArgumentException
+	 *             if the box is not contained into the set of the box of the
+	 *             LTS
+	 */
+	public Set<String> getBoxInterface(String boxName) {
+
+		Preconditions.checkNotNull(boxName,
+				"The name of the box cannot be null");
+		Preconditions.checkArgument(this.mapBoxInterface.containsKey(boxName),
+				"The box " + boxName + " is not a box of the LTS");
+
+		return this.mapBoxInterface.get(boxName);
+	}
+
+	/**
 	 * Computes the possible set of states that could result from the given
 	 * sequence of events occurring from the given set of states. If stopOnError
 	 * is set, then the ErrorStateReachedException is thrown upon encountering
@@ -1342,22 +1394,25 @@ public class LabelledTransitionSystem implements Automata {
 		}
 	}
 
-	
-	public LabelledTransitionSystem clone(){
-		LabelledTransitionSystem returnLTS=new LabelledTransitionSystem(this.name);
-		returnLTS.boxIndexes=new HashMap<String, Integer>(this.boxIndexes);
-		returnLTS.mapBoxInterface=new HashMap<String, Set<String>>(this.mapBoxInterface);
-		returnLTS.alphabet=new String[this.alphabet.length];
-		for(int i=0; i<this.alphabet.length; i++){
-			returnLTS.alphabet[i]=this.alphabet[i];
+	public LabelledTransitionSystem clone() {
+		LabelledTransitionSystem returnLTS = new LabelledTransitionSystem(
+				this.name);
+		returnLTS.boxIndexes = new HashMap<>(this.boxIndexes);
+		returnLTS.mapBoxInterface = new HashMap<String, Set<String>>(
+				this.mapBoxInterface);
+		returnLTS.alphabet = new String[this.alphabet.length];
+		for (int i = 0; i < this.alphabet.length; i++) {
+			returnLTS.alphabet[i] = this.alphabet[i];
 		}
-		returnLTS.states=new LTSTransitionList[this.states.length];
-		for(int i=0; i<this.states.length; i++){
-			returnLTS.states[i]=LTSTransitionList.copy(this.states[i]);
+		returnLTS.states = new LTSTransitionList[this.states.length];
+		for (int i = 0; i < this.states.length; i++) {
+			returnLTS.states[i] = LTSTransitionList.copy(this.states[i]);
 		}
-		returnLTS.finalStateIndexes=new HashSet<Integer>(this.finalStateIndexes);
+		returnLTS.finalStateIndexes = new HashSet<Integer>(
+				this.finalStateIndexes);
 		return returnLTS;
 	}
+
 	static private boolean isPrefix(String prefix, String s) {
 		int prefix_end = s.lastIndexOf('.');
 		if (prefix_end < 0)

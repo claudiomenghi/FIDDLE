@@ -23,13 +23,10 @@ public class SeqProcessRef {
 
 	public static LTSOutput output;
 
-	private boolean forPreconditionChecking;
 
-	public SeqProcessRef(Symbol n, Vector<Stack<Symbol>> params,
-			boolean forPreconditionChecking) {
+	public SeqProcessRef(Symbol n, Vector<Stack<Symbol>> params) {
 		name = n;
 		actualParams = params;
-		this.forPreconditionChecking = forPreconditionChecking;
 	}
 
 	public LabelledTransitionSystem instantiate(

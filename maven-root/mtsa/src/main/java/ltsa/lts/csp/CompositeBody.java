@@ -31,10 +31,8 @@ public class CompositeBody {
 	// private Vector accessors = null; //never used?
 	// private Relation relabels = null;
 
-	private boolean forPreconditionChecking;
 
-	public CompositeBody(boolean forPreconditionChecking) {
-		this.forPreconditionChecking = forPreconditionChecking;
+	public CompositeBody() {
 	}
 
 	/**

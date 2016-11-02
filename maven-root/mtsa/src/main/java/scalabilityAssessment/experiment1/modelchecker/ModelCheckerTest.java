@@ -69,7 +69,7 @@ public class ModelCheckerTest implements Callable<Void> {
 			System.out.println("END- Environment generated in: "
 					+ ((end - start) / 1000) + "s");
 			
-			List<String> eventsEnvironment=new ArrayList<>(environment.getAlphabetCharacters());
+			List<String> eventsEnvironment=new ArrayList<>(environment.getAlphabetEvents());
 			
 			Collections.shuffle(eventsEnvironment);
 			String event1 = eventsEnvironment.get(0);
@@ -95,7 +95,7 @@ public class ModelCheckerTest implements Callable<Void> {
 			// check environment + controller VS final property
 
 			PropertyGenerator pg = new PropertyGenerator(
-					environment.getAlphabetCharacters(), event1, event2);
+					environment.getAlphabetEvents(), event1, event2);
 			Formula ltlFormula = pg.getFormulae().get(propertyOfInterest);
 
 			System.out.println("Formula: "+ltlFormula);

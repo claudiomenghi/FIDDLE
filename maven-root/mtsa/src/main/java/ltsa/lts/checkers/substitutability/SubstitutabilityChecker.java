@@ -148,7 +148,7 @@ public class SubstitutabilityChecker {
 		// transform the precondition in an automaton
 
 		List<String> ltsAlphabet = new ArrayList<>(
-				environment.getAlphabetCharacters());
+				environment.getAlphabetEvents());
 		LabelledTransitionSystem preConditionLTS = new LTLf2LTS()
 				.toLTSForPostChecking(precondition, new EmptyLTSOuput(),
 						ltsAlphabet, preconditionName);

@@ -94,7 +94,7 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 			end = System.currentTimeMillis();
 			printMessage("END- Environment generated in:", start, end);
 			List<String> eventsEnvironment = new ArrayList<>(
-					environment.getAlphabetCharacters());
+					environment.getAlphabetEvents());
 
 			Collections.shuffle(eventsEnvironment);
 
@@ -104,8 +104,8 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 					.getComponent(c);
 
 			List<String> alphabet = new ArrayList<>();
-			alphabet.addAll(environment.getAlphabetCharacters());
-			alphabet.addAll(partialController.getAlphabetCharacters());
+			alphabet.addAll(environment.getAlphabetEvents());
+			alphabet.addAll(partialController.getAlphabetEvents());
 
 			end = System.currentTimeMillis();
 			printMessage("END- Partial controller generated in: ", start, end);
@@ -114,15 +114,15 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 					.iterator().next();
 
 			List<String> controllerAlphabet = new ArrayList<>(
-					partialController.mapBoxInterface.get(boxOfInterest));
+					partialController.getBoxInterface(boxOfInterest));
 			Collections.shuffle(controllerAlphabet);
 			String event1 = controllerAlphabet.get(0);
 			String event2 = controllerAlphabet.get(1);
 
 			PostConditionGenerator postConditionGen = new PostConditionGenerator(
 					new ArrayList<>(
-							partialController.mapBoxInterface
-									.get(boxOfInterest)), event1, event2);
+							partialController.getBoxInterface(boxOfInterest)),
+					event1, event2);
 			Formula postConditionFormula = postConditionGen.getFormulae().get(
 					postConditionOfInterest);
 
@@ -130,12 +130,11 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 			start = System.currentTimeMillis();
 			Map<String, LabelledTransitionSystem> mapBoxPostCondition = new HashMap<>();
 			System.out.println("post-condition size.. "
-					+ partialController.mapBoxInterface.get("box").size());
+					+ partialController.getBoxInterface("box").size());
 
 			LabelledTransitionSystem postConditionLTS = new LTLf2LTS().toLTS(
 					postConditionFormula, new EmptyLTSOuput(), new ArrayList<>(
-							partialController.mapBoxInterface.get("box")),
-					"post");
+							partialController.getBoxInterface("box")), "post");
 			end = System.currentTimeMillis();
 			long step1ConvertionOfThePostCondition = end - start;
 			printMessage("END- Post condition converted in: ", start, end);
@@ -144,8 +143,7 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 
 			start = System.currentTimeMillis();
 			partialController = new WellFormednessLTSModifier(
-					new EmptyLTSOuput()).modify(partialController,
-					mapBoxPostCondition, true, boxOfInterest);
+					new EmptyLTSOuput()).modify(partialController, boxOfInterest);
 			end = System.currentTimeMillis();
 			long step2Integration = end - start;
 			printMessage("Integrating post in partial controller: ", start, end);

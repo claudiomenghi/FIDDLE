@@ -17,11 +17,11 @@ public class RandomControllerGenerator {
 
 		int boxIndex = new Random().nextInt(ltsCopy.getStates().length);
 
-		List<String> events = new ArrayList<>(ltsCopy.getAlphabetCharacters());
+		List<String> events = new ArrayList<>(ltsCopy.getAlphabetEvents());
 		List<String> interfaceBox = events.subList(0,
 				size.getEventsControllerInterface());
 		ltsCopy.addBoxIndex("box", boxIndex);
-		ltsCopy.mapBoxInterface.put("box", new HashSet<>(interfaceBox));
+		ltsCopy.setBoxInterface("box", new HashSet<>(interfaceBox));
 
 		return ltsCopy;
 	}

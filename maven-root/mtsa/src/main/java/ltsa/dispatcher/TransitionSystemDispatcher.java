@@ -16,12 +16,11 @@ import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMDPConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MDPToAutomataConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
-import ltsa.control.ControlStackSynthesiser;
 import ltsa.control.util.ControlConstants;
 import ltsa.control.util.ControllerUtils;
 import ltsa.lts.Diagnostics;
-import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.Analyser;
 import ltsa.lts.checkers.realizability.RealizabilityChecker;
 import ltsa.lts.distribution.DistributionDefinition;
@@ -39,15 +38,12 @@ import ltsa.updatingControllers.synthesis.UpdatingControllerSynthesizer;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang.Validate;
 
-import com.google.common.base.Preconditions;
-
 import MTSSynthesis.ac.ic.doc.distribution.DistributionFacade;
 import MTSSynthesis.ac.ic.doc.distribution.model.AlphabetDistribution;
 import MTSSynthesis.ac.ic.doc.distribution.model.DistributionFeedbackItem;
 import MTSSynthesis.ac.ic.doc.distribution.model.DistributionResult;
 import MTSSynthesis.controller.ControllerSynthesisFacade;
 import MTSSynthesis.controller.HeuristicControllerSynthesiser;
-import MTSSynthesis.controller.NondetControlProblem;
 import MTSSynthesis.controller.game.gr.StrategyState;
 import MTSSynthesis.controller.game.model.Assumptions;
 import MTSSynthesis.controller.game.model.Guarantees;
@@ -76,12 +72,12 @@ import MTSTools.ac.ic.doc.mtstools.model.impl.WeakSemantics;
 import MTSTools.ac.ic.doc.mtstools.model.operations.Consistency;
 import MTSTools.ac.ic.doc.mtstools.model.operations.MTSAbstractBuilder;
 import MTSTools.ac.ic.doc.mtstools.model.operations.MTSConstraintBuilder;
-import MTSTools.ac.ic.doc.mtstools.model.operations.TauRemoval;
-import MTSTools.ac.ic.doc.mtstools.model.operations.TraceInclusionClosure;
 import MTSTools.ac.ic.doc.mtstools.model.operations.impl.MTSPropertyToBuchiConverter;
 import MTSTools.ac.ic.doc.mtstools.model.operations.impl.WeakAlphabetMergeBuilder;
 import MTSTools.ac.ic.doc.mtstools.model.predicates.IsDeterministicMTSPredicate;
 import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
+
+import com.google.common.base.Preconditions;
 
 /**
  * This class consists exclusively of static methods that operate on or return

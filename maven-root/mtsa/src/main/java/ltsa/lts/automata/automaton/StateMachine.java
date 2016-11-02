@@ -25,17 +25,12 @@ import ltsa.lts.automata.automaton.transition.Transition;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.lts.state.factory.EventStateFactory;
-import ltsa.lts.checkers.wellformedness.WellFormednessLTSModifier;
 import ltsa.lts.csp.Declaration;
 import ltsa.lts.csp.ProcessSpec;
 import ltsa.lts.csp.Relation;
 import ltsa.lts.output.LTSOutput;
-import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.PostconditionDefinitionManager;
 import ltsa.lts.parser.Value;
 import ltsa.lts.util.Counter;
-import ltsa.ui.EmptyLTSOuput;
-import ltsa.ui.StandardOutput;
 
 import com.google.common.base.Preconditions;
 
@@ -69,8 +64,6 @@ public class StateMachine {
 	 * the alphabet of the state machine
 	 */
 	private Map<String, Integer> alphabet = new HashMap<>();
-
-	private PostconditionDefinitionManager postManager;
 
 	private final String kludgeName;
 
@@ -114,7 +107,6 @@ public class StateMachine {
 		name = spec.getName();
 		kludgeName = name;
 		make(spec);
-		this.postManager = spec.getPostManager();
 	}
 
 	public StateMachine(ProcessSpec spec, Vector<Value> params) {
@@ -125,7 +117,6 @@ public class StateMachine {
 		} else
 			kludgeName = name;
 		make(spec);
-		this.postManager = spec.getPostManager();
 	}
 
 	public boolean isReplacement() {
@@ -275,39 +266,15 @@ public class StateMachine {
 		if (isStarEnv) {
 			c = TransitionSystemDispatcher.getStarEnv(c, output);
 		}
-		c.mapBoxInterface = this.mapBoxInterface;
 
-		for (String boxName : c.mapBoxInterface.keySet()) {
+		for (Entry<String, Set<String>> entry : this.mapBoxInterface.entrySet()) {
+			String boxName = entry.getKey();
 			c.addBoxIndex(boxName, this.getStateIndex(boxName));
+			c.setBoxInterface(boxName, this.mapBoxInterface.get(boxName));
 		}
 
 		for (String finalState : this.finalStates) {
 			c.addFinalStateIndex(this.getStateIndex(finalState));
-		}
-
-		c.mapBoxInterface = this.mapBoxInterface;
-
-		if (this.postManager != null
-				&& this.postManager.getMapBoxPostcondition() != null) {
-			Map<String, String> mapBoxPost = this.postManager
-					.getMapBoxPostcondition().get(name);
-
-			if (mapBoxPost != null) {
-				Map<String, LabelledTransitionSystem> boxPostLTS = new HashMap<>();
-				for (Entry<String, String> mapEntry : mapBoxPost.entrySet()) {
-					String box = mapEntry.getKey();
-					LabelledTransitionSystem cs = this.postManager.compile(
-							// this.output,
-							new StandardOutput(), mapEntry.getValue(),
-							new ArrayList<>(this.mapBoxInterface.get(box)),
-							mapEntry.getValue());
-					boxPostLTS.put(box, cs);
-				}
-				c = new WellFormednessLTSModifier(new EmptyLTSOuput()).modify(
-						c, boxPostLTS, LTSCompiler.forPreconditionChecking,
-						LTSCompiler.boxOfInterest);
-			}
-
 		}
 
 		return c;
@@ -389,8 +356,8 @@ public class StateMachine {
 		// apply alias
 		Enumeration<Integer> e = aliases.keys();
 		while (e.hasMoreElements()) {
-			Integer targ = (Integer) e.nextElement();
-			Integer alias = (Integer) aliases.get(targ);
+			Integer targ = e.nextElement();
+			Integer alias = aliases.get(targ);
 			map[targ.intValue()] = alias.intValue();
 		}
 		// crunch aliases

@@ -2,8 +2,10 @@ package ltsa.lts.automata.lts.state;
 
 import static ltsa.lts.util.MTSUtils.computeHiddenAlphabet;
 
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import ltsa.dispatcher.TransitionSystemDispatcher;
@@ -76,8 +78,8 @@ public class CompositeState {
 	public boolean makeEnactment = false;
 	public boolean makeControlStack = false;
 
-	public boolean satisfied=true;
-	
+	public boolean satisfied = true;
+
 	public Hashtable<String, Object> controlStackEnvironments;
 	public int controlStackSpecificTier = -1;
 	public List<String> enactmentControlled;
@@ -107,25 +109,6 @@ public class CompositeState {
 	 */
 	private Vector<String> componentAlphabet;
 
-	public CompositeState(Vector<LabelledTransitionSystem> machine) {
-
-		this.name = "DEFAULT";
-		this.machines = machine;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public CompositeState(String name, Vector<LabelledTransitionSystem> machine) {
-		Preconditions
-				.checkNotNull(name, "The name of the state cannot be null");
-
-		this.name = name;
-		this.machines = machine;
-		initAlphaStop();
-	}
-
 	/**
 	 * creates a new composite state
 	 * 
@@ -138,6 +121,24 @@ public class CompositeState {
 		Preconditions.checkNotNull(name,
 				"The name of the machine cannot be null");
 
+		this.name = name;
+		this.machines=new Vector<>();
+	}
+
+	public CompositeState(Vector<LabelledTransitionSystem> machine) {
+		this("DEFAULT", machine);
+	}
+
+	public CompositeState(String name, Vector<LabelledTransitionSystem> machine) {
+		this(name);
+		Preconditions.checkNotNull(machine,
+				"The set of machines cannot be null");
+
+		this.machines = machine;
+		initAlphaStop();
+	}
+
+	public void setName(String name) {
 		this.name = name;
 	}
 
@@ -163,6 +164,12 @@ public class CompositeState {
 
 	public void setComponentAlphabet(Vector<String> componentAlphabet) {
 		this.componentAlphabet = componentAlphabet;
+	}
+
+	public Set<String> getAlphabetEvents() {
+		Set<String> alphabet = new HashSet<>();
+		this.machines.forEach(m -> alphabet.addAll(m.getAlphabetEvents()));
+		return alphabet;
 	}
 
 	public Vector<String> getErrorTrace() {
@@ -293,7 +300,6 @@ public class CompositeState {
 			TransitionSystemDispatcher.synthesiseSyncController(this, output);
 			applyHiding();
 		}
-		
 
 		if (isStarEnv) {
 			TransitionSystemDispatcher.makeStarEnv(this, output);
@@ -570,12 +576,12 @@ public class CompositeState {
 
 	@Override
 	public CompositeState clone() {
-		
-		Vector<LabelledTransitionSystem> newMachines=new Vector<LabelledTransitionSystem>();
+
+		Vector<LabelledTransitionSystem> newMachines = new Vector<LabelledTransitionSystem>();
 		for (LabelledTransitionSystem currentMachine : machines) {
 			newMachines.add(currentMachine.clone());
 		}
-		
+
 		CompositeState c = new CompositeState(getName(), newMachines);
 		c.setCompositionType(getCompositionType());
 		c.makeAbstract = makeAbstract;

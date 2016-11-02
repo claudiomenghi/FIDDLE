@@ -76,7 +76,6 @@ public class CompositionExpression {
 	public Vector<Symbol> controlStackEnvironments;
 	public Symbol enactmentControlled;
 
-	private boolean forPreconditionChecking;
 
 	/**
 	 * If the isComponent flag is true, then this ProcessSpec represents a
@@ -93,10 +92,8 @@ public class CompositionExpression {
 
 	private final PostconditionDefinitionManager postManager;
 
-	public CompositionExpression(PostconditionDefinitionManager postManager,
-			boolean forPreconditionChecking) {
+	public CompositionExpression(PostconditionDefinitionManager postManager) {
 		this.postManager = postManager;
-		this.forPreconditionChecking = forPreconditionChecking;
 
 	}
 
