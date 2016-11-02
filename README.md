@@ -22,4 +22,4 @@ To main class of FIDDLE is `HPWindow.java`
 
 
 [![Running the Well-formedness Checker](/md-files/FIDDLE.png
-)](https://www.youtube.com/watch?v=ESazWR_-7CU "Well-formedness checker")
+)](https://youtu.be/e3FJ-AVg88o "Well-formedness checker")
