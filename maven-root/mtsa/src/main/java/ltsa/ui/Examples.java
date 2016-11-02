@@ -25,14 +25,14 @@ public class Examples {
 	}
 	
 	public void getExamples() {
-		  List chapters = getContents("example/contents.txt");
-		  Iterator i = chapters.iterator();
+		  List<String> chapters = getContents("example/contents.txt");
+		  Iterator<String> i = chapters.iterator();
 		  while(i.hasNext()) {
 		  	  String s = (String)i.next();
 		  	  JMenu chapter = new JMenu(s.substring(0,s.indexOf('_')));
 		  	  parent.add(chapter);
-		  	  List examples = getContents("example/"+s+"/contents.txt");
-		  	  Iterator j = examples.iterator();
+		  	  List<String> examples = getContents("example/"+s+"/contents.txt");
+		  	  Iterator<String> j = examples.iterator();
 		  	  while(j.hasNext()) {
 		  	  	  String es = (String)j.next();
 		  	  	  int dot = es.indexOf('.');
@@ -44,8 +44,8 @@ public class Examples {
 		  }
 	}
 	
-	private List getContents(String resource) {
-		List contents = new ArrayList(16);
+	private List<String> getContents(String resource) {
+		List<String> contents = new ArrayList<>(16);
 		try {
 		    InputStream fin = this.getClass().getResourceAsStream(resource);
          BufferedReader myInput = new BufferedReader(new InputStreamReader(fin));

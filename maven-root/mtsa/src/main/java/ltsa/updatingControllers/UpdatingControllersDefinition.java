@@ -35,7 +35,7 @@ public class UpdatingControllersDefinition extends CompositionExpression {
 	private ArrayList<Symbol> checkTrace;
 
 	public UpdatingControllersDefinition(Symbol current) {
-		super(null, false);
+		super(null);
 		super.setName(current);
 		oldController = new Symbol();
 		oldEnvironment = new Symbol();

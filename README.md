@@ -15,3 +15,11 @@ To main class of FIDDLE is `HPWindow.java`
 [![Running the Realizability Checker](/md-files/FIDDLE.png
 )](https://www.youtube.com/watch?v=Cz_YFBb0YJI "Realizabilty checker")
 
+
+# Running the well-formedness checker
+
+###### click on the following video to see how to run the well-formedness checker
+
+
+[![Running the Well-formedness Checker](/md-files/FIDDLE.png
+)](https://www.youtube.com/watch?v=ESazWR_-7CU "Well-formedness checker")

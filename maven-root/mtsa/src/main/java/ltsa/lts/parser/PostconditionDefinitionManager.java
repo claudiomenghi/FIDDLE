@@ -78,8 +78,8 @@ public class PostconditionDefinitionManager {
 		mapProcessBoxes.get(process).add(box);
 
 		if (postconditions.put(postConditionName.toString(),
-				new PostconditionDefinition(postConditionName.getValue(), postConditionName, f, ls, ip, p,
-						box)) != null) {
+				new PostconditionDefinition(postConditionName.getValue(),
+						postConditionName, f, ls, ip, p, box)) != null) {
 			Diagnostics.fatal("duplicate preconditions definition: "
 					+ postConditionName, postConditionName);
 		}
@@ -106,34 +106,6 @@ public class PostconditionDefinitionManager {
 		return mapBoxPostconditions;
 	}
 
-	/**
-	 * returns a state machine describing the violating behaviors
-	 * 
-	 * @param output
-	 *            the output used to print messages
-	 * @param asserted
-	 *            the string representing the precondition to be considered
-	 * @return a state machine describing the violating behaviors
-	 * @throws IllegalArgumentException
-	 *             if the string representing the precondition is not a valid
-	 *             string
-	 */
-	public LabelledTransitionSystem compile(LTSOutput output, String asserted,
-			List<String> alphabetCharacters, String name) {
-		Preconditions
-				.checkArgument(
-						this.postconditions.containsKey(asserted),
-						"The postcondition "
-								+ asserted
-								+ " is not contained into the set of the preconditions");
-		PostconditionDefinition post = this.postconditions.get(asserted);
-
-		output.outln("FORMULA: " + post.getFac().getFormula() + " considered");
-
-		return new LTLf2LTS().toLTS(post.getFac().getFormula(), output,
-				alphabetCharacters, name);
-	}
-
 	public CompositeState compile(LTSOutput output,
 			List<String> alphabetCharacters, String name) {
 		Preconditions
@@ -150,5 +122,8 @@ public class PostconditionDefinitionManager {
 				output, alphabetCharacters, name);
 	}
 
-
+	public LabelledTransitionSystem toFiniteLTS(LTSOutput output,
+			List<String> alphabetCharacters, String name) {
+		return this.compile(output, alphabetCharacters, name).getComposition();
+	}
 }

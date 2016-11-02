@@ -104,6 +104,7 @@ import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.Analyser;
 import ltsa.lts.checkers.ProgressCheck;
 import ltsa.lts.checkers.substitutability.SubstitutabilityChecker;
+import ltsa.lts.checkers.wellformedness.WellFormednessChecker;
 import ltsa.lts.csp.CompositionExpression;
 import ltsa.lts.csp.MenuDefinition;
 import ltsa.lts.csp.ProcessSpec;
@@ -117,6 +118,7 @@ import ltsa.lts.gui.SuperTrace;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.PostconditionDefinition;
 import ltsa.lts.ltl.PreconditionDefinition;
+import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.ltl.formula.factory.FormulaFactory;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
@@ -130,6 +132,7 @@ import ltsa.ui.enactment.EnactorOptionsWindows;
 import ltsa.ui.update.UpdateGraphSimulation;
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 
+import org.jfree.util.Log;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -141,8 +144,8 @@ import com.google.common.base.Preconditions;
 public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		LTSOutput, LTSError, Runnable {
 
-	private final static String fileType = "*.lts";
-	private String openFile = fileType;
+	private static final String FILE_TYPE = "*.lts";
+	private String openFile = FILE_TYPE;
 	String currentDirectory;
 	private String savedText = "";
 	/**
@@ -188,7 +191,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private static final int DOSAFERYMULTICE = 20;
 	private static final int DOGRAPHUPDATE = 22;
 	private static final int DOPRECONDITION = 26;
-	
+
 	private static final int DOREALIZABILITY = 27;
 
 	private int theAction = 0;
@@ -279,8 +282,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	JMenu checkRun, file_example, checkLiveness, compositionStrategy;
 	JMenu checkRealizability;
-	
-	JMenu checkPreconditions;
+
+	JMenu wellFormednessChecker;
 	JMenu checkPostconditions;
 	JMenuItem default_run;
 	JMenuItem[] runItems;
@@ -493,18 +496,18 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		check_progress = new JMenuItem("Progress");
 		check_progress.addActionListener(new DoAction(DOPROGRESS));
 		check.add(check_progress);
-		
-		checkRealizability=new JMenu("Realizability checker");
+
+		checkRealizability = new JMenu("Realizability checker");
 		if (hasLTL2BuchiJar()) {
 			check.add(checkRealizability);
 		}
-		
+
 		checkLiveness = new JMenu("Model checker");
 		if (hasLTL2BuchiJar()) {
 			check.add(checkLiveness);
 		}
-		checkPreconditions = new JMenu("Well-formedness checker");
-		check.add(checkPreconditions);
+		wellFormednessChecker = new JMenu("Well-formedness checker");
+		check.add(wellFormednessChecker);
 
 		checkPostconditions = new JMenu("Substitutability checker");
 		check.add(checkPostconditions);
@@ -1040,7 +1043,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		preconditionsItems = null;
 		runNames = null;
 		checkLiveness.removeAll();
-		this.checkPreconditions.removeAll();
+		this.wellFormednessChecker.removeAll();
 		validate();
 		eman.post(new LTSEvent(LTSEvent.INVALID, null));
 		if (animator != null) {
@@ -1063,9 +1066,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	private void newFile() {
 		if (checkSave()) {
-			setTitle("MTS Analyser");
+			setTitle("FIDDLE");
 			savedText = "";
-			openFile = fileType;
+			openFile = FILE_TYPE;
 			input.setText("");
 			swapto(0);
 			output.setText("");
@@ -1095,7 +1098,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			FileDialog fd = new FileDialog(this, "Select source file:");
 			if (currentDirectory != null)
 				fd.setDirectory(currentDirectory);
-			fd.setFile(fileType);
+			fd.setFile(FILE_TYPE);
 			fd.setVisible(true);
 			doOpenFile(currentDirectory = fd.getDirectory(), fd.getFile(),
 					false);
@@ -1704,7 +1707,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			doAction(DOREALIZABILITY);
 		}
 	}
-	
+
 	class ReplacementCheckerAction implements ActionListener {
 		String box;
 		String process;
@@ -1725,17 +1728,17 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 	}
 
-	class PreconditionAction implements ActionListener {
+	class WellFormednessCheckerAction implements ActionListener {
 		String preconditiontarget;
 
-		PreconditionAction(String s) {
+		WellFormednessCheckerAction(String s) {
 			preconditiontarget = s;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			showOutput();
-			checkPrecondition(preconditiontarget);
+			wellFormednessChecker(preconditiontarget);
 		}
 	}
 
@@ -2018,7 +2021,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				return null;
 			}
 
-			System.out.println("compiling: " + targetChoice.getSelectedItem());
 			cs = comp.continueCompilation(
 					(String) targetChoice.getSelectedItem(), this);
 
@@ -2097,38 +2099,33 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 	}
 
-	private void checkPrecondition(String precondition) {
-		Preconditions.checkNotNull(precondition,
-				"The precondition cannot be null");
+	private void wellFormednessChecker(String preconditionName) {
+		Preconditions.checkNotNull(preconditionName,
+				"The name of the precondition cannot be null");
 
-		LTSCompiler.forPreconditionChecking = true;
-		LTSCompiler.boxOfInterest = LTSCompiler.mapsEachPostConditionToTheCorrespondingBox
-				.get(precondition);
+		
 		clearOutput();
 		compile();
-		if (current != null) {
-			TransitionSystemDispatcher.applyComposition(current, this);
-			System.out.println("%COMPOSITION: "
-					+ current.getComposition().getGraphDensity());
-			System.out.println("%COMPOSITION STATES: "
-					+ current.getComposition().getStates().length);
-			System.out.println("%COMPOSITION TRANSITIONS: "
-					+ current.getComposition().getTransitionNumber());
-			System.out.println("%COMPOSITION SIZE: "
-					+ current.getComposition().size());
-			System.out.println("%COMPOSITION Alphabet:"
-					+ current.getComposition().getAlphabet().length);
-			postState(current);
-		}
 
-		CompositeState ltlPrecondition = this.comp
-				.getPreconditionDefinitionManager().toProperty(this,
-						Arrays.asList(current.getComposition().getAlphabet()),
-						precondition);
-		ltlPrecondition.setName(precondition);
-		current.checkLTL(this, ltlPrecondition);
-		LTSCompiler.forPreconditionChecking = false;
-		postState(current);
+		String boxOfInterest = LTSCompiler.mapsEachPreconditionToTheCorrespondingBox
+				.get(preconditionName);
+		String controllerProcessName = LTSCompiler.mapsEachPreconditionToTheCorrespondingProcess
+				.get(preconditionName);
+		Log.info("Analysing the controller process: "+controllerProcessName);
+		LabelledTransitionSystem controller = compile(controllerProcessName).getMachines().iterator().next();
+
+
+		CompositeState environment = current;
+
+		Formula preconditionFormula = LTSCompiler.preconditionDefinitionManager
+				.getPrecondition(preconditionName);
+		WellFormednessChecker checker = new WellFormednessChecker(this,
+				environment, controller, boxOfInterest, preconditionFormula,
+				preconditionName);
+
+		CompositeState system = checker.check();
+
+		postState(system);
 	}
 
 	private void checkReplacement(String postcondition, String process,
@@ -2171,9 +2168,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 							.getPrecondition(process, box);
 
 					SubstitutabilityChecker ck = new SubstitutabilityChecker(
-							environment, subControllerLTS, precondition.getFormula(true), precondition.getName(), post.getFormula(true),
-							post.getName(),
-							this);
+							environment, subControllerLTS,
+							precondition.getFormula(true),
+							precondition.getName(), post.getFormula(true),
+							post.getName(), this);
 					ck.check();
 					current.addMachine(ck.getPreconditionLTS());
 					current.addMachine(ck.getPreconditionPlusReplacementLTS());
@@ -2192,7 +2190,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		compileIfChange();
 	}
 
-	private void realizability(){
+	private void realizability() {
 		clearOutput();
 		compileIfChange();
 		CompositeState ltlProperty = AssertDefinition.compile(this, asserted);
@@ -2200,14 +2198,15 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		CompositeState notLtlProperty = AssertDefinition.compile(
 				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
 		current.compose(new EmptyLTSOuput());
-	
+
 		if (ltlProperty != null) {
 
 			TransitionSystemDispatcher.checkRealizability(current, ltlProperty,
-					notLtlProperty,  this);
+					notLtlProperty, this);
 			postState(current);
 		}
 	}
+
 	private void liveness() {
 		clearOutput();
 		compileIfChange();
@@ -2216,7 +2215,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		CompositeState notLtlProperty = AssertDefinition.compile(
 				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
 		current.compose(new EmptyLTSOuput());
-		
+
 		if (ltlProperty != null) {
 
 			TransitionSystemDispatcher.checkFLTL(current, ltlProperty,
@@ -2274,9 +2273,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 		return false;
 	}
-
-	
-
 
 	private void exploration_output() {
 		ArrayList<String> traceStates = this.explorer.getTraceLastStates();
@@ -2750,7 +2746,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				checkRun.add(runItems[i]);
 			}
 		}
-		
+
 		// deals with checkRealizability menu
 		this.checkRealizability.removeAll();
 		assertNames = AssertDefinition.names();
@@ -2758,12 +2754,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			realizabilityItems = new JMenuItem[assertNames.length];
 			for (int i = 0; i < assertNames.length; ++i) {
 				realizabilityItems[i] = new JMenuItem(assertNames[i]);
-				realizabilityItems[i].addActionListener(new RealizabilityAction(
-						assertNames[i]));
+				realizabilityItems[i]
+						.addActionListener(new RealizabilityAction(
+								assertNames[i]));
 				checkRealizability.add(realizabilityItems[i]);
 			}
 		}
-		
+
 		// deal with assert menu
 		checkLiveness.removeAll();
 		assertNames = AssertDefinition.names();
@@ -2776,10 +2773,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				checkLiveness.add(assertItems[i]);
 			}
 		}
-		
-		
+
 		// deal with preconditions
-		checkPreconditions.removeAll();
+		wellFormednessChecker.removeAll();
 		Set<String> preconditionsNames = comp
 				.getPreconditionDefinitionManager().names();
 		SortedSet<String> orderedPreconditions = new TreeSet<>(
@@ -2790,9 +2786,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			int i = 0;
 			for (String name : orderedPreconditions) {
 				preconditionsItems[i] = new JMenuItem(name);
-				preconditionsItems[i].addActionListener(new PreconditionAction(
-						name));
-				checkPreconditions.add(preconditionsItems[i]);
+				preconditionsItems[i]
+						.addActionListener(new WellFormednessCheckerAction(name));
+				wellFormednessChecker.add(preconditionsItems[i]);
 				i++;
 			}
 		}

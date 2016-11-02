@@ -95,8 +95,8 @@ public class LTSCompiler {
 	private String currentDirectory;
 	private Symbol current;
 
-	static public PreconditionDefinitionManager preconditionDefinitionManager;
-	private final PostconditionDefinitionManager postconditionDefinitionManager;
+	public static PreconditionDefinitionManager preconditionDefinitionManager;
+	public static PostconditionDefinitionManager postconditionDefinitionManager;
 
 	public static Hashtable<String, ProcessSpec> processes;
 	private static Hashtable<String, ProcessSpec> replacements;
@@ -105,14 +105,15 @@ public class LTSCompiler {
 
 	public static Hashtable<String, LabelledTransitionSystem> compiled;
 	public static Hashtable<String, CompositionExpression> composites;
-	static Hashtable<String, ExplorerDefinition> explorers;
+	public static Hashtable<String, ExplorerDefinition> explorers;
 	private static Hashtable<String, CompositionExpression> allComposites;
 
 	public static Map<String, String> mapsEachPostConditionToTheCorrespondingBox;
+	public static Map<String, String> mapsEachPreconditionToTheCorrespondingBox;
+	public static Map<String, String> mapsEachPreconditionToTheCorrespondingProcess;
 	private int compositionType = -1;
 
 	public static String boxOfInterest;
-	public static boolean forPreconditionChecking = false;
 
 	public LTSCompiler(LTSInput input, LTSOutput output, String currentDirectory) {
 		Preconditions.checkNotNull(input, "The LTSInput cannot be null");
@@ -141,11 +142,13 @@ public class LTSCompiler {
 		ControllerDefinition.init();
 
 		preconditionDefinitionManager = new PreconditionDefinitionManager();
-		this.postconditionDefinitionManager = new PostconditionDefinitionManager();
+		postconditionDefinitionManager = new PostconditionDefinitionManager();
 		ControllerGoalDefinition.init();
 		ControlStackDefinition.initDefinitionList();
 		DistributionDefinition.init();
 		mapsEachPostConditionToTheCorrespondingBox = new HashMap<>();
+		mapsEachPreconditionToTheCorrespondingBox = new HashMap<>();
+		mapsEachPreconditionToTheCorrespondingProcess = new HashMap<>();
 	}
 
 	public void parse(Hashtable<String, CompositionExpression> composites,
@@ -269,8 +272,7 @@ public class LTSCompiler {
 					ControlStackDefinition.addDefinition(def);
 
 					CompositionExpression c = new CompositionExpression(
-							this.postconditionDefinitionManager,
-							forPreconditionChecking);
+							postconditionDefinitionManager);
 					c.name = def.getName();
 					c.setComposites(composites);
 					c.processes = processes;
@@ -616,7 +618,7 @@ public class LTSCompiler {
 		allComposites = new Hashtable<>(); // All composites
 		preconditionDefinitionManager.reset();
 		mapBoxReplacementName = new HashMap<>();
-		this.postconditionDefinitionManager.reset();
+		postconditionDefinitionManager.reset();
 		doparse(composites, processes, compiled);
 	}
 
@@ -651,9 +653,7 @@ public class LTSCompiler {
 				Enumeration<CompositionExpression> e = composites.elements();
 				CompositionExpression fce = e.nextElement();
 
-				ce = new CompositionExpression(
-						this.postconditionDefinitionManager,
-						forPreconditionChecking);
+				ce = new CompositionExpression(postconditionDefinitionManager);
 				ce.name = new Symbol(123, name);
 				ce.processes = fce.processes;
 				ce.setComposites(fce.getComposites());
@@ -665,25 +665,23 @@ public class LTSCompiler {
 				ce.compiledProcesses = new Hashtable<String, LabelledTransitionSystem>(
 						0);
 
-				ce.body = new CompositeBody(forPreconditionChecking);
+				ce.body = new CompositeBody();
 				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition
 						.getView().size() + 1);
 
 				for (int i = 0; i < explorerDefinition.getView().size(); i++) {
-					CompositeBody aCompositeBody = new CompositeBody(
-							forPreconditionChecking);
+					CompositeBody aCompositeBody = new CompositeBody();
 					aCompositeBody.singleton = new ProcessRef(
-							this.postconditionDefinitionManager, false, true);
+							postconditionDefinitionManager, false, true);
 					aCompositeBody.singleton.name = explorerDefinition
 							.getView().get(i);
 					ce.body.procRefs.add(aCompositeBody);
 				}
 
 				for (int i = 0; i < explorerDefinition.getModel().size(); i++) {
-					CompositeBody aCompositeBody = new CompositeBody(
-							forPreconditionChecking);
+					CompositeBody aCompositeBody = new CompositeBody();
 					aCompositeBody.singleton = new ProcessRef(
-							this.postconditionDefinitionManager, false, true);
+							postconditionDefinitionManager, false, true);
 					aCompositeBody.singleton.name = explorerDefinition
 							.getModel().get(i);
 					ce.body.procRefs.add(aCompositeBody);
@@ -706,8 +704,7 @@ public class LTSCompiler {
 				ExplorerDefinition explorerDefinition = explorers.get(name);
 
 				ce = new CompositionExpression(
-						this.postconditionDefinitionManager,
-						forPreconditionChecking);
+						postconditionDefinitionManager);
 				ce.name = new Symbol(123, name);
 				ce.processes = processes;
 				ce.output = output;
@@ -717,26 +714,23 @@ public class LTSCompiler {
 				ce.goal = explorerDefinition.getGoal();
 				ce.compiledProcesses = new Hashtable<String, LabelledTransitionSystem>(
 						0);
-
-				ce.body = new CompositeBody(forPreconditionChecking);
+				ce.body = new CompositeBody();
 				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition
 						.getView().size() + 1);
 
 				for (int i = 0; i < explorerDefinition.getView().size(); i++) {
-					CompositeBody aCompositeBody = new CompositeBody(
-							forPreconditionChecking);
+					CompositeBody aCompositeBody = new CompositeBody();
 					aCompositeBody.singleton = new ProcessRef(
-							this.postconditionDefinitionManager, false, true);
+							postconditionDefinitionManager, false, true);
 					aCompositeBody.singleton.name = explorerDefinition
 							.getView().get(i);
 					ce.body.procRefs.add(aCompositeBody);
 				}
 
 				for (int i = 0; i < explorerDefinition.getModel().size(); i++) {
-					CompositeBody aCompositeBody = new CompositeBody(
-							forPreconditionChecking);
+					CompositeBody aCompositeBody = new CompositeBody();
 					aCompositeBody.singleton = new ProcessRef(
-							this.postconditionDefinitionManager, false, true);
+							postconditionDefinitionManager, false, true);
 					aCompositeBody.singleton.name = explorerDefinition
 							.getModel().get(i);
 					ce.body.procRefs.add(aCompositeBody);
@@ -775,10 +769,9 @@ public class LTSCompiler {
 								output, distributedComponents);
 
 				// Add the distributed components as compiled
+				// add to compiled process
 				for (LabelledTransitionSystem component : distributedComponents) {
-					compiled.put(component.getName(), component); // add to
-																	// compiled
-																	// process
+					compiled.put(component.getName(), component);
 				}
 
 				if (!isDistributionSuccessful) {
@@ -925,7 +918,6 @@ public class LTSCompiler {
 	private void parseReplacement() {
 		currentIs(Symbol.UPPERIDENT,
 				"You have to specify the name of the process the replacement refers to.");
-		Symbol processName = current;
 		nextSymbol();
 
 		currentIs(Symbol.UPPERIDENT,
@@ -951,312 +943,6 @@ public class LTSCompiler {
 		replacementSpec.setReplacement(true);
 	}
 
-	private TriggeredScenarioDefinition parseETriggeredScenario() {
-		// Check the syntax
-		currentIs(Symbol.UPPERIDENT, "chart identifier expected");
-
-		this.validateUniqueProcessName(current);
-
-		// create the existential triggeredScenario with the given
-		// identifier
-		TriggeredScenarioDefinition eTSDefinition = new ExistentialTriggeredScenarioDefinition(
-				current);
-		return eTSDefinition;
-	}
-
-	private TriggeredScenarioDefinition parseUTriggeredScenario() {
-		// Check the syntax
-		currentIs(Symbol.UPPERIDENT, "chart identifier expected");
-
-		this.validateUniqueProcessName(current);
-
-		// create the universal triggered Scenario with the given
-		// identifier
-		TriggeredScenarioDefinition uTSDefinition = new UniversalTriggeredScenarioDefinition(
-				current);
-		return uTSDefinition;
-	}
-
-	private void parseImport(Hashtable<String, ProcessSpec> processes) {
-		ProcessSpec p = importDefinition();
-		if (processes.put(p.getSymbol().toString(), p) != null) {
-			Diagnostics.fatal("duplicate process definition: " + p.getSymbol(),
-					p.getSymbol());
-		}
-	}
-
-	private void parseControllerSynthesis(
-			Hashtable<String, CompositionExpression> composites,
-			Hashtable<String, ProcessSpec> processes,
-			Hashtable<String, LabelledTransitionSystem> compiled) {
-		// TODO: refactor needed. Some of the operations can be
-		// combined, however
-		// the parser does not allow some valid combinations. Also
-		// the order of the operations
-		// is not kept when the operations are applied
-
-		boolean makeDet = false;
-		boolean makeMin = false;
-		boolean makeProp = false;
-		boolean makeComp = false;
-		boolean makeOptimistic = false;
-		boolean makePessimistic = false;
-		boolean makeClousure = false;
-		boolean makeAbstract = false;
-		boolean makeController = false;
-		boolean makeSyncController = false;
-		boolean checkCompatible = false;
-		boolean makeComponent = false;
-		boolean probabilistic = false;
-		boolean isMDP = false;
-		boolean isEnactment = false;
-		boolean makeStarEnv = false;
-		boolean makePlant = false;
-		boolean makeControlledDet = false;
-		Symbol controlledActions = null;
-
-		switch (current.kind) {
-		case Symbol.CLOUSURE:
-			makeClousure = true;
-			nextSymbol();
-			break;
-		case Symbol.ABSTRACT:
-			makeAbstract = true;
-			nextSymbol();
-			break;
-		case Symbol.DETERMINISTIC:
-			makeDet = true;
-			nextSymbol();
-			break;
-		case Symbol.MINIMAL:
-			makeMin = true;
-			nextSymbol();
-			break;
-		case Symbol.COMPOSE:
-			makeComp = true;
-			nextSymbol();
-			break;
-		case Symbol.PROPERTY:
-			makeProp = true;
-			nextSymbol();
-			break;
-		case Symbol.OPTIMISTIC:
-			makeOptimistic = true;
-			nextSymbol();
-			break;
-		}
-
-		if (current.kind == Symbol.PESSIMISTIC) {
-			makePessimistic = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.COMPONENT) {
-			makeComponent = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.CONTROLLER) {
-			makeController = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.SYNC_CONTROLLER) {
-			makeSyncController = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.STARENV) {
-			makeStarEnv = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.PLANT) {
-			makePlant = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.CHECK_COMPATIBILITY) {
-			checkCompatible = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.CONTROLLED_DET) {
-			makeControlledDet = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.PROBABILISTIC) {
-			probabilistic = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.MDP) {
-			isMDP = true;
-			nextSymbol();
-		}
-		if (current.kind == Symbol.ENACTMENT) {
-			isEnactment = true;
-			nextSymbol();
-			if (current.kind == Symbol.LCURLY) {
-				nextSymbol();
-				controlledActions = current;
-				nextSymbol();
-				nextSymbol();
-			}
-		}
-
-		if (current.kind != Symbol.OR && current.kind != Symbol.PLUS_CA
-				&& current.kind != Symbol.PLUS_CR
-				&& current.kind != Symbol.MERGE) {
-			ProcessSpec p = stateDefns();
-			if (processes.put(p.getSymbol().toString(), p) != null) {
-				Diagnostics.fatal(
-						"duplicate process definition: " + p.getSymbol(),
-						p.getSymbol());
-			}
-			p.isProperty = makeProp;
-			p.isMinimal = makeMin;
-			p.isDeterministic = makeDet;
-			p.isOptimistic = makeOptimistic;
-			p.isPessimistic = makePessimistic;
-			p.isClousure = makeClousure;
-			p.isAbstract = makeAbstract;
-			p.isProbabilistic = probabilistic;
-			p.isMDP = isMDP;
-			p.isStarEnv = makeStarEnv;
-
-			if (makeController || checkCompatible || makePlant
-					|| makeControlledDet || makeSyncController) {
-				Diagnostics.fatal("The operation requires a composite model.");
-			}
-
-			if (makeComponent) {
-				Diagnostics
-						.fatal("A component can only be created from a composite model.");
-			}
-
-			if (probabilistic
-					&& (makeProp || makeMin || makeDet || makeOptimistic
-							|| makePessimistic || makeClousure || makeAbstract)) {
-				Diagnostics
-						.fatal("Probabilistic automata cannot be combined with other options.");
-			}
-
-			if (probabilistic != isMDP) { // x to account for future
-											// probabilistic
-											// variations
-				Diagnostics
-						.fatal("Probabilistic automata must be one of: mdp.");
-			}
-		} else if (LTSUtils.isCompositionExpression(current)) {
-			CompositionExpression c = composition();
-			c.setComposites(composites);
-			c.processes = processes;
-			c.compiledProcesses = compiled;
-			c.output = output;
-			c.makeDeterministic = makeDet;
-			c.makeProperty = makeProp;
-			c.makeMinimal = makeMin;
-			c.makeCompose = makeComp;
-			c.makeOptimistic = makeOptimistic;
-			c.makePessimistic = makePessimistic;
-			c.makeClousure = makeClousure;
-			c.makeAbstract = makeAbstract;
-			c.makeMDP = isMDP;
-			c.makeEnactment = isEnactment;
-			c.enactmentControlled = controlledActions;
-			c.makeController = makeController;
-			c.makeSyncController = makeSyncController;
-			c.checkCompatible = checkCompatible;
-			c.isStarEnv = makeStarEnv;
-			c.isPlant = makePlant;
-			c.isControlledDet = makeControlledDet;
-			c.setMakeComponent(makeComponent);
-			c.compositionType = compositionType;
-			compositionType = -1;
-			if (allComposites != null) {
-				allComposites.put(c.name.toString(), c);
-			}
-			if (composites.put(c.name.toString(), c) != null) {
-				Diagnostics.fatal("duplicate composite definition: " + c.name,
-						c.name);
-			}
-		}
-	}
-
-	private void graphUpdate() {
-		expectIdentifier("Graph Update");
-		UpdateGraphDefinition graphDefinition = new UpdateGraphDefinition(
-				current.getValue());
-		expectBecomes();
-		expectLeftCurly();
-		graphDefinition.setInitialProblem(parseInitialState());
-		graphDefinition.setTransitions(parseTransitions());
-		expectRightCurly();
-		UpdateGraphGenerator.addGraphDefinition(graphDefinition);
-	}
-
-	private void controlStack(
-			Hashtable<String, CompositionExpression> composites,
-			Hashtable<String, ProcessSpec> processes,
-			Hashtable<String, LabelledTransitionSystem> compiled,
-			boolean forPreconditionChecking) {
-		ControlStackDefinition def = this.controlStackDefinition();
-		ControlStackDefinition.addDefinition(def);
-
-		CompositionExpression c = new CompositionExpression(
-				this.postconditionDefinitionManager, forPreconditionChecking);
-		c.name = def.getName();
-		c.setComposites(composites);
-		c.processes = processes;
-		c.compiledProcesses = compiled;
-		c.controlStackEnvironments = new Vector<Symbol>();
-		for (ControlTierDefinition tier : def) {
-			c.controlStackEnvironments.add(tier.getEnvModel());
-		}
-		c.output = output;
-		c.makeControlStack = true;
-		if (allComposites != null) {
-			allComposites.put(c.name.toString(), c);
-		}
-		if (composites.put(c.name.toString(), c) != null) {
-			Diagnostics.fatal("duplicate composite definition: " + c.name,
-					c.name);
-		}
-	}
-
-	private void updatingTheController(
-			Hashtable<String, CompositionExpression> composites) {
-		currentIs(Symbol.UPPERIDENT, "updating controller identifier expected");
-
-		UpdatingControllersDefinition cuDefinition = new UpdatingControllersDefinition(
-				current);
-
-		this.updateControllerDefinition(cuDefinition);
-
-		if (composites.put(cuDefinition.getName().getValue(), cuDefinition) != null) {
-			Diagnostics
-					.fatal("duplicate composite definition: "
-							+ cuDefinition.getName(), cuDefinition.getName());
-		} else {
-			if (allComposites != null) {
-				allComposites.put(cuDefinition.getName().getValue(),
-						cuDefinition);
-			}
-		}
-	}
-
-	private void manageExploration() {
-		currentIs(Symbol.UPPERIDENT, "exploration identifier expected");
-
-		this.validateUniqueProcessName(current);
-		ExplorerDefinition explorerDefinition = new ExplorerDefinition(current);
-		nextSymbol();
-
-		this.explorerDefinition(explorerDefinition);
-
-		output.outln("Explorer: " + explorerDefinition.getName());
-	}
-
-	private void parseGoal() {
-		currentIs(Symbol.UPPERIDENT, "goal identifier expected");
-		this.validateUniqueProcessName(current);
-		ControllerGoalDefinition goal = new ControllerGoalDefinition(current);
-		this.goalDefinition(goal);
-	}
-
 	private CompositeState noCompositionExpression(
 			Hashtable<String, LabelledTransitionSystem> compiledProcesses) {
 		Vector<LabelledTransitionSystem> processesVector = new Vector<>(16);
@@ -1268,7 +954,7 @@ public class LTSCompiler {
 		currentIs(Symbol.OR, "|| expected");
 		nextSymbol();
 		CompositionExpression c = new CompositionExpression(
-				this.postconditionDefinitionManager, forPreconditionChecking);
+				postconditionDefinitionManager);
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		c.name = current;
 		nextSymbol();
@@ -1303,7 +989,7 @@ public class LTSCompiler {
 	}
 
 	private CompositeBody compositebody() {
-		CompositeBody b = new CompositeBody(forPreconditionChecking);
+		CompositeBody b = new CompositeBody();
 		if (current.kind == Symbol.IF) {
 			nextSymbol();
 			b.boolexpr = new Stack<Symbol>();
@@ -1428,7 +1114,7 @@ public class LTSCompiler {
 	}
 
 	private ProcessRef processRef() {
-		ProcessRef p = new ProcessRef(this.postconditionDefinitionManager);
+		ProcessRef p = new ProcessRef(postconditionDefinitionManager);
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		p.name = current;
 		nextSymbol();
@@ -1464,7 +1150,7 @@ public class LTSCompiler {
 	 * @return a process specification
 	 */
 	private ProcessSpec stateDefns() {
-		ProcessSpec p = new ProcessSpec(this.postconditionDefinitionManager);
+		ProcessSpec p = new ProcessSpec();
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		Symbol temp = current;
 		nextSymbol();
@@ -1541,8 +1227,7 @@ public class LTSCompiler {
 
 	private ProcessSpec importDefinition() {
 		currentIs(Symbol.UPPERIDENT, "imported process identifier expected");
-		ProcessSpec p = new ProcessSpec(this.postconditionDefinitionManager,
-				current);
+		ProcessSpec p = new ProcessSpec(current);
 		expectBecomes();
 		nextSymbol();
 		currentIs(Symbol.STRING_VALUE, " - imported file name expected");
@@ -1998,8 +1683,7 @@ public class LTSCompiler {
 		nextSymbol();
 		while (current.kind == Symbol.SEMICOLON
 				|| current.kind == Symbol.LROUND) {
-			s.addSeqProcessRef(new SeqProcessRef(s.name, actualParameters(),
-					forPreconditionChecking));
+			s.addSeqProcessRef(new SeqProcessRef(s.name, actualParameters()));
 			nextSymbol();
 			currentIs(Symbol.UPPERIDENT, "process identifier expected");
 			s.name = current;
@@ -2474,8 +2158,10 @@ public class LTSCompiler {
 		Symbol name = current;
 		// LTLAdditionalSymbolTable.preconditionBoxMap.put(name, box);
 		nextSymbol();
-		mapsEachPostConditionToTheCorrespondingBox.put(name.getValue(),
+		mapsEachPreconditionToTheCorrespondingBox.put(name.getValue(),
 				box.getValue());
+		mapsEachPreconditionToTheCorrespondingProcess.put(name.getValue(),
+				process.getValue());
 		paramDefns(initparams, params);
 		currentIs(Symbol.BECOMES, "= expected");
 		next_symbol_mod();
@@ -2528,7 +2214,7 @@ public class LTSCompiler {
 		}
 		pushSymbol();
 		this.validateUniqueProcessName(name);
-		this.postconditionDefinitionManager.put(name, formula, ls, initparams,
+		postconditionDefinitionManager.put(name, formula, ls, initparams,
 				params, box.toString(), process.toString());
 
 		Symbol notName = new Symbol(name);

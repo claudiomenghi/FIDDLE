@@ -85,7 +85,7 @@ public class SubcontrollerCheckerTest implements Callable<Void> {
 			MessageHandler.printMessage("END- Environment generated in:",
 					start, end);
 			List<String> eventsEnvironment = new ArrayList<>(
-					environment.getAlphabetCharacters());
+					environment.getAlphabetEvents());
 
 			Collections.shuffle(eventsEnvironment);
 			String event1 = eventsEnvironment.get(0);
@@ -111,11 +111,11 @@ public class SubcontrollerCheckerTest implements Callable<Void> {
 					start, end);
 			List<String> alphabet = new ArrayList<>();
 
-			alphabet.addAll(environment.getAlphabetCharacters());
-			alphabet.addAll(partialController.getAlphabetCharacters());
+			alphabet.addAll(environment.getAlphabetEvents());
+			alphabet.addAll(partialController.getAlphabetEvents());
 
 			PostConditionGenerator postConditionGen = new PostConditionGenerator(
-					subController.getAlphabetCharacters(), event1, event2);
+					subController.getAlphabetEvents(), event1, event2);
 			Formula postConditionFormula = postConditionGen.getFormulae().get(
 					postConditionOfInterest);
 			Formula fltlPrecondition = new PreconditionGenerator(alphabet,

@@ -5,14 +5,13 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import com.google.common.base.Preconditions;
-
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.automaton.StateMachine;
-import ltsa.lts.parser.PostconditionDefinitionManager;
 import ltsa.lts.parser.Symbol;
 import ltsa.lts.parser.Value;
 import ltsa.lts.parser.actions.LabelSet;
+
+import com.google.common.base.Preconditions;
 
 /**
  * contains the declaration of a process
@@ -22,7 +21,6 @@ public class ProcessSpec extends Declaration {
 
 	private Symbol name;
 
-	private final PostconditionDefinitionManager postManager;
 
 	public Hashtable<String, Value> constants;
 	public Hashtable<String, Value> init_constants = new Hashtable<>();
@@ -49,11 +47,10 @@ public class ProcessSpec extends Declaration {
 
 	public Symbol goal;
 
-	public File importFile = null; // used if the process is imported from a
-									// .aut file
+	//  used if the process is imported from a .aut file
+	public File importFile = null; 
 
-	public ProcessSpec(PostconditionDefinitionManager postManager) {
-		this.postManager = postManager;
+	public ProcessSpec() {
 		this.alphaAdditions = new LabelSet(new Vector<>());
 	}
 
@@ -65,11 +62,10 @@ public class ProcessSpec extends Declaration {
 		this.isReplacement = isReplacement;
 	}
 
-	public ProcessSpec(PostconditionDefinitionManager postManager, Symbol name) {
+	public ProcessSpec(Symbol name) {
 		Preconditions.checkNotNull(name,
 				"The name of the process cannot be null");
 		this.name = name;
-		this.postManager = postManager;
 	}
 
 	public Symbol getSymbol() {
@@ -155,7 +151,7 @@ public class ProcessSpec extends Declaration {
 	}
 
 	public ProcessSpec myclone() {
-		ProcessSpec p = new ProcessSpec(this.postManager, name);
+		ProcessSpec p = new ProcessSpec(name);
 		p.constants = (Hashtable) constants.clone();
 		p.init_constants = init_constants;
 		p.parameters = parameters;
@@ -177,9 +173,5 @@ public class ProcessSpec extends Declaration {
 	@Override
 	public String toString() {
 		return this.name.getValue();
-	}
-
-	public PostconditionDefinitionManager getPostManager() {
-		return postManager;
 	}
 }
