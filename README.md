@@ -24,3 +24,5 @@ The realizability checker is implemented in the [RealizabilityChecker](maven-roo
 
 [![Running the Well-formedness Checker](/md-files/FIDDLE.png
 )](https://youtu.be/e3FJ-AVg88o "Well-formedness checker")
+
+The well-formedness checker is implemented in the [WellFormednessChecker](maven-root/mtsa/src/main/java/ltsa/lts/checkers/wellformedness/WellFormednessChecker.java) class
