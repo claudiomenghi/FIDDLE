@@ -97,16 +97,15 @@ public class WellFormednessLTSModifier {
 		Map<String, LabelledTransitionSystem> mapBoxPostCondition = this
 				.step1(controller);
 
-		System.out.println(mapBoxPostCondition.keySet());
 		// STEP 2
 		Set<String> boxesToBeConsideredInStep2 = new HashSet<>(
 				controller.getBoxes());
 		boxesToBeConsideredInStep2.remove(boxOfInterest);
 
+		
 		LabelledTransitionSystem newController = this.step2(controller,
 				boxesToBeConsideredInStep2, mapBoxPostCondition);
 
-		System.out.println(boxOfInterest);
 		// STEP 3
 		return this.step3(newController, boxOfInterest, mapBoxPostCondition);
 	}
@@ -174,13 +173,13 @@ public class WellFormednessLTSModifier {
 
 		LabelledTransitionSystem cs = controller.clone();
 		cs.setName(controller.getName() + POST_CONDITION_SUFFIX);
-		for (String box : mapBoxPostCondition.keySet()) {
+		for (String box : boxes) {
 
 			int boxPosition = controller.getBoxIndexes().get(box);
 			
 			
 			LabelledTransitionSystem postConditionLTS=mapBoxPostCondition.get(box);
-			output.outln("\t \t Integrating the post-condition: " + postConditionLTS.getName());
+			output.outln("\t \t Integrating the post-condition of box: " + box);
 
 			cs = new IntegratorEngine().apply(cs, boxPosition, box,
 					postConditionLTS);
@@ -199,7 +198,7 @@ public class WellFormednessLTSModifier {
 		if (mapBoxPostCondition.containsKey(box)) {
 			LabelledTransitionSystem machinePostCondition = mapBoxPostCondition
 					.get(box);
-			output.outln("\t \t Integrating the post-condition: " + machinePostCondition.getName());
+			output.outln("\t \t Integrating the post-condition of box: "+ box);
 			String postCondition = machinePostCondition.getName();
 
 			machinePostCondition = processPost(controller, box,
@@ -278,6 +277,7 @@ public class WellFormednessLTSModifier {
 				machinePostCondition.getAlphabetEvents());
 		postConditionCharacters.remove("tau");
 		postConditionCharacters.remove("@any");
+		postConditionCharacters.remove("end");
 		if (!boxInterface.containsAll(postConditionCharacters)) {
 
 			postConditionCharacters.removeAll(boxInterface);
