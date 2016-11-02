@@ -2113,8 +2113,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				.get(preconditionName);
 		Log.info("Analysing the controller process: "+controllerProcessName);
 		LabelledTransitionSystem controller = compile(controllerProcessName).getMachines().iterator().next();
+		controller.setName(controllerProcessName);
 
-
+		
 		CompositeState environment = current;
 
 		Formula preconditionFormula = LTSCompiler.preconditionDefinitionManager

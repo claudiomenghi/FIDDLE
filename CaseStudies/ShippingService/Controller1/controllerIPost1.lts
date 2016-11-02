@@ -40,13 +40,13 @@ USER = 									(	userReq		->	REQUESTED		),
 //***************************************************************************************************
 // CONTROLLER
 //***************************************************************************************************
-CONTROLLER =	INIT,
+Controller_Spec =	INIT,
 				INIT 			= 	(	userReq -> 	MANAGEREQUEST 	),
 				box MANAGEREQUEST 	= 	(	respOk 	-> 	INIT	
 										|
 										reqCancelled -> INIT		
 									)[A].
-
+|| Controller =(Controller_Spec).
 //CONTROLLER =	INIT,
 //				INIT 			= 	(	userReq -> 	MANAGEREQUEST 	),
 //				MANAGEREQUEST 	= 	(	respOk 	-> 	INIT	
@@ -147,11 +147,11 @@ const True = 1
 // PRECONDITIONS
 //***************************************************************************************************
 // the MANAGEREQUEST black box state can be entered only if there is a pending request
-//ltl_precondition MANAGEREQUEST MANAGE_REQUEST_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && !<>(F_RespOk || F_ReqCancelled)))
+ltl_precondition Controller MANAGEREQUEST MANAGE_REQUEST_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && !<>(F_RespOk || F_ReqCancelled)))
 
 //ltl_postcondition CONTROLLER MANAGEREQUEST  REQUESTED_PRODUCT_OR_DECLINED_REQUEST=((<>(F_ProdReq)&&<>(F_ShipReq))||(<>(F_ProdCancelled)&&<>(F_ShipCancel)))
 
-ltl_postcondition CONTROLLER MANAGEREQUEST  REQUESTED_PRODUCT_OR_DECLINED_REQUEST=(
+ltl_postcondition Controller MANAGEREQUEST  REQUESTED_PRODUCT_OR_DECLINED_REQUEST=(
 																					(<>(F_ProdReq)&&<>(F_ShipReq)) 
 																					|| 
 																					(<>(F_ShipCancel) && <>(F_ProdCancelled))
