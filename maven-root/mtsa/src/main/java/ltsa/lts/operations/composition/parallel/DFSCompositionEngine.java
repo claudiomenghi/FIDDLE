@@ -2,7 +2,6 @@ package ltsa.lts.operations.composition.parallel;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import ltsa.lts.animator.ModelExplorerContext;
 import ltsa.lts.animator.StateCodec;

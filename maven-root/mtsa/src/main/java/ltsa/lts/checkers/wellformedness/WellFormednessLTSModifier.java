@@ -55,7 +55,7 @@ public class WellFormednessLTSModifier {
 
 	/** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
-	
+
 	/**
 	 * The suffix used to rename the machine of interest
 	 */
@@ -102,7 +102,6 @@ public class WellFormednessLTSModifier {
 				controller.getBoxes());
 		boxesToBeConsideredInStep2.remove(boxOfInterest);
 
-		
 		LabelledTransitionSystem newController = this.step2(controller,
 				boxesToBeConsideredInStep2, mapBoxPostCondition);
 
@@ -122,19 +121,20 @@ public class WellFormednessLTSModifier {
 
 			if (LTSCompiler.postconditionDefinitionManager
 					.getMapBoxPostcondition().containsKey(controller.getName())) {
-				logger.debug("a postcondition is associated with the box "+box);
+				logger.debug("a postcondition is associated with the box "
+						+ box);
 				String postConditionName = LTSCompiler.postconditionDefinitionManager
 						.getMapBoxPostcondition().get(controller.getName())
 						.get(box);
 
 				mapBoxPostCondition.put(box,
 						LTSCompiler.postconditionDefinitionManager.toFiniteLTS(
-								new EmptyLTSOuput(),
-								controller.getAlphabetEvents(),
+								new EmptyLTSOuput(), new HashSet<String>(
+										controller.getAlphabetEvents()),
 								postConditionName));
-			}
-			else{
-				logger.debug("no boxes associated with the controller "+controller.getName());
+			} else {
+				logger.debug("no boxes associated with the controller "
+						+ controller.getName());
 			}
 		}
 
@@ -176,9 +176,9 @@ public class WellFormednessLTSModifier {
 		for (String box : boxes) {
 
 			int boxPosition = controller.getBoxIndexes().get(box);
-			
-			
-			LabelledTransitionSystem postConditionLTS=mapBoxPostCondition.get(box);
+
+			LabelledTransitionSystem postConditionLTS = mapBoxPostCondition
+					.get(box);
 			output.outln("\t \t Integrating the post-condition of box: " + box);
 
 			cs = new IntegratorEngine().apply(cs, boxPosition, box,
@@ -198,7 +198,7 @@ public class WellFormednessLTSModifier {
 		if (mapBoxPostCondition.containsKey(box)) {
 			LabelledTransitionSystem machinePostCondition = mapBoxPostCondition
 					.get(box);
-			output.outln("\t \t Integrating the post-condition of box: "+ box);
+			output.outln("\t \t Integrating the post-condition of box: " + box);
 			String postCondition = machinePostCondition.getName();
 
 			machinePostCondition = processPost(controller, box,
@@ -233,7 +233,7 @@ public class WellFormednessLTSModifier {
 					addedStateIndex);
 
 			newController.addFinalStateIndex(addedStateIndex);
-			
+
 			int boxIndex = newController.getBoxIndexes().get(box);
 			newController.addTransition(boxIndex, eventIndex, addedStateIndex);
 		}
@@ -249,10 +249,11 @@ public class WellFormednessLTSModifier {
 				.getTransitions(boxIndex);
 
 		compiledProcess.setState(boxIndex, null);
-		
-		int newState=compiledProcess.addNewState();
-		compiledProcess.addTransition(boxIndex, compiledProcess.getEvent(MTSConstants.TAU), newState);
-		
+
+		int newState = compiledProcess.addNewState();
+		compiledProcess.addTransition(boxIndex,
+				compiledProcess.getEvent(MTSConstants.TAU), newState);
+
 		LTSTransitionList newTransitions = holdOutgoingTransitions;
 		for (String event : boxInterface) {
 			compiledProcess.addEvent(event);

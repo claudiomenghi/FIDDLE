@@ -1,7 +1,5 @@
 package ltsa.lts.operations.composition.parallel;
 
-import java.util.Set;
-
 import ltsa.lts.animator.ModelExplorerContext;
 import ltsa.lts.util.collections.StateMap;
 

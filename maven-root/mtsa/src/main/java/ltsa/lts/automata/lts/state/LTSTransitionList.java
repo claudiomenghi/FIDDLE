@@ -200,7 +200,6 @@ public class LTSTransitionList {
 			LTSTransitionList transitionToBeRemoved) {
 		Preconditions.checkNotNull(transitionToBeRemoved,
 				"The transition to be removed cannot be null");
-		
 
 		// remove from head
 		if (transitionList == null) {
@@ -261,6 +260,9 @@ public class LTSTransitionList {
 	}
 
 	public static LTSTransitionList copy(LTSTransitionList anEventState) {
+		if (anEventState == null) {
+			return anEventState;
+		}
 		LTSTransitionList aCopy = new LTSTransitionList(anEventState.event,
 				anEventState.next);
 		aCopy.machine = anEventState.machine;
@@ -366,6 +368,7 @@ public class LTSTransitionList {
 					aState);
 			updatedEvent.nondet = transitionList.nondet;
 			updatedEvent.list = transitionList;
+
 			return updatedEvent;
 		}
 	}
@@ -710,58 +713,73 @@ public class LTSTransitionList {
 			return null;
 		}
 		LTSTransitionList p = head;
-		while (p != null && destinationStates.contains(p.next)) {
+		while (p != null && destinationStates.contains(p.getNext())) {
 			p = p.getNondet();
 		}
 		if (p == null) {
 			return null;
 		}
 		LTSTransitionList toBeReturned = p;
-		while (p.nondet != null) {
-			if (destinationStates.contains(p.nondet.getNext())) {
-				p.setNondet(p.nondet.getNondet());
-				// probably here
-			} else {
-				p = p.getNondet();
+		LTSTransitionList last = p;
+		p = p.getNondet();
+		while (p != null) {
+			if (!destinationStates.contains(p.getNext())) {
+				last.setNondet(p);
+				last = last.getNondet();
 			}
+			p = p.getNondet();
 		}
+		last.setNondet(null);
 
 		return toBeReturned;
 	}
 
+	/**
+	 * removes from the list of transitions the transitions that have a
+	 * destination in the destination states
+	 * 
+	 * @param head
+	 *            the head of the transition list
+	 * @param destinationStates
+	 *            the set of the states to be considered
+	 * @return a list where the set of the transitions that
+	 */
 	public static LTSTransitionList removeTransToState(LTSTransitionList head,
 			Collection<Integer> destinationStates) {
 		if (head == null) {
 			return null;
 		}
-		LTSTransitionList pBeforeRemoving = head;
-		LTSTransitionList p = removeNonDetTransToState(pBeforeRemoving,
-				destinationStates);
-		while (p == null && pBeforeRemoving != null) {
-			pBeforeRemoving = pBeforeRemoving.getList();
-			p = removeNonDetTransToState(pBeforeRemoving, destinationStates);
-		}
-		if (pBeforeRemoving == null) {
-			return null;
-		}
 
-		LTSTransitionList toBeReturned = p;
-		toBeReturned.setList(pBeforeRemoving.getList());
+		LTSTransitionList currentEvent = head;
 
-		pBeforeRemoving = toBeReturned;
-
-		while (pBeforeRemoving != null && pBeforeRemoving.getList() != null) {
-			LTSTransitionList succBeforeRemoving = pBeforeRemoving.getList();
-			LTSTransitionList succAfterRemoving = removeNonDetTransToState(
-					succBeforeRemoving, destinationStates);
-			if (succAfterRemoving != null) {
-				pBeforeRemoving.setList(succAfterRemoving);
-				succAfterRemoving.setList(succBeforeRemoving.getList());
-				pBeforeRemoving = succAfterRemoving;
-			} else {
-				pBeforeRemoving = succBeforeRemoving.getList();
+		LTSTransitionList p = null;
+		while (p == null && currentEvent != null) {
+			p = removeNonDetTransToState(currentEvent, destinationStates);
+			if (p == null) {
+				currentEvent = currentEvent.getList();
 			}
 		}
+		// if there are no other transitions let us return p
+		if (currentEvent == null) {
+			return p;
+		}
+
+		// adds the other transitions to the transition to be returned
+		LTSTransitionList toBeReturned = p;
+		currentEvent = currentEvent.getList();
+
+		LTSTransitionList lastValid = toBeReturned;
+		while (currentEvent != null) {
+			LTSTransitionList nonDeterministicTransitions = removeNonDetTransToState(
+					currentEvent, destinationStates);
+			if (nonDeterministicTransitions != null) {
+				lastValid.setList(nonDeterministicTransitions);
+				lastValid = lastValid.getList();
+			}
+			currentEvent = currentEvent.getList();
+		}
+		lastValid.setList(null);
+
 		return toBeReturned;
 	}
 

@@ -1,6 +1,7 @@
 package ltsa.lts.checkers;
 
 import java.util.HashMap;
+import java.util.function.Predicate;
 
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
@@ -16,7 +17,7 @@ import com.google.common.base.Preconditions;
  * post-condition of the box
  *
  */
-public class IntegratorEngine{
+public class IntegratorEngine {
 
 	/**
 	 * Given a Labeled Transition System, one of its boxes and the
@@ -38,8 +39,8 @@ public class IntegratorEngine{
 	 *             original machine
 	 */
 	public LabelledTransitionSystem apply(
-			LabelledTransitionSystem controllerMachine, Integer boxIndex, String boxName,
-			LabelledTransitionSystem postConditionMachine) {
+			LabelledTransitionSystem controllerMachine, Integer boxIndex,
+			String boxName, LabelledTransitionSystem postConditionMachine) {
 		Preconditions.checkNotNull(controllerMachine,
 				"The first machine cannot be null");
 		Preconditions.checkNotNull(postConditionMachine,
@@ -51,7 +52,7 @@ public class IntegratorEngine{
 
 		LabelledTransitionSystem postConditionClone = postConditionMachine
 				.myclone();
-		
+
 		LabelledTransitionSystem newMachine = new LabelledTransitionSystem("");
 		newMachine.setAlphabet(sharedAlphabet(controllerMachine,
 				postConditionClone));
@@ -60,39 +61,44 @@ public class IntegratorEngine{
 				.getBoxIndexes()));
 		newMachine.getBoxIndexes().remove(postConditionMachine.getName());
 
-		
-		for(String box: controllerMachine.getBoxes()){
-			if(!box.equals(boxName)){
-				newMachine.setBoxInterface(box, controllerMachine.getBoxInterface(box));
-			}
-		}
-		
-		
+		controllerMachine
+				.getBoxes()
+				.stream()
+				.filter(Predicate.isEqual(boxName).negate())
+				.forEach(
+						box -> newMachine.setBoxInterface(box,
+								controllerMachine.getBoxInterface(box)));
+
 		// the number of states minus the box
 		newMachine.setStates(new LTSTransitionList[seqSize(controllerMachine,
 				postConditionClone)]);
 
 		int offset = 0;
-		copyFirstMachine(newMachine, offset, newMachine.getStates(),
+		// copies the controller in the new machine
+		copyController(newMachine, offset, newMachine.getStates(),
 				controllerMachine, false, boxIndex);
 
 		offset = controllerMachine.getStates().length;
-		LTSTransitionList tauTransition = new LTSTransitionList(0, offset);
-		newMachine.setState(boxIndex, tauTransition);
-
-		copySecondMachine(newMachine, offset, newMachine.getStates(),
+		
+		// copies the post-condition in the new machine
+		copyPostcondition(newMachine, offset, newMachine.getStates(),
 				postConditionClone, true);
 		newMachine.setEndOfSequence(postConditionClone.getEndOfSequenceIndex()
 				+ offset);
 
+		LTSTransitionList tauTransition = new LTSTransitionList(0, offset);
+		newMachine.setState(boxIndex, tauTransition);
+
 		// removes the accepting states
 		LTSTransitionList boxList = controllerMachine.getTransitions(boxIndex);
 
-		for (Integer index : postConditionMachine.getAccepting()) {
-			newMachine.setState(index + offset,
-			this.getMixTransitionList(boxList,
-							newMachine.getTransitions(index + offset)));
-		}
+		
+		final int propertyOffset=offset;
+		postConditionMachine.getAccepting().forEach(
+				index -> newMachine.setState(
+						index + propertyOffset,
+						this.getMixTransitionList(boxList,
+								newMachine.getTransitions(index + propertyOffset))));
 
 		return newMachine;
 	}
@@ -231,7 +237,7 @@ public class IntegratorEngine{
 		return length;
 	}
 
-	private void copySecondMachine(LabelledTransitionSystem newMachine,
+	private void copyPostcondition(LabelledTransitionSystem newMachine,
 			int offset, LTSTransitionList[] dest, LabelledTransitionSystem m,
 			boolean last) {
 		for (int i = 0; i < m.getStates().length; i++) {
@@ -250,7 +256,7 @@ public class IntegratorEngine{
 				e -> newMachine.addFinalStateIndex(e + offset));
 	}
 
-	private void copyFirstMachine(LabelledTransitionSystem newMachine,
+	private void copyController(LabelledTransitionSystem newMachine,
 			int offset, LTSTransitionList[] dest, LabelledTransitionSystem m,
 			boolean last, int boxPosition) {
 		for (int i = 0; i < m.getStates().length; i++) {

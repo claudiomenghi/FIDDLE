@@ -2,6 +2,7 @@ package scalabilityAssessment.propertygenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import ltsa.lts.ltl.PredicateDefinition;
@@ -113,7 +114,7 @@ public class PropertyGenerator {
 		List<String> alphabet2 = new ArrayList<>();
 		alphabet2.add(alphabet.get(0));
 		PredicateDefinition.makePredicate(new EmptyLTSOuput(),
-				fluentEventSymbol, eventSymbol, alphabet2);
+				fluentEventSymbol, eventSymbol, new HashSet<>(alphabet2));
 
 	}
 

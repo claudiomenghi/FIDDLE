@@ -11,10 +11,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
@@ -36,6 +38,9 @@ import ltsa.lts.parser.Symbol;
  */
 public class LTLf2LTS {
 
+	/** Logger available to subclasses */
+	protected final Log logger = LogFactory.getLog(getClass());
+	
 	public static final Symbol endSymbol = new Symbol("end", Symbol.UPPERIDENT);
 
 	public static final Symbol endFluent = new Symbol("F_"
@@ -50,12 +55,13 @@ public class LTLf2LTS {
 	private Map<String, Vector<String>> fluentTerminatingActions = new HashMap<>();
 
 	public CompositeState toCompositeState(Formula formula, LTSOutput output,
-			List<String> alphabet, String name) {
+			Set<String> alphabet, String name) {
 
 		output.outln("Running the LTLf2BA");
+		logger.debug("Running the LTLf2BA");
 		// updates the fluents considering the additional endSymbol
 		// it is necessary to conform the fluents with the new end symbol
-		this.updateFluents(alphabet);
+		this.updateFluents();
 
 		FormulaFactory formulaFactory = new FormulaFactory();
 		formulaFactory.setFormula(formula);
@@ -76,51 +82,22 @@ public class LTLf2LTS {
 				epsilon);
 
 		output.outln("Finite formula: " + finalFormula);
+		logger.debug("Finite formula: " + finalFormula);
 		formulaFactory.setFormula(finalFormula);
 
 		CompositeState s = this.computeCompositeState(output, formulaFactory,
 				finalFormula, new Vector<>(alphabet));
 		s.setName(name);
+		
+		this.updateRemoveEndFluents();
+		
 		return s;
 	}
 
 	public CompositeState toProperty(Formula formula, LTSOutput output,
-			List<String> alphabet, String name) {
+			Set<String> alphabet, String name) {
 
-		/*
-		 * this.init(formula, output, alphabet, name);
-		 * 
-		 * FormulaFactory formulaFactory = new FormulaFactory();
-		 * formulaFactory.setFormula(formula);
-		 * 
-		 * Formula end = formulaFactory.make(LTLf2LTS.endFluent);
-		 * PredicateDefinition.makePredicate(output, LTLf2LTS.endFluent,
-		 * LTLf2LTS.endSymbol, alphabet);
-		 * 
-		 * Formula newPostConditionFormula = formula;
-		 * 
-		 * output.outln("FORMULA: " + newPostConditionFormula + " considered");
-		 * 
-		 * formulaFactory.setFormula(newPostConditionFormula);
-		 * 
-		 * FiniteFormulaGeneratorVisitor visitor = new
-		 * FiniteFormulaGeneratorVisitor( formulaFactory, end);
-		 * 
-		 * Formula formulaUpdatedByf = newPostConditionFormula.accept(visitor);
-		 * 
-		 * Formula epsilon = this.getEpsilon(output, formula, formulaFactory,
-		 * end);
-		 * 
-		 * Formula finalFormula = formulaFactory.makeAnd(formulaUpdatedByf,
-		 * epsilon);
-		 * 
-		 * System.out.println("Finite formula: " + finalFormula);
-		 * output.outln("Finite formula: " + finalFormula);
-		 * formulaFactory.setFormula(finalFormula);
-		 * 
-		 * return this.toAutomata(formulaFactory, finalFormula, output,
-		 * alphabet, name);
-		 */
+	
 		this.init(formula, output, alphabet, name);
 
 		FormulaFactory formulaFactory = new FormulaFactory();
@@ -163,7 +140,7 @@ public class LTLf2LTS {
 	}
 
 	public CompositeState toPropertyWithInit(Formula formula, LTSOutput output,
-			List<String> alphabet, String name) {
+			Set<String> alphabet, String name) {
 
 		this.init(formula, output, alphabet, name);
 
@@ -202,7 +179,7 @@ public class LTLf2LTS {
 	}
 
 	private CompositeState toAutomata(FormulaFactory formulaFactory,
-			Formula formula, LTSOutput output, List<String> alphabet,
+			Formula formula, LTSOutput output, Set<String> alphabet,
 			String name) {
 
 		Vector<String> alpha = new Vector<>(alphabet);
@@ -235,6 +212,7 @@ public class LTLf2LTS {
 		cs.getComposition().removeNonDetTau();
 		output.outln("After Tau elimination = "
 				+ cs.getComposition().getMaxStates() + " state");
+		
 		Minimiser e = new Minimiser(cs.getComposition(), output);
 		cs.setComposition(e.minimise());
 		if (cs.getComposition().isSafetyOnly()) {
@@ -247,22 +225,22 @@ public class LTLf2LTS {
 		return cs;
 	}
 
-	private void init(Formula formula, LTSOutput output, List<String> alphabet,
+	private void init(Formula formula, LTSOutput output, Set<String> alphabet,
 			String name) {
 		output.outln("Running the LTLf2BA");
 		// updates the fluents considering the additional endSymbol
 		// it is necessary to conform the fluents with the new end symbol
-		this.updateFluents(alphabet);
+		this.updateFluents();
 
 	}
 
 	public LabelledTransitionSystem toLTS(Formula formula, LTSOutput output,
-			List<String> alphabet, String name) {
+			Set<String> alphabet, String name) {
 
 		output.outln("Running the LTLf2BA");
 		// updates the fluents considering the additional endSymbol
 		// it is necessary to conform the fluents with the new end symbol
-		this.updateFluents(alphabet);
+		this.updateFluents();
 
 		FormulaFactory formulaFactory = new FormulaFactory();
 		formulaFactory.setFormula(formula);
@@ -301,12 +279,12 @@ public class LTLf2LTS {
 	}
 
 	public LabelledTransitionSystem toLTSForPostChecking(Formula formula,
-			LTSOutput output, List<String> alphabet, String name) {
+			LTSOutput output, Set<String> alphabet, String name) {
 
 		output.outln("Running the LTLf2BA");
 		// updates the fluents considering the additional endSymbol
 		// it is necessary to conform the fluents with the new end symbol
-		this.updateFluents(alphabet);
+		this.updateFluents();
 
 		FormulaFactory formulaFactory = new FormulaFactory();
 		formulaFactory.setFormula(formula);
@@ -375,7 +353,7 @@ public class LTLf2LTS {
 		PredicateDefinition.remove(endFluent);
 	}
 
-	private void updateFluents(List<String> alphabet) {
+	private void updateFluents() {
 
 		Set<String> fluents = new HashSet<String>(
 				PredicateDefinition.definitions.keySet());
@@ -424,19 +402,23 @@ public class LTLf2LTS {
 			FormulaFactory finiteFormulaFactory, Formula formula,
 			Vector<String> alpha) {
 
+		logger.debug("Converting the formula: "+formula);
 		GeneralizedBuchiAutomata gba = new GeneralizedBuchiAutomata(
 				formula.toString(), finiteFormulaFactory, alpha);
 		gba.translate();
 
-		Graph gbaGraph = gba.makeGBA();
-		output.outln("GBA " + gbaGraph.getNodeCount() + " states "
-				+ gbaGraph.getEdgeCount() + " transitions");
-		gbaGraph = SuperSetReduction.reduce(gbaGraph);
-
-		Graph degeneralizedGraph = gbaToBa(gbaGraph);
-
+		Graph g = gba.makeGBA();
+		output.outln("GBA " + g.getNodeCount() + " states " + g.getEdgeCount()
+				+ " transitions");
+		g = SuperSetReduction.reduce(g);
+		Graph g1 = Degeneralize.degeneralize(g);
+		g1 = SCCReduction.reduce(g1);
+		g1 = Simplify.simplify(g1);
+		g1 = SFSReduction.reduce(g1);
+		
+		
 		FSAConverter c = new FSAConverter(formula.toString(),
-				degeneralizedGraph, gba.getLabelFactory());
+				g1, gba.getLabelFactory());
 
 		output.outln("Buchi automata:");
 
@@ -450,12 +432,16 @@ public class LTLf2LTS {
 
 		cs.getComposition().removeNonDetTau();
 
-		output.outln("After Tau elimination = "
-				+ cs.getComposition().getMaxStates() + " state");
 		Minimiser e = new Minimiser(cs.getComposition(), output);
 		cs.setComposition(e.minimise());
 		cs.getComposition().removeDetCycles("*");
 
+		logger.debug("Post-condition automaton size: "+cs.getComposition().size());
+		logger.debug("Removing states from which an accepting state can not be reached: ");		
+		LabelledTransitionSystem composition=new NoAcceptingRemover().apply(cs.getComposition());
+		cs.setComposition(composition);
+		
+		logger.debug("Post-condition automaton size: "+composition.size());
 		return cs;
 	}
 

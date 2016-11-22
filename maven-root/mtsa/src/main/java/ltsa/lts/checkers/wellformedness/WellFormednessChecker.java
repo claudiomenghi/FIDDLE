@@ -1,7 +1,9 @@
 package ltsa.lts.checkers.wellformedness;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
@@ -59,7 +61,7 @@ public class WellFormednessChecker {
 		output.outln("\t APPLYING STEP4. ");
 		output.outln("\t \t translating the formula: " + preconditionName);
 
-		List<String> alphabet = new ArrayList<>();
+		Set<String> alphabet = new HashSet<>();
 		alphabet.addAll(environment.getAlphabetEvents());
 		alphabet.addAll(controller.getAlphabetEvents());
 

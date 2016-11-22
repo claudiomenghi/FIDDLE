@@ -10,7 +10,6 @@ set	ProducerControllable={prodInfoReq, prodReq, prodCancel}
 set ProducerMonitorable={infoRcvd}
 set Producer = {ProducerControllable, ProducerControllable}
 
-set EmptySet={aaa}
 
 set Shipper = {shipInfoReq, costAndTime, shipReq, shipCancel}
 
@@ -47,12 +46,12 @@ USER = 									(	userReq		->	REQUESTED		),
 //***************************************************************************************************
 // CONTROLLER
 //***************************************************************************************************
-set PreparingOfferInterface={prodInfoReq,  shipInfoReq,infoRcvd, costAndTime}
+set PreparingOfferInterface={prodInfoReq,  shipInfoReq,infoRcvd, costAndTime, respOk, shipReq, usrAck, reqCancelled, userReq, shipCancel, prodReq, usrNack, prodCancel}
 
-set ManageRequestInterface={prodReq, shipReq}
-set DeclineRequestInterface={prodCancel, shipCancel}
+set ManageRequestInterface={prodReq, shipReq, shipInfoReq, respOk, usrAck, reqCancelled, prodInfoReq, userReq, shipCancel, usrNack, costAndTime, infoRcvd, prodCancel}
+set DeclineRequestInterface={prodCancel, shipCancel, shipInfoReq, respOk, shipReq, usrAck, reqCancelled, prodInfoReq, userReq, prodReq, usrNack, costAndTime, infoRcvd}
 
-CONTROLLER =	INIT,
+ControllerSpec =	INIT,
 				INIT 				= 	(	userReq 	-> 	PREPARINGOFFER 				),
 				box PREPARINGOFFER	= 	(	offerRcvd 	->	WAITINGFORUSERCHOICE 		
 										)[PreparingOfferInterface],	
@@ -66,8 +65,9 @@ CONTROLLER =	INIT,
 										)[DeclineRequestInterface].
 	
 
+|| Controller=(ControllerSpec).
 
-|| System = (Environment || CONTROLLER).
+|| System = (Environment || ControllerSpec).
 
 //***************************************************************************************************
 // REQUIREMENTS
@@ -149,8 +149,8 @@ fluent F_OfferAck = <offerRcvd, usrAck> initially False
 
 
 
-fluent F_CostAndTime = <costAndTime, {shipReq,usrNack}> initially False
-fluent F_InfoRcvd = <infoRcvd, {shipReq,usrNack}> initially False
+fluent F_CostAndTime = <costAndTime, {userReq}> initially False
+fluent F_InfoRcvd = <infoRcvd, {userReq}> initially False
 
 
 
@@ -165,17 +165,17 @@ const True = 1
 // PRECONDITIONS
 //***************************************************************************************************
 // the PREPARINGOFFER black box state can be entered only if there is a pending request
-ltl_precondition PREPARINGOFFER PREPARING_OFFER_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && !<>(F_RespOk || F_ReqCancelled)))
+ltl_precondition ControllerSpec PREPARINGOFFER PREPARING_OFFER_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && !<>(F_RespOk || F_ReqCancelled)))
 // expected: OK
 // returned: OK
 
 // the MANAGEREQUEST black box state can be entered only if there is a user request followed by an offer
-ltl_precondition MANAGEREQUEST MANAGE_REQUEST_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && <>(F_OfferRcvd)))
+ltl_precondition ControllerSpec MANAGEREQUEST MANAGE_REQUEST_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && <>(F_OfferRcvd)))
 // expected: OK
 // returned: OK
 
 // the DECLINEREQUEST black box state can be entered only if there is a user request followed by an offer
-ltl_precondition DECLINEREQUEST DECLINE_REQUEST_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && <>(F_OfferRcvd)))
+ltl_precondition ControllerSpec DECLINEREQUEST DECLINE_REQUEST_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && <>(F_OfferRcvd)))
 // expected: OK
 // returned: OK
 
@@ -183,8 +183,8 @@ ltl_precondition DECLINEREQUEST DECLINE_REQUEST_REQUIRES_PENDING_REQUEST=<>([](F
 
 
 
-fluent F_CostAndTime_Post = <costAndTime, PreparingOfferInterface\{costAndTime}> initially False
-fluent F_InfoRcvd_Post = <infoRcvd, PreparingOfferInterface\{infoRcvd}> initially False
+fluent F_CostAndTime_Post = <costAndTime, userReq> initially False
+fluent F_InfoRcvd_Post = <infoRcvd, userReq> initially False
 
 
 fluent F_ProductInfoReqEvent =<prodInfoReq, PreparingOfferInterface\{prodInfoReq}> initially False
@@ -194,35 +194,36 @@ fluent F_ShipInfoReqEvent =<shipInfoReq, PreparingOfferInterface\{shipInfoReq}> 
 fluent F_CostAndTimeEvent = <costAndTime, PreparingOfferInterface\{costAndTime}> initially False
 
 // POST CONDITION STATE 2
-ltl_postcondition CONTROLLER PREPARINGOFFER REQUEST_CORRECTLY_PREPARED=(
-																<>(F_CostAndTime_Post) 
-																&& <>(F_InfoRcvd_Post)		
-																&& <>(F_ShipInfoReqEvent)															
-																&& [](F_CostAndTimeEvent->X[](!F_CostAndTimeEvent)) 
-																&& [](F_InfoRcvdEvent->X[](!F_InfoRcvdEvent))
-																&& [](F_ShipInfoReqEvent->X[](!F_ShipInfoReqEvent))
-																&& [](F_ProductInfoReqEvent->X[](!F_ProductInfoReqEvent))
+ltl_postcondition ControllerSpec PREPARINGOFFER REQUEST_CORRECTLY_PREPARED=(
+																// Added to ensure that the CHECK_OFFER property is satisfied
+																(<>((F_CostAndTime_Post)))&&(<>((F_InfoRcvd_Post)))		
+																// Note that the properties <>(F_CostAndTime_Post) and <>(F_InfoRcvd_Post) do not ensure the satisfaction of CHECK_OFFER.
+																//&& <>(F_ShipInfoReqEvent)															
+																//&& [](F_CostAndTimeEvent->X[](!F_CostAndTimeEvent)) 
+																//&& [](F_InfoRcvdEvent->X[](!F_InfoRcvdEvent))
+																//&& [](F_ShipInfoReqEvent->X[](!F_ShipInfoReqEvent))
+																//&& [](F_ProductInfoReqEvent->X[](!F_ProductInfoReqEvent))
 																// F_ShipInfoReqEvent becomes true  before F_CostAndTimeEvent
-																&& ((!F_CostAndTimeEvent) U (F_ShipInfoReqEvent))
+																//&& ((!F_CostAndTimeEvent) U (F_ShipInfoReqEvent))
 																// F_ProductInfoReqEvent becomes true  before F_InfoRcvdEvent
-																&& ((!F_InfoRcvdEvent) U (F_ProductInfoReqEvent))
+																//&& ((!F_InfoRcvdEvent) U (F_ProductInfoReqEvent))
 																)
 
 fluent F_ProdReq_Post = <prodReq, ManageRequestInterface\{prodReq}> initially False
 fluent F_ShipReq_Post = <shipReq, ManageRequestInterface\{shipReq}> initially False
 
 // POST CONDITION STATE 4
-ltl_postcondition CONTROLLER MANAGEREQUEST REQUEST_CORRECTLY_MANAGED=(
-																<>(F_ProdReq_Post) 
-																	&& 
-																<>(F_ShipReq_Post)
-															)
+//ltl_postcondition ControllerSpec MANAGEREQUEST REQUEST_CORRECTLY_MANAGED=(
+//																<>(F_ProdReq_Post) 
+//																	&& 
+//																<>(F_ShipReq_Post)
+//															)
 fluent F_ShipCancel_Post = <shipCancel, DeclineRequestInterface\{shipCancel}> initially False
 fluent F_ProdCancel_Post = <prodCancel, DeclineRequestInterface\{prodCancel}>  initially False
 
 // POST CONDITION STATE 5
-ltl_postcondition CONTROLLER DECLINEREQUEST CANCEL_REQUEST_CORRECTLY_MANAGED=(
-																<>(F_ProdCancel_Post) 
-																	&& 
-																<>(F_ShipCancel_Post)
-															)
+//ltl_postcondition ControllerSpec DECLINEREQUEST CANCEL_REQUEST_CORRECTLY_MANAGED=(
+//																<>(F_ProdCancel_Post) 
+//																	&& 
+//																<>(F_ShipCancel_Post)
+//															)

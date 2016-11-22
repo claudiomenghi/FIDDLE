@@ -61,7 +61,7 @@ public class Determinizer {
 	}
 
 	protected void compute(int n) {
-		BitSet state = (BitSet) stateSets.elementAt(n);
+		BitSet state = stateSets.elementAt(n);
 		LTSTransitionList tr = null; // the set of all transitions from this
 										// state set
 		LTSTransitionList newtr = null; // the new transitions from the new
@@ -126,7 +126,7 @@ public class Determinizer {
 		m.setAlphabet(newAlphabet);
 		m.setStates(new LTSTransitionList[m.getMaxStates()]);
 		for (int i = 0; i < m.getMaxStates(); i++) {
-			m.getStates()[i] = (LTSTransitionList) newStates.elementAt(i);
+			m.getStates()[i] = newStates.elementAt(i);
 		}
 		// compute new end state if any
 		if (machine.getEndOfSequenceIndex() >= 0) {
