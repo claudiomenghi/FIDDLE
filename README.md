@@ -27,6 +27,7 @@ The realizability checker is implemented in the [RealizabilityChecker](maven-roo
 
 The well-formedness checker is implemented in the [WellFormednessChecker](maven-root/mtsa/src/main/java/ltsa/lts/checkers/wellformedness/WellFormednessChecker.java) class
 
+# Running the model checker
 
 ###### click on the following video to see how to run the model-checker
 
