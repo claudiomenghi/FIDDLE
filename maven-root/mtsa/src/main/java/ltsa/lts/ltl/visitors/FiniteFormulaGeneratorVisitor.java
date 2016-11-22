@@ -3,8 +3,6 @@
  */
 package ltsa.lts.ltl.visitors;
 
-import java.util.Vector;
-
 import ltsa.lts.ltl.formula.And;
 import ltsa.lts.ltl.formula.False;
 import ltsa.lts.ltl.formula.Formula;

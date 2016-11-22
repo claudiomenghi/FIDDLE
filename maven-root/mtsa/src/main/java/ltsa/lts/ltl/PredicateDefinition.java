@@ -238,7 +238,7 @@ public class PredicateDefinition {
 
 	static public void makePredicate(LTSOutput output, Symbol fluentName,
 			Symbol predicateSymbol, 
-			List<String> alphabetCharacters) {
+			Set<String> alphabetCharacters) {
 
 		Vector<ActionLabels> actionsLabelsInit = new Vector<>();
 		actionsLabelsInit.add(new ActionName(predicateSymbol));

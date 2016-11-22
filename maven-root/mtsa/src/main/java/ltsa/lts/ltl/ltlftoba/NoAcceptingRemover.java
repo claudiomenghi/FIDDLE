@@ -9,10 +9,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.google.common.base.Preconditions;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+
+import com.google.common.base.Preconditions;
 
 /**
  * removes the states from which it is not reachable an accepting state that can
@@ -23,6 +26,9 @@ import ltsa.lts.automata.lts.state.LTSTransitionList;
 public class NoAcceptingRemover implements
 		Function<LabelledTransitionSystem, LabelledTransitionSystem> {
 
+	/** Logger available to subclasses */
+	protected final Log logger = LogFactory.getLog(getClass());
+	
 	/**
 	 * removes the states from which it is not reachable an accepting state that
 	 * can be entered infinitely many often.
@@ -41,19 +47,17 @@ public class NoAcceptingRemover implements
 
 		Set<Integer> states = this.getStatesFromWichReachableAccepting(ret);
 
-		LTSTransitionList[] transitions = ret.getStates();
-
-		for (int stateIndex = 0; stateIndex < transitions.length; stateIndex++) {
-			if (states.contains(stateIndex)) {
-				visited = new HashSet<>();
-				ret.getStates()[stateIndex] = this
-						.keepOnlyNextTransitionBetweenStates(stateIndex,
-								ret.getTransitions(stateIndex), states);
-			} else {
-				ret.getStates()[stateIndex] = null;
-			}
+		logger.debug("States from which an accepting state can be reached: "+states);
+		
+		Set<Integer> allStates=new HashSet<>();
+		for(int i=0; i<ret.getNumberOfStates(); i++){
+			allStates.add(i);
 		}
-		ret = retainStates(ret, states);
+		allStates.removeAll(states);
+		logger.debug("States from which an accepting state can not be reached: "+allStates);
+		
+		ret.removeStates(allStates);
+
 
 		return ret;
 	}
@@ -205,6 +209,8 @@ public class NoAcceptingRemover implements
 				.computeInverseTransitionRelation(ret);
 
 		Set<Integer> reachable = new HashSet<>();
+		
+		logger.debug("Accepting states:  "+ret.getAccepting());
 		Set<Integer> current = ret.getAccepting();
 
 		while (!current.isEmpty()) {

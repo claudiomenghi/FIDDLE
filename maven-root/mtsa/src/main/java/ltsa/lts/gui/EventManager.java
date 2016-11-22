@@ -44,7 +44,7 @@ public class EventManager implements Runnable {
 		LTSEvent le =  queue.firstElement();
 		Enumeration<EventClient> e = clients.keys();
 		while (e.hasMoreElements()) {
-			EventClient c = (EventClient) e.nextElement();
+			EventClient c = e.nextElement();
 			c.ltsAction(le);
 		}
 		queue.removeElement(le);

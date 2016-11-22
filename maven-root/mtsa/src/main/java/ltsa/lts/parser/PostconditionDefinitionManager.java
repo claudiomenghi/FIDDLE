@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.annotation.Nonnull;
+
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
@@ -19,6 +21,12 @@ import ltsa.lts.parser.actions.LabelSet;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Manages the post-conditions. Maps the name to the corresponding
+ * postcondition, given a process and a box keeps track of the corresponding
+ * post-conditions
+ *
+ */
 public class PostconditionDefinitionManager {
 
 	/**
@@ -41,10 +49,56 @@ public class PostconditionDefinitionManager {
 	 */
 	private Map<String, String> mapPostConditionMachine;
 
-	public static boolean addAsterisk = true;
-
 	public PostconditionDefinitionManager() {
 		reset();
+	}
+
+	/**
+	 * returns true if the box of the given process has a post-conditions
+	 * associated
+	 * 
+	 * @param process
+	 *            the process to be considered
+	 * @param box
+	 *            the box to be considered
+	 * @return true if there is a post condition associated with the box of the
+	 *         current process
+	 * @throws NullPointerException
+	 *             if one of the parameters is null
+	 */
+	public boolean hasPostCondition(@Nonnull String process, @Nonnull String box) {
+		Preconditions.checkNotNull(process,
+				"The process to be considered cannot be null");
+		Preconditions.checkNotNull(box,
+				"The box to be considered cannot be null");
+		if (!this.mapBoxPostconditions.containsKey(process)) {
+			return false;
+		} else {
+			return this.mapBoxPostconditions.get(process).containsKey(box);
+		}
+	}
+
+	/**
+	 * returns the postcondition of the box of the given process
+	 * 
+	 * @param process
+	 *            the process to be considered
+	 * @param box
+	 *            the box to be considered
+	 * @return true if there is a post condition associated with the box of the
+	 *         current process
+	 * @throws NullPointerException
+	 *             if one of the parameters is null
+	 * @throws IllegalArgumentException
+	 *             if the box is not associated with a post-condition
+	 */
+	public String getPostCondition(@Nonnull String process,
+			@Nonnull String box) {
+		Preconditions.checkArgument(this.hasPostCondition(process, box),
+				"No post-condition is associated with the box: " + box
+						+ " of the process: " + process);
+		return this.mapBoxPostconditions.get(process).get(
+				box);
 	}
 
 	public void reset() {
@@ -107,7 +161,7 @@ public class PostconditionDefinitionManager {
 	}
 
 	public CompositeState compile(LTSOutput output,
-			List<String> alphabetCharacters, String name) {
+			Set<String> alphabetCharacters, String name) {
 		Preconditions
 				.checkArgument(
 						postconditions.containsKey(name),
@@ -123,7 +177,7 @@ public class PostconditionDefinitionManager {
 	}
 
 	public LabelledTransitionSystem toFiniteLTS(LTSOutput output,
-			List<String> alphabetCharacters, String name) {
+			Set<String> alphabetCharacters, String name) {
 		return this.compile(output, alphabetCharacters, name).getComposition();
 	}
 }

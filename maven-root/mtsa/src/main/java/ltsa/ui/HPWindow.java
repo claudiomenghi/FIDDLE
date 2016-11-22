@@ -31,7 +31,6 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -88,8 +87,6 @@ import ltsa.custom.SceneAnimator;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.editor.ColoredEditorKit;
 import ltsa.enactment.EnactmentOptions;
-import ltsa.enactment.MTSAEnactmentSimulation;
-import ltsa.enactment.SchedulerFactory;
 import ltsa.exploration.Explorer;
 import ltsa.exploration.ExplorerDefinition;
 import ltsa.jung.LTSJUNGCanvas;
@@ -103,6 +100,7 @@ import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.Analyser;
 import ltsa.lts.checkers.ProgressCheck;
+import ltsa.lts.checkers.modelchecker.ModelChecker;
 import ltsa.lts.checkers.substitutability.SubstitutabilityChecker;
 import ltsa.lts.checkers.wellformedness.WellFormednessChecker;
 import ltsa.lts.csp.CompositionExpression;
@@ -128,14 +126,10 @@ import ltsa.lts.parser.actions.LabelSet;
 import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.Options;
-import ltsa.ui.enactment.EnactorOptionsWindows;
-import ltsa.ui.update.UpdateGraphSimulation;
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 
 import org.jfree.util.Log;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import MTSTools.ac.ic.doc.mtstools.model.SemanticType;
 
@@ -166,7 +160,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private static final int DOCOMPOSITION = 6;
 	private static final int DOMINIMISECOMPOSITION = 7;
 	private static final int DOPROGRESS = 8;
-	private static final int DOLIVENESS = 9;
+	private static final int DOMODELCHECK = 9;
 	private static final int DOPARSE = 10;
 
 	// Dipi
@@ -209,12 +203,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JToolBar tools;
 	JTextField stepscount;
 
-	MTSAEnactmentSimulation<Long, String> enactmentSimulation = new MTSAEnactmentSimulation<>();
-	UpdateGraphSimulation updateGraphSimulation;
-
 	FindDialog findDialog;
 
-	JComboBox targetChoice;
+	JComboBox<String> environmentTargetChoice;
+	JComboBox<String> controllerTargetChoice;
 	EventManager eman = new EventManager();
 	Frame animator = null;
 	CompositeState current = null;
@@ -245,7 +237,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JMenu menu_enactment_enactors;
 	JMenuItem fileNew;
 	JMenuItem fileOpen;
-	JMenuItem file_save;
+	JMenuItem fileSave;
 	JMenuItem file_saveAs;
 	JMenuItem file_export;
 	JMenuItem file_exit;
@@ -257,7 +249,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JMenuItem check_safe;
 	JMenuItem check_progress;
 	JMenuItem check_reachable; // check_stop,
-	JMenuItem check_deterministic;
+	JMenuItem checkDeterministic;
 	JMenuItem build_parse;
 	JMenuItem build_compile;
 	JMenuItem build_compose;
@@ -343,15 +335,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private String lastCompiled = "";
 
 	public HPWindow(AppletButton isap) {
-
-		// Try to load Spring ltsa-context.xml file
-		try {
-			applicationContext = new ClassPathXmlApplicationContext(
-					"src/main/java/ltsa/ltsa-context.xml");
-		} catch (Exception e) {
-			applicationContext = new FileSystemXmlApplicationContext(
-					"src/main/java/ltsa/ltsa-context.xml");
-		}
 
 		isApplet = isap;
 		// SymbolTable.init();
@@ -441,9 +424,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		fileOpen = new JMenuItem("Open...");
 		fileOpen.addActionListener(new OpenFileAction());
 		file.add(fileOpen);
-		file_save = new JMenuItem("Save");
-		file_save.addActionListener(new SaveFileAction());
-		file.add(file_save);
+		fileSave = new JMenuItem("Save");
+		fileSave.addActionListener(new SaveFileAction());
+		file.add(fileSave);
 		file_saveAs = new JMenuItem("Save as...");
 		file_saveAs.addActionListener(new SaveAsFileAction());
 		file.add(file_saveAs);
@@ -521,9 +504,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		check_reachable.addActionListener(new DoAction(DOREACHABLE));
 		check.add(check_reachable);
 
-		check_deterministic = new JMenuItem("is Deterministic");
-		check_deterministic.addActionListener(new DoAction(DODETERMINISTIC));
-		check.add(check_deterministic);
+		checkDeterministic = new JMenuItem("is Deterministic");
+		checkDeterministic.addActionListener(new DoAction(DODETERMINISTIC));
+		check.add(checkDeterministic);
 
 		// build menu
 		build = new JMenu("Build");
@@ -696,17 +679,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		menu_enactment.add(menu_enactment_run);
 		JMenu graphUpdateMenu = new GraphUpdateMenu();
 		mb.add(graphUpdateMenu);
-		SchedulerFactory<Long, String> schedulerFactory = null;
-		if (applicationContext != null)
-			schedulerFactory = this.applicationContext
-					.getBean(SchedulerFactory.class);
-		if (schedulerFactory != null) {
-			List<String> schedulerNames = schedulerFactory.getSchedulersList();
-			// Load first scheduler by default
-			if (!schedulerNames.isEmpty()) {
-				this.enactmentOptions.scheduler = schedulerNames.get(0);
-			}
-		}
 
 		// toolbar
 		tools = new JToolBar();
@@ -746,13 +718,25 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				"src/main/java/ltsa/ui/icon/minimize.gif", "Minimize",
 				new DoAction(DOMINIMISECOMPOSITION)));
 		// status field used to name the composition we are wrking on
-		targetChoice = new JComboBox<>();
-		targetChoice.setEditable(false);
-		targetChoice.addItem(DEFAULT);
-		targetChoice.setToolTipText("Target Composition");
-		targetChoice.setRequestFocusEnabled(false);
-		targetChoice.addActionListener(new TargetAction());
-		tools.add(targetChoice);
+		this.environmentTargetChoice = new JComboBox<>();
+		this.environmentTargetChoice.setEditable(false);
+		this.environmentTargetChoice.addItem(DEFAULT);
+		this.environmentTargetChoice.setToolTipText("Target Composition");
+		this.environmentTargetChoice.setRequestFocusEnabled(false);
+		this.environmentTargetChoice.addActionListener(new TargetAction());
+
+		this.controllerTargetChoice = new JComboBox<>();
+		this.controllerTargetChoice.setEditable(false);
+		this.controllerTargetChoice.addItem(DEFAULT);
+		this.controllerTargetChoice.setToolTipText("Target Composition");
+		this.controllerTargetChoice.setRequestFocusEnabled(false);
+		this.controllerTargetChoice.addActionListener(new TargetAction());
+
+		tools.add(new JLabel("Environment"));
+		tools.add(environmentTargetChoice);
+		tools.addSeparator();
+		tools.add(new JLabel("Controller"));
+		tools.add(controllerTargetChoice);
 		tools.addSeparator();
 		tools.add(safetyTool = createTool(
 				"src/main/java/ltsa/ui/icon/safety.gif", "Check safety",
@@ -796,7 +780,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 		// enable menus
 		menuEnable(true);
-		file_save.setEnabled(isApplet == null);
+		fileSave.setEnabled(isApplet == null);
 		file_saveAs.setEnabled(isApplet == null);
 		file_export.setEnabled(isApplet == null);
 		saveFileTool.setEnabled(isApplet == null);
@@ -941,9 +925,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				showOutput();
 				progress();
 				break;
-			case DOLIVENESS:
+			case DOMODELCHECK:
 				showOutput();
-				liveness();
+				modelCheck();
 				break;
 			case DOREALIZABILITY:
 				showOutput();
@@ -973,12 +957,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			case DORUNENACTORS:
 				doRunEnactors();
 				break;
-			case DOENACTORSOPTIONS:
-				doEnactorOptions();
-				break;
-			case DOGRAPHUPDATE:
-				doGraphUpdate();
-				break;
+
 			}
 		} catch (Throwable e) {
 			showOutput();
@@ -1008,12 +987,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 	}
 
-	private void doGraphUpdate() {
-		updateGraphSimulation = new UpdateGraphSimulation(this,
-				currentDirectory, applicationContext);
-		updateGraphSimulation.start();
-	}
-
 	// ------------------------------------------------------------------------
 
 	class CloseWindow extends WindowAdapter {
@@ -1034,8 +1007,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		current = null;
 		explorer = null;
 		explorerDefinitions = null;
-		targetChoice.removeAllItems();
-		targetChoice.addItem(DEFAULT);
+		environmentTargetChoice.removeAllItems();
+		environmentTargetChoice.addItem(DEFAULT);
 		checkRun.removeAll();
 		checkRun.add(default_run);
 		runItems = null;
@@ -1680,17 +1653,17 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 	}
 
-	class LivenessAction implements ActionListener {
+	class ModelCheckerAction implements ActionListener {
 		String asserttarget;
 
-		LivenessAction(String s) {
+		ModelCheckerAction(String s) {
 			asserttarget = s;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			asserted = asserttarget;
-			doAction(DOLIVENESS);
+			doAction(DOMODELCHECK);
 		}
 	}
 
@@ -1776,7 +1749,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	class TargetAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String choice = (String) targetChoice.getSelectedItem();
+			String choice = (String) environmentTargetChoice.getSelectedItem();
 			if (choice == null)
 				return;
 			runEnabled = MenuDefinition.enabled(choice);
@@ -2022,28 +1995,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			}
 
 			cs = comp.continueCompilation(
-					(String) targetChoice.getSelectedItem(), this);
-
-		} catch (LTSException x) {
-			displayError(x);
-		}
-		return cs;
-	}
-
-	private CompositeState docompile(String processName) {
-		resetInput();
-		CompositeState cs = null;
-		comp = new LTSCompiler(this, this, currentDirectory);
-		try {
-			comp.compile();
-			if (!parse(comp.getComposites(), comp.getProcesses(),
-					comp.getExplorers())) {
-				return null;
-			}
-
-			System.out.println("compiling: " + targetChoice.getSelectedItem());
-			cs = comp.continueCompilation(
-					(String) targetChoice.getSelectedItem(), this);
+					(String) environmentTargetChoice.getSelectedItem(), this);
 
 		} catch (LTSException x) {
 			displayError(x);
@@ -2067,8 +2019,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	private boolean compileIfChange() {
 		String tmp = input.getText();
-		if (current == null || !tmp.equals(lastCompiled)
-				|| !current.getName().equals(targetChoice.getSelectedItem())) {
+		if (current == null
+				|| !tmp.equals(lastCompiled)
+				|| !current.getName().equals(
+						environmentTargetChoice.getSelectedItem())) {
 			lastCompiled = tmp;
 			return compile();
 		}
@@ -2102,8 +2056,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private void wellFormednessChecker(String preconditionName) {
 		Preconditions.checkNotNull(preconditionName,
 				"The name of the precondition cannot be null");
-
-		
 		clearOutput();
 		compile();
 
@@ -2111,11 +2063,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				.get(preconditionName);
 		String controllerProcessName = LTSCompiler.mapsEachPreconditionToTheCorrespondingProcess
 				.get(preconditionName);
-		Log.info("Analysing the controller process: "+controllerProcessName);
-		LabelledTransitionSystem controller = compile(controllerProcessName).getMachines().iterator().next();
+		Log.info("Analysing the controller process: " + controllerProcessName);
+		LabelledTransitionSystem controller = compile(controllerProcessName)
+				.getMachines().iterator().next();
 		controller.setName(controllerProcessName);
 
-		
 		CompositeState environment = current;
 
 		Formula preconditionFormula = LTSCompiler.preconditionDefinitionManager
@@ -2127,6 +2079,55 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		CompositeState system = checker.check();
 
 		postState(system);
+	}
+
+	private void modelCheck() {
+		clearOutput();
+		compileIfChange();
+		CompositeState ltlProperty = AssertDefinition.compile(this, asserted);
+
+		final Vector<LabelledTransitionSystem> machines = new Vector<>();
+		CompositeState environment = compile((String) environmentTargetChoice
+				.getSelectedItem());
+		CompositeState controller = compile((String) controllerTargetChoice
+				.getSelectedItem());
+
+		final LabelledTransitionSystem controllerLTS = controller.getMachines()
+				.get(0);
+
+		controllerLTS
+				.getBoxes()
+				.stream()
+				.filter(box -> LTSCompiler.postconditionDefinitionManager
+						.hasPostCondition(controllerLTS.getName(), box))
+				.forEach(
+						box -> {
+							String postConditionName = LTSCompiler.postconditionDefinitionManager
+									.getPostCondition(controllerLTS.getName(), box);
+							LabelledTransitionSystem post = LTSCompiler.postconditionDefinitionManager
+									.toFiniteLTS(new EmptyLTSOuput(),
+											controllerLTS.getBoxInterface(box),
+											postConditionName);
+							post.setName("POST_"+postConditionName);
+							machines.add(post);
+						});
+
+		ModelChecker modelChecker = new ModelChecker(this, environment,
+				controller, ltlProperty);
+		CompositeState checkedMachines = modelChecker.check();
+
+		CompositeState system = new CompositeState("System");
+		environment.getMachines().forEach(system::addMachine);
+		system.addMachine(modelChecker.getModifiedController().getMachines()
+				.get(0));
+		system.compose(new EmptyLTSOuput());
+
+		machines.addAll(checkedMachines.getMachines());
+		machines.add(controller.getMachines().get(0));
+		machines.add(system.getComposition());
+
+		this.newMachines(machines);
+
 	}
 
 	private void checkReplacement(String postcondition, String process,
@@ -2206,24 +2207,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 					notLtlProperty, this);
 			postState(current);
 		}
-	}
-
-	private void liveness() {
-		clearOutput();
-		compileIfChange();
-		CompositeState ltlProperty = AssertDefinition.compile(this, asserted);
-		// Silent compilation for negated formula
-		CompositeState notLtlProperty = AssertDefinition.compile(
-				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
-		current.compose(new EmptyLTSOuput());
-
-		if (ltlProperty != null) {
-
-			TransitionSystemDispatcher.checkFLTL(current, ltlProperty,
-					notLtlProperty, this.setFair.isSelected(), this);
-			postState(current);
-		}
-
 	}
 
 	// ------------------------------------------------------------------------
@@ -2581,60 +2564,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			return;
 		}
 
-		if (this.enactmentSimulation != null)
-			this.enactmentSimulation.runSimulation(current,
-					getApplicationContext(), enactmentOptions);
-
-	}
-
-	private void doEnactorOptions() {
-		final EnactorOptionsWindows enactorOptionsWindow = new EnactorOptionsWindows(
-				enactmentOptions, this);
-
-		if (this.enactmentOptions.scheduler != null
-				&& !this.enactmentOptions.scheduler.isEmpty())
-			enactorOptionsWindow.getCbSchedulers().setSelectedItem(
-					enactmentOptions.scheduler);
-
-		if (this.enactmentOptions.enactors != null) {
-			List<Integer> selected = new ArrayList<Integer>();
-			for (String enactor : this.enactmentOptions.enactors) {
-				for (int i = 0; i < enactorOptionsWindow.getEnactorList()
-						.getModel().getSize(); i++)
-					if (enactor.equals(enactorOptionsWindow.getEnactorList()
-							.getModel().getElementAt(i)))
-						selected.add(i);
-			}
-			int[] selectIndices = new int[selected.size()];
-			for (int i = 0; i < selected.size(); i++)
-				selectIndices[i] = selected.get(i).intValue();
-
-			enactorOptionsWindow.getEnactorList().setSelectedIndices(
-					selectIndices);
-
-		}
-
-		enactorOptionsWindow.getOkButton().addActionListener(
-				new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-
-						enactmentOptions.scheduler = (String) enactorOptionsWindow
-								.getCbSchedulers().getSelectedItem();
-						int[] selectedIndices = enactorOptionsWindow
-								.getEnactorList().getSelectedIndices();
-						enactmentOptions.enactors.clear();
-						for (int i = 0; i < selectedIndices.length; i++) {
-							enactmentOptions.enactors.add(enactorOptionsWindow
-									.getEnactorList().getModel()
-									.getElementAt(selectedIndices[i])
-									.toString());
-						}
-						enactorOptionsWindow.setVisible(false);
-					}
-				});
-		enactorOptionsWindow.setVisible(true);
-
 	}
 
 	private String[] getMachinesNames() {
@@ -2677,7 +2606,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			Hashtable<String, ProcessSpec> ps,
 			Hashtable<String, ExplorerDefinition> ex) {
 
-		String oldChoice = (String) targetChoice.getSelectedItem();
+		String oldChoice = (String) environmentTargetChoice.getSelectedItem();
 
 		if (cs == null && ps == null) {
 			cs = new Hashtable<>();
@@ -2689,11 +2618,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		if (cs == null) {
 			return false;
 		}
-		targetChoice.removeAllItems();
+		environmentTargetChoice.removeAllItems();
+		controllerTargetChoice.removeAllItems();
 
 		if (ex.size() == 0) {
 			if (cs.size() == 0) {
-				targetChoice.addItem(DEFAULT);
+				controllerTargetChoice.addItem(DEFAULT);
+				environmentTargetChoice.addItem(DEFAULT);
 			} else {
 				Enumeration<String> e = cs.keys();
 				List<String> forSort = new ArrayList<>();
@@ -2702,7 +2633,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				}
 				Collections.sort(forSort);
 				for (String aForSort : forSort) {
-					targetChoice.addItem(aForSort);
+					controllerTargetChoice.addItem(aForSort);
+					environmentTargetChoice.addItem(aForSort);
 				}
 			}
 		} else {
@@ -2713,7 +2645,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			}
 			Collections.sort(forSort);
 			for (String aForSort : forSort) {
-				targetChoice.addItem(aForSort);
+				environmentTargetChoice.addItem(aForSort);
+				controllerTargetChoice.addItem(aForSort);
 			}
 		}
 
@@ -2721,7 +2654,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			if (!oldChoice.equals(DEFAULT)
 					&& (ex.containsKey(oldChoice) || (ex.size() == 0 && cs
 							.containsKey(oldChoice))))
-				targetChoice.setSelectedItem(oldChoice);
+				environmentTargetChoice.setSelectedItem(oldChoice);
 		}
 		current = null;
 		explorer = null;
@@ -2735,7 +2668,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		// deal with run menu
 		checkRun.removeAll();
 		runNames = MenuDefinition.names();
-		runEnabled = MenuDefinition.enabled((String) targetChoice
+		runEnabled = MenuDefinition.enabled((String) environmentTargetChoice
 				.getSelectedItem());
 		checkRun.add(default_run);
 		if (runNames != null) {
@@ -2769,7 +2702,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			assertItems = new JMenuItem[assertNames.length];
 			for (int i = 0; i < assertNames.length; ++i) {
 				assertItems[i] = new JMenuItem(assertNames[i]);
-				assertItems[i].addActionListener(new LivenessAction(
+				assertItems[i].addActionListener(new ModelCheckerAction(
 						assertNames[i]));
 				checkLiveness.add(assertItems[i]);
 			}
@@ -2935,7 +2868,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	 */
 	@Override
 	public String getTargetChoice() {
-		return (String) targetChoice.getSelectedItem();
+		return (String) environmentTargetChoice.getSelectedItem();
 	}
 
 	/**

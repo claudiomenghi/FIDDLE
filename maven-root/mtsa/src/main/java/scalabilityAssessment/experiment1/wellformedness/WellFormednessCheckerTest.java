@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,6 @@ import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.parser.Def;
 import ltsa.lts.parser.actions.LabelSet;
 import ltsa.ui.EmptyLTSOuput;
-import ltsa.ui.StandardOutput;
 import scalabilityAssessment.modelgenerator.ModelConfiguration;
 import scalabilityAssessment.modelgenerator.RandomControllerGenerator;
 import scalabilityAssessment.modelgenerator.RandomLTSGenerator;
@@ -133,7 +133,7 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 					+ partialController.getBoxInterface("box").size());
 
 			LabelledTransitionSystem postConditionLTS = new LTLf2LTS().toLTS(
-					postConditionFormula, new EmptyLTSOuput(), new ArrayList<>(
+					postConditionFormula, new EmptyLTSOuput(), new HashSet<>(
 							partialController.getBoxInterface("box")), "post");
 			end = System.currentTimeMillis();
 			long step1ConvertionOfThePostCondition = end - start;
@@ -185,7 +185,8 @@ public class WellFormednessCheckerTest implements Callable<Void> {
 		System.out.println(fltlPrecondition);
 		// TODO change
 		CompositeState precondition = new LTLf2LTS().toProperty(
-				fltlPrecondition, new EmptyLTSOuput(), newAlphaPre,
+				fltlPrecondition, new EmptyLTSOuput(), 
+				new HashSet<String>(newAlphaPre),
 				"precondition");
 		// CompositeState precondition = new LTL2BA(new EmptyLTSOuput())
 		// .getCompactState("property", fltlPrecondition, new Vector<>(

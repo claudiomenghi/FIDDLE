@@ -368,7 +368,6 @@ public class LabelledTransitionSystem implements Automata {
 						this.states[stateIndex], stateIndexes);
 			}
 		}
-		// removeStatesFromAutomaton(stateIndexes);
 	}
 
 	/**

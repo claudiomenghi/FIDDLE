@@ -2,6 +2,7 @@ package scalabilityAssessment.postconditiongenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import ltsa.lts.ltl.PredicateDefinition;
@@ -53,7 +54,9 @@ public class PostConditionGenerator {
 		Symbol fluentEventSymbol = new Symbol("F_" + eventSymbol.getValue(),
 				Symbol.UPPERIDENT);
 		PredicateDefinition.makePredicate(new EmptyLTSOuput(),
-				fluentEventSymbol, eventSymbol, alphabet);
+				fluentEventSymbol, eventSymbol, 
+				new HashSet<String>(alphabet)
+				);
 
 	}
 

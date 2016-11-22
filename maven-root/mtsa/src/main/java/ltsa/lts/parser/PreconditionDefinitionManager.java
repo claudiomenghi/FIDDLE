@@ -147,10 +147,9 @@ public class PreconditionDefinitionManager {
 				+ " considered");
 
 		return new LTLf2LTS().toCompositeState(precondition.getFac()
-				.getFormula(), output, alphabetCharacters, name);
+				.getFormula(), output, new HashSet<String>(alphabetCharacters),
+				name);
 	}
-
-
 
 	public Formula getPrecondition(String name) {
 		Preconditions
