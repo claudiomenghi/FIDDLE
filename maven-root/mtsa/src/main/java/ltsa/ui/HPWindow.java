@@ -113,7 +113,6 @@ import ltsa.lts.gui.LTSCanvas;
 import ltsa.lts.gui.MaxStatesDialog;
 import ltsa.lts.gui.RandomSeedDialog;
 import ltsa.lts.gui.RunMenu;
-import ltsa.lts.gui.SuperTrace;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.PostconditionDefinition;
 import ltsa.lts.ltl.PreconditionDefinition;
@@ -156,16 +155,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private static final String DEFAULT = "DEFAULT";
 
 	// ------------------------------------------------------------------------
-	private static final int DOSAFETY = 1;
 
 	private static final int DOSAFETYNODEADLOCK = 2;
 
 	private static final int DOEXECUTE = 3;
-	private static final int DOREACHABLE = 4;
 	private static final int DOCOMPILE = 5;
 	private static final int DOCOMPOSITION = 6;
 	private static final int DOMINIMISECOMPOSITION = 7;
-	private static final int DOPROGRESS = 8;
 	private static final int DOMODELCHECK = 9;
 	private static final int DOPARSE = 10;
 
@@ -174,7 +170,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private static final int DOPLUSCA = 12;
 	private static final int DODETERMINISE = 13;
 	private static final int DOREFINEMENT = 14;
-	private static final int DODEADLOCK = 15;
 	private static final int DOCONSISTENCY = 16;
 	// Dipi
 
@@ -183,7 +178,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	static final int DOEXPLORATIONSTEPOVER = 25;
 	static final int DOEXPLORATIONRESUME = 23;
 	static final int DOEXPLORATIONMANUAL = 24;
-	static final int DODETERMINISTIC = 999;
 
 	private static final int DORUNENACTORS = 17;
 	private static final int DOENACTORSOPTIONS = 18;
@@ -252,19 +246,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	JMenuItem edit_paste;
 	JMenuItem edit_undo;
 	JMenuItem edit_redo;
-	JMenuItem check_safe;
-	JMenuItem check_progress;
-	JMenuItem check_reachable; // check_stop,
-	JMenuItem checkDeterministic;
 	JMenuItem build_parse;
 	JMenuItem build_compile;
 	JMenuItem build_compose;
 	JMenuItem build_minimise;
 	JMenuItem help_about;
-	JMenuItem supertrace_options;
 	JMenuItem mtsRefinement;
 	JMenuItem mtsConsistency;
-	JMenuItem checkDeadlock;
+
 	JMenuItem controllerSynthesis;
 	JMenuItem menu_enactment_run;
 	JMenuItem menu_enactment_options;
@@ -278,12 +267,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	JMenuItem edit_find;
 
-	JMenu checkRun, file_example, checkLiveness, compositionStrategy;
+	JMenu file_example, checkLiveness, compositionStrategy;
 	JMenu checkRealizability;
 
 	JMenu wellFormednessChecker;
 	JMenu checkPostconditions;
-	JMenuItem default_run;
 	JMenuItem[] runItems;
 	JMenuItem[] assertItems;
 	JMenuItem[] realizabilityItems;
@@ -320,7 +308,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	// tool bar buttons - that need to be enabled and disabled
 	JButton // stopTool,
 			parseTool,
-			safetyTool, progressTool, cutTool, pasteTool,
+			 progressTool, cutTool, pasteTool,
 			newFileTool,
 			openFileTool, saveFileTool, compileTool, composeTool,
 			minimizeTool,
@@ -474,17 +462,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		// check menu
 		check = new JMenu("Check");
 		mb.add(check);
-		check_safe = new JMenuItem("Safety");
-		check_safe.addActionListener(new DoAction(DOSAFETY));
-		check.add(check_safe);
 
-		checkDeadlock = new JMenuItem("Deadlock");
-		checkDeadlock.addActionListener(new DoAction(DODEADLOCK));
-		check.add(checkDeadlock);
 
-		check_progress = new JMenuItem("Progress");
-		check_progress.addActionListener(new DoAction(DOPROGRESS));
-		check.add(check_progress);
 
 		checkRealizability = new JMenu("Realizability checker");
 		if (hasLTL2BuchiJar()) {
@@ -501,18 +480,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		checkPostconditions = new JMenu("Substitutability checker");
 		check.add(checkPostconditions);
 
-		checkRun = new JMenu("Run");
-		check.add(checkRun);
-		default_run = new JMenuItem(DEFAULT);
-		default_run.addActionListener(new ExecuteAction(DEFAULT));
-		checkRun.add(default_run);
-		check_reachable = new JMenuItem("Supertrace");
-		check_reachable.addActionListener(new DoAction(DOREACHABLE));
-		check.add(check_reachable);
 
-		checkDeterministic = new JMenuItem("is Deterministic");
-		checkDeterministic.addActionListener(new DoAction(DODETERMINISTIC));
-		check.add(checkDeterministic);
 
 		// build menu
 		build = new JMenu("Build");
@@ -637,9 +605,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		setReduction.addActionListener(opt);
 		option.add(setReduction);
 		setReduction.setSelected(true);
-		supertrace_options = new JMenuItem("Set Supertrace parameters");
-		supertrace_options.addActionListener(new SuperTraceOptionListener());
-		option.add(supertrace_options);
 		option.addSeparator();
 		setBigFont = new JCheckBoxMenuItem("Use big font");
 		setBigFont.addActionListener(opt);
@@ -744,12 +709,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		tools.add(new JLabel("Controller"));
 		tools.add(controllerTargetChoice);
 		tools.addSeparator();
-		tools.add(safetyTool = createTool(
-				"src/main/java/ltsa/ui/icon/safety.gif", "Check safety",
-				new DoAction(DOSAFETY)));
-		tools.add(progressTool = createTool(
-				"src/main/java/ltsa/ui/icon/progress.gif", "Check Progress",
-				new DoAction(DOPROGRESS)));
 
 		tools.addSeparator();
 		tools.add(createTool("src/main/java/ltsa/ui/icon/alphabet.gif",
@@ -859,18 +818,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		file_example.setEnabled(flag && tabindex == 0);
 		fileOpen.setEnabled(application && flag && tabindex == 0);
 		file_exit.setEnabled(flag);
-		check_safe.setEnabled(flag);
 
-		check_progress.setEnabled(flag);
-		checkRun.setEnabled(flag);
-		check_reachable.setEnabled(flag);
 		build_parse.setEnabled(flag);
 		build_compile.setEnabled(flag);
 		build_compose.setEnabled(flag);
 		build_minimise.setEnabled(flag);
 		parseTool.setEnabled(flag);
-		safetyTool.setEnabled(flag);
-		progressTool.setEnabled(flag);
 		compileTool.setEnabled(flag);
 		composeTool.setEnabled(flag);
 		minimizeTool.setEnabled(flag);
@@ -892,10 +845,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				showOutput();
 				precondition();
 				break;
-			case DOSAFETY:
-				showOutput();
-				safety();
-				break;
 			case DOSAFETYNODEADLOCK:
 				showOutput();
 				safety(false, false);
@@ -906,14 +855,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				break;
 			case DOARRANGEDANIMATOR:
 				animate();
-				break;
-			case DOREACHABLE:
-				showOutput();
-				reachable();
-				break;
-			case DODETERMINISTIC:
-				showOutput();
-				checkDeterministic();
 				break;
 			case DOCOMPILE:
 				showOutput();
@@ -926,10 +867,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			case DOMINIMISECOMPOSITION:
 				showOutput();
 				minimiseComposition();
-				break;
-			case DOPROGRESS:
-				showOutput();
-				progress();
 				break;
 			case DOMODELCHECK:
 				showOutput();
@@ -954,9 +891,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 			case DOREFINEMENT:
 				doRefinement();
 				break;
-			case DODEADLOCK:
-				doDeadlockCheck();
-				break;
 			case DOCONSISTENCY:
 				doConsistency();
 				break;
@@ -978,20 +912,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		// stopTool.setEnabled(false);
 	}
 
-	private void checkDeterministic() {
-
-		if (current == null) {
-			outln("*** Compile an LTS before checking determinism");
-
-		} else {
-			LabelledTransitionSystem currentCS = current.getComposition();
-			if (currentCS.isNonDeterministic()) {
-				outln("This is a non deterministic LTS");
-			} else {
-				outln("This is a deterministic LTS");
-			}
-		}
-	}
+	
 
 	// ------------------------------------------------------------------------
 
@@ -1015,8 +936,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		explorerDefinitions = null;
 		environmentTargetChoice.removeAllItems();
 		environmentTargetChoice.addItem(DEFAULT);
-		checkRun.removeAll();
-		checkRun.add(default_run);
 		runItems = null;
 		assertItems = null;
 		preconditionsItems = null;
@@ -1395,12 +1314,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 	}
 
-	class SuperTraceOptionListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			setSuperTraceOption();
-		}
-	}
+	
 
 	class LayoutOptionListener implements ActionListener {
 		@Override
@@ -2445,15 +2359,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 	// ------------------------------------------------------------------------
 
-	private void reachable() {
-		clearOutput();
-		compileIfChange();
-		if (current != null && !current.getMachines().isEmpty()) {
-			Analyser a = new Analyser(current, this, null);
-			SuperTrace s = new SuperTrace(a, this);
-			current.setErrorTrace(s.getErrorTrace());
-		}
-	}
+	
 
 	// ------------------------------------------------------------------------
 
@@ -2531,27 +2437,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		d.setVisible(true);
 	}
 
-	// ------------------------------------------------------------------------
-
-	private void setSuperTraceOption() {
-		try {
-			String o = (String) JOptionPane.showInputDialog(this,
-					"Enter Hashtable size (Kilobytes):",
-					"Supertrace parameters", JOptionPane.PLAIN_MESSAGE, null,
-					null, "" + SuperTrace.getHashSize());
-			if (o == null)
-				return;
-			SuperTrace.setHashSize(Integer.parseInt(o));
-			o = (String) JOptionPane.showInputDialog(this,
-					"Enter bound for search depth size:",
-					"Supertrace parameters", JOptionPane.PLAIN_MESSAGE, null,
-					null, "" + SuperTrace.getDepthBound());
-			if (o == null)
-				return;
-			SuperTrace.setDepthBound(Integer.parseInt(o));
-		} catch (NumberFormatException ignored) {
-		}
-	}
+	
 
 	// -------------------------------------------------------------------------
 
@@ -2749,21 +2635,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		eman.post(new LTSEvent(LTSEvent.NEWLABELSETS,
 				(labelSetConstants = LabelSet.getConstants()).keySet()));
 
-		// deal with run menu
-		checkRun.removeAll();
-		runNames = MenuDefinition.names();
-		runEnabled = MenuDefinition.enabled((String) environmentTargetChoice
-				.getSelectedItem());
-		checkRun.add(default_run);
-		if (runNames != null) {
-			runItems = new JMenuItem[runNames.length];
-			for (int i = 0; i < runNames.length; ++i) {
-				runItems[i] = new JMenuItem(runNames[i]);
-				runItems[i].setEnabled(runEnabled[i]);
-				runItems[i].addActionListener(new ExecuteAction(runNames[i]));
-				checkRun.add(runItems[i]);
-			}
-		}
+		
 
 		// deals with checkRealizability menu
 		this.checkRealizability.removeAll();
