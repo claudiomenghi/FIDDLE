@@ -7,15 +7,12 @@ import java.util.Set;
 import java.util.Vector;
 
 import ltsa.lts.Diagnostics;
-import ltsa.lts.automata.automaton.StateMachine;
-import ltsa.lts.automata.automaton.transition.Transition;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.IntegratorEngine;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.Symbol;
 import ltsa.ui.EmptyLTSOuput;
 
 import org.apache.commons.logging.Log;

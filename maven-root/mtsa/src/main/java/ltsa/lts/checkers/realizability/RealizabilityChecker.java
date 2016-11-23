@@ -1,38 +1,47 @@
 package ltsa.lts.checkers.realizability;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.base.Preconditions;
+import javax.annotation.Nonnull;
 
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.output.LTSOutput;
+import ltsa.ui.EmptyLTSOuput;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Contains the algorithm that checks the realizability.
  *
  */
 public class RealizabilityChecker {
+	/**
+	 * The environment to be considered
+	 */
+	private final CompositeState environment;
 
 	/**
-	 * The system to be considered
+	 * The controller to be considered
 	 */
-	private final CompositeState system;
-	/**
-	 * The formula to be considered
-	 */
-	private final CompositeState property;
+	private final CompositeState controller;
 
 	/**
-	 * The negation of the formula to be considered
+	 * The property to be considered
+	 */
+	private final CompositeState ltlProperty;
+
+	/**
+	 * The property to be considered
 	 */
 	private final CompositeState notProperty;
 
 	/**
-	 * The output used to print messages
+	 * The output to be printed
 	 */
 	private final LTSOutput output;
+
+	private LabelledTransitionSystem modifiedControllerLTSStep1;
+
+	private LabelledTransitionSystem modifiedControllerLTSStep2;
 
 	/**
 	 * Creates a new realizability checker
@@ -46,80 +55,109 @@ public class RealizabilityChecker {
 	 * @param output
 	 *            the output used to print the result
 	 */
-	public RealizabilityChecker(CompositeState system, CompositeState property,
-			CompositeState notProperty, LTSOutput output) {
-		Preconditions.checkNotNull(system,
-				"The system to be considered cannot be null");
-		Preconditions.checkNotNull(property,
-				"The property to be considered cannot be null");
-		Preconditions.checkNotNull(notProperty,
-				"The negation of the property to be considered cannot be null");
+	public RealizabilityChecker(@Nonnull LTSOutput output,
+			@Nonnull CompositeState environment,
+			@Nonnull CompositeState controller,
+			@Nonnull CompositeState property,
+			@Nonnull CompositeState notproperty) {
 		Preconditions.checkNotNull(output,
-				"The output used to print the result cannot be null");
+				"The output of the system cannot be null");
+		Preconditions.checkNotNull(environment,
+				"The environment cannot be null");
+		Preconditions.checkNotNull(controller, "The controller cannot be null");
+		Preconditions.checkNotNull(property,
+				"The property of interest cannot be null");
 
-		this.system = system;
-		this.property = property;
-		this.notProperty = notProperty;
+		output.outln("*********************************************************");
+		output.outln("****************  REALIZABILITY CHECKER  ****************");
+		output.outln("*********************************************************");
+		output.outln("ENVIRONMENT: "+ environment.getName() + "\n" + 
+					 "CONTROLLER: "+ controller.getName() + "\n" + 
+					 "PROPERTY: "+ property.getName());
+
+
 		this.output = output;
+		this.environment = environment;
+		this.controller = controller;
+		this.ltlProperty = property;
+		this.notProperty = notproperty;
 	}
 
+	public LabelledTransitionSystem getModifiedControllerStep1() {
+		return this.modifiedControllerLTSStep1;
+	}
+
+
+	public LabelledTransitionSystem getModifiedControllerStep2() {
+		return this.modifiedControllerLTSStep2;
+	}
 	/**
 	 * runs the realizability checker
 	 */
 	public void check() {
 
-		this.output
-				.outln("**************** REALIZABILITY CHECKER ****************");
+
 
 		this.output
-				.outln("***** STEP 1: Checking whether C^B || E MODELS phi ");
+				.outln("***** STEP 1: Checking whether C^B || E |= phi ");
 
-		CompositeState systemCopy = system.clone();
-		List<LabelledTransitionSystem> machines = new ArrayList<>(
-				systemCopy.getMachines());
-		for (int i = 0; i < machines.size(); i++) {
-			machines.get(i).removeStates(
-					machines.get(i).getBoxIndexes().values());
-		}
+		modifiedControllerLTSStep1 = controller.getMachines().get(0).clone();
+		modifiedControllerLTSStep1.setName("STEP_1_"+controller.getName());
 
-		boolean satisfied = systemCopy.checkLTL(output, property);
+		modifiedControllerLTSStep1.removeStates(modifiedControllerLTSStep1
+				.getBoxIndexes().values());
+
+		CompositeState system = new CompositeState("system");
+		environment.getMachines().forEach(system::addMachine);
+		system.addMachine(modifiedControllerLTSStep1);
+
+		boolean satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
+
 		if (!satisfied) {
+			this.output.outln("Counterexample found: ");
+			this.output.outln(system.getErrorTrace().toString());
 			this.output
 					.outln("---- REALIZABILITY RESULT: The controller is not realizable");
 		} else {
+			this.output.outln("No counterexample found. ");
 			this.output
-					.outln("***** STEP 2: Checking whether C || E NOT MODELS phi ");
-			CompositeState secondSystemCopy = modifyController();
+					.outln("***** STEP 2: Checking whether C || E NOT |= phi ");
+			modifiedControllerLTSStep2 = modifyController();
+			modifiedControllerLTSStep2.setName("STEP_2_"+controller.getName());
 
-			boolean secondCheckSatisfied = secondSystemCopy.checkLTL(output,
-					notProperty);
+			system = new CompositeState("system");
+			environment.getMachines().forEach(system::addMachine);
+			system.addMachine(modifiedControllerLTSStep2);
+
+			boolean secondCheckSatisfied = system.checkLTL(new EmptyLTSOuput(), notProperty);
 			if (secondCheckSatisfied) {
+				this.output.outln("No counterexample found. ");
 				this.output
-						.outln("---- REALIZABILITY RESULT: The controller is not realizable");
+						.outln("---- REALIZABILITY RESULT: The controller could be realizable");
 			} else {
+				this.output.outln("Counterexample found. ");
 				this.output
 						.outln("---- REALIZABILITY RESULT: The controller could be realizable");
 			}
 		}
 	}
 
-	private CompositeState modifyController() {
-		CompositeState secondSystemCopy = system.clone();
+	private LabelledTransitionSystem modifyController() {
+		LabelledTransitionSystem modifiedControllerLTSStep2 = controller
+				.getMachines().get(0).clone();
 
-		List<LabelledTransitionSystem> secondMachines = new ArrayList<>(
-				secondSystemCopy.getMachines());
-		for (int i = 0; i < secondMachines.size(); i++) {
-
-			LabelledTransitionSystem machine = secondMachines.get(i);
-
-			for (String boxName : machine.getBoxes()) {
-				for (String event : machine.getBoxInterface(boxName)) {
-					machine.addTransition(machine.getBoxIndexes().get(boxName),
-							machine.addEvent(event), machine.getBoxIndexes()
-									.get(boxName));
-				}
+		for (String boxName : modifiedControllerLTSStep2.getBoxes()) {
+			for (String event : modifiedControllerLTSStep2
+					.getBoxInterface(boxName)) {
+				modifiedControllerLTSStep2
+						.addTransition(
+								modifiedControllerLTSStep2.getBoxIndexes().get(
+										boxName),
+								modifiedControllerLTSStep2.addEvent(event),
+								modifiedControllerLTSStep2.getBoxIndexes().get(
+										boxName));
 			}
 		}
-		return secondSystemCopy;
+		return modifiedControllerLTSStep2;
 	}
 }
