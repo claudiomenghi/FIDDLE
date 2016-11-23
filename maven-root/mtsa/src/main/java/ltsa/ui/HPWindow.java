@@ -101,6 +101,7 @@ import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.Analyser;
 import ltsa.lts.checkers.ProgressCheck;
 import ltsa.lts.checkers.modelchecker.ModelChecker;
+import ltsa.lts.checkers.realizability.RealizabilityChecker;
 import ltsa.lts.checkers.substitutability.SubstitutabilityChecker;
 import ltsa.lts.checkers.wellformedness.WellFormednessChecker;
 import ltsa.lts.csp.CompositionExpression;
@@ -128,6 +129,7 @@ import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.Options;
 import ltsa.updatingControllers.structures.UpdatingControllerCompositeState;
 
+import org.apache.commons.logging.LogFactory;
 import org.jfree.util.Log;
 import org.springframework.context.ApplicationContext;
 
@@ -137,6 +139,10 @@ import com.google.common.base.Preconditions;
 
 public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		LTSOutput, LTSError, Runnable {
+
+	/** Logger available to subclasses */
+	protected final org.apache.commons.logging.Log logger = LogFactory
+			.getLog(getClass());
 
 	private static final String FILE_TYPE = "*.lts";
 	private String openFile = FILE_TYPE;
@@ -2053,6 +2059,68 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		}
 	}
 
+	private void realizability() {
+
+		this.logger.debug("Running the realizability checker");
+		clearOutput();
+		compileIfChange();
+		CompositeState ltlProperty = AssertDefinition.compile(this, asserted);
+		this.logger.debug("Property of interest: " + ltlProperty.getName());
+
+		String environmentName = (String) environmentTargetChoice
+				.getSelectedItem();
+		String controllerName = (String) controllerTargetChoice
+				.getSelectedItem();
+		this.logger.debug("Environment of interest: " + environmentName);
+		this.logger.debug("Conntroller of interest: " + controllerName);
+
+		CompositeState environment = compile(environmentName);
+		CompositeState controller = compile(controllerName);
+
+		// Silent compilation for negated formula
+		CompositeState notLtlProperty = AssertDefinition.compile(
+				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
+		current.compose(new EmptyLTSOuput());
+
+		if (ltlProperty != null) {
+			RealizabilityChecker realizabilityChecker = new RealizabilityChecker(
+					this, environment, controller, ltlProperty, notLtlProperty);
+			realizabilityChecker.check();
+
+			final Vector<LabelledTransitionSystem> machines = new Vector<>();
+			environment.getMachines().forEach(machines::add);
+			machines.add(controller.getMachines().get(0));
+			
+			machines.add(realizabilityChecker.getModifiedControllerStep1());
+			if (realizabilityChecker.getModifiedControllerStep2() != null) {
+				machines.add(realizabilityChecker.getModifiedControllerStep2());
+			}
+
+			CompositeState system = new CompositeState("System");
+			environment.getMachines().forEach(system::addMachine);
+			system.addMachine(realizabilityChecker.getModifiedControllerStep1());
+			system.compose(new EmptyLTSOuput());
+			LabelledTransitionSystem compositionStep1 = system.getComposition();
+			compositionStep1.setName("COMPOSITION_STEP_1");
+			machines.add(compositionStep1);
+
+			if (realizabilityChecker.getModifiedControllerStep2() != null) {
+
+				system = new CompositeState("System");
+				environment.getMachines().forEach(system::addMachine);
+				system.addMachine(realizabilityChecker
+						.getModifiedControllerStep2());
+				system.compose(new EmptyLTSOuput());
+				LabelledTransitionSystem compositionStep2 = system
+						.getComposition();
+				compositionStep2.setName("COMPOSITION_STEP_2");
+				machines.add(compositionStep2);
+			}
+
+			this.newMachines(machines);
+		}
+	}
+
 	private void wellFormednessChecker(String preconditionName) {
 		Preconditions.checkNotNull(preconditionName,
 				"The name of the precondition cannot be null");
@@ -2062,47 +2130,48 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 		String boxOfInterest = LTSCompiler.mapsEachPreconditionToTheCorrespondingBox
 				.get(preconditionName);
 
-		
 		CompositeState environment = compile((String) environmentTargetChoice
 				.getSelectedItem());
 		CompositeState controller = compile((String) controllerTargetChoice
 				.getSelectedItem());
-		
+
 		Log.info("Analysing the controller process: " + controller.getName());
-		
-		LabelledTransitionSystem controllerLTS =controller.getMachines().iterator().next();
-		
+
+		LabelledTransitionSystem controllerLTS = controller.getMachines()
+				.iterator().next();
+
 		final Vector<LabelledTransitionSystem> machines = new Vector<>();
-		
+
 		controllerLTS
-		.getBoxes()
-		.stream()
-		.filter(box -> LTSCompiler.postconditionDefinitionManager
-				.hasPostCondition(controllerLTS.getName(), box))
-		.forEach(
-				box -> {
-					String postConditionName = LTSCompiler.postconditionDefinitionManager
-							.getPostCondition(controllerLTS.getName(), box);
-					LabelledTransitionSystem post = LTSCompiler.postconditionDefinitionManager
-							.toFiniteLTS(new EmptyLTSOuput(),
-									controllerLTS.getBoxInterface(box),
-									postConditionName);
-					post.setName("POST_"+postConditionName);
-					machines.add(post);
-				});
-		
-				Formula preconditionFormula = LTSCompiler.preconditionDefinitionManager
+				.getBoxes()
+				.stream()
+				.filter(box -> LTSCompiler.postconditionDefinitionManager
+						.hasPostCondition(controllerLTS.getName(), box))
+				.forEach(
+						box -> {
+							String postConditionName = LTSCompiler.postconditionDefinitionManager
+									.getPostCondition(controllerLTS.getName(),
+											box);
+							LabelledTransitionSystem post = LTSCompiler.postconditionDefinitionManager
+									.toFiniteLTS(new EmptyLTSOuput(),
+											controllerLTS.getBoxInterface(box),
+											postConditionName);
+							post.setName("POST_" + postConditionName);
+							machines.add(post);
+						});
+
+		Formula preconditionFormula = LTSCompiler.preconditionDefinitionManager
 				.getPrecondition(preconditionName);
 		WellFormednessChecker checker = new WellFormednessChecker(this,
 				environment, controllerLTS, boxOfInterest, preconditionFormula,
 				preconditionName);
 
 		checker.check();
-		
+
 		environment.getMachines().forEach(machines::add);
 		machines.add(controllerLTS);
 		machines.add(checker.getModifiedController());
-		
+
 		CompositeState system = new CompositeState("System");
 		environment.getMachines().forEach(system::addMachine);
 		system.addMachine(checker.getModifiedController());
@@ -2134,12 +2203,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				.forEach(
 						box -> {
 							String postConditionName = LTSCompiler.postconditionDefinitionManager
-									.getPostCondition(controllerLTS.getName(), box);
+									.getPostCondition(controllerLTS.getName(),
+											box);
 							LabelledTransitionSystem post = LTSCompiler.postconditionDefinitionManager
 									.toFiniteLTS(new EmptyLTSOuput(),
 											controllerLTS.getBoxInterface(box),
 											postConditionName);
-							post.setName("POST_"+postConditionName);
+							post.setName("POST_" + postConditionName);
 							machines.add(post);
 						});
 
@@ -2221,23 +2291,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 	private void precondition() {
 		clearOutput();
 		compileIfChange();
-	}
-
-	private void realizability() {
-		clearOutput();
-		compileIfChange();
-		CompositeState ltlProperty = AssertDefinition.compile(this, asserted);
-		// Silent compilation for negated formula
-		CompositeState notLtlProperty = AssertDefinition.compile(
-				new EmptyLTSOuput(), AssertDefinition.NOT_DEF + asserted);
-		current.compose(new EmptyLTSOuput());
-
-		if (ltlProperty != null) {
-
-			TransitionSystemDispatcher.checkRealizability(current, ltlProperty,
-					notLtlProperty, this);
-			postState(current);
-		}
 	}
 
 	// ------------------------------------------------------------------------

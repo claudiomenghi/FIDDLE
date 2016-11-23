@@ -13,7 +13,7 @@ To main class of FIDDLE is `HPWindow.java`
 ###### click on the following video to see how to run the realizability checker
 
 [![Running the Realizability Checker](/md-files/FIDDLE.png
-)](https://www.youtube.com/watch?v=Cz_YFBb0YJI "Realizabilty checker")
+)](https://youtu.be/SFdMOp_fDKw "Realizabilty checker")
 
 The realizability checker is implemented in the [RealizabilityChecker](maven-root/mtsa/src/main/java/ltsa/lts/checkers/realizability/RealizabilityChecker.java) class
 
