@@ -2061,24 +2061,55 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 
 		String boxOfInterest = LTSCompiler.mapsEachPreconditionToTheCorrespondingBox
 				.get(preconditionName);
-		String controllerProcessName = LTSCompiler.mapsEachPreconditionToTheCorrespondingProcess
-				.get(preconditionName);
-		Log.info("Analysing the controller process: " + controllerProcessName);
-		LabelledTransitionSystem controller = compile(controllerProcessName)
-				.getMachines().iterator().next();
-		controller.setName(controllerProcessName);
 
-		CompositeState environment = current;
-
-		Formula preconditionFormula = LTSCompiler.preconditionDefinitionManager
+		
+		CompositeState environment = compile((String) environmentTargetChoice
+				.getSelectedItem());
+		CompositeState controller = compile((String) controllerTargetChoice
+				.getSelectedItem());
+		
+		Log.info("Analysing the controller process: " + controller.getName());
+		
+		LabelledTransitionSystem controllerLTS =controller.getMachines().iterator().next();
+		
+		final Vector<LabelledTransitionSystem> machines = new Vector<>();
+		
+		controllerLTS
+		.getBoxes()
+		.stream()
+		.filter(box -> LTSCompiler.postconditionDefinitionManager
+				.hasPostCondition(controllerLTS.getName(), box))
+		.forEach(
+				box -> {
+					String postConditionName = LTSCompiler.postconditionDefinitionManager
+							.getPostCondition(controllerLTS.getName(), box);
+					LabelledTransitionSystem post = LTSCompiler.postconditionDefinitionManager
+							.toFiniteLTS(new EmptyLTSOuput(),
+									controllerLTS.getBoxInterface(box),
+									postConditionName);
+					post.setName("POST_"+postConditionName);
+					machines.add(post);
+				});
+		
+				Formula preconditionFormula = LTSCompiler.preconditionDefinitionManager
 				.getPrecondition(preconditionName);
 		WellFormednessChecker checker = new WellFormednessChecker(this,
-				environment, controller, boxOfInterest, preconditionFormula,
+				environment, controllerLTS, boxOfInterest, preconditionFormula,
 				preconditionName);
 
-		CompositeState system = checker.check();
+		checker.check();
+		
+		environment.getMachines().forEach(machines::add);
+		machines.add(controllerLTS);
+		machines.add(checker.getModifiedController());
+		
+		CompositeState system = new CompositeState("System");
+		environment.getMachines().forEach(system::addMachine);
+		system.addMachine(checker.getModifiedController());
+		system.compose(new EmptyLTSOuput());
+		machines.add(system.getComposition());
 
-		postState(system);
+		this.newMachines(machines);
 	}
 
 	private void modelCheck() {

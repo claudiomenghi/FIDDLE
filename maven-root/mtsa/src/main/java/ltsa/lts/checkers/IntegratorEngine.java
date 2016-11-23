@@ -44,7 +44,7 @@ public class IntegratorEngine {
 		Preconditions.checkNotNull(controllerMachine,
 				"The first machine cannot be null");
 		Preconditions.checkNotNull(postConditionMachine,
-				"The second machine cannot be null");
+				"The machine of the post-condition cannot be null");
 		Preconditions
 				.checkArgument(controllerMachine.getBoxIndexes().values()
 						.contains(boxIndex),
