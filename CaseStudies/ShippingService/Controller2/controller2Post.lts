@@ -46,7 +46,7 @@ USER = 									(	userReq		->	REQUESTED		),
 //***************************************************************************************************
 // CONTROLLER
 //***************************************************************************************************
-set PreparingOfferInterface={prodInfoReq,  shipInfoReq,infoRcvd, costAndTime, respOk, shipReq, usrAck, reqCancelled, userReq, shipCancel, prodReq, usrNack, prodCancel}
+set PreparingOfferInterface={offerRcvd, prodInfoReq,  shipInfoReq,infoRcvd, costAndTime, respOk, shipReq, usrAck, reqCancelled, userReq, shipCancel, prodReq, usrNack, prodCancel}
 
 set ManageRequestInterface={prodReq, shipReq, shipInfoReq, respOk, usrAck, reqCancelled, prodInfoReq, userReq, shipCancel, usrNack, costAndTime, infoRcvd, prodCancel}
 set DeclineRequestInterface={prodCancel, shipCancel, shipInfoReq, respOk, shipReq, usrAck, reqCancelled, prodInfoReq, userReq, prodReq, usrNack, costAndTime, infoRcvd}
@@ -175,7 +175,7 @@ ltl_precondition ControllerSpec MANAGEREQUEST MANAGE_REQUEST_REQUIRES_PENDING_RE
 // returned: OK
 
 // the DECLINEREQUEST black box state can be entered only if there is a user request followed by an offer
-ltl_precondition ControllerSpec DECLINEREQUEST DECLINE_REQUEST_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && <>(F_OfferRcvd)))
+ltl_precondition ControllerSpec DECLINEREQUEST DECLINE_REQUEST_REQUIRES_PENDING_REQUEST=<>(F_UserReq && <>(F_OfferRcvd))
 // expected: OK
 // returned: OK
 

@@ -1,8 +1,6 @@
 package ltsa.lts.checkers.wellformedness;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import ltsa.lts.automata.lts.state.CompositeState;
@@ -19,6 +17,8 @@ public class WellFormednessChecker {
 	private final LTSOutput output;
 
 	private final LabelledTransitionSystem controller;
+	
+	private LabelledTransitionSystem updatedController;
 
 	private final CompositeState environment;
 
@@ -50,11 +50,15 @@ public class WellFormednessChecker {
 		this.preconditionName = preconditionName;
 	}
 
+	public LabelledTransitionSystem getModifiedController(){
+		return this.updatedController;
+	}
+	
 	public CompositeState check() {
 
 		// implements the step 1, 2, 3 of the well-formedness checking
 		// algorithm, i.e., it returns the modified controller
-		LabelledTransitionSystem updatedController = new WellFormednessLTSModifier(
+		updatedController = new WellFormednessLTSModifier(
 				output).modify(controller, boxName);
 
 		// STEP 4

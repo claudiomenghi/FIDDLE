@@ -92,13 +92,11 @@ public class PostconditionDefinitionManager {
 	 * @throws IllegalArgumentException
 	 *             if the box is not associated with a post-condition
 	 */
-	public String getPostCondition(@Nonnull String process,
-			@Nonnull String box) {
+	public String getPostCondition(@Nonnull String process, @Nonnull String box) {
 		Preconditions.checkArgument(this.hasPostCondition(process, box),
 				"No post-condition is associated with the box: " + box
 						+ " of the process: " + process);
-		return this.mapBoxPostconditions.get(process).get(
-				box);
+		return this.mapBoxPostconditions.get(process).get(box);
 	}
 
 	public void reset() {
@@ -162,10 +160,12 @@ public class PostconditionDefinitionManager {
 
 	public CompositeState compile(LTSOutput output,
 			Set<String> alphabetCharacters, String name) {
+		Preconditions.checkNotNull(name,
+				"The name of the post-condition cannot be null");
 		Preconditions
 				.checkArgument(
 						postconditions.containsKey(name),
-						"The precondition "
+						"The post-condition "
 								+ name
 								+ " is not contained into the set of the preconditions");
 		PostconditionDefinition post = postconditions.get(name);
