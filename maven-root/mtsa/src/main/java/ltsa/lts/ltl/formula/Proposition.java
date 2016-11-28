@@ -11,7 +11,9 @@ import ltsa.lts.parser.Symbol;
 /**
  * represent a proposition of the formula
  */
-public class Proposition extends Formula {
+public class Proposition extends Formula implements Comparable<Formula>{
+	
+
 	private final Symbol symbol;
 
 	/**
@@ -51,5 +53,36 @@ public class Proposition extends Formula {
 		Set<Proposition> retPropositions = new HashSet<>();
 		retPropositions.add(this);
 		return retPropositions;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Proposition other = (Proposition) obj;
+		if (symbol == null) {
+			if (other.symbol != null)
+				return false;
+		} else if (!symbol.equals(other.symbol))
+			return false;
+		return true;
+	}
+	@Override
+	public Set<Formula> getSubformulae() {
+		Set<Formula> formulae=new HashSet<>();
+		formulae.add(this);
+		return formulae;
 	}
 }

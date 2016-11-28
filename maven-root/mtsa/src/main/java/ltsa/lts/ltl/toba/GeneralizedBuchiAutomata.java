@@ -12,6 +12,9 @@ import java.util.ListIterator;
 import java.util.SortedSet;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.LabelFactory;
 import ltsa.lts.ltl.formula.Formula;
@@ -22,6 +25,9 @@ import com.google.common.base.Preconditions;
 
 public class GeneralizedBuchiAutomata {
 
+	/** Logger available to subclasses */
+	protected final Log logger = LogFactory.getLog(getClass());
+	
 	private List<Node> nodes;
 	private Formula formula;
 	private FormulaFactory formulaFactory;
@@ -54,7 +60,9 @@ public class GeneralizedBuchiAutomata {
 		Node.setAut(this);
 		Node.setFactory(formulaFactory);
 		Transition.setLabelFactory(labelFac);
-		this.naccept = this.formulaFactory.processUntils(this.formula, new ArrayList<>());
+		ArrayList<Formula> listOfUntil=new ArrayList<>();
+		this.naccept = this.formulaFactory.processUntils(this.formula, listOfUntil);
+		logger.debug("Untils sub-formulae: "+listOfUntil);
 		Node first = new Node(this.formula);
 		this.nodes = first.expand(this.nodes);
 		this.states = makeStates();

@@ -1,7 +1,9 @@
 package ltsa.lts.checkers;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -60,51 +62,53 @@ public class ProgressCheck {
 		findCC(); // compute components
 		// output.outln("#connected components = "+ncomp);
 		long finish = System.currentTimeMillis();
-		if (hasERROR){
-			if(mach instanceof Analyser){
-				((Analyser) mach).cs.satisfied=false;
+		if (hasERROR) {
+			if (mach instanceof Analyser) {
+				((Analyser) mach).cs.satisfied = false;
 			}
 			output.outln("Safety property violation detected - check safety.");
-		}
-		else if (violation == 0)
+		} else if (violation == 0)
 			output.outln("No progress violations detected.");
-		else if (violation > Maxviolation){
-			if(mach instanceof Analyser){
-				((Analyser) mach).cs.satisfied=false;
-					
+		else if (violation > Maxviolation) {
+			if (mach instanceof Analyser) {
+				((Analyser) mach).cs.satisfied = false;
+
 			}
 			output.outln("More than " + Maxviolation + " violations");
 		}
 		output.outln("Progress Check in: " + (finish - start) + "ms");
 	}
 
-	public void doLTLCheck() {
+	public boolean doLTLCheck() {
 		progress = false;
 		output.outln("LTL Property Check...");
 		long start = System.currentTimeMillis();
 		accept = acceptLabel(mach.getAlphabet());
 		if (accept < 0) {
 			output.outln("No labeled acceptance states.");
-			return;
+			return true;
 		}
 		stack = new Stack<>();
 		findCC(); // compute components
 		long finish = System.currentTimeMillis();
-		if (hasERROR){
-			if(mach instanceof Analyser){
-				((Analyser) mach).cs.satisfied=false;
-					
+		if (hasERROR) {
+			if (mach instanceof Analyser) {
+				((Analyser) mach).cs.satisfied = false;
+
 			}
 			output.outln("Safety property violation detected - check safety.");
 
-		}
-		else {
+		} else {
 			if (violation == 0) {
 				output.outln("No LTL Property violations detected.");
 			} else {
-				if(mach instanceof Analyser){
-					((Analyser) mach).cs.satisfied=false;
-						
+				if (mach instanceof Analyser) {
+					Analyser analizer = (Analyser) mach;
+					analizer.cs.satisfied = false;
+					List<String> errorTrace = new ArrayList<String>();
+					errorTrace.addAll(analizer.trace);
+					analizer.cs.setErrorTrace(errorTrace);
+
 				}
 				if (violation > Maxviolation) {
 					output.outln("More than " + Maxviolation + " violations");
@@ -112,6 +116,7 @@ public class ProgressCheck {
 			}
 		}
 		output.outln("LTL Property Check in: " + (finish - start) + "ms");
+		return ((Analyser) mach).cs.satisfied;
 	}
 
 	public int numberComponents() {
@@ -333,6 +338,17 @@ public class ProgressCheck {
 		return false;
 	}
 
+	/**
+	 * returns true if the component is not a trivial components. A component is
+	 * non trivial if it contains more than one state or if the state has a
+	 * self-loop made by an accepting transition
+	 * 
+	 * @param component
+	 *            the strongly connected component to be analyzed
+	 * @return returns true if the component is not a trivial components. A
+	 *         component is non trivial if it contains more than one state or if
+	 *         the state has a self-loop made by an accepting transition
+	 */
 	private boolean nontrivial(Vector<byte[]> component) {
 		if (component.size() > 1)
 			return true;
@@ -341,8 +357,9 @@ public class ProgressCheck {
 		while (!transitions.empty()) {
 			int act = transitions.getAction();
 			if ((act != accept || accept < 0)
-					&& StateCodec.equals(i, transitions.getTo()))
+					&& StateCodec.equals(i, transitions.getTo())) {
 				return true; // non accept labelled self transition
+			}
 			transitions.next();
 		}
 		return false;
@@ -363,8 +380,9 @@ public class ProgressCheck {
 	Vector<String> cycleTrace;
 
 	public Vector<String> getErrorTrace() {
-		if (errorTrace == null)
+		if (errorTrace == null) {
 			return null;
+		}
 		if (cycleTrace != null) {
 			errorTrace.addAll(cycleTrace);
 			errorTrace.addAll(cycleTrace); // add another cycle for replay
@@ -394,7 +412,7 @@ public class ProgressCheck {
 		printSet(actions, false);
 	}
 
-	private void printCounterExample(Stack trace, byte[] root) {
+	private void printCounterExample(Stack<byte[]> trace, byte[] root) {
 		++violation;
 		if (violation > Maxviolation)
 			return;
@@ -402,8 +420,7 @@ public class ProgressCheck {
 		if (errorTrace == null)
 			return;
 		cycleTrace = getCycleTrace(trace, root);
-		output.outln("Violation of LTL property: "
-				+ mach.getAlphabet()[accept]);
+		output.outln("Violation of LTL property: " + mach.getAlphabet()[accept]);
 		output.outln("Trace to terminal set of states:");
 		// printTrace(errorTrace);
 		tracer.print(output, errorTrace, true);
@@ -415,8 +432,9 @@ public class ProgressCheck {
 	Vector<String> getRootTrace(byte[] root) {
 		output.outln("Finding trace to cycle...");
 		Vector<String> trace = mach.getTraceToState(mach.start(), root);
-		if (trace == null)
+		if (trace == null) {
 			hasERROR = true;
+		}
 		return trace;
 	}
 
@@ -484,7 +502,7 @@ public class ProgressCheck {
 	}
 
 	private int acceptLabel(String[] alphabet) {
-		
+
 		for (int i = 1; i < alphabet.length; i++) {
 			if (isAccept(alphabet[i])) {
 				return i;

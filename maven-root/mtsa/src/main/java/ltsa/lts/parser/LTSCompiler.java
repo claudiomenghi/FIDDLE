@@ -79,6 +79,8 @@ import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.PredicateUtils;
+import org.apache.commons.logging.LogFactory;
+import org.jfree.util.Log;
 
 import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
 import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
@@ -90,6 +92,10 @@ import com.google.common.base.Preconditions;
 
 public class LTSCompiler {
 
+	/** Logger available to subclasses */
+	protected final org.apache.commons.logging.Log logger = LogFactory
+			.getLog(getClass());
+
 	private Lex lex;
 	private LTSOutput output;
 	private String currentDirectory;
@@ -99,7 +105,7 @@ public class LTSCompiler {
 	public static PostconditionDefinitionManager postconditionDefinitionManager;
 
 	public static Hashtable<String, ProcessSpec> processes;
-	private static Hashtable<String, ProcessSpec> replacements;
+	public static Hashtable<String, ProcessSpec> replacements;
 
 	public static HashMap<String, String> mapBoxReplacementName;
 
@@ -167,7 +173,24 @@ public class LTSCompiler {
 			while (current.kind != Symbol.EOFSYM) {
 				if (current.kind == Symbol.REPLACEMENT) {
 					nextSymbol();
-					parseReplacement();
+					ProcessSpec p = compileReplacement();
+		
+					nextSymbol();
+					currentIs(Symbol.AT, "sub-controller interface expected");
+					nextSymbol();
+					p.alphaAdditions=this.labelSet();
+					currentIs(Symbol.DOT, "sub-controller interface expected");
+					//nextSymbol();
+					
+					if (processes.put(p.getName(), p) != null) {
+						Diagnostics.fatal(
+								"duplicate process definition: " + p.getName(),
+								p.getName());
+					}
+					else{
+						replacements.put(p.getName(), p);
+
+					}
 				} else if (current.kind == Symbol.LTLPRECONDITION) {
 					nextSymbol();
 					assertPrecondition();
@@ -458,7 +481,7 @@ public class LTSCompiler {
 							&& current.kind != Symbol.PLUS_CR
 							&& current.kind != Symbol.MERGE) {
 						ProcessSpec p = stateDefns();
-						if (processes.put(p.getName().toString(), p) != null) {
+						if (processes.put(p.getName(), p) != null) {
 							Diagnostics.fatal("duplicate process definition: "
 									+ p.getName(), p.getName());
 						}
@@ -535,7 +558,7 @@ public class LTSCompiler {
 					}
 				} else {
 					ProcessSpec p = stateDefns();
-					if (processes.put(p.getName().toString(), p) != null) {
+					if (processes.put(p.getName(), p) != null) {
 						Diagnostics.fatal(
 								"duplicate process definition: " + p.getName(),
 								p.getName());
@@ -703,8 +726,7 @@ public class LTSCompiler {
 			if (explorers.containsKey(name)) {
 				ExplorerDefinition explorerDefinition = explorers.get(name);
 
-				ce = new CompositionExpression(
-						postconditionDefinitionManager);
+				ce = new CompositionExpression(postconditionDefinitionManager);
 				ce.name = new Symbol(123, name);
 				ce.processes = processes;
 				ce.output = output;
@@ -915,7 +937,7 @@ public class LTSCompiler {
 		return compiledProcess;
 	}
 
-	private void parseReplacement() {
+	private ProcessSpec compileReplacement() {
 		currentIs(Symbol.UPPERIDENT,
 				"You have to specify the name of the process the replacement refers to.");
 		nextSymbol();
@@ -926,7 +948,8 @@ public class LTSCompiler {
 
 		nextSymbol();
 		ProcessSpec replacementSpec = stateDefns();
-
+		
+		
 		if (mapBoxReplacementName.containsKey(box.getValue())) {
 			Diagnostics.fatal("duplicate replacement for the box: " + box);
 		} else {
@@ -934,13 +957,12 @@ public class LTSCompiler {
 					.put(box.getValue(), replacementSpec.getName());
 		}
 		if (processes.containsKey(replacementSpec.getName())) {
-			Diagnostics.fatal("duplicate process definition: "
+			Diagnostics.fatal("duplicate replacement definition: "
 					+ replacementSpec.getName(), replacementSpec.getName());
-		} else {
-			processes.put(replacementSpec.getName(), replacementSpec);
-			replacements.put(replacementSpec.getName(), replacementSpec);
 		}
 		replacementSpec.setReplacement(true);
+
+		return replacementSpec;
 	}
 
 	private CompositeState noCompositionExpression(
@@ -2420,7 +2442,7 @@ public class LTSCompiler {
 		} else if (actionLabel instanceof ActionSet) {
 			ActionSet actionSet = (ActionSet) actionLabel;
 			Vector<ActionLabels> maybeSetLabels = new Vector<>();
-			for (ActionLabels setLabel : actionSet.set.labels)
+			for (ActionLabels setLabel : actionSet.getLabelSet().labels)
 				maybeSetLabels.add(getMaybeActionLabels(setLabel));
 			result = new ActionSet(new LabelSet(maybeSetLabels));
 		}

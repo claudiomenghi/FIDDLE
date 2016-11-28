@@ -2,12 +2,15 @@ package ltsa.lts.ltl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+
+import org.apache.commons.logging.LogFactory;
 
 import ltsa.lts.Diagnostics;
 import ltsa.lts.output.LTSOutput;
@@ -16,19 +19,22 @@ import ltsa.lts.parser.Symbol;
 import ltsa.lts.parser.Value;
 import ltsa.lts.parser.actions.ActionLabels;
 import ltsa.lts.parser.actions.ActionName;
-import ltsa.lts.parser.actions.ActionSetExpr;
+import ltsa.lts.parser.actions.ActionSet;
 import ltsa.lts.parser.actions.LabelSet;
-import ltsa.ui.EmptyLTSOuput;
 
 import com.google.common.base.Preconditions;
 
 public class PredicateDefinition {
+
+	/** Logger available to subclasses */
+	protected static final org.apache.commons.logging.Log logger = LogFactory
+			.getLog(PredicateDefinition.class);
 	
 	private final Symbol symbol;
 	private ActionLabels trueSet, falseSet;
 	private Vector<String> initiatingActions, terminatingActions;
 	Stack<Symbol> expr;
-	public boolean initial;
+	private boolean initial;
 	ActionLabels range; // range of fluents
 
 	/**
@@ -36,14 +42,18 @@ public class PredicateDefinition {
 	 */
 	public static HashMap<String, PredicateDefinition> definitions;
 
-	private PredicateDefinition(Symbol symbol, ActionLabels range, ActionLabels trueSet,
-			ActionLabels falseSet, Stack<Symbol> expr) {
+	private PredicateDefinition(Symbol symbol, ActionLabels range,
+			ActionLabels trueSet, ActionLabels falseSet, Stack<Symbol> expr) {
 		this.symbol = symbol;
 		this.range = range;
 		this.trueSet = trueSet;
 		this.falseSet = falseSet;
 		this.expr = expr;
 		this.initial = false;
+	}
+
+	public boolean getInitial() {
+		return this.initial;
 	}
 
 	public PredicateDefinition(Symbol n, Vector<String> trueActions,
@@ -58,21 +68,20 @@ public class PredicateDefinition {
 		this.terminatingActions = falseActions;
 	}
 
-	private PredicateDefinition(String n, Vector<String> trueActions,
-			Vector<String> falseActions, boolean init) {
-		Preconditions.checkNotNull(n, "The name cannot be null");
+	public PredicateDefinition(String predicateName,
+			Vector<String> initiatingActions,
+			Vector<String> terminatingActions, boolean initialValue) {
+		Preconditions.checkNotNull(predicateName, "The name cannot be null");
 
-		Preconditions.checkNotNull(trueActions,
+		Preconditions.checkNotNull(initiatingActions,
 				"The set of true actions cannot be null");
-		Preconditions.checkNotNull(falseActions,
+		Preconditions.checkNotNull(terminatingActions,
 				"The set of false actions cannot be null");
-		this.symbol = new Symbol(Symbol.UPPERIDENT, n);
-		this.initiatingActions = trueActions;
-		this.terminatingActions = falseActions;
-		initial = init;
+		this.symbol = new Symbol(Symbol.UPPERIDENT, predicateName);
+		this.initiatingActions = initiatingActions;
+		this.terminatingActions = terminatingActions;
+		initial = initialValue;
 	}
-
-	
 
 	public int query(String s) {
 		if (initiatingActions.contains(s))
@@ -85,20 +94,21 @@ public class PredicateDefinition {
 	public Vector<String> getInitiatingActions() {
 		return this.initiatingActions;
 	}
-	public void setInitiatingActions(Vector<String> initiatingActions){
-		this.initiatingActions=initiatingActions;
-		
+
+	public void setInitiatingActions(Vector<String> initiatingActions) {
+		this.initiatingActions = initiatingActions;
+
 	}
 
 	public Vector<String> getTerminatingActions() {
 		return this.terminatingActions;
 	}
 
-	public void setTerminatingActions(Vector<String> terminatingActions){
-		this.terminatingActions=terminatingActions;
-		
+	public void setTerminatingActions(Vector<String> terminatingActions) {
+		this.terminatingActions = terminatingActions;
+
 	}
-	
+
 	public int initial() {
 		return initial ? 1 : -1;
 	}
@@ -107,11 +117,6 @@ public class PredicateDefinition {
 	public String toString() {
 		return symbol.toString();
 	}
-	
-	//@Override
-	//public String toString() {
-	//	return this.symbol.toString()+"\n ini: "+this.initiatingActions+"\n end"+this.terminatingActions+"\n";
-	//}
 
 	public Vector<String> getTrueActions() {
 		return initiatingActions;
@@ -120,11 +125,11 @@ public class PredicateDefinition {
 	public Vector<String> getFalseActions() {
 		return terminatingActions;
 	}
-	
+
 	public Symbol getSymbol() {
 		return symbol;
 	}
-	
+
 	public static PredicateDefinition get(String n) {
 		if (definitions == null) {
 			return null;
@@ -145,6 +150,7 @@ public class PredicateDefinition {
 		if (p.range == null) {
 			if (!(p.initiatingActions != null && p.terminatingActions != null
 					&& p.trueSet == null && p.falseSet == null)) {
+				
 				p.initiatingActions = p.trueSet.getActions(null, null);
 				p.terminatingActions = p.falseSet.getActions(null, null);
 			}
@@ -159,7 +165,8 @@ public class PredicateDefinition {
 			while (p.range.hasMoreNames()) {
 				String s = p.range.nextName();
 				Vector<String> trueActions = p.trueSet.getActions(locals, null);
-				Vector<String> falseActions = p.falseSet.getActions(locals, null);
+				Vector<String> falseActions = p.falseSet.getActions(locals,
+						null);
 				boolean init = false;
 				assertDisjoint(trueActions, falseActions, p);
 				if (p.expr != null) {
@@ -168,8 +175,8 @@ public class PredicateDefinition {
 					init = (ev > 0);
 				}
 				String newName = p.symbol + "." + s;
-				definitions.put(newName, new PredicateDefinition(newName, trueActions,
-						falseActions, init));
+				definitions.put(newName, new PredicateDefinition(newName,
+						trueActions, falseActions, init));
 			}
 			p.range.clearContext();
 		}
@@ -184,7 +191,7 @@ public class PredicateDefinition {
 					+ " True & False sets must be disjoint", p.symbol);
 		}
 	}
-	
+
 	public static void put(Symbol n, ActionLabels rng, ActionLabels ts,
 			ActionLabels fs, Stack<Symbol> es) {
 		if (definitions == null) {
@@ -198,8 +205,8 @@ public class PredicateDefinition {
 			}
 		}
 	}
-	
-	public static void remove(Symbol n){
+
+	public static void remove(Symbol n) {
 		definitions.remove(n.toString());
 	}
 
@@ -218,50 +225,48 @@ public class PredicateDefinition {
 			return;
 		List<PredicateDefinition> v = new ArrayList<>();
 		v.addAll(definitions.values());
-		
-		v.forEach(p ->compile(p));
+
+		v.forEach(p -> compile(p));
 	}
-	
-	public PredicateDefinition clone(){
-		PredicateDefinition def=
-				new PredicateDefinition(
-				this.symbol,
-				new Vector<>(this.initiatingActions),
-				new Vector<>(this.terminatingActions));
-		
-		def.expr=this.expr;
-		def.initial=this.initial;
-		def.initiatingActions=this.initiatingActions;
-		def.terminatingActions=this.terminatingActions;
+
+	public PredicateDefinition clone() {
+		PredicateDefinition def = new PredicateDefinition(this.symbol,
+				new Vector<>(this.initiatingActions), new Vector<>(
+						this.terminatingActions));
+
+		def.expr = this.expr;
+		def.initial = this.initial;
+		def.initiatingActions = this.initiatingActions;
+		def.terminatingActions = this.terminatingActions;
 		return def;
 	}
 
 	static public void makePredicate(LTSOutput output, Symbol fluentName,
-			Symbol predicateSymbol, 
-			Set<String> alphabetCharacters) {
+			Symbol predicateSymbol, Set<String> alphabetCharacters) {
 
-		Vector<ActionLabels> actionsLabelsInit = new Vector<>();
-		actionsLabelsInit.add(new ActionName(predicateSymbol));
-		LabelSet predicateSymboleSet = new LabelSet(actionsLabelsInit);
-
-		Vector<ActionLabels> actionsLabelsEnd = new Vector<>();
-
-		alphabetCharacters
-				.stream()
-				.filter(character -> !character.equals(predicateSymbol
-						.toString()) && !character.equals("tau"))
-				.forEach(
-						character -> actionsLabelsEnd.add(new ActionName(
-								new Symbol(character, Symbol.UPPERIDENT))));
-
-		LabelSet endEnd = new LabelSet(actionsLabelsEnd);
-
-		ActionSetExpr end = new ActionSetExpr(endEnd, predicateSymboleSet);
+		Preconditions.checkNotNull(predicateSymbol,
+				"The predicate symbol cannot be null");
+		Preconditions.checkNotNull(alphabetCharacters,
+				"The set of the terminating actions cannot be null");
 		
-		PredicateDefinition.put(fluentName, null, new ActionName(
-				predicateSymbol), end, null);
-		PredicateDefinition.compile(PredicateDefinition.get(fluentName
-				.toString()));
+		ActionName initialFluentActions = new ActionName(predicateSymbol);
+
+		Set<String> alp=new HashSet<>(alphabetCharacters);
+		alp.remove(predicateSymbol.getValue());
+		
+		final Vector<ActionLabels> v = new Vector<>();
+		logger.debug("ALPHABET: "+alp);
+		
+		alp.forEach(a -> v.add(new ActionName(new Symbol(a,
+				Symbol.IDENTIFIER))));
+		ActionLabels endFluentActions = new ActionSet(new LabelSet(v));
+		logger.debug("END FLUENT ACTIONS: "+endFluentActions);
+		
+		Stack<Symbol> symbols=new Stack<>();
+		symbols.add(new Symbol("False", 123));
+		PredicateDefinition.put(fluentName, null, initialFluentActions,
+				endFluentActions, symbols);
+		compile(definitions.get(fluentName.toString()));
 	}
-	
+
 }

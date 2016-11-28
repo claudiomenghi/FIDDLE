@@ -18,7 +18,7 @@ public class ActionVarSet extends ActionSet {
 
 	@Override
 	protected String computeName() {
-		String s = (String) actions.elementAt(current);
+		String s = actions.elementAt(current);
 		if (locals != null)
 			locals.put(var.toString(), new Value(s));
 		return s;
@@ -40,7 +40,7 @@ public class ActionVarSet extends ActionSet {
 
 	@Override
 	protected ActionLabels make() {
-		return new ActionVarSet(var, set);
+		return new ActionVarSet(var, this.getLabelSet());
 	}
 
 }

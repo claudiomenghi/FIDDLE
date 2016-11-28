@@ -35,7 +35,12 @@ public class True extends Formula {
 	}
 	@Override
 	public Set<Proposition> getPropositions() {
-		Set<Proposition> retPropositions=new HashSet<>();
-		return retPropositions;
+		return new HashSet<>();
+	}
+	@Override
+	public Set<Formula> getSubformulae() {
+		Set<Formula> formulae=new HashSet<>();
+		formulae.add(this);
+		return formulae;
 	}
 }

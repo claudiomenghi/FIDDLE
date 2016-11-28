@@ -15,7 +15,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
@@ -35,14 +34,11 @@ public class AssertDefinition extends FormulaDefinition {
 	public static Hashtable<String, AssertDefinition> constraints;
 	public static boolean addAsterisk = true;
 
-	private boolean isConstraint;
 	boolean isProperty;
 
 	private AssertDefinition(Symbol n, FormulaSyntax f, LabelSet ls,
-			Hashtable<String, Value> ip, Vector<String> p,
-			boolean isConstraint, boolean isProperty) {
+			Hashtable<String, Value> ip, Vector<String> p, boolean isProperty) {
 		super(n, f, ls, ip, p);
-		this.isConstraint = isConstraint;
 		this.isProperty = isProperty;
 	}
 
@@ -63,12 +59,12 @@ public class AssertDefinition extends FormulaDefinition {
 			constraints = new Hashtable<>();
 		if (!isConstraint) {
 			if (definitions.put(n.toString(), new AssertDefinition(n, f, ls,
-					ip, p, false, false)) != null) {
+					ip, p, false)) != null) {
 				Diagnostics.fatal("duplicate LTL property definition: " + n, n);
 			}
 		} else {
 			if (constraints.put(n.toString(), new AssertDefinition(n, f, ls,
-					ip, p, true, isProperty)) != null) {
+					ip, p, isProperty)) != null) {
 				Diagnostics
 						.fatal("duplicate LTL constraint/property definition: "
 								+ n, n);
@@ -147,8 +143,8 @@ public class AssertDefinition extends FormulaDefinition {
 	 * @param pvalues
 	 * @return
 	 */
-	public static LabelledTransitionSystem compileConstraint(LTSOutput output, Symbol name,
-			String refname, Vector<Value> pvalues) {
+	public static LabelledTransitionSystem compileConstraint(LTSOutput output,
+			Symbol name, String refname, Vector<Value> pvalues) {
 		if (constraints == null) {
 			return null;
 		}
@@ -211,7 +207,7 @@ public class AssertDefinition extends FormulaDefinition {
 	private static CompositeState compile(
 			Hashtable<String, AssertDefinition> definitions, LTSOutput output,
 			String asserted, boolean isconstraint) {
-		
+
 		if (definitions == null || asserted == null) {
 			return null;
 		}
@@ -268,16 +264,6 @@ public class AssertDefinition extends FormulaDefinition {
 			cs.isProperty = true;
 		}
 		cs.getComposition().removeDetCycles("*");
-
-		if (assertDefinition.isConstraint && !assertDefinition.isProperty) {
-			LabelledTransitionSystem constrained = cs.getComposition();
-			// DIPI: temporal, hay que ver cuando aplicamos el constrained de
-			// MTS.
-			if (ltsa.lts.util.MTSUtils.isMTSRepresentation(constrained)) {
-				cs.setComposition(TransitionSystemDispatcher
-						.makeMTSConstraintModel(constrained, output));
-			}
-		}
 
 		assertDefinition.cached = cs;
 		return cs;

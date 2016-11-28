@@ -35,3 +35,13 @@ The well-formedness checker is implemented in the [WellFormednessChecker](maven-
 )](https://youtu.be/J8ykXHASx8U "Well-formedness checker")
 
 The model checker is implemented in the [ModelChecker](maven-root/mtsa/src/main/java/ltsa/lts/checkers/modelchecker/ModelChecker.java) class
+
+
+# Running the substitutability checker
+
+###### click on the following video to see how to run the substitutability-checker
+
+[![Running the Substitutability Checker](/md-files/FIDDLE.png
+)](https://youtu.be/sOI4Yly3EzA "Substitutability checker")
+
+The model checker is implemented in the [Substitutability](maven-root/mtsa/src/main/java/ltsa/lts/checkers/substitutability/SubstitutabilityChecker.java) class

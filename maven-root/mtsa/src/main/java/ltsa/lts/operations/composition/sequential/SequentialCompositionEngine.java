@@ -96,6 +96,8 @@ public class SequentialCompositionEngine
 		for (Integer index : firstMachineclone.getAccepting()) {
 			newMachine.addTransition(index, eventIndex, offsetSecondMachine);
 		}
+		
+		
 		return newMachine;
 	}
 

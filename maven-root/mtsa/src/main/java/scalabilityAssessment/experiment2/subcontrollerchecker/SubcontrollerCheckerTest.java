@@ -18,6 +18,7 @@ import ltsa.lts.chart.TriggeredScenarioDefinition;
 import ltsa.lts.checkers.substitutability.SubstitutabilityChecker;
 import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.ltl.AssertDefinition;
+import ltsa.lts.ltl.PostconditionDefinition;
 import ltsa.lts.ltl.PredicateDefinition;
 import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.parser.Def;
@@ -116,6 +117,7 @@ public class SubcontrollerCheckerTest implements Callable<Void> {
 
 			PostConditionGenerator postConditionGen = new PostConditionGenerator(
 					subController.getAlphabetEvents(), event1, event2);
+		
 			Formula postConditionFormula = postConditionGen.getFormulae().get(
 					postConditionOfInterest);
 			Formula fltlPrecondition = new PreconditionGenerator(alphabet,
@@ -124,10 +126,11 @@ public class SubcontrollerCheckerTest implements Callable<Void> {
 
 			long init = System.currentTimeMillis();
 
+			new PostconditionDefinition("PRECONDITION", fltlPrecondition., f, ls, ip, p, box)
 			
 			SubstitutabilityChecker subchecker = new SubstitutabilityChecker(
 					environment, subController, fltlPrecondition,
-					"PRECONDITION", postConditionFormula, "POSTCONDITION",
+					, postConditionFormula, "POSTCONDITION",
 					new EmptyLTSOuput());
 			subchecker.check();
 			end = System.currentTimeMillis();

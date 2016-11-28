@@ -114,6 +114,10 @@ public class PostconditionDefinitionManager {
 		return this.postconditions;
 	}
 
+	public int getNumberOfPostConditions(){
+		return this.postconditions.size();
+	}
+	
 	public Map<String, Set<String>> getMapProcessBox() {
 		return this.mapProcessBoxes;
 	}

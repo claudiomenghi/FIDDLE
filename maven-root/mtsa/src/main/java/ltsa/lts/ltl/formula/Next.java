@@ -34,4 +34,11 @@ public class Next extends Formula {
 		retPropositions.addAll(next.getPropositions());
 		return retPropositions;
 	}
+	
+	@Override
+	public Set<Formula> getSubformulae() {
+		Set<Formula> formulae=new HashSet<>();
+		formulae.add(this);
+		return formulae;
+	}
 }

@@ -42,7 +42,7 @@ public class FormulaFactory {
 	 * contains the id of the formula
 	 */
 	private int id;
-	
+
 	/**
 	 * stores sub-formulae to ensure uniqueness
 	 */
@@ -52,6 +52,7 @@ public class FormulaFactory {
 	 * stores the set of propositions
 	 */
 	private SortedSet<Proposition> props;
+
 	/**
 	 * The formula to which the factory is associated. Use the method setFormula
 	 * to change the current formula associated with the factory
@@ -94,10 +95,14 @@ public class FormulaFactory {
 	public void setFormula(Formula f) {
 		Preconditions.checkNotNull(f,
 				"The formula to be considered cannot be null");
+
 		formula = f;
+		f.getSubformulae().forEach(
+				currentFormula -> Math.max(this.id, currentFormula.getId()));
+
 		this.props = new TreeSet<>(f.getPropositions());
 		for (Proposition p : this.props) {
-			this.id = Math.max(this.id, p.getId());
+			this.id = Math.max(this.id, p.getId()+1);
 		}
 	}
 
@@ -117,6 +122,10 @@ public class FormulaFactory {
 
 	public Formula getFormula() {
 		return formula;
+	}
+
+	public Formula makeProposition(Symbol symbol) {
+		return unique(new Proposition(symbol));
 	}
 
 	public Formula make(Symbol symbol) {
@@ -340,6 +349,16 @@ public class FormulaFactory {
 		return unique(new Next(right));
 	}
 
+	/**
+	 * returns the number of until in the formula. The until sub-formulae are
+	 * added to the until parameter.
+	 * 
+	 * @param f
+	 *            the formula to be considered
+	 * @param untils
+	 *            the list where the until formulae are added
+	 * @return the number of until present in the formula
+	 */
 	public int processUntils(Formula f, List<Formula> untils) {
 		f.accept(new UntilVisitor(untils));
 		return untils.size();

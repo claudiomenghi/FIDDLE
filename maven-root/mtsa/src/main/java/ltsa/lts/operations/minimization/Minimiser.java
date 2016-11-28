@@ -144,7 +144,6 @@ public class Minimiser {
 		 */
 		if (machine.getEndOfSequenceIndex() != LTSConstants.NO_SEQUENCE_FOUND) {
 			int es = machine.getEndOfSequenceIndex();
-			System.out.println(es);
 			machine.getStates()[es] = EventStateUtils
 					.add(this.machine.getStates()[es], new LTSTransitionList(
 							this.machine.getAlphabet().length, es));

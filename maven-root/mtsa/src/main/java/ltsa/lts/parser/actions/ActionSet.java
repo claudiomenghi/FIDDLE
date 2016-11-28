@@ -2,24 +2,28 @@ package ltsa.lts.parser.actions;
 
 import java.util.Vector;
 
+import javax.annotation.Nonnull;
+
+import com.google.common.base.Preconditions;
+
 /**
  * -- evaluate {a,b,c,d,e} labels
  */
 public class ActionSet extends ActionLabels {
 
-	public LabelSet set;
+	private LabelSet set;
 	protected Vector<String> actions;
 
 	protected int current, high, low;
 
-	
-	public ActionSet(LabelSet set) {
+	public ActionSet(@Nonnull LabelSet set) {
+		Preconditions.checkNotNull(set, "The set of labels cannot be null");
 		this.set = set;
 	}
 
 	@Override
 	protected String computeName() {
-		return (String) actions.elementAt(current);
+		return actions.elementAt(current);
 	}
 
 	@Override
@@ -43,5 +47,22 @@ public class ActionSet extends ActionLabels {
 	protected ActionLabels make() {
 		return new ActionSet(set);
 	}
-	
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{");
+		if (actions != null) {
+			actions.forEach(action -> builder.append(action + "\t"));
+		}
+		builder.append("}");
+		builder.append(" label set: {");
+		set.labels.forEach(action -> builder.append(action + "\t"));
+		builder.append("}");
+		return builder.toString();
+	}
+
+	public LabelSet getLabelSet() {
+		return this.set;
+	}
 }
