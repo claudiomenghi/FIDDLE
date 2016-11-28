@@ -126,7 +126,7 @@ public class ProcessRef {
 					.getValue());
 
 			// try to distribute
-			Collection<LabelledTransitionSystem> distributedComponents = new LinkedList<LabelledTransitionSystem>();
+			Collection<LabelledTransitionSystem> distributedComponents = new LinkedList<>();
 			boolean isDistributionSuccessful = TransitionSystemDispatcher
 					.tryDistribution(systemModel, distributionDefinition,
 							output, distributedComponents);

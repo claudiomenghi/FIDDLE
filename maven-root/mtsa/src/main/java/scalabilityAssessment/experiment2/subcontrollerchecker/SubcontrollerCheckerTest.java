@@ -13,18 +13,17 @@ import java.util.concurrent.Callable;
 import ltsa.control.ControlStackDefinition;
 import ltsa.control.ControllerDefinition;
 import ltsa.control.ControllerGoalDefinition;
+import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.chart.TriggeredScenarioDefinition;
 import ltsa.lts.checkers.substitutability.SubstitutabilityChecker;
 import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.ltl.AssertDefinition;
-import ltsa.lts.ltl.PostconditionDefinition;
 import ltsa.lts.ltl.PredicateDefinition;
 import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.parser.Def;
 import ltsa.lts.parser.actions.LabelSet;
 import ltsa.ui.EmptyLTSOuput;
-import ltsa.ui.StandardOutput;
 import scalabilityAssessment.MessageHandler;
 import scalabilityAssessment.modelgenerator.ModelConfiguration;
 import scalabilityAssessment.modelgenerator.RandomLTSGenerator;
@@ -117,7 +116,7 @@ public class SubcontrollerCheckerTest implements Callable<Void> {
 
 			PostConditionGenerator postConditionGen = new PostConditionGenerator(
 					subController.getAlphabetEvents(), event1, event2);
-		
+
 			Formula postConditionFormula = postConditionGen.getFormulae().get(
 					postConditionOfInterest);
 			Formula fltlPrecondition = new PreconditionGenerator(alphabet,
@@ -126,12 +125,11 @@ public class SubcontrollerCheckerTest implements Callable<Void> {
 
 			long init = System.currentTimeMillis();
 
-			new PostconditionDefinition("PRECONDITION", fltlPrecondition., f, ls, ip, p, box)
-			
-			SubstitutabilityChecker subchecker = new SubstitutabilityChecker(
-					environment, subController, fltlPrecondition,
-					, postConditionFormula, "POSTCONDITION",
-					new EmptyLTSOuput());
+			CompositeState environmentState=new CompositeState("ENVIRONMENT");
+			environmentState.addMachine(environment);
+			SubstitutabilityChecker subchecker = new SubstitutabilityChecker(new EmptyLTSOuput(),
+					environmentState, subController, 
+					fltlPrecondition,"PRECONDITION", postConditionFormula,  "POSTCONDITION");
 			subchecker.check();
 			end = System.currentTimeMillis();
 
@@ -148,5 +146,4 @@ public class SubcontrollerCheckerTest implements Callable<Void> {
 		}
 		return null;
 	}
-
 }

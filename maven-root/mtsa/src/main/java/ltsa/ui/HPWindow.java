@@ -2208,8 +2208,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput,
 				machines.add(subControllerLTS);
 
 				SubstitutabilityChecker ck = new SubstitutabilityChecker(this,
-						environment, subControllerLTS, precondition,
-						postCondition);
+						environment, subControllerLTS, precondition.getFormula(true), precondition.getName(),
+						postCondition.getFormula(false),postCondition.getName());
 				ck.check();
 
 				machines.add(ck.getPreconditionLTS());
