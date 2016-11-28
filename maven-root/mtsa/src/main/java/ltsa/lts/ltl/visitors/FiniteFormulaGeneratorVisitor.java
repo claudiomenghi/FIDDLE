@@ -24,15 +24,14 @@ import com.google.common.base.Preconditions;
  */
 public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
 
-	
 	private FormulaFactory fac;
-	
+
 	private Formula end;
 
 	public FiniteFormulaGeneratorVisitor(FormulaFactory fac, Formula end) {
 		Preconditions.checkNotNull(fac, "The formula factory cannot be null");
 		this.fac = fac;
-		this.end=end;
+		this.end = end;
 	}
 
 	/**
@@ -101,15 +100,9 @@ public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
 	 */
 	@Override
 	public Formula visit(Release r) {
-		//Formula finallyRigth = fac.makeNot(fac.makeUntil(True.make(),
-		//		fac.makeNot(r.getRight())));
+		return fac.makeNot(fac.makeUntil(fac.makeNot(r.getLeft()),
+				fac.makeNot(r.getRight())).accept(this));
 
-		//return fac.makeOr(
-		//		fac.makeUntil(r.getRight(),
-		//				fac.makeAnd(r.getRight(), r.getLeft())), finallyRigth);
-		
-		return fac.makeNot(fac.makeUntil(fac.makeNot(r.getLeft()), fac.makeNot(r.getRight())).accept(this));
-		
 	}
 
 	/**

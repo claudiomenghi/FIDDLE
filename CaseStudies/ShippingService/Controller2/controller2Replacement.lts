@@ -8,7 +8,7 @@
 set User = {userReq, offerRcvd, usrAck, usrNack, respOk, reqCancelled}
 set	ProducerControllable={prodInfoReq, prodReq, prodCancel}
 set ProducerMonitorable={infoRcvd}
-set Producer = {ProducerControllable, ProducerControllable}
+set Producer = {ProducerControllable, ProducerMonitorable}
 
 set EmptySet={aaa}
 
@@ -52,7 +52,7 @@ set PreparingOfferInterface={prodInfoReq,  shipInfoReq,infoRcvd, costAndTime}
 set ManageRequestInterface={prodReq, shipReq}
 set DeclineRequestInterface={prodCancel, shipCancel}
 
-CONTROLLER =	INIT,
+ControllerSpec =	INIT,
 				INIT 				= 	(	userReq 	-> 	PREPARINGOFFER 				),
 				box PREPARINGOFFER	= 	(	offerRcvd 	->	WAITINGFORUSERCHOICE 		
 										)[PreparingOfferInterface],	
@@ -66,8 +66,8 @@ CONTROLLER =	INIT,
 										)[DeclineRequestInterface].
 	
 
-
-|| System = (Environment || CONTROLLER).
+|| Controller =(ControllerSpec).
+|| System = (Environment || Controller).
 
 //***************************************************************************************************
 // REQUIREMENTS
@@ -165,7 +165,7 @@ const True = 1
 // PRECONDITIONS
 //***************************************************************************************************
 // the PREPARINGOFFER black box state can be entered only if there is a pending request
-ltl_precondition CONTROLLER PREPARINGOFFER PREPARING_OFFER_REQUIRES_PENDING_REQUEST=<>([](F_UserReq && !<>(F_RespOk || F_ReqCancelled)))
+ltl_precondition CONTROLLER PREPARINGOFFER PRE_PENDING_REQUEST=<>([](F_UserReq && !<>(F_RespOk) && !<>(F_ReqCancelled)))
 // expected: OK
 // returned: OK
 
@@ -181,9 +181,6 @@ ltl_precondition CONTROLLER DECLINEREQUEST DECLINE_REQUEST_REQUIRES_PENDING_REQU
 
 
 
-
-
-fluent F_CostAndTime_Post = <costAndTime, A\{costAndTime}> initially False
 fluent F_InfoRcvd_Post = <infoRcvd, A\{infoRcvd}> initially False
 
 
@@ -193,9 +190,14 @@ fluent F_InfoRcvdEvent = <infoRcvd, A\{infoRcvd}> initially False
 fluent F_ShipInfoReqEvent =<shipInfoReq, A\{shipInfoReq}> initially False
 fluent F_CostAndTimeEvent = <costAndTime, A\{costAndTime}> initially False
 
+
 // POST CONDITION STATE 2
-ltl_postcondition CONTROLLER PREPARINGOFFER REQUEST_CORRECTLY_PREPARED=(
-																<>(F_CostAndTime_Post) 
+ltl_postcondition CONTROLLER PREPARINGOFFER REQUEST_CORRECTLY_PREPARED=
+																(
+																	(<>[](F_CostAndTime)) 
+																	//&& 
+																	//(<>([]F_InfoRcvd_Post))	
+																)
 																//&& <>(F_InfoRcvd_Post)		
 																//&& <>(F_ShipInfoReqEvent)															
 																//&& [](F_CostAndTimeEvent->X[](!F_CostAndTimeEvent)) 
@@ -206,7 +208,7 @@ ltl_postcondition CONTROLLER PREPARINGOFFER REQUEST_CORRECTLY_PREPARED=(
 																//&& ((!F_CostAndTimeEvent) U (F_ShipInfoReqEvent))
 																// F_ProductInfoReqEvent becomes true  before F_InfoRcvdEvent
 																//&& ((!F_InfoRcvdEvent) U (F_ProductInfoReqEvent))
-																)
+																
 
 fluent F_ProdReq_Post = <prodReq, ManageRequestInterface\{prodReq}> initially False
 fluent F_ShipReq_Post = <shipReq, ManageRequestInterface\{shipReq}> initially False
@@ -230,11 +232,14 @@ ltl_postcondition CONTROLLER DECLINEREQUEST CANCEL_REQUEST_CORRECTLY_MANAGED=(
 
 
 
-replacement CONTROLLER PREPARINGOFFER REPLACEMENT_CONTROLLER_PREPARING_OFFER	=	START,
+replacement ControllerSpec PREPARINGOFFER Subcontroller_PREPARING_OFFER_Spec	=   START,
 																					START= 			(	shipInfoReq 	-> 		SHIPINFOREQ),
+																					//wrong design
+																					//SHIPINFOREQ= 	(	prodInfoReq		->		ENDSTATE),
+																					// correct design
 																					SHIPINFOREQ= 	(	prodInfoReq		->		COSTANDTIMEREC),
 																					COSTANDTIMEREC=	(	costAndTime		->		PRODUCTINFOREQ),
 																					PRODUCTINFOREQ=	(	infoRcvd		->		ENDSTATE),
-																					final ENDSTATE.
+																					final ENDSTATE.@{userReq, offerRcvd, usrAck, usrNack, respOk, reqCancelled,prodInfoReq, prodReq, prodCancel,infoRcvd,shipInfoReq, costAndTime, shipReq, shipCancel}.
 
-
+|| Subcontroller_PREPARING_OFFER=(Subcontroller_PREPARING_OFFER_Spec).

@@ -99,7 +99,7 @@ public class ProcessSpec extends Declaration {
 			Vector<String> a = alphaAdditions.getActions(constants);
 			Enumeration<String> e = a.elements();
 			while (e.hasMoreElements()) {
-				String s = (String) e.nextElement();
+				String s =  e.nextElement();
 				if (!m.getAlphabet().contains(s))
 					m.addEvent(s);
 			}

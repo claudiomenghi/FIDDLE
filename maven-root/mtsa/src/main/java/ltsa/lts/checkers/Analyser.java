@@ -67,7 +67,7 @@ public class Analyser implements Animator, Automata {
 	// Animator state
 	private int[] currentA; // current state
 
-	volatile private List choices; // set of eligible choices
+	private volatile List<int[]> choices; // set of eligible choices
 
 	private boolean errorState = false;
 
@@ -185,10 +185,10 @@ public class Analyser implements Animator, Automata {
 
 		violated = new boolean[cs.getMachines().size()];
 		explorerContext.violated = violated;
-		
+
 		Enumeration<LabelledTransitionSystem> e = cs.getMachines().elements();
 		for (int i = 0; e.hasMoreElements(); i++) {
-			LabelledTransitionSystem machine=e.nextElement();
+			LabelledTransitionSystem machine = e.nextElement();
 			stateMachines[i] = machine.myclone();
 		}
 		this.machineNumber = stateMachines.length;
@@ -331,8 +331,9 @@ public class Analyser implements Animator, Automata {
 				}
 			}
 		}
-		if(actionMap.containsKey(LTLf2LTS.endSymbol.getValue())){
-			explorerContext.endEvent=actionMap.get(LTLf2LTS.endSymbol.getValue());
+		if (actionMap.containsKey(LTLf2LTS.endSymbol.getValue())) {
+			explorerContext.endEvent = actionMap.get(LTLf2LTS.endSymbol
+					.getValue());
 		}
 	}
 
@@ -411,13 +412,13 @@ public class Analyser implements Animator, Automata {
 		if (ret == LTSConstants.DEADLOCK) {
 			output.outln("Trace to DEADLOCK:");
 			tracer.print(output, trace, true);
-			
+
 		} else {
 			if (ret == LTSConstants.ERROR) {
 				output.outln("Trace to property violation in "
 						+ stateMachines[errorMachine].getName() + ":");
 				tracer.print(output, trace, true);
-				cs.satisfied=false;
+				cs.satisfied = false;
 			} else {
 				hasErrors = false;
 				output.outln("No deadlocks/errors");
@@ -851,14 +852,25 @@ public class Analyser implements Animator, Automata {
 		return stateMachines[errorMachine].getName();
 	}
 
-	// returns shortest trace to state (vector of Strings)
+	/**
+	 * returns shortest trace to state (vector of Strings)
+	 * 
+	 * @param from
+	 * @param to
+	 * @return the shortest trace to state
+	 */
 	@Override
-	public Vector getTraceToState(byte[] from, byte[] to) {
+	public Vector<String> getTraceToState(byte[] from, byte[] to) {
 		if (StateCodec.equals(from, to))
-			return new Vector();
+			return new Vector<>();
 		int ret = analizeState(true, true, from, to);
 		if (ret == LTSConstants.FOUND) {
-			Vector v = new Vector();
+			Vector<String> v = new Vector<>();
+			v.addAll(trace);
+			return v;
+		}
+		if(ret==LTSConstants.DEADLOCK){
+			Vector<String> v = new Vector<>();
 			v.addAll(trace);
 			return v;
 		}
@@ -946,7 +958,7 @@ public class Analyser implements Animator, Automata {
 	private BitSet menuActions() {
 		BitSet b = new BitSet(menuAlpha.length);
 		if (choices != null) {
-			Iterator e = choices.iterator();
+			Iterator<int[]> e = choices.iterator();
 			while (e.hasNext()) {
 				int[] next = (int[]) e.next();
 				Integer actionNo = new Integer(next[machineNumber]);

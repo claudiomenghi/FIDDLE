@@ -43,4 +43,11 @@ public class Until extends Formula {
 		retPropositions.addAll(right.getPropositions());
 		return retPropositions;
 	}
+	@Override
+	public Set<Formula> getSubformulae() {
+		Set<Formula> formulae=new HashSet<>();
+		formulae.add(left);
+		formulae.add(right);
+		return formulae;
+	}
 }

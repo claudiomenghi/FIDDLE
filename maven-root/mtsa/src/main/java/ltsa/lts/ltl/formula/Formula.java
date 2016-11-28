@@ -71,8 +71,10 @@ public abstract class Formula implements Comparable<Formula> {
 	public Formula getSub2() {
 		return accept(Sub2.get());
 	}
-	
+
 	public abstract Set<Proposition> getPropositions();
+
+	public abstract Set<Formula> getSubformulae();
 }
 
 /*
@@ -134,6 +136,7 @@ class Sub1 implements FormulaVisitor {
 	public Formula visit(Release r) {
 		return r.getRight();
 	}
+
 }
 
 /*

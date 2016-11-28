@@ -9,6 +9,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ltsa.lts.Diagnostics;
 import ltsa.lts.EventStateUtils;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
@@ -21,6 +24,9 @@ import ltsa.lts.parser.Symbol;
 
 public class LabelFactory {
 
+	/** Logger available to subclasses */
+	protected final Log logger = LogFactory.getLog(getClass());
+	
 	private SortedSet<Proposition> allprops;
 	private FormulaFactory formulaFactory;
 	Vector<String> alphaX;
@@ -39,7 +45,10 @@ public class LabelFactory {
 
 	public LabelFactory(String name, FormulaFactory formulaFactory,
 			Vector<String> alphaExtension) {
+		
 		this.allprops = formulaFactory.getPropositions();
+		
+		logger.debug("PROPOSITIONS: "+this.allprops);
 		this.formulaFactory = formulaFactory;
 		this.name = name;
 		alphaX = alphaExtension;
@@ -248,8 +257,8 @@ public class LabelFactory {
 		BitSet trueTrans = new BitSet();
 		BitSet falseTrans = new BitSet();
 		cs.setAlphabet(makeAlphabet(p, trueTrans, falseTrans));
-		int falseS = p.initial ? 1 : 0;
-		int trueS = p.initial ? 0 : 1;
+		int falseS = p.getInitial() ? 1 : 0;
+		int trueS = p.getInitial() ? 0 : 1;
 		for (int i = 0; i < trueTrans.size(); ++i)
 			if (trueTrans.get(i))
 				cs.getStates()[falseS] = EventStateUtils.add(

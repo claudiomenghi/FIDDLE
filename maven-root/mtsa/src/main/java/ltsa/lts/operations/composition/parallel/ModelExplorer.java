@@ -39,18 +39,17 @@ public class ModelExplorer {
 			// for each machine
 			// cloning the state
 			int[] next = LTSUtils.myclone(state);
-			
+
 			if (ctx.sm[i].getFinalStateIndexes().contains(state[i])) {
 
-				LabelledTransitionSystem lts=ctx.sm[i];
-				
+				LabelledTransitionSystem lts = ctx.sm[i];
+
 				// find the transition labeled with the end action
 				LTSTransitionList head = lts.getTransitions(state[i]);
 				while (head != null && head.getEvent() != ctx.endEvent) {
 					head = head.getList();
 				}
 				if (head != null) {
-//					System.out.println("MATCHED EVENT INDEX: "+actionMap.get(LTLf2LTS.endSymbol.getValue()));
 					next[head.getMachine()] = head.getNext();
 					next[ctx.Nmach] = head.getEvent();
 				}
@@ -124,11 +123,6 @@ public class ModelExplorer {
 			while (ac[actionNo] > 0)
 				actionNo++;
 
-			// if (!ModelExplorer.isFinal(ctx, state)
-			// || (ctx.actionName[actionNo].equals(LTLf2LTS.endSymbol
-			// .getValue()) && ctx.actionName[actionNo]
-			// .equals(LTLf2LTS.initSymbol.getValue()))) {
-
 			// now compute the state for this action if not excluded tock
 			if (highs <= 0 || ctx.highAction.get(actionNo)
 					|| actionNo == ctx.acceptEvent) {
@@ -142,7 +136,6 @@ public class ModelExplorer {
 					if (tr.getNondet() != null) {
 						nonDeterministic = true;
 					}
-					
 
 					if (nonDeterministic || probabilistic)
 						break;
@@ -170,7 +163,7 @@ public class ModelExplorer {
 						computeNonDetTransitions(ctx, tr, state,
 								asteriskTransitions = new ArrayList<>(4));
 					}
-				} 
+				}
 
 			}
 			++ac[actionNo];
@@ -199,23 +192,6 @@ public class ModelExplorer {
 		}
 	}
 
-	private static void computeNonENDTransitions(ModelExplorerContext ctx,
-			LTSTransitionList first, int[] state, List<int[]> v) {
-		LTSTransitionList tr = first;
-		while (tr != null) {
-			int[] next = LTSUtils.myclone(state);
-			next[tr.getMachine()] = tr.getNext();
-			if (first.getPath() != null) {
-				// generate the tree of possible nondet combinations.
-				computeNonDetTransitions(ctx, first.getPath(), next, v);
-			} else {
-				next[ctx.Nmach] = first.getEvent();
-				v.add(next);
-			}
-			tr = tr.getNondet();
-		}
-	}
-
 	private static void computeNonDetTransitions(ModelExplorerContext ctx,
 			LTSTransitionList first, int[] state, List<int[]> v) {
 		LTSTransitionList tr = first;
@@ -233,8 +209,6 @@ public class ModelExplorer {
 		}
 	}
 
-	
-
 	private static List<int[]> mergeAsterisk(ModelExplorerContext ctx,
 			List<int[]> transitions, List<int[]> asteriskTransitions) {
 		if (transitions == null || asteriskTransitions == null)
@@ -243,10 +217,10 @@ public class ModelExplorer {
 			return null;
 		int[] asteriskTransition;
 		if (asteriskTransitions.size() == 1) {
-			asteriskTransition = (int[]) asteriskTransitions.get(0);
+			asteriskTransition = asteriskTransitions.get(0);
 			Iterator<int[]> e = transitions.iterator();
 			while (e.hasNext()) {
-				int[] next = (int[]) e.next();
+				int[] next = e.next();
 				if (!ctx.visible.get(next[ctx.Nmach])) {
 					// fragile, assumes property is last machine!!
 					next[ctx.Nmach - 1] = asteriskTransition[ctx.Nmach - 1];
@@ -257,10 +231,10 @@ public class ModelExplorer {
 			Iterator<int[]> a = asteriskTransitions.iterator();
 			List<int[]> newTransitions = new ArrayList<>();
 			while (a.hasNext()) {
-				asteriskTransition = (int[]) a.next();
+				asteriskTransition = a.next();
 				Iterator<int[]> e = transitions.iterator();
 				while (e.hasNext()) {
-					int[] next = (int[]) e.next();
+					int[] next = e.next();
 					if (!ctx.visible.get(next[ctx.Nmach])) {
 						// fragile, assumes property is last machine!!
 						next[ctx.Nmach - 1] = asteriskTransition[ctx.Nmach - 1];

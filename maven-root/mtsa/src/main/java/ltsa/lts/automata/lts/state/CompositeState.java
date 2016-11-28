@@ -122,7 +122,7 @@ public class CompositeState {
 				"The name of the machine cannot be null");
 
 		this.name = name;
-		this.machines=new Vector<>();
+		this.machines = new Vector<>();
 	}
 
 	public CompositeState(Vector<LabelledTransitionSystem> machine) {
@@ -173,7 +173,7 @@ public class CompositeState {
 	}
 
 	public Vector<String> getErrorTrace() {
-		return errorTrace;
+		return this.errorTrace;
 	}
 
 	public void setErrorTrace(List<String> ll) {
@@ -388,6 +388,8 @@ public class CompositeState {
 
 		Preconditions.checkNotNull(output, "The output cannot be null");
 		Preconditions.checkNotNull(cs, "The composite state cannot be null");
+		Preconditions.checkNotNull(cs.tracer,
+				"The tracer of the property cannot be null");
 
 		LabelledTransitionSystem ltlProperty = cs.composition;
 		ltlProperty.setName(cs.getName());
@@ -411,8 +413,10 @@ public class CompositeState {
 				// do full liveness check
 				ProgressCheck cc = new ProgressCheck(analyzer, output,
 						cs.tracer);
-				cc.doLTLCheck();
-				errorTrace = cc.getErrorTrace();
+				boolean satisfied = cc.doLTLCheck();
+				if (!satisfied) {
+					errorTrace = cc.getErrorTrace();
+				}
 			} else {
 				// do safety check
 

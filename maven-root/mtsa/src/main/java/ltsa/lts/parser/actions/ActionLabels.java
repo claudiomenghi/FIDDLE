@@ -21,7 +21,7 @@ public abstract class ActionLabels {
 	}
 
 	/**
-	 * - initialises context for label generation
+	 * initializes context for label generation
 	 */
 	public void initContext(Hashtable<String, Value> locals, Hashtable<String, Value> globals) {
 		this.locals = locals;

@@ -26,6 +26,7 @@ import ltsa.lts.csp.Relation;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.operations.composition.parallel.StackCheck;
 import ltsa.lts.util.Counter;
+import ltsa.lts.util.LTSUtils;
 import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.collections.MyIntHash;
 import ltsa.lts.util.collections.MyList;
@@ -382,9 +383,11 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	public boolean hasERROR() {
-		for (int i = 0; i < this.states.length; i++)
-			if (LTSTransitionList.hasState(states[i], Declaration.ERROR))
+		for (int i = 0; i < this.states.length; i++){
+			if (LTSTransitionList.hasState(states[i], Declaration.ERROR)){
 				return true;
+			}
+		}
 		return false;
 	}
 
@@ -695,9 +698,10 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	public Vector<String> getAlphabetV() {
-		Vector<String> v = new Vector<String>(alphabet.length - 1);
-		for (int i = 1; i < alphabet.length; ++i)
+		Vector<String> v = new Vector<>(alphabet.length - 1);
+		for (int i = 1; i < alphabet.length; ++i){
 			v.add(alphabet[i]);
+		}
 		return v;
 	}
 
