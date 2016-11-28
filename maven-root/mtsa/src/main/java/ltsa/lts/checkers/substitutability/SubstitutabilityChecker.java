@@ -6,8 +6,6 @@ import java.util.Vector;
 
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
-import ltsa.lts.ltl.PostconditionDefinition;
-import ltsa.lts.ltl.PreconditionDefinition;
 import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.operations.composition.sequential.SequentialCompositionEngine;
@@ -62,16 +60,16 @@ public class SubstitutabilityChecker {
 	 */
 	public SubstitutabilityChecker(LTSOutput ltsOutput,
 			CompositeState environment, LabelledTransitionSystem subController,
-			PreconditionDefinition precondition,
-			PostconditionDefinition postcondition) {
+			Formula precondition, String preconditionName,
+			Formula postcondition, String postconditionName) {
 
 		this.ltsOutput = ltsOutput;
 		this.environment = environment;
 		this.subController = subController;
-		this.precondition = precondition.getFormula(true);
-		this.preconditionName = precondition.getName();
-		this.postCondition = postcondition.getFormula(false);
-		this.postconditionName = postcondition.getName();
+		this.precondition = precondition;
+		this.preconditionName = preconditionName;
+		this.postCondition = postcondition;
+		this.postconditionName = postconditionName;
 
 		ltsOutput
 				.outln("*********************************************************");
@@ -81,8 +79,8 @@ public class SubstitutabilityChecker {
 				.outln("*********************************************************");
 		ltsOutput.outln("ENVIRONMENT: " + environment.getName() + "\n"
 				+ "SUB-CONTROLLER: " + subController.getName() + "\n"
-				+ "\t PRECONDITION: " + precondition.getName() + "\n"
-				+ "POSTCONDITION: " + postcondition.getName());
+				+ "\t PRECONDITION: " + preconditionName + "\n"
+				+ "POSTCONDITION: " + postconditionName);
 		ltsOutput
 				.outln("*********************************************************");
 	}
