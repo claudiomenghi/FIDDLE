@@ -1,4 +1,5 @@
-# FIDDLE (Framework for Iterative and Distributed Design of controLlers)
+# FIDDLE
+# (Framework for Iterative and Distributed Design of controLlers)
 
 
 The shipping and Mars Rover case studies are contained into the [CaseStudies](CaseStudies) folder. Further details are provided by the README of the CaseStudies folder.
