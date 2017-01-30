@@ -15,7 +15,6 @@ import ltsa.control.ControllerDefinition;
 import ltsa.control.ControllerGoalDefinition;
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
-import ltsa.lts.chart.TriggeredScenarioDefinition;
 import ltsa.lts.checkers.substitutability.SubstitutabilityChecker;
 import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.ltl.AssertDefinition;
@@ -62,7 +61,6 @@ public class SubcontrollerCheckerTest implements Callable<Void> {
 			Def.init();
 			PredicateDefinition.init();
 			AssertDefinition.init();
-			TriggeredScenarioDefinition.init();
 			ControllerDefinition.init();
 			LabelSet.constants = new Hashtable<>();
 			ControllerGoalDefinition.init();

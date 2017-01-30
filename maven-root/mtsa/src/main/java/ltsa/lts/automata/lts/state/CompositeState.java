@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import com.google.common.base.Preconditions;
+
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.automata.automaton.Automata;
 import ltsa.lts.checkers.Analyser;
@@ -17,9 +19,6 @@ import ltsa.lts.csp.Relation;
 import ltsa.lts.ltl.FluentTrace;
 import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.lts.output.LTSOutput;
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
-
-import com.google.common.base.Preconditions;
 
 /**
  * a composite state contains a vector of state machines that must be performed
@@ -94,7 +93,6 @@ public class CompositeState {
 												// the
 	// composition
 	protected Vector<String> errorTrace = null;
-	public GRControllerGoal<String> goal;
 
 	/**
 	 * If the isComponent flag is true, then this ProcessSpec represents a
@@ -118,8 +116,7 @@ public class CompositeState {
 	 *             if the name of the machine is null
 	 */
 	public CompositeState(String name) {
-		Preconditions.checkNotNull(name,
-				"The name of the machine cannot be null");
+		Preconditions.checkNotNull(name, "The name of the machine cannot be null");
 
 		this.name = name;
 		this.machines = new Vector<>();
@@ -131,8 +128,7 @@ public class CompositeState {
 
 	public CompositeState(String name, Vector<LabelledTransitionSystem> machine) {
 		this(name);
-		Preconditions.checkNotNull(machine,
-				"The set of machines cannot be null");
+		Preconditions.checkNotNull(machine, "The set of machines cannot be null");
 
 		this.machines = machine;
 		initAlphaStop();
@@ -235,35 +231,12 @@ public class CompositeState {
 		if (this.makeAbstract) {
 			TransitionSystemDispatcher.makeAbstractModel(this, output);
 			applyHiding();
-		}
-		if (this.makeSyncController) {
-			TransitionSystemDispatcher.synthesiseSyncController(this, output);
-			applyHiding();
+			if (this.isProperty) {
+				TransitionSystemDispatcher.makeProperty(this, output);
+				applyHiding();
+			}
 		}
 
-		if (this.isStarEnv) {
-			TransitionSystemDispatcher.makeStarEnv(this, output);
-			applyHiding();
-		}
-		if (this.isPlant) {
-			TransitionSystemDispatcher.makePlant(this, output);
-			applyHiding();
-		}
-		if (this.isControlledDet) {
-			TransitionSystemDispatcher.makeControlledDeterminisation(this,
-					output);
-			applyHiding();
-		}
-		if (this.isProperty) {
-			TransitionSystemDispatcher.makeProperty(this, output);
-			applyHiding();
-		}
-		if (this.checkCompatible) {
-			TransitionSystemDispatcher.checkCompatible(this, output);
-			applyHiding();
-		} else {
-			applyHiding();
-		}
 	}
 
 	public void applyOperationsNoText(LTSOutput output) {
@@ -296,34 +269,7 @@ public class CompositeState {
 			applyHiding();
 		}
 
-		if (makeSyncController) {
-			TransitionSystemDispatcher.synthesiseSyncController(this, output);
-			applyHiding();
-		}
-
-		if (isStarEnv) {
-			TransitionSystemDispatcher.makeStarEnv(this, output);
-			applyHiding();
-		}
-		if (isPlant) {
-			TransitionSystemDispatcher.makePlant(this, output);
-			applyHiding();
-		}
-		if (isControlledDet) {
-			TransitionSystemDispatcher.makeControlledDeterminisation(this,
-					output);
-			applyHiding();
-		}
-		if (isProperty) {
-			TransitionSystemDispatcher.makeProperty(this, output);
-			applyHiding();
-		}
-		if (checkCompatible) {
-			TransitionSystemDispatcher.checkCompatible(this, output);
-			applyHiding();
-		} else {
-			applyHiding();
-		}
+		
 
 	}
 
@@ -388,8 +334,7 @@ public class CompositeState {
 
 		Preconditions.checkNotNull(output, "The output cannot be null");
 		Preconditions.checkNotNull(cs, "The composite state cannot be null");
-		Preconditions.checkNotNull(cs.tracer,
-				"The tracer of the property cannot be null");
+		Preconditions.checkNotNull(cs.tracer, "The tracer of the property cannot be null");
 
 		LabelledTransitionSystem ltlProperty = cs.composition;
 		ltlProperty.setName(cs.getName());
@@ -411,8 +356,7 @@ public class CompositeState {
 			if (!cs.composition.hasERROR()) {
 
 				// do full liveness check
-				ProgressCheck cc = new ProgressCheck(analyzer, output,
-						cs.tracer);
+				ProgressCheck cc = new ProgressCheck(analyzer, output, cs.tracer);
 				boolean satisfied = cc.doLTLCheck();
 				if (!satisfied) {
 					errorTrace = cc.getErrorTrace();
@@ -457,8 +401,8 @@ public class CompositeState {
 	}
 
 	public boolean compositionNotRequired() {
-		return (hidden == null && priorityLabels == null && !makeDeterministic
-				&& !makeMinimal && !makeCompose && !makeController && !makeSyncController);
+		return (hidden == null && priorityLabels == null && !makeDeterministic && !makeMinimal && !makeCompose
+				&& !makeController && !makeSyncController);
 	}
 
 	/*
@@ -557,8 +501,7 @@ public class CompositeState {
 	}
 
 	public void setComposition(LabelledTransitionSystem compactSate) {
-		Preconditions.checkNotNull(compactSate,
-				"The composition cannot be null");
+		Preconditions.checkNotNull(compactSate, "The composition cannot be null");
 		this.composition = compactSate;
 	}
 
@@ -599,7 +542,6 @@ public class CompositeState {
 		c.makeController = makeController;
 		c.setMakeComponent(isMakeComponent());
 		c.setComponentAlphabet(getComponentAlphabet());
-		c.goal = goal;
 		c.controlStackEnvironments = controlStackEnvironments;
 		c.controlStackSpecificTier = controlStackSpecificTier;
 		c.isProbabilistic = isProbabilistic;

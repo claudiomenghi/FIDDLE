@@ -8,15 +8,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
-import ltsa.ui.Transition;
+import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import ltsa.lts.animator.Animator;
 import ltsa.lts.automata.automaton.event.LTSEvent;
-import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.lts.state.CompositeState;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.gui.EventManager;
-import MTSTools.ac.ic.doc.mtstools.model.MTS;
-import MTSSynthesis.controller.game.gr.StrategyState;
-import MTSSynthesis.controller.game.util.GameStrategyToMTSBuilder;
+import ltsa.ui.Transition;
 
 public class ExplorationAnimator implements Animator {
 		

@@ -19,11 +19,17 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.PredicateUtils;
+import org.apache.commons.logging.LogFactory;
+
+import com.google.common.base.Preconditions;
+
+import MTSTools.ac.ic.doc.commons.relations.Pair;
 import ltsa.control.ControlStackDefinition;
 import ltsa.control.ControlTierDefinition;
 import ltsa.control.ControllerDefinition;
 import ltsa.control.ControllerGoalDefinition;
-import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.exploration.ExplorerDefinition;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.automaton.StateMachine;
@@ -31,16 +37,8 @@ import ltsa.lts.automata.lts.state.AutCompactState;
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.probabilistic.ProbabilisticTransition;
-import ltsa.lts.chart.BasicChartDefinition;
 import ltsa.lts.chart.ConditionDefinition;
-import ltsa.lts.chart.ConditionLocation;
 import ltsa.lts.chart.DuplicatedTriggeredScenarioDefinitionException;
-import ltsa.lts.chart.ExistentialTriggeredScenarioDefinition;
-import ltsa.lts.chart.Interaction;
-import ltsa.lts.chart.Location;
-import ltsa.lts.chart.TriggeredScenarioDefinition;
-import ltsa.lts.chart.UniversalTriggeredScenarioDefinition;
-import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
 import ltsa.lts.csp.BoxStateDefn;
 import ltsa.lts.csp.ChoiceElement;
 import ltsa.lts.csp.CompositeBody;
@@ -59,8 +57,6 @@ import ltsa.lts.distribution.DistributionDefinition;
 import ltsa.lts.ltl.AssertDefinition;
 import ltsa.lts.ltl.FormulaSyntax;
 import ltsa.lts.ltl.PredicateDefinition;
-import ltsa.lts.ltl.formula.factory.FormulaFactory;
-import ltsa.lts.ltl.visitors.FormulaTransformerVisitor;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.actions.ActionExpr;
 import ltsa.lts.parser.actions.ActionLabels;
@@ -73,28 +69,11 @@ import ltsa.lts.parser.actions.ActionVarSet;
 import ltsa.lts.parser.actions.LabelSet;
 import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.lts.util.LTSUtils;
-import ltsa.updatingControllers.UpdatingControllersDefinition;
-import ltsa.updatingControllers.structures.UpdateGraphDefinition;
-import ltsa.updatingControllers.synthesis.UpdateGraphGenerator;
-
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.PredicateUtils;
-import org.apache.commons.logging.LogFactory;
-import org.jfree.util.Log;
-
-import MTSSynthesis.ar.dc.uba.model.condition.Fluent;
-import MTSSynthesis.ar.dc.uba.model.condition.FluentImpl;
-import MTSSynthesis.ar.dc.uba.model.condition.Formula;
-import MTSSynthesis.controller.game.util.GeneralConstants;
-import MTSTools.ac.ic.doc.commons.relations.Pair;
-
-import com.google.common.base.Preconditions;
 
 public class LTSCompiler {
 
 	/** Logger available to subclasses */
-	protected final org.apache.commons.logging.Log logger = LogFactory
-			.getLog(getClass());
+	protected final org.apache.commons.logging.Log logger = LogFactory.getLog(getClass());
 
 	private Lex lex;
 	private LTSOutput output;
@@ -124,8 +103,7 @@ public class LTSCompiler {
 	public LTSCompiler(LTSInput input, LTSOutput output, String currentDirectory) {
 		Preconditions.checkNotNull(input, "The LTSInput cannot be null");
 		Preconditions.checkNotNull(output, "The LTSOutput cannot be null");
-		Preconditions.checkNotNull(currentDirectory,
-				"The current directory cannot be null");
+		Preconditions.checkNotNull(currentDirectory, "The current directory cannot be null");
 
 		this.lex = new Lex(input);
 		this.output = output;
@@ -144,7 +122,6 @@ public class LTSCompiler {
 		Def.init();
 		PredicateDefinition.init();
 		AssertDefinition.init();
-		TriggeredScenarioDefinition.init();
 		ControllerDefinition.init();
 
 		preconditionDefinitionManager = new PreconditionDefinitionManager();
@@ -157,424 +134,322 @@ public class LTSCompiler {
 		mapsEachPreconditionToTheCorrespondingProcess = new HashMap<>();
 	}
 
-	public void parse(Hashtable<String, CompositionExpression> composites,
-			Hashtable<String, ProcessSpec> processes,
+	public void parse(Hashtable<String, CompositionExpression> composites, Hashtable<String, ProcessSpec> processes,
 			Hashtable<String, ExplorerDefinition> explorations) {
 		doparse(composites, processes, null);
 	}
 
-	private void doparse(Hashtable<String, CompositionExpression> composites,
-			Hashtable<String, ProcessSpec> processes,
+	private void doparse(Hashtable<String, CompositionExpression> composites, Hashtable<String, ProcessSpec> processes,
 			Hashtable<String, LabelledTransitionSystem> compiled) {
-		ProbabilisticTransition
-				.setLastProbBundle(ProbabilisticTransition.NO_BUNDLE);
+		ProbabilisticTransition.setLastProbBundle(ProbabilisticTransition.NO_BUNDLE);
 		nextSymbol();
-		try {
-			while (current.kind != Symbol.EOFSYM) {
-				if (current.kind == Symbol.REPLACEMENT) {
+		while (current.kind != Symbol.EOFSYM) {
+			if (current.kind == Symbol.REPLACEMENT) {
+				nextSymbol();
+				ProcessSpec p = compileReplacement();
+
+				nextSymbol();
+				currentIs(Symbol.AT, "sub-controller interface expected");
+				nextSymbol();
+				p.alphaAdditions = this.labelSet();
+				currentIs(Symbol.DOT, "sub-controller interface expected");
+				// nextSymbol();
+
+				if (processes.put(p.getName(), p) != null) {
+					Diagnostics.fatal("duplicate process definition: " + p.getName(), p.getName());
+				} else {
+					replacements.put(p.getName(), p);
+
+				}
+			} else if (current.kind == Symbol.LTLPRECONDITION) {
+				nextSymbol();
+				assertPrecondition();
+			} else if (current.kind == Symbol.LTLPOSTCONDITION) {
+				nextSymbol();
+				assertPostcondition();
+			} else if (current.kind == Symbol.CONSTANT) {
+				nextSymbol();
+				constantDefinition(Expression.constants);
+			} else if (current.kind == Symbol.RANGE) {
+				nextSymbol();
+				rangeDefinition();
+			} else if (current.kind == Symbol.SET) {
+				nextSymbol();
+				setDefinition();
+			} else if (current.kind == Symbol.PROGRESS) {
+				nextSymbol();
+				progressDefinition();
+			} else if (current.kind == Symbol.MENU) {
+				nextSymbol();
+				menuDefinition();
+			} else if (current.kind == Symbol.ANIMATION) {
+				nextSymbol();
+				animationDefinition();
+			} else if (current.kind == Symbol.ASSERT) {
+				nextSymbol();
+				assertDefinition(false, false);
+			} else if (current.kind == Symbol.CONSTRAINT) {
+				nextSymbol();
+				assertDefinition(true, false);
+			} else if (current.kind == Symbol.LTLPROPERTY) {
+				nextSymbol();
+				assertDefinition(true, true);
+			} else if (current.kind == Symbol.PREDICATE) {
+				nextSymbol();
+				predicateDefinition();
+			} else if (current.kind == Symbol.DEF) {
+				nextSymbol();
+				defDefinition();
+			} else if (current.kind == Symbol.GOAL) {
+				nextSymbol();
+
+				currentIs(Symbol.UPPERIDENT, "goal identifier expected");
+
+				this.validateUniqueProcessName(current);
+				ControllerGoalDefinition goal = new ControllerGoalDefinition(current);
+				this.goalDefinition(goal);
+
+			} else if (current.kind == Symbol.EXPLORATION) {
+				nextSymbol();
+
+				currentIs(Symbol.UPPERIDENT, "exploration identifier expected");
+
+				this.validateUniqueProcessName(current);
+				ExplorerDefinition explorerDefinition = new ExplorerDefinition(current);
+				nextSymbol();
+
+				this.explorerDefinition(explorerDefinition);
+
+				output.outln("Explorer: " + explorerDefinition.getName());
+
+			} else if (current.kind == Symbol.CONTROL_STACK) {
+
+				ControlStackDefinition def = this.controlStackDefinition();
+				ControlStackDefinition.addDefinition(def);
+
+				CompositionExpression c = new CompositionExpression(postconditionDefinitionManager);
+				c.name = def.getName();
+				c.setComposites(composites);
+				c.processes = processes;
+				c.compiledProcesses = compiled;
+				c.controlStackEnvironments = new Vector<Symbol>();
+				for (ControlTierDefinition tier : def) {
+					c.controlStackEnvironments.add(tier.getEnvModel());
+				}
+				c.output = output;
+				c.makeControlStack = true;
+				if (allComposites != null) {
+					allComposites.put(c.name.toString(), c);
+				}
+				if (composites.put(c.name.toString(), c) != null) {
+					Diagnostics.fatal("duplicate composite definition: " + c.name, c.name);
+				}
+
+			} else if (current.kind == Symbol.IMPORT) {
+				nextSymbol();
+				ProcessSpec p = importDefinition();
+				if (processes.put(p.getName().toString(), p) != null) {
+					Diagnostics.fatal("duplicate process definition: " + p.getName(), p.getName());
+				}
+			} else if (current.kind == Symbol.DISTRIBUTION) {
+				this.distributionDefinition();
+			} else if (current.kind == Symbol.DETERMINISTIC || current.kind == Symbol.MINIMAL
+					|| current.kind == Symbol.PROPERTY || current.kind == Symbol.COMPOSE
+					|| current.kind == Symbol.OPTIMISTIC || current.kind == Symbol.PESSIMISTIC
+					|| LTSUtils.isCompositionExpression(current) || current.kind == Symbol.CLOUSURE
+					|| current.kind == Symbol.ABSTRACT || current.kind == Symbol.CONTROLLER
+					|| current.kind == Symbol.CHECK_COMPATIBILITY || current.kind == Symbol.COMPONENT
+					|| current.kind == Symbol.PROBABILISTIC || current.kind == Symbol.MDP
+					|| current.kind == Symbol.STARENV || current.kind == Symbol.PLANT
+					|| current.kind == Symbol.CONTROLLED_DET || current.kind == Symbol.SYNC_CONTROLLER) {
+				// TODO: refactor needed. Some of the operations can be
+				// combined, however
+				// the parser does not allow some valid combinations. Also
+				// the order of the operations
+				// is not kept when the operations are applied
+
+				boolean makeDet = false;
+				boolean makeMin = false;
+				boolean makeProp = false;
+				boolean makeComp = false;
+				boolean makeOptimistic = false;
+				boolean makePessimistic = false;
+				boolean makeClousure = false;
+				boolean makeAbstract = false;
+				boolean makeController = false;
+				boolean makeSyncController = false;
+				boolean checkCompatible = false;
+				boolean makeComponent = false;
+				boolean probabilistic = false;
+				boolean isMDP = false;
+				boolean isEnactment = false;
+				boolean makeStarEnv = false;
+				boolean makePlant = false;
+				boolean makeControlledDet = false;
+				Symbol controlledActions = null;
+
+				if (current.kind == Symbol.CLOUSURE) {
+					makeClousure = true;
 					nextSymbol();
-					ProcessSpec p = compileReplacement();
-		
+				}
+				if (current.kind == Symbol.ABSTRACT) {
+					makeAbstract = true;
 					nextSymbol();
-					currentIs(Symbol.AT, "sub-controller interface expected");
+				}
+				if (current.kind == Symbol.DETERMINISTIC) {
+					makeDet = true;
 					nextSymbol();
-					p.alphaAdditions=this.labelSet();
-					currentIs(Symbol.DOT, "sub-controller interface expected");
-					//nextSymbol();
-					
+				}
+				if (current.kind == Symbol.MINIMAL) {
+					makeMin = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.COMPOSE) {
+					makeComp = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.PROPERTY) {
+					makeProp = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.OPTIMISTIC) {
+					makeOptimistic = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.PESSIMISTIC) {
+					makePessimistic = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.COMPONENT) {
+					makeComponent = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.CONTROLLER) {
+					makeController = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.SYNC_CONTROLLER) {
+					makeSyncController = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.STARENV) {
+					makeStarEnv = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.PLANT) {
+					makePlant = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.CHECK_COMPATIBILITY) {
+					checkCompatible = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.CONTROLLED_DET) {
+					makeControlledDet = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.PROBABILISTIC) {
+					probabilistic = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.MDP) {
+					isMDP = true;
+					nextSymbol();
+				}
+				if (current.kind == Symbol.ENACTMENT) {
+					isEnactment = true;
+					nextSymbol();
+					if (current.kind == Symbol.LCURLY) {
+						nextSymbol();
+						controlledActions = current;
+						nextSymbol();
+						// }
+						nextSymbol();
+					}
+				}
+
+				if (current.kind != Symbol.OR && current.kind != Symbol.PLUS_CA && current.kind != Symbol.PLUS_CR
+						&& current.kind != Symbol.MERGE) {
+					ProcessSpec p = stateDefns();
 					if (processes.put(p.getName(), p) != null) {
-						Diagnostics.fatal(
-								"duplicate process definition: " + p.getName(),
-								p.getName());
+						Diagnostics.fatal("duplicate process definition: " + p.getName(), p.getName());
 					}
-					else{
-						replacements.put(p.getName(), p);
+					p.isProperty = makeProp;
+					p.isMinimal = makeMin;
+					p.isDeterministic = makeDet;
+					p.isOptimistic = makeOptimistic;
+					p.isPessimistic = makePessimistic;
+					p.isClousure = makeClousure;
+					p.isAbstract = makeAbstract;
+					p.isProbabilistic = probabilistic;
+					p.isMDP = isMDP;
+					p.isStarEnv = makeStarEnv;
 
-					}
-				} else if (current.kind == Symbol.LTLPRECONDITION) {
-					nextSymbol();
-					assertPrecondition();
-				} else if (current.kind == Symbol.LTLPOSTCONDITION) {
-					nextSymbol();
-					assertPostcondition();
-				} else if (current.kind == Symbol.CONSTANT) {
-					nextSymbol();
-					constantDefinition(Expression.constants);
-				} else if (current.kind == Symbol.RANGE) {
-					nextSymbol();
-					rangeDefinition();
-				} else if (current.kind == Symbol.SET) {
-					nextSymbol();
-					setDefinition();
-				} else if (current.kind == Symbol.PROGRESS) {
-					nextSymbol();
-					progressDefinition();
-				} else if (current.kind == Symbol.MENU) {
-					nextSymbol();
-					menuDefinition();
-				} else if (current.kind == Symbol.ANIMATION) {
-					nextSymbol();
-					animationDefinition();
-				} else if (current.kind == Symbol.ASSERT) {
-					nextSymbol();
-					assertDefinition(false, false);
-				} else if (current.kind == Symbol.CONSTRAINT) {
-					nextSymbol();
-					assertDefinition(true, false);
-				} else if (current.kind == Symbol.LTLPROPERTY) {
-					nextSymbol();
-					assertDefinition(true, true);
-				} else if (current.kind == Symbol.PREDICATE) {
-					nextSymbol();
-					predicateDefinition();
-				} else if (current.kind == Symbol.DEF) {
-					nextSymbol();
-					defDefinition();
-				} else if (current.kind == Symbol.GOAL) {
-					nextSymbol();
-
-					currentIs(Symbol.UPPERIDENT, "goal identifier expected");
-
-					this.validateUniqueProcessName(current);
-					ControllerGoalDefinition goal = new ControllerGoalDefinition(
-							current);
-					this.goalDefinition(goal);
-
-				} else if (current.kind == Symbol.EXPLORATION) {
-					nextSymbol();
-
-					currentIs(Symbol.UPPERIDENT,
-							"exploration identifier expected");
-
-					this.validateUniqueProcessName(current);
-					ExplorerDefinition explorerDefinition = new ExplorerDefinition(
-							current);
-					nextSymbol();
-
-					this.explorerDefinition(explorerDefinition);
-
-					output.outln("Explorer: " + explorerDefinition.getName());
-
-				} else if (current.kind == Symbol.UPDATING_CONTROLLER) {
-					nextSymbol();
-
-					currentIs(Symbol.UPPERIDENT,
-							"updating controller identifier expected");
-
-					UpdatingControllersDefinition cuDefinition = new UpdatingControllersDefinition(
-							current);
-
-					this.updateControllerDefinition(cuDefinition);
-
-					if (composites.put(cuDefinition.getName().getValue(),
-							cuDefinition) != null) {
-						Diagnostics.fatal("duplicate composite definition: "
-								+ cuDefinition.getName(),
-								cuDefinition.getName());
-					} else {
-						if (allComposites != null) {
-							allComposites.put(
-									cuDefinition.getName().getValue(),
-									cuDefinition);
-						}
+					if (makeController || checkCompatible || makePlant || makeControlledDet || makeSyncController) {
+						Diagnostics.fatal("The operation requires a composite model.");
 					}
 
-				} else if (current.kind == Symbol.GRAPH_UPDATE) {
-					expectIdentifier("Graph Update");
-					UpdateGraphDefinition graphDefinition = new UpdateGraphDefinition(
-							current.getValue());
-					expectBecomes();
-					expectLeftCurly();
-					graphDefinition.setInitialProblem(parseInitialState());
-					graphDefinition.setTransitions(parseTransitions());
-					expectRightCurly();
-					UpdateGraphGenerator.addGraphDefinition(graphDefinition);
-				} else if (current.kind == Symbol.CONTROL_STACK) {
+					if (makeComponent) {
+						Diagnostics.fatal("A component can only be created from a composite model.");
+					}
 
-					ControlStackDefinition def = this.controlStackDefinition();
-					ControlStackDefinition.addDefinition(def);
+					if (probabilistic && (makeProp || makeMin || makeDet || makeOptimistic || makePessimistic
+							|| makeClousure || makeAbstract)) {
+						Diagnostics.fatal("Probabilistic automata cannot be combined with other options.");
+					}
 
-					CompositionExpression c = new CompositionExpression(
-							postconditionDefinitionManager);
-					c.name = def.getName();
+					if (probabilistic != isMDP) { // x to account for future
+													// probabilistic
+													// variations
+						Diagnostics.fatal("Probabilistic automata must be one of: mdp.");
+					}
+				} else if (LTSUtils.isCompositionExpression(current)) {
+					CompositionExpression c = composition();
 					c.setComposites(composites);
 					c.processes = processes;
 					c.compiledProcesses = compiled;
-					c.controlStackEnvironments = new Vector<Symbol>();
-					for (ControlTierDefinition tier : def) {
-						c.controlStackEnvironments.add(tier.getEnvModel());
-					}
 					c.output = output;
-					c.makeControlStack = true;
+					c.makeDeterministic = makeDet;
+					c.makeProperty = makeProp;
+					c.makeMinimal = makeMin;
+					c.makeCompose = makeComp;
+					c.makeOptimistic = makeOptimistic;
+					c.makePessimistic = makePessimistic;
+					c.makeClousure = makeClousure;
+					c.makeAbstract = makeAbstract;
+					c.makeMDP = isMDP;
+					c.makeEnactment = isEnactment;
+					c.enactmentControlled = controlledActions;
+					c.makeController = makeController;
+					c.makeSyncController = makeSyncController;
+					c.checkCompatible = checkCompatible;
+					c.isStarEnv = makeStarEnv;
+					c.isPlant = makePlant;
+					c.isControlledDet = makeControlledDet;
+					c.setMakeComponent(makeComponent);
+					c.compositionType = compositionType;
+					compositionType = -1;
 					if (allComposites != null) {
 						allComposites.put(c.name.toString(), c);
 					}
 					if (composites.put(c.name.toString(), c) != null) {
-						Diagnostics.fatal("duplicate composite definition: "
-								+ c.name, c.name);
-					}
-
-				} else if (current.kind == Symbol.IMPORT) {
-					nextSymbol();
-					ProcessSpec p = importDefinition();
-					if (processes.put(p.getName().toString(), p) != null) {
-						Diagnostics.fatal(
-								"duplicate process definition: " + p.getName(),
-								p.getName());
-					}
-				} else if (current.kind == Symbol.ETRIGGEREDSCENARIO) {
-					nextSymbol();
-					// Check the syntax
-					currentIs(Symbol.UPPERIDENT, "chart identifier expected");
-
-					this.validateUniqueProcessName(current);
-
-					// create the existential triggeredScenario with the given
-					// identifier
-					TriggeredScenarioDefinition eTSDefinition = new ExistentialTriggeredScenarioDefinition(
-							current);
-
-					nextSymbol();
-					this.triggeredScenarioDefinition(eTSDefinition);
-				} else if (current.kind == Symbol.UTRIGGEREDSCENARIO) {
-					nextSymbol();
-					// Check the syntax
-					currentIs(Symbol.UPPERIDENT, "chart identifier expected");
-
-					this.validateUniqueProcessName(current);
-
-					// create the universal triggered Scenario with the given
-					// identifier
-					TriggeredScenarioDefinition uTSDefinition = new UniversalTriggeredScenarioDefinition(
-							current);
-
-					nextSymbol();
-					this.triggeredScenarioDefinition(uTSDefinition);
-				} else if (current.kind == Symbol.DISTRIBUTION) {
-					this.distributionDefinition();
-				} else if (current.kind == Symbol.DETERMINISTIC
-						|| current.kind == Symbol.MINIMAL
-						|| current.kind == Symbol.PROPERTY
-						|| current.kind == Symbol.COMPOSE
-						|| current.kind == Symbol.OPTIMISTIC
-						|| current.kind == Symbol.PESSIMISTIC
-						|| LTSUtils.isCompositionExpression(current)
-						|| current.kind == Symbol.CLOUSURE
-						|| current.kind == Symbol.ABSTRACT
-						|| current.kind == Symbol.CONTROLLER
-						|| current.kind == Symbol.CHECK_COMPATIBILITY
-						|| current.kind == Symbol.COMPONENT
-						|| current.kind == Symbol.PROBABILISTIC
-						|| current.kind == Symbol.MDP
-						|| current.kind == Symbol.STARENV
-						|| current.kind == Symbol.PLANT
-						|| current.kind == Symbol.CONTROLLED_DET
-						|| current.kind == Symbol.SYNC_CONTROLLER) {
-					// TODO: refactor needed. Some of the operations can be
-					// combined, however
-					// the parser does not allow some valid combinations. Also
-					// the order of the operations
-					// is not kept when the operations are applied
-
-					boolean makeDet = false;
-					boolean makeMin = false;
-					boolean makeProp = false;
-					boolean makeComp = false;
-					boolean makeOptimistic = false;
-					boolean makePessimistic = false;
-					boolean makeClousure = false;
-					boolean makeAbstract = false;
-					boolean makeController = false;
-					boolean makeSyncController = false;
-					boolean checkCompatible = false;
-					boolean makeComponent = false;
-					boolean probabilistic = false;
-					boolean isMDP = false;
-					boolean isEnactment = false;
-					boolean makeStarEnv = false;
-					boolean makePlant = false;
-					boolean makeControlledDet = false;
-					Symbol controlledActions = null;
-
-					if (current.kind == Symbol.CLOUSURE) {
-						makeClousure = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.ABSTRACT) {
-						makeAbstract = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.DETERMINISTIC) {
-						makeDet = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.MINIMAL) {
-						makeMin = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.COMPOSE) {
-						makeComp = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.PROPERTY) {
-						makeProp = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.OPTIMISTIC) {
-						makeOptimistic = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.PESSIMISTIC) {
-						makePessimistic = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.COMPONENT) {
-						makeComponent = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.CONTROLLER) {
-						makeController = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.SYNC_CONTROLLER) {
-						makeSyncController = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.STARENV) {
-						makeStarEnv = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.PLANT) {
-						makePlant = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.CHECK_COMPATIBILITY) {
-						checkCompatible = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.CONTROLLED_DET) {
-						makeControlledDet = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.PROBABILISTIC) {
-						probabilistic = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.MDP) {
-						isMDP = true;
-						nextSymbol();
-					}
-					if (current.kind == Symbol.ENACTMENT) {
-						isEnactment = true;
-						nextSymbol();
-						if (current.kind == Symbol.LCURLY) {
-							nextSymbol();
-							controlledActions = current;
-							nextSymbol();
-							// }
-							nextSymbol();
-						}
-					}
-
-					if (current.kind != Symbol.OR
-							&& current.kind != Symbol.PLUS_CA
-							&& current.kind != Symbol.PLUS_CR
-							&& current.kind != Symbol.MERGE) {
-						ProcessSpec p = stateDefns();
-						if (processes.put(p.getName(), p) != null) {
-							Diagnostics.fatal("duplicate process definition: "
-									+ p.getName(), p.getName());
-						}
-						p.isProperty = makeProp;
-						p.isMinimal = makeMin;
-						p.isDeterministic = makeDet;
-						p.isOptimistic = makeOptimistic;
-						p.isPessimistic = makePessimistic;
-						p.isClousure = makeClousure;
-						p.isAbstract = makeAbstract;
-						p.isProbabilistic = probabilistic;
-						p.isMDP = isMDP;
-						p.isStarEnv = makeStarEnv;
-
-						if (makeController || checkCompatible || makePlant
-								|| makeControlledDet || makeSyncController) {
-							Diagnostics
-									.fatal("The operation requires a composite model.");
-						}
-
-						if (makeComponent) {
-							Diagnostics
-									.fatal("A component can only be created from a composite model.");
-						}
-
-						if (probabilistic
-								&& (makeProp || makeMin || makeDet
-										|| makeOptimistic || makePessimistic
-										|| makeClousure || makeAbstract)) {
-							Diagnostics
-									.fatal("Probabilistic automata cannot be combined with other options.");
-						}
-
-						if (probabilistic != isMDP) { // x to account for future
-														// probabilistic
-														// variations
-							Diagnostics
-									.fatal("Probabilistic automata must be one of: mdp.");
-						}
-					} else if (LTSUtils.isCompositionExpression(current)) {
-						CompositionExpression c = composition();
-						c.setComposites(composites);
-						c.processes = processes;
-						c.compiledProcesses = compiled;
-						c.output = output;
-						c.makeDeterministic = makeDet;
-						c.makeProperty = makeProp;
-						c.makeMinimal = makeMin;
-						c.makeCompose = makeComp;
-						c.makeOptimistic = makeOptimistic;
-						c.makePessimistic = makePessimistic;
-						c.makeClousure = makeClousure;
-						c.makeAbstract = makeAbstract;
-						c.makeMDP = isMDP;
-						c.makeEnactment = isEnactment;
-						c.enactmentControlled = controlledActions;
-						c.makeController = makeController;
-						c.makeSyncController = makeSyncController;
-						c.checkCompatible = checkCompatible;
-						c.isStarEnv = makeStarEnv;
-						c.isPlant = makePlant;
-						c.isControlledDet = makeControlledDet;
-						c.setMakeComponent(makeComponent);
-						c.compositionType = compositionType;
-						compositionType = -1;
-						if (allComposites != null) {
-							allComposites.put(c.name.toString(), c);
-						}
-						if (composites.put(c.name.toString(), c) != null) {
-							Diagnostics
-									.fatal("duplicate composite definition: "
-											+ c.name, c.name);
-						}
-					}
-				} else {
-					ProcessSpec p = stateDefns();
-					if (processes.put(p.getName(), p) != null) {
-						Diagnostics.fatal(
-								"duplicate process definition: " + p.getName(),
-								p.getName());
+						Diagnostics.fatal("duplicate composite definition: " + c.name, c.name);
 					}
 				}
-
-				nextSymbol();
+			} else {
+				ProcessSpec p = stateDefns();
+				if (processes.put(p.getName(), p) != null) {
+					Diagnostics.fatal("duplicate process definition: " + p.getName(), p.getName());
+				}
 			}
-		} catch (DuplicatedTriggeredScenarioDefinitionException e) {
-			Diagnostics.fatal("duplicate Chart definition: " + e.getName());
+
+			nextSymbol();
 		}
+
 	}
 
 	public static ProcessSpec getSpec(String processName) {
-		Preconditions.checkNotNull(processName,
-				"The process name cannot be null");
+		Preconditions.checkNotNull(processName, "The process name cannot be null");
 		return processes.get(processName);
 	}
 
@@ -622,8 +497,7 @@ public class LTSCompiler {
 
 	private void currentIs(Collection<Integer> possibleKind, String errorMsg) {
 
-		if (!CollectionUtils.exists(possibleKind,
-				PredicateUtils.equalPredicate(new Integer(current.kind)))) {
+		if (!CollectionUtils.exists(possibleKind, PredicateUtils.equalPredicate(new Integer(current.kind)))) {
 			error(errorMsg);
 		}
 	}
@@ -685,28 +559,22 @@ public class LTSCompiler {
 				ce.compositionType = 45;
 				ce.makeController = true;
 				ce.goal = explorerDefinition.getGoal();
-				ce.compiledProcesses = new Hashtable<String, LabelledTransitionSystem>(
-						0);
+				ce.compiledProcesses = new Hashtable<String, LabelledTransitionSystem>(0);
 
 				ce.body = new CompositeBody();
-				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition
-						.getView().size() + 1);
+				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition.getView().size() + 1);
 
 				for (int i = 0; i < explorerDefinition.getView().size(); i++) {
 					CompositeBody aCompositeBody = new CompositeBody();
-					aCompositeBody.singleton = new ProcessRef(
-							postconditionDefinitionManager, false, true);
-					aCompositeBody.singleton.name = explorerDefinition
-							.getView().get(i);
+					aCompositeBody.singleton = new ProcessRef(postconditionDefinitionManager, false, true);
+					aCompositeBody.singleton.name = explorerDefinition.getView().get(i);
 					ce.body.procRefs.add(aCompositeBody);
 				}
 
 				for (int i = 0; i < explorerDefinition.getModel().size(); i++) {
 					CompositeBody aCompositeBody = new CompositeBody();
-					aCompositeBody.singleton = new ProcessRef(
-							postconditionDefinitionManager, false, true);
-					aCompositeBody.singleton.name = explorerDefinition
-							.getModel().get(i);
+					aCompositeBody.singleton = new ProcessRef(postconditionDefinitionManager, false, true);
+					aCompositeBody.singleton.name = explorerDefinition.getModel().get(i);
 					ce.body.procRefs.add(aCompositeBody);
 				}
 			} else {
@@ -734,112 +602,31 @@ public class LTSCompiler {
 				ce.compositionType = 45;
 				ce.makeController = true;
 				ce.goal = explorerDefinition.getGoal();
-				ce.compiledProcesses = new Hashtable<String, LabelledTransitionSystem>(
-						0);
+				ce.compiledProcesses = new Hashtable<String, LabelledTransitionSystem>(0);
 				ce.body = new CompositeBody();
-				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition
-						.getView().size() + 1);
+				ce.body.procRefs = new Vector<CompositeBody>(explorerDefinition.getView().size() + 1);
 
 				for (int i = 0; i < explorerDefinition.getView().size(); i++) {
 					CompositeBody aCompositeBody = new CompositeBody();
-					aCompositeBody.singleton = new ProcessRef(
-							postconditionDefinitionManager, false, true);
-					aCompositeBody.singleton.name = explorerDefinition
-							.getView().get(i);
+					aCompositeBody.singleton = new ProcessRef(postconditionDefinitionManager, false, true);
+					aCompositeBody.singleton.name = explorerDefinition.getView().get(i);
 					ce.body.procRefs.add(aCompositeBody);
 				}
 
 				for (int i = 0; i < explorerDefinition.getModel().size(); i++) {
 					CompositeBody aCompositeBody = new CompositeBody();
-					aCompositeBody.singleton = new ProcessRef(
-							postconditionDefinitionManager, false, true);
-					aCompositeBody.singleton.name = explorerDefinition
-							.getModel().get(i);
+					aCompositeBody.singleton = new ProcessRef(postconditionDefinitionManager, false, true);
+					aCompositeBody.singleton.name = explorerDefinition.getModel().get(i);
 					ce.body.procRefs.add(aCompositeBody);
 				}
 
 				return ce.compose(null);
 			}
 
-			// There is no composite expression.
-			try {
-				// All scenarios are synthesised
-				this.addAllToCompiled(TriggeredScenarioDefinition
-						.synthesiseAll(output));
-			} catch (TriggeredScenarioTransformationException e) {
-				throw new RuntimeException(e);
-			}
-
-			// All Distributions are compiled
-			// try to distribute
-			Set<DistributionDefinition> allDistributionDefinitions = DistributionDefinition
-					.getAllDistributionDefinitions();
-			for (DistributionDefinition aDistributionDefinition : allDistributionDefinitions) {
-				Symbol systemModelId = aDistributionDefinition.getSystemModel();
-				// check if the system model has been compiled
-				LabelledTransitionSystem systemModel = compiled
-						.get(systemModelId.getValue());
-				if (systemModel == null) {
-					// it needs to be compiled
-					systemModel = this
-							.compileSingleProcess((ProcessSpec) processes
-									.get(systemModelId.getValue()));
-				}
-				Collection<LabelledTransitionSystem> distributedComponents = new HashSet<>();
-				boolean isDistributionSuccessful = TransitionSystemDispatcher
-						.tryDistribution(systemModel, aDistributionDefinition,
-								output, distributedComponents);
-
-				// Add the distributed components as compiled
-				// add to compiled process
-				for (LabelledTransitionSystem component : distributedComponents) {
-					compiled.put(component.getName(), component);
-				}
-
-				if (!isDistributionSuccessful) {
-					Diagnostics.fatal("Model " + systemModelId.getValue()
-							+ " could not be distributed.", systemModelId);
-				}
-			}
-
 			// All processes are compiled.
 			compileProcesses(processes, compiled, ltsOutput);
 			return noCompositionExpression(compiled);
 		}
-	}
-
-	public static void makeFluents(Symbol symbol, Set<Fluent> involvedFluents) {
-		AssertDefinition def = AssertDefinition
-				.getDefinition(symbol.toString());
-		if (def != null && !symbol.toString().equals(GeneralConstants.FALSE)
-				&& !symbol.toString().equals(GeneralConstants.TRUE)) {
-			adaptFormulaAndCreateFluents(def.getFormula(true), involvedFluents);
-		} else {
-			PredicateDefinition fdef = PredicateDefinition.get(symbol
-					.toString());
-			if (fdef != null) {
-				adaptFormulaAndCreateFluents(new FormulaFactory().make(symbol),
-						involvedFluents);
-			} else if (symbol.toString().equals(GeneralConstants.FALSE)) {
-				involvedFluents
-						.add(new FluentImpl(
-								symbol.toString(),
-								new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(),
-								new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(),
-								false));
-			} else if (symbol.toString().equals(GeneralConstants.TRUE)) {
-				involvedFluents
-						.add(new FluentImpl(
-								symbol.toString(),
-								new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(),
-								new HashSet<MTSSynthesis.ar.dc.uba.model.language.Symbol>(),
-								true));
-			} else {
-				Diagnostics.fatal("Fluent/assertion not defined [" + symbol
-						+ "].");
-			}
-		}
-
 	}
 
 	/**
@@ -851,8 +638,7 @@ public class LTSCompiler {
 	 * @return a CompactState representation of an existing process give its
 	 *         name
 	 */
-	public LabelledTransitionSystem getProcessCompactStateByName(
-			String processName) {
+	public LabelledTransitionSystem getProcessCompactStateByName(String processName) {
 		if (!processes.containsKey(processName)) {
 			return null;
 		}
@@ -864,23 +650,10 @@ public class LTSCompiler {
 			output.outln("Compiled: " + compiled.getName());
 
 		} else {
-			compiled = new AutCompactState(processSpec.getSymbol(),
-					processSpec.importFile);
+			compiled = new AutCompactState(processSpec.getSymbol(), processSpec.importFile);
 			output.outln("Imported: " + compiled.getName());
 		}
 		return compiled;
-	}
-
-	private static Formula adaptFormulaAndCreateFluents(
-			ltsa.lts.ltl.formula.Formula formula, Set<Fluent> involvedFluents) {
-		// create a visitor for the formula
-		FormulaTransformerVisitor formulaTransformerVisitor = new FormulaTransformerVisitor();
-		formula.accept(formulaTransformerVisitor);
-
-		// After visiting the formula, the visitor has the transformed formula
-		// and the involved fluents
-		involvedFluents.addAll(formulaTransformerVisitor.getInvolvedFluents());
-		return formulaTransformerVisitor.getTransformedFormula();
 	}
 
 	/**
@@ -889,8 +662,7 @@ public class LTSCompiler {
 	 * 
 	 * @param compiledToBeAdded
 	 */
-	private void addAllToCompiled(
-			Collection<LabelledTransitionSystem> compiledToBeAdded) {
+	private void addAllToCompiled(Collection<LabelledTransitionSystem> compiledToBeAdded) {
 		for (LabelledTransitionSystem compactState : compiledToBeAdded) {
 			compiled.put(compactState.getName(), compactState);
 		}
@@ -902,15 +674,12 @@ public class LTSCompiler {
 	 * @param processSpecificationMap
 	 * @param compiled
 	 */
-	private void compileProcesses(
-			Hashtable<String, ProcessSpec> processSpecificationMap,
-			Hashtable<String, LabelledTransitionSystem> compiled,
-			LTSOutput ltsOutput) {
+	private void compileProcesses(Hashtable<String, ProcessSpec> processSpecificationMap,
+			Hashtable<String, LabelledTransitionSystem> compiled, LTSOutput ltsOutput) {
 
 		for (ProcessSpec processSpec : processSpecificationMap.values()) {
 
-			LabelledTransitionSystem compiledProcess = this
-					.compileSingleProcess(processSpec);
+			LabelledTransitionSystem compiledProcess = this.compileSingleProcess(processSpec);
 
 			Vector<LabelledTransitionSystem> machines = new Vector<>();
 
@@ -921,8 +690,7 @@ public class LTSCompiler {
 		AssertDefinition.compileConstraints(output, compiled);
 	}
 
-	private LabelledTransitionSystem compileSingleProcess(
-			ProcessSpec processSpec) {
+	private LabelledTransitionSystem compileSingleProcess(ProcessSpec processSpec) {
 		LabelledTransitionSystem compiledProcess;
 		if (!processSpec.imported()) {
 			StateMachine one = new StateMachine(processSpec);
@@ -930,43 +698,37 @@ public class LTSCompiler {
 			output.outln("Compiled: " + compiledProcess.getName());
 
 		} else {
-			compiledProcess = new AutCompactState(processSpec.getSymbol(),
-					processSpec.importFile);
+			compiledProcess = new AutCompactState(processSpec.getSymbol(), processSpec.importFile);
 			output.outln("Imported: " + compiledProcess.getName());
 		}
 		return compiledProcess;
 	}
 
 	private ProcessSpec compileReplacement() {
-		currentIs(Symbol.UPPERIDENT,
-				"You have to specify the name of the process the replacement refers to.");
+		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the process the replacement refers to.");
 		nextSymbol();
 
-		currentIs(Symbol.UPPERIDENT,
-				"You have to specify the name of the box the replacement refers to.");
+		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the box the replacement refers to.");
 		Symbol box = current;
 
 		nextSymbol();
 		ProcessSpec replacementSpec = stateDefns();
-		
-		
+
 		if (mapBoxReplacementName.containsKey(box.getValue())) {
 			Diagnostics.fatal("duplicate replacement for the box: " + box);
 		} else {
-			mapBoxReplacementName
-					.put(box.getValue(), replacementSpec.getName());
+			mapBoxReplacementName.put(box.getValue(), replacementSpec.getName());
 		}
 		if (processes.containsKey(replacementSpec.getName())) {
-			Diagnostics.fatal("duplicate replacement definition: "
-					+ replacementSpec.getName(), replacementSpec.getName());
+			Diagnostics.fatal("duplicate replacement definition: " + replacementSpec.getName(),
+					replacementSpec.getName());
 		}
 		replacementSpec.setReplacement(true);
 
 		return replacementSpec;
 	}
 
-	private CompositeState noCompositionExpression(
-			Hashtable<String, LabelledTransitionSystem> compiledProcesses) {
+	private CompositeState noCompositionExpression(Hashtable<String, LabelledTransitionSystem> compiledProcesses) {
 		Vector<LabelledTransitionSystem> processesVector = new Vector<>(16);
 		processesVector.addAll(compiledProcesses.values());
 		return new CompositeState(processesVector);
@@ -975,8 +737,7 @@ public class LTSCompiler {
 	private CompositionExpression composition() {
 		currentIs(Symbol.OR, "|| expected");
 		nextSymbol();
-		CompositionExpression c = new CompositionExpression(
-				postconditionDefinitionManager);
+		CompositionExpression c = new CompositionExpression(postconditionDefinitionManager);
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		c.name = current;
 		nextSymbol();
@@ -1092,8 +853,7 @@ public class LTSCompiler {
 	}
 
 	private LabelSet priorityDefn(CompositionExpression c) {
-		if (current.kind != Symbol.SHIFT_RIGHT
-				&& current.kind != Symbol.SHIFT_LEFT)
+		if (current.kind != Symbol.SHIFT_RIGHT && current.kind != Symbol.SHIFT_LEFT)
 			return null;
 		if (current.kind == Symbol.SHIFT_LEFT)
 			c.priorityIsLow = false;
@@ -1192,8 +952,7 @@ public class LTSCompiler {
 		}
 		for (StateDefn state : p.stateDefns) {
 			if (state instanceof BoxStateDefn) {
-				p.alphaAdditions.labels.add(((BoxStateDefn) state)
-						.getInterface());
+				p.alphaAdditions.labels.add(((BoxStateDefn) state).getInterface());
 
 			}
 		}
@@ -1299,8 +1058,7 @@ public class LTSCompiler {
 		}
 		pushSymbol();
 		if (MenuDefinition.definitions.put(m.name.toString(), m) != null) {
-			Diagnostics.fatal("duplicate menu/animation definition: " + m.name,
-					m.name);
+			Diagnostics.fatal("duplicate menu/animation definition: " + m.name, m.name);
 		}
 	}
 
@@ -1313,8 +1071,7 @@ public class LTSCompiler {
 		m.actions = labelElement();
 		pushSymbol();
 		if (MenuDefinition.definitions.put(m.name.toString(), m) != null) {
-			Diagnostics.fatal("duplicate menu/animation definition: " + m.name,
-					m.name);
+			Diagnostics.fatal("duplicate menu/animation definition: " + m.name, m.name);
 		}
 	}
 
@@ -1384,8 +1141,7 @@ public class LTSCompiler {
 	}
 
 	private ActionLabels labelElement() {
-		if (current.kind != Symbol.IDENTIFIER && !isLabelSet()
-				&& current.kind != Symbol.LSQUARE) {
+		if (current.kind != Symbol.IDENTIFIER && !isLabelSet() && current.kind != Symbol.LSQUARE) {
 			error("identifier, label set or range expected");
 		}
 
@@ -1438,8 +1194,7 @@ public class LTSCompiler {
 	 * @param p
 	 * @param parameters
 	 */
-	private void paramDefns(Hashtable<String, Value> p,
-			Vector<String> parameters) {
+	private void paramDefns(Hashtable<String, Value> p, Vector<String> parameters) {
 		if (current.kind == Symbol.LROUND) {
 			nextSymbol();
 			parameterDefinition(p, parameters);
@@ -1452,10 +1207,8 @@ public class LTSCompiler {
 		}
 	}
 
-	private void parameterDefinition(Hashtable<String, Value> p,
-			Vector<String> parameters) {
-		currentIs(Symbol.UPPERIDENT,
-				"parameter, upper case identifier expected");
+	private void parameterDefinition(Hashtable<String, Value> p, Vector<String> parameters) {
+		currentIs(Symbol.UPPERIDENT, "parameter, upper case identifier expected");
 		Symbol name = current;
 		expectBecomes();
 		nextSymbol();
@@ -1567,14 +1320,12 @@ public class LTSCompiler {
 		nextSymbol();
 		expression(d.getExpressionStack());
 		if (Def.put(d))
-			Diagnostics.fatal("duplicate def definition: " + nameSymbol,
-					nameSymbol);
+			Diagnostics.fatal("duplicate def definition: " + nameSymbol, nameSymbol);
 		pushSymbol();
 	}
 
 	private void rangeDefinition() {
-		currentIs(Symbol.UPPERIDENT,
-				"range name, upper case identifier expected");
+		currentIs(Symbol.UPPERIDENT, "range name, upper case identifier expected");
 		Symbol name = current;
 		expectBecomes();
 		nextSymbol();
@@ -1598,8 +1349,7 @@ public class LTSCompiler {
 			if (current.kind != Symbol.IDENTIFIER) {
 				if (isLabelSet()) {
 					r = new ActionSet(labelSet());
-				} else if (current.kind == Symbol.UPPERIDENT
-						&& Range.ranges.containsKey(current.toString())) {
+				} else if (current.kind == Symbol.UPPERIDENT && Range.ranges.containsKey(current.toString())) {
 					r = new ActionRange(Range.ranges.get(current.toString()));
 					nextSymbol();
 				} else {
@@ -1620,10 +1370,8 @@ public class LTSCompiler {
 					nextSymbol();
 					if (isLabelSet()) {
 						r = new ActionVarSet(varname, labelSet());
-					} else if (current.kind == Symbol.UPPERIDENT
-							&& Range.ranges.containsKey(current.toString())) {
-						r = new ActionVarRange(varname,
-								(Range) Range.ranges.get(current.toString()));
+					} else if (current.kind == Symbol.UPPERIDENT && Range.ranges.containsKey(current.toString())) {
+						r = new ActionVarRange(varname, (Range) Range.ranges.get(current.toString()));
 						nextSymbol();
 					} else {
 						low = new Stack<>();
@@ -1703,8 +1451,7 @@ public class LTSCompiler {
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		s.name = current;
 		nextSymbol();
-		while (current.kind == Symbol.SEMICOLON
-				|| current.kind == Symbol.LROUND) {
+		while (current.kind == Symbol.SEMICOLON || current.kind == Symbol.LROUND) {
 			s.addSeqProcessRef(new SeqProcessRef(s.name, actualParameters()));
 			nextSymbol();
 			currentIs(Symbol.UPPERIDENT, "process identifier expected");
@@ -1757,27 +1504,22 @@ public class LTSCompiler {
 			nextSymbol();
 		}
 
-		if (isProbabilistic
-				&& (current.kind == Symbol.DOUBLE_VALUE || current.kind == Symbol.UPPERIDENT)) {
-			ProbabilisticChoiceElement newFirst = new ProbabilisticChoiceElement(
-					first);
+		if (isProbabilistic && (current.kind == Symbol.DOUBLE_VALUE || current.kind == Symbol.UPPERIDENT)) {
+			ProbabilisticChoiceElement newFirst = new ProbabilisticChoiceElement(first);
 			int bundle = ProbabilisticTransition.getNextProbBundle();
 
 			BigDecimal totalProbs = BigDecimal.ZERO;
 			StateExpr stateExpression = new StateExpr();
 			stateExpression.choices = new Vector<ChoiceElement>();
-			while (current.kind == Symbol.DOUBLE_VALUE
-					|| current.kind == Symbol.UPPERIDENT) {
+			while (current.kind == Symbol.DOUBLE_VALUE || current.kind == Symbol.UPPERIDENT) {
 				BigDecimal nextProb;
 				if (current.kind == Symbol.DOUBLE_VALUE)
 					nextProb = current.doubleValue();
 				else {
 					if (!Expression.constants.containsKey(current.toString())) {
-						error("Identifier " + current.toString()
-								+ " is undefined");
+						error("Identifier " + current.toString() + " is undefined");
 					}
-					Value val = (Value) Expression.constants.get(current
-							.toString());
+					Value val = (Value) Expression.constants.get(current.toString());
 					nextProb = val.doubleValue();
 				}
 				totalProbs = totalProbs.add(nextProb);
@@ -1789,29 +1531,24 @@ public class LTSCompiler {
 				// TODO get the process identifier, build the
 				// (Probabilistic)ChoiceElement
 				stateExpression = stateExpr();
-				newFirst.addProbabilisticChoice(nextProb, bundle,
-						stateExpression);
+				newFirst.addProbabilisticChoice(nextProb, bundle, stateExpression);
 
-				if (current.kind != Symbol.PLUS
-						&& current.kind != Symbol.RCURLY)
+				if (current.kind != Symbol.PLUS && current.kind != Symbol.RCURLY)
 					error("'+', '}' expected");
 				if (current.kind == Symbol.PLUS) {
 					nextSymbol();
-					if (current.kind != Symbol.DOUBLE_VALUE
-							&& current.kind != Symbol.UPPERIDENT)
+					if (current.kind != Symbol.DOUBLE_VALUE && current.kind != Symbol.UPPERIDENT)
 						error("Float constant expected");
 				}
 			}
 			if (totalProbs.compareTo(BigDecimal.ONE) != 0)
-				error("Probabilities should add up to 1 -- "
-						+ totalProbs.toString());
+				error("Probabilities should add up to 1 -- " + totalProbs.toString());
 
 			currentIs(Symbol.RCURLY, "} expected");
 			nextSymbol();
 			return newFirst;
 		} else {
-			while (current.kind == Symbol.IDENTIFIER
-					|| current.kind == Symbol.LSQUARE || isLabelSet()) {
+			while (current.kind == Symbol.IDENTIFIER || current.kind == Symbol.LSQUARE || isLabelSet()) {
 				StateExpr ex = new StateExpr();
 				next = new ChoiceElement();
 				next.action = labelElement();
@@ -1899,12 +1636,10 @@ public class LTSCompiler {
 					arguments.add(arg);
 					expression(arg);
 					if (arguments.size() < d.getParameterCount()) {
-						currentIs(Symbol.COMMA,
-								"',' expected delimiting def arguments");
+						currentIs(Symbol.COMMA, "',' expected delimiting def arguments");
 						nextSymbol();
 					} else {
-						currentIs(Symbol.RROUND,
-								") expected to end def arguments");
+						currentIs(Symbol.RROUND, ") expected to end def arguments");
 					}
 				}
 				nextSymbol();
@@ -1956,8 +1691,7 @@ public class LTSCompiler {
 	// MULTIPLICATIVE
 	private void multiplicative(Stack<Symbol> expr) { // *, /, %
 		exponential(expr);
-		while (current.kind == Symbol.STAR || current.kind == Symbol.DIVIDE
-				|| current.kind == Symbol.BACKSLASH
+		while (current.kind == Symbol.STAR || current.kind == Symbol.DIVIDE || current.kind == Symbol.BACKSLASH
 				|| current.kind == Symbol.MODULUS) {
 			Symbol op = current;
 			nextSymbol();
@@ -1984,8 +1718,7 @@ public class LTSCompiler {
 
 	private void shift(Stack<Symbol> expr) { // <<, >>
 		additive(expr);
-		while (current.kind == Symbol.SHIFT_LEFT
-				|| current.kind == Symbol.SHIFT_RIGHT) {
+		while (current.kind == Symbol.SHIFT_LEFT || current.kind == Symbol.SHIFT_RIGHT) {
 			Symbol op = current;
 			nextSymbol();
 			additive(expr);
@@ -1998,10 +1731,8 @@ public class LTSCompiler {
 
 	private void relational(Stack<Symbol> expr) { // <, <=, >, >=
 		shift(expr);
-		while (current.kind == Symbol.LESS_THAN
-				|| current.kind == Symbol.LESS_THAN_EQUAL
-				|| current.kind == Symbol.GREATER_THAN
-				|| current.kind == Symbol.GREATER_THAN_EQUAL) {
+		while (current.kind == Symbol.LESS_THAN || current.kind == Symbol.LESS_THAN_EQUAL
+				|| current.kind == Symbol.GREATER_THAN || current.kind == Symbol.GREATER_THAN_EQUAL) {
 			Symbol op = current;
 			nextSymbol();
 			shift(expr);
@@ -2014,8 +1745,7 @@ public class LTSCompiler {
 
 	private void equality(Stack<Symbol> expr) { // ==, !=
 		relational(expr);
-		while (current.kind == Symbol.EQUALS
-				|| current.kind == Symbol.NOT_EQUAL) {
+		while (current.kind == Symbol.EQUALS || current.kind == Symbol.NOT_EQUAL) {
 			Symbol op = current;
 			nextSymbol();
 			relational(expr);
@@ -2146,8 +1876,7 @@ public class LTSCompiler {
 		pushSymbol();
 		this.validateUniqueProcessName(name);
 
-		AssertDefinition.put(name, formula, ls, initparams, params,
-				isConstraint, isProperty);
+		AssertDefinition.put(name, formula, ls, initparams, params, isConstraint, isProperty);
 
 		// Negation of the formula
 		if (!(isConstraint && isProperty)) {
@@ -2157,8 +1886,7 @@ public class LTSCompiler {
 			FormulaSyntax notF = FormulaSyntax.make(null, s, formula);
 
 			this.validateUniqueProcessName(notName);
-			AssertDefinition.put(notName, notF, ls, initparams, params,
-					isConstraint, isProperty);
+			AssertDefinition.put(notName, notF, ls, initparams, params, isConstraint, isProperty);
 		}
 	}
 
@@ -2180,10 +1908,8 @@ public class LTSCompiler {
 		Symbol name = current;
 		// LTLAdditionalSymbolTable.preconditionBoxMap.put(name, box);
 		nextSymbol();
-		mapsEachPreconditionToTheCorrespondingBox.put(name.getValue(),
-				box.getValue());
-		mapsEachPreconditionToTheCorrespondingProcess.put(name.getValue(),
-				process.getValue());
+		mapsEachPreconditionToTheCorrespondingBox.put(name.getValue(), box.getValue());
+		mapsEachPreconditionToTheCorrespondingProcess.put(name.getValue(), process.getValue());
 		paramDefns(initparams, params);
 		currentIs(Symbol.BECOMES, "= expected");
 		next_symbol_mod();
@@ -2196,8 +1922,7 @@ public class LTSCompiler {
 		}
 		pushSymbol();
 		this.validateUniqueProcessName(name);
-		preconditionDefinitionManager.put(name, formula, ls, initparams,
-				params, process.getValue(), box.getValue());
+		preconditionDefinitionManager.put(name, formula, ls, initparams, params, process.getValue(), box.getValue());
 
 		Symbol notName = new Symbol(name);
 		notName.setString(AssertDefinition.NOT_DEF + notName.getValue());
@@ -2205,8 +1930,7 @@ public class LTSCompiler {
 		FormulaSyntax notF = FormulaSyntax.make(null, s, formula);
 
 		this.validateUniqueProcessName(notName);
-		preconditionDefinitionManager.put(notName, notF, ls, initparams,
-				params, process.getValue(), box.getValue());
+		preconditionDefinitionManager.put(notName, notF, ls, initparams, params, process.getValue(), box.getValue());
 	}
 
 	private void assertPostcondition() {
@@ -2236,8 +1960,7 @@ public class LTSCompiler {
 		}
 		pushSymbol();
 		this.validateUniqueProcessName(name);
-		postconditionDefinitionManager.put(name, formula, ls, initparams,
-				params, box.toString(), process.toString());
+		postconditionDefinitionManager.put(name, formula, ls, initparams, params, box.toString(), process.toString());
 
 		Symbol notName = new Symbol(name);
 		notName.setString(AssertDefinition.NOT_DEF + notName.getValue());
@@ -2252,17 +1975,12 @@ public class LTSCompiler {
 	 * 
 	 */
 	private void validateUniqueProcessName(Symbol processName) {
-		if (processes != null
-				&& processes.get(processName.toString()) != null
-				|| composites != null
-				&& composites.get(processName.toString()) != null
+		if (processes != null && processes.get(processName.toString()) != null
+				|| composites != null && composites.get(processName.toString()) != null
 				|| (AssertDefinition.getDefinition(processName.toString()) != null)
-				|| (TriggeredScenarioDefinition.contains(processName))
 				|| DistributionDefinition.contains(processName)) {
 
-			Diagnostics.fatal(
-					"name already defined  " + processName.toString(),
-					processName);
+			Diagnostics.fatal("name already defined  " + processName.toString(), processName);
 		}
 	}
 
@@ -2381,8 +2099,7 @@ public class LTSCompiler {
 
 	private FormulaSyntax ltlBinary() { // until, ->
 		FormulaSyntax left = ltlAnd();
-		if (current.kind == Symbol.UNTIL || current.kind == Symbol.WEAKUNTIL
-				|| current.kind == Symbol.ARROW
+		if (current.kind == Symbol.UNTIL || current.kind == Symbol.WEAKUNTIL || current.kind == Symbol.ARROW
 				|| current.kind == Symbol.EQUIVALENT) {
 			Symbol op = current;
 			next_symbol_mod();
@@ -2419,12 +2136,10 @@ public class LTSCompiler {
 			Stack<Symbol> tmp = new Stack<>();
 			simpleExpression(tmp);
 			pushSymbol();
-			PredicateDefinition.put(name, range, initialFluentActions,
-					finalFluentActions, tmp);
+			PredicateDefinition.put(name, range, initialFluentActions, finalFluentActions, tmp);
 		} else {
 			pushSymbol();
-			PredicateDefinition.put(name, range, initialFluentActions,
-					finalFluentActions, null);
+			PredicateDefinition.put(name, range, initialFluentActions, finalFluentActions, null);
 		}
 	}
 
@@ -2437,8 +2152,7 @@ public class LTSCompiler {
 		if (actionLabel instanceof ActionName) {
 			ActionName actionName = (ActionName) actionLabel;
 			Symbol symbol = actionName.name;
-			result = new ActionName(new Symbol(symbol,
-					getMaybeAction(symbol.getValue())));
+			result = new ActionName(new Symbol(symbol, getMaybeAction(symbol.getValue())));
 		} else if (actionLabel instanceof ActionSet) {
 			ActionSet actionSet = (ActionSet) actionLabel;
 			Vector<ActionLabels> maybeSetLabels = new Vector<>();
@@ -2453,8 +2167,7 @@ public class LTSCompiler {
 	 * This method extends the set of labels to be relabeled with the maybe or
 	 * the required labels.
 	 */
-	private void relabelMTS(Vector<RelabelDefn> relabels,
-			RelabelDefn relabelDefn) {
+	private void relabelMTS(Vector<RelabelDefn> relabels, RelabelDefn relabelDefn) {
 		RelabelDefn relabelMaybe = new RelabelDefn();
 		relabelMaybe.oldlabel = getMaybeActionLabels(relabelDefn.oldlabel);
 		relabelMaybe.newlabel = getMaybeActionLabels(relabelDefn.newlabel);
@@ -2466,7 +2179,8 @@ public class LTSCompiler {
 			// A possibility is to extend the computeName method in order to
 			// take into account MTSs
 			// String message =
-			// "Relabeling with maybe actions can only be made over labels and sets.";
+			// "Relabeling with maybe actions can only be made over labels and
+			// sets.";
 			// Diagnostics.warning(message, message, null);
 		}
 	}
@@ -2487,24 +2201,19 @@ public class LTSCompiler {
 			} else if (action instanceof ActionName) {
 				processActionName((ActionName) action, addLabels);
 			} else {
-				throw new RuntimeException(
-						"Action to hide is instance of class: "
-								+ action.getClass());
+				throw new RuntimeException("Action to hide is instance of class: " + action.getClass());
 			}
 		}
 		allLabels.clear();
 		allLabels.addAll(addLabels);
 	}
 
-	private void processActionSet(ActionSet actionLabels,
-			Set<ActionName> addLabels) {
+	private void processActionSet(ActionSet actionLabels, Set<ActionName> addLabels) {
 		ActionSet actionSet = actionLabels;
-		for (Iterator<String> it = actionSet.getActions(null, null).iterator(); it
-				.hasNext();) {
+		for (Iterator<String> it = actionSet.getActions(null, null).iterator(); it.hasNext();) {
 			String actionLabel = it.next();
 			actionLabel = getOpositeActionLabel(actionLabel);
-			addLabels.add(new ActionName(new Symbol(Symbol.STRING_VALUE,
-					actionLabel)));
+			addLabels.add(new ActionName(new Symbol(Symbol.STRING_VALUE, actionLabel)));
 		}
 	}
 
@@ -2519,14 +2228,12 @@ public class LTSCompiler {
 
 		String name = actionName.name.toString();
 		name = getMaybeAction(name);
-		ActionName tempActionName1 = new ActionName(new Symbol(actionName.name,
-				name));
+		ActionName tempActionName1 = new ActionName(new Symbol(actionName.name, name));
 		tempActionName1.follower = actionName.follower;
 		toAdd.add(tempActionName1);
 
 		name = getOpositeActionLabel(name);
-		ActionName tempActionName2 = new ActionName(new Symbol(actionName.name,
-				name));
+		ActionName tempActionName2 = new ActionName(new Symbol(actionName.name, name));
 		tempActionName2.follower = actionName.follower;
 		toAdd.add(tempActionName2);
 	}
@@ -2619,8 +2326,7 @@ public class LTSCompiler {
 
 		currentIs(Symbol.EXPLORATION_MODEL, "model expected");
 		nextSymbol();
-		explorerDefinition.setModel(this.componentsByCount(explorerDefinition
-				.getView().size()));
+		explorerDefinition.setModel(this.componentsByCount(explorerDefinition.getView().size()));
 		nextSymbol();
 
 		currentIs(Symbol.EXPLORATION_GOAL, "goal expected");
@@ -2629,11 +2335,9 @@ public class LTSCompiler {
 
 		if (current.kind == Symbol.COMMA) {
 			nextSymbol();
-			currentIs(Symbol.EXPLORATION_ENVIRONMENT_ACTIONS,
-					"actions expected");
+			currentIs(Symbol.EXPLORATION_ENVIRONMENT_ACTIONS, "actions expected");
 			nextSymbol();
-			explorerDefinition.setEnvironmentActions(this
-					.listsOfComponentsNotEmpty());
+			explorerDefinition.setEnvironmentActions(this.listsOfComponentsNotEmpty());
 		}
 
 		explorers.put(explorerDefinition.getName(), explorerDefinition);
@@ -2648,16 +2352,14 @@ public class LTSCompiler {
 		currentIs(Symbol.LCURLY, "{ expected");
 		nextSymbol();
 
-		currentIs(Symbol.INT_VALUE,
-				"Expected max number of schedulers value int.");
+		currentIs(Symbol.INT_VALUE, "Expected max number of schedulers value int.");
 		Integer schedulers = current.doubleValue().intValue();
 		nextSymbol();
 
 		currentIs(Symbol.COMMA, ", expected");
 		nextSymbol();
 
-		currentIs(Symbol.INT_VALUE,
-				"Expected max number of controllers value int.");
+		currentIs(Symbol.INT_VALUE, "Expected max number of controllers value int.");
 		Integer controllers = current.doubleValue().intValue();
 		nextSymbol();
 
@@ -2665,90 +2367,6 @@ public class LTSCompiler {
 		nextSymbol();
 
 		return new Pair<Integer, Integer>(schedulers, controllers);
-	}
-
-	private void updateControllerDefinition(
-			UpdatingControllersDefinition ucDefinition) {
-
-		expectBecomes();
-		expectLeftCurly();
-		nextSymbol();
-
-		if (current.kind == Symbol.OLD_CONTROLLER) {
-			ucDefinition.setOldController(this.controllerSubUpdateController());
-			currentIs(Symbol.COMMA, ", expected");
-			nextSymbol();
-		}
-		if (current.kind == Symbol.OLD_ENVIRONMENT) {
-			ucDefinition
-					.setOldEnvironment(this.controllerSubUpdateController());
-			currentIs(Symbol.COMMA, ", expected");
-			nextSymbol();
-		}
-		// if (current.kind == Symbol.HAT_ENVIRONMENT) {
-		// ucDefinition.setHatEnvironment(this.controllerSubUpdateController());
-		// currentIs(Symbol.COMMA, ", expected");
-		// nextSymbol();
-		// }
-		if (current.kind == Symbol.NEW_ENVIRONMENT) {
-			ucDefinition
-					.setNewEnvironment(this.controllerSubUpdateController());
-			currentIs(Symbol.COMMA, ", expected");
-			nextSymbol();
-		}
-
-		if (current.kind == Symbol.OLD_GOAL) {
-			this.expectBecomes();
-			nextSymbol();
-			currentIs(Symbol.UPPERIDENT, "old goal identifier expected");
-			ucDefinition.setOldGoal(current);
-			nextSymbol();
-			currentIs(Symbol.COMMA, ", expected");
-			nextSymbol();
-		}
-		if (current.kind == Symbol.NEW_GOAL) {
-			this.expectBecomes();
-			nextSymbol();
-			currentIs(Symbol.UPPERIDENT, "new goal identifier expected");
-			ucDefinition.setNewGoal(current);
-			nextSymbol();
-			currentIs(Symbol.COMMA, ", expected");
-			nextSymbol();
-		}
-		if (current.kind == Symbol.TRANSITION) {
-			this.expectBecomes();
-			nextSymbol();
-			currentIs(Symbol.UPPERIDENT, "T definition expected");
-			ucDefinition.addSafety(current);
-			nextSymbol();
-			currentIs(Symbol.COMMA, ", expected");
-			nextSymbol();
-		}
-
-		if (current.kind == Symbol.CONTROLLER_NB) {
-			nextSymbol();
-			ucDefinition.setNonblocking();
-			currentIs(Symbol.COMMA, ", expected");
-			nextSymbol();
-		}
-		if (current.kind == Symbol.OLD_PROPOSITIONS) {
-			ucDefinition.setOldPropositions(this.controllerSubGoal());
-		}
-
-		if (current.kind == Symbol.NEW_PROPOSITIONS) {
-			ucDefinition.setNewPropositions(this.controllerSubGoal());
-		}
-
-		if (current.kind == Symbol.UPDATE_DEBUG) {
-			nextSymbol();
-			ucDefinition.setDebugMode();
-		}
-		if (current.kind == Symbol.UPDATE_CHECK_TRACE) {
-			ucDefinition.setCheckTrace(this
-					.controllerCheckTraceUpdateController());
-		}
-
-		currentIs(Symbol.RCURLY, "} expected");
 	}
 
 	private Symbol parseInitialState() {
@@ -2962,15 +2580,13 @@ public class LTSCompiler {
 				finish = true;
 				break;
 			} else if (current.kind == Symbol.DOT) {
-				while (current.kind != Symbol.COMMA
-						&& current.kind != Symbol.RCURLY) {
+				while (current.kind != Symbol.COMMA && current.kind != Symbol.RCURLY) {
 					Symbol lastDef = definitions.get(definitions.size() - 1);
 					String parametricValue = lastDef.toString() + ".";
 					nextSymbol();
 					parametricValue = parametricValue + current.toString();
 					definitions.remove(definitions.size() - 1);
-					definitions.add(new Symbol(Symbol.IDENTIFIER,
-							parametricValue));
+					definitions.add(new Symbol(Symbol.IDENTIFIER, parametricValue));
 					nextSymbol();
 				}
 			}
@@ -3113,8 +2729,8 @@ public class LTSCompiler {
 		List<Symbol> alphabets = this.parseDistributedAlphabets();
 
 		if (alphabets.size() != componentsName.size()) {
-			error("There should be one and only one alphabet for each component. Components: "
-					+ componentsName + " . Alphabets: " + alphabets);
+			error("There should be one and only one alphabet for each component. Components: " + componentsName
+					+ " . Alphabets: " + alphabets);
 		}
 
 		// parse system model name
@@ -3143,8 +2759,7 @@ public class LTSCompiler {
 					testFile.createNewFile();
 					testFile.canWrite();
 				} catch (Exception e) {
-					error("Problem handling file with name " + outputFileName
-							+ ". " + e.getMessage());
+					error("Problem handling file with name " + outputFileName + ". " + e.getMessage());
 				}
 			}
 			nextSymbol();
@@ -3158,11 +2773,9 @@ public class LTSCompiler {
 		DistributionDefinition distributionDefinition;
 		// create the distribution
 		if (outputFileName != null) {
-			distributionDefinition = new DistributionDefinition(systemModel,
-					componentsName, alphabets, outputFileName);
+			distributionDefinition = new DistributionDefinition(systemModel, componentsName, alphabets, outputFileName);
 		} else {
-			distributionDefinition = new DistributionDefinition(systemModel,
-					componentsName, alphabets);
+			distributionDefinition = new DistributionDefinition(systemModel, componentsName, alphabets);
 		}
 		DistributionDefinition.put(distributionDefinition);
 	}
@@ -3196,49 +2809,6 @@ public class LTSCompiler {
 		return result;
 	}
 
-	/**
-	 * Parses a Triggered Scenario
-	 */
-	private void triggeredScenarioDefinition(
-			TriggeredScenarioDefinition triggeredScenarioDefinition)
-			throws DuplicatedTriggeredScenarioDefinitionException {
-
-		currentIs(Symbol.BECOMES, "= expected after chart identifier");
-		expectLeftCurly();
-		nextSymbol();
-
-		// Instances must come next
-		triggeredScenarioDefinition.setInstances(this.chartInstancesValues());
-
-		// Conditions (if any) comes next
-		while (current.kind == Symbol.CONDITION) {
-			nextSymbol();
-			triggeredScenarioDefinition.addConditionDefinition(this
-					.conditionDefinition());
-		}
-
-		// Prechart must come next
-		currentIs(Symbol.PRECHART, "prechart expected");
-		triggeredScenarioDefinition.setPrechart(this.basicChartDefinition(true,
-				triggeredScenarioDefinition));
-
-		// Mainchart must come next
-		nextSymbol();
-		currentIs(Symbol.MAINCHART, "mainchart expected");
-		triggeredScenarioDefinition.setMainchart(this.basicChartDefinition(
-				false, triggeredScenarioDefinition));
-
-		triggeredScenarioDefinition.setRestricted(this
-				.restrictsDefinition(triggeredScenarioDefinition));
-
-		expectRightCurly();
-		nextSymbol();
-
-		TriggeredScenarioDefinition.put(triggeredScenarioDefinition);
-
-		pushSymbol();
-	}
-
 	private ConditionDefinition conditionDefinition() {
 		currentIs(Symbol.UPPERIDENT, "Identifier expected");
 		Symbol name = current;
@@ -3252,106 +2822,9 @@ public class LTSCompiler {
 			error("Condition must be a Fluent Propositional Logic formula");
 			return null;
 		}
-		ConditionDefinition conditionDefinition = new ConditionDefinition(
-				name.getValue(), formula);
+		ConditionDefinition conditionDefinition = new ConditionDefinition(name.getValue(), formula);
 
 		return conditionDefinition;
-	}
-
-	private Set<Interaction> restrictsDefinition(
-			TriggeredScenarioDefinition tsDefinition) {
-		Set<Interaction> result = new HashSet<Interaction>();
-
-		if (current.kind == Symbol.RESTRICTS) {
-			expectLeftCurly();
-			nextSymbol();
-
-			while (current.kind != Symbol.RCURLY) {
-				try {
-					result.add((Interaction) locationValue(false, tsDefinition));
-				} catch (ClassCastException e) {
-					error("Restrictions can only be Interactions");
-					return null;
-				}
-			}
-		}
-		return result;
-	}
-
-	private BasicChartDefinition basicChartDefinition(
-			boolean isPrechartDefinition,
-			TriggeredScenarioDefinition tsDefinition) {
-		expectLeftCurly();
-		nextSymbol();
-		BasicChartDefinition chartDefinition = new BasicChartDefinition();
-		chartDefinition.addLocation(locationValue(isPrechartDefinition,
-				tsDefinition));
-
-		while (current.kind != Symbol.RCURLY) {
-			chartDefinition.addLocation(locationValue(isPrechartDefinition,
-					tsDefinition));
-		}
-		return chartDefinition;
-	}
-
-	private Location locationValue(boolean isPrechartDefinition,
-			TriggeredScenarioDefinition tsDefinition) {
-		// A location can be a Condition or an Interaction
-		// Interactions are of the form: UPPERIDENT -> IDENT -> UPPERIDENT
-		// Conditions are like: UPPERIDENT [UPPERIDENT UPPERIDENT...]. The first
-		// ident is the name of the condition and then
-		// comes the set of instances that the condition synchronises.
-		Symbol previous = this.identifier();
-
-		if (current.kind == Symbol.ARROW) {
-			// Location is an Interaction
-			nextSymbol();
-
-			// previous symbol is the interaction's source
-			String source = previous.getValue();
-			String message = this.event().getValue();
-
-			currentIs(Symbol.ARROW, "-> expected");
-			nextSymbol();
-
-			String target = this.identifier().getValue();
-
-			return new Interaction(source, message, target);
-		} else if (current.kind == Symbol.LSQUARE) {
-			// Conditions can only be placed in the Prechart
-			if (!isPrechartDefinition) {
-				error("Conditions can only be placed in the Prechart");
-				return null;
-			} else {
-				// Location is a Condition
-				nextSymbol();
-
-				// previous symbol is the condition's identifier
-				if (!tsDefinition.hasCondition(previous.getValue())) {
-					// Condition must be defined previously in the
-					// TriggeredScenario.
-					error("Condition not defined: " + previous.getValue());
-					return null;
-				} else {
-					String conditionName = previous.getValue();
-
-					// get the instances synchronising with this condition
-					Set<String> instances = new HashSet<String>();
-
-					// at least there must be an instance
-					instances.add(this.identifier().getValue());
-					while (current.kind != Symbol.RSQUARE) {
-						instances.add(this.identifier().getValue());
-					}
-					nextSymbol();
-
-					return new ConditionLocation(conditionName, instances);
-				}
-			}
-		} else {
-			error("-> or [ expected");
-			return null;
-		}
 	}
 
 	/**
@@ -3379,14 +2852,11 @@ public class LTSCompiler {
 		return instances;
 	}
 
-	public static Symbol saveControllableSet(Set<String> controllableSet,
-			String name) {
-		Symbol updateControllableSetSymbol = new Symbol(Symbol.SET,
-				"controller_update_" + name + "_controllable_set");
+	public static Symbol saveControllableSet(Set<String> controllableSet, String name) {
+		Symbol updateControllableSetSymbol = new Symbol(Symbol.SET, "controller_update_" + name + "_controllable_set");
 		Vector<ActionLabels> vector = new Vector<>();
 		for (String action : controllableSet) {
-			ActionName actionName = new ActionName(new Symbol(
-					Symbol.IDENTIFIER, action));
+			ActionName actionName = new ActionName(new Symbol(Symbol.IDENTIFIER, action));
 			vector.add(actionName);
 		}
 		new LabelSet(updateControllableSetSymbol, vector);
