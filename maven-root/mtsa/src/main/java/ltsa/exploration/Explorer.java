@@ -3,30 +3,25 @@ package ltsa.exploration;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import org.apache.commons.lang.ArrayUtils;
+
+import MTSTools.ac.ic.doc.commons.relations.Pair;
 import ltsa.exploration.knowledge.Knowledge;
 import ltsa.exploration.model.Model;
 import ltsa.exploration.view.View;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
-
-import org.apache.commons.lang.ArrayUtils;
-
-import MTSSynthesis.controller.game.model.Strategy;
-import MTSSynthesis.controller.model.gr.GRControllerGoal;
-import MTSTools.ac.ic.doc.commons.relations.Pair;
 
 public class Explorer
 {
     private View view;
     private Model model;
     private Knowledge knowledge;
-    private GRControllerGoal<String> goal;
     private ArrayList<String> traceLastActions, traceLastStates;
     private ArrayList<Integer> traceStatesCurrentStrategy;
 
     //region Constructor
-    public Explorer(View view, Model model, Knowledge knowledge, GRControllerGoal<String> goal)
+    public Explorer(View view, Model model, Knowledge knowledge)
     {
-        this.goal = goal;
         this.view = view;
         this.model = model;
         this.knowledge = knowledge;

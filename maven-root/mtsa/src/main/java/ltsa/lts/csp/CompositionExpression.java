@@ -8,10 +8,12 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.lang.Validate;
+
+import MTSTools.ac.ic.doc.mtstools.model.MTS;
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import ltsa.control.ControllerGoalDefinition;
-import ltsa.control.util.GoalDefToControllerGoal;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.automaton.StateMachine;
@@ -25,10 +27,6 @@ import ltsa.lts.parser.Symbol;
 import ltsa.lts.parser.Value;
 import ltsa.lts.parser.actions.LabelSet;
 import ltsa.lts.util.MTSUtils;
-
-import org.apache.commons.lang.Validate;
-
-import MTSTools.ac.ic.doc.mtstools.model.MTS;
 
 public class CompositionExpression {
 	public Symbol name;
@@ -237,8 +235,7 @@ public class CompositionExpression {
 		c.getMachines()
 				.addAll(CompositionExpression.preProcessSafetyReqs(pendingGoal,
 						output));
-		c.goal = GoalDefToControllerGoal.getInstance().buildControllerGoal(
-				pendingGoal);
+	;
 	}
 
 	public static Collection<LabelledTransitionSystem> preProcessSafetyReqs(

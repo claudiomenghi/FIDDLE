@@ -263,9 +263,6 @@ public class StateMachine {
 		if (isAbstract) {
 			c = TransitionSystemDispatcher.getAbstractModel(c, output);
 		}
-		if (isStarEnv) {
-			c = TransitionSystemDispatcher.getStarEnv(c, output);
-		}
 
 		for (Entry<String, Set<String>> entry : this.mapBoxInterface.entrySet()) {
 			String boxName = entry.getKey();

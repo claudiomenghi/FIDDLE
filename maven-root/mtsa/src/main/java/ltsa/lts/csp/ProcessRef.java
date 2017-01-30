@@ -1,20 +1,14 @@
 package ltsa.lts.csp;
 
-import java.util.Collection;
 import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.Stack;
 import java.util.Vector;
 
-import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.automaton.StateMachine;
 import ltsa.lts.automata.lts.state.AutCompactState;
-import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.lts.state.CompositeState;
-import ltsa.lts.chart.TriggeredScenarioDefinition;
-import ltsa.lts.chart.util.TriggeredScenarioTransformationException;
-import ltsa.lts.distribution.DistributionDefinition;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.Expression;
 import ltsa.lts.parser.PostconditionDefinitionManager;
@@ -90,66 +84,8 @@ public class ProcessRef {
 			return;
 		}
 
-		// it could be a triggered scenario
-		if (TriggeredScenarioDefinition.contains(name)) {
-			try {
-				labeledTransitionSystem = TriggeredScenarioDefinition.getDefinition(name)
-						.synthesise(output);
-				if (this.passBackClone) {
-					machines.addElement(labeledTransitionSystem.myclone()); // pass back clone
-				}
-				c.compiledProcesses.put(labeledTransitionSystem.getName(), labeledTransitionSystem); // add to
-				// compiled
-				// processes
-			} catch (TriggeredScenarioTransformationException e) {
-				throw new RuntimeException(e);
-			}
-			return;
-		}
 
-		// it could be a component from a distribution
-		if (DistributionDefinition.contains(name)) {
-
-			DistributionDefinition distributionDefinition = DistributionDefinition
-					.getDistributionDefinitionContainingComponent(name);
-			Symbol systemModelId = distributionDefinition.getSystemModel();
-
-			// system model is a reference to a process
-			ProcessRef systemModelProcessRef = new ProcessRef(this.postManager, true, false);
-			systemModelProcessRef.name = systemModelId;
-
-			// this should compile the process (if it was not already compiled)
-			systemModelProcessRef.instantiate(c, machines, output, locals);
-
-			// get the system model
-			LabelledTransitionSystem systemModel = c.compiledProcesses.get(systemModelId
-					.getValue());
-
-			// try to distribute
-			Collection<LabelledTransitionSystem> distributedComponents = new LinkedList<>();
-			boolean isDistributionSuccessful = TransitionSystemDispatcher
-					.tryDistribution(systemModel, distributionDefinition,
-							output, distributedComponents);
-
-			// Add the distributed components as compiled
-			for (LabelledTransitionSystem compactState : distributedComponents) {
-				if (this.passBackClone
-						&& compactState.getName().equals(name.getValue())) {
-					// the machine is only the one with the requested name
-					machines.addElement(compactState.myclone()); // pass back
-																	// clone
-				}
-				c.compiledProcesses.put(compactState.getName(), compactState); // add
-																				// to
-																				// compiled
-																				// process
-			}
-			if (!isDistributionSuccessful) {
-				Diagnostics.fatal("Model " + systemModelId.getValue()
-						+ " could not be distributed.", systemModelId);
-			}
-			return;
-		}
+		
 		// it must be a composition
 		CompositionExpression ce = (CompositionExpression) c.getComposites()
 				.get(name.toString());
