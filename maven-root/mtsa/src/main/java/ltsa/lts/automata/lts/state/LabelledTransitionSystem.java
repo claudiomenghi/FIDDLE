@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import com.google.common.base.Preconditions;
+
 import ltsa.lts.EventStateUtils;
 import ltsa.lts.animator.ModelExplorerContext;
 import ltsa.lts.automata.automaton.Automata;
@@ -26,13 +28,10 @@ import ltsa.lts.csp.Relation;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.operations.composition.parallel.StackCheck;
 import ltsa.lts.util.Counter;
-import ltsa.lts.util.LTSUtils;
 import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.collections.MyIntHash;
 import ltsa.lts.util.collections.MyList;
 import ltsa.lts.util.collections.StateMap;
-
-import com.google.common.base.Preconditions;
 
 /**
  * contains a Labeled Transition System (LTS).<br>
@@ -101,19 +100,17 @@ public class LabelledTransitionSystem implements Automata {
 		Preconditions.checkNotNull(name, "The name cannot be null");
 		this.name = name;
 		this.finalStateIndexes = new HashSet<>();
-		this.boxIndexes=new HashMap<>();
+		this.boxIndexes = new HashMap<>();
 	}
 
 	public LabelledTransitionSystem(String name, int maxStates) {
 		this(name);
-		Preconditions.checkArgument(maxStates >= 0,
-				"The maximum number of states mus be >=0");
+		Preconditions.checkArgument(maxStates >= 0, "The maximum number of states mus be >=0");
 		this.states = new LTSTransitionList[maxStates];
 	}
 
-	public LabelledTransitionSystem(ModelExplorerContext context, String name,
-			StateMap statemap, MyList transitions, String[] alphabet,
-			int endSequence) {
+	public LabelledTransitionSystem(ModelExplorerContext context, String name, StateMap statemap, MyList transitions,
+			String[] alphabet, int endSequence) {
 		this(name);
 
 		this.alphabet = alphabet;
@@ -121,8 +118,7 @@ public class LabelledTransitionSystem implements Automata {
 
 		while (!transitions.empty()) {
 			int fromState = transitions.getFrom();
-			int toState = transitions.getTo() == null ? -1 : statemap
-					.get(transitions.getTo());
+			int toState = transitions.getTo() == null ? -1 : statemap.get(transitions.getTo());
 
 			this.states[fromState] = EventStateUtils.add(states[fromState],
 					new LTSTransitionList(transitions.getAction(), toState));
@@ -135,17 +131,15 @@ public class LabelledTransitionSystem implements Automata {
 		endseq = endSequence;
 	}
 
-	public LabelledTransitionSystem(int stateNumber, String name,
-			StateMap statemap, MyList transitions, String[] alphabet,
-			int endSequence) {
+	public LabelledTransitionSystem(int stateNumber, String name, StateMap statemap, MyList transitions,
+			String[] alphabet, int endSequence) {
 		this(name);
 
 		this.alphabet = alphabet;
 		this.states = new LTSTransitionList[stateNumber];
 		while (!transitions.empty()) {
 			int fromState = transitions.getFrom();
-			int toState = transitions.getTo() == null ? -1 : statemap
-					.get(transitions.getTo());
+			int toState = transitions.getTo() == null ? -1 : statemap.get(transitions.getTo());
 
 			this.states[fromState] = EventStateUtils.add(states[fromState],
 					new LTSTransitionList(transitions.getAction(), toState));
@@ -174,8 +168,7 @@ public class LabelledTransitionSystem implements Automata {
 	 *             of the automaton nor a NO_END_STATE value
 	 */
 	public void setEndOfSequence(int stateIndex) {
-		Preconditions.checkArgument(states.length > stateIndex
-				|| stateIndex == LTSConstants.NO_SEQUENCE_FOUND,
+		Preconditions.checkArgument(states.length > stateIndex || stateIndex == LTSConstants.NO_SEQUENCE_FOUND,
 				"The index of the state is not a valid index of a state");
 		this.endseq = stateIndex;
 	}
@@ -225,8 +218,7 @@ public class LabelledTransitionSystem implements Automata {
 	public List<String> getAlphabetEvents() {
 		List<String> alphabetCharacters = new ArrayList<>();
 		for (int i = 0; i < this.alphabet.length; i++) {
-			if (!this.alphabet[i].startsWith("?")
-					&& !this.alphabet[i].endsWith("?")) {
+			if (!this.alphabet[i].startsWith("?") && !this.alphabet[i].endsWith("?")) {
 				alphabetCharacters.add(this.alphabet[i]);
 			}
 		}
@@ -258,8 +250,7 @@ public class LabelledTransitionSystem implements Automata {
 		for (int oldi = 0; oldi < oldStates.length; ++oldi) {
 			int newi = otn.get(oldi);
 			if (newi > -2) {
-				states[newi] = EventStateUtils.renumberStates(oldStates[oldi],
-						otn);
+				states[newi] = EventStateUtils.renumberStates(oldStates[oldi], otn);
 			}
 		}
 		if (endseq > 0)
@@ -275,8 +266,7 @@ public class LabelledTransitionSystem implements Automata {
 			for (int i = 0; i < this.states.length; i++)
 				// remove reflexive tau
 				// remove reflexive tau
-				states[i] = LTSTransitionList.remove(states[i],
-						new LTSTransitionList(Declaration.TAU, i));
+				states[i] = LTSTransitionList.remove(states[i], new LTSTransitionList(Declaration.TAU, i));
 			// oStates[i] = EventState.remove(oStates[i],new
 			// EventState(Declaration.TAU_MAYBE,i));
 			BitSet tauOnly = new BitSet(this.states.length);
@@ -290,8 +280,7 @@ public class LabelledTransitionSystem implements Automata {
 				return;
 			for (int i = 0; i < this.states.length; ++i) {
 				if (!tauOnly.get(i))
-					states[i] = LTSTransitionList.addNonDetTau(states[i],
-							states, tauOnly);
+					states[i] = LTSTransitionList.addNonDetTau(states[i], states, tauOnly);
 			}
 			int oldSize = this.states.length;
 			reachable();
@@ -306,8 +295,7 @@ public class LabelledTransitionSystem implements Automata {
 			return;
 		for (int i = 0; i < states.length; ++i) {
 			if (!LTSTransitionList.hasNonDetEvent(states[i], act))
-				states[i] = LTSTransitionList.remove(states[i],
-						new LTSTransitionList(act, i));
+				states[i] = LTSTransitionList.remove(states[i], new LTSTransitionList(act, i));
 		}
 	}
 
@@ -327,8 +315,7 @@ public class LabelledTransitionSystem implements Automata {
 					++terminalAcceptStates;
 			}
 		}
-		return (terminalAcceptStates == 1 && acceptStates == 1)
-				|| acceptStates == 0;
+		return (terminalAcceptStates == 1 && acceptStates == 1) || acceptStates == 0;
 	}
 
 	public void makeSafety() {
@@ -340,8 +327,7 @@ public class LabelledTransitionSystem implements Automata {
 			}
 		}
 		if (acceptState >= 0)
-			states[acceptState] = LTSTransitionList
-					.removeAccept(states[acceptState]);
+			states[acceptState] = LTSTransitionList.removeAccept(states[acceptState]);
 		for (int i = 0; i < this.states.length; i++) {
 			LTSTransitionList.replaceWithError(states[i], acceptState);
 		}
@@ -365,8 +351,7 @@ public class LabelledTransitionSystem implements Automata {
 			if (stateIndexes.contains(stateIndex)) {
 				this.states[stateIndex] = null;
 			} else {
-				this.states[stateIndex] = LTSTransitionList.removeTransToState(
-						this.states[stateIndex], stateIndexes);
+				this.states[stateIndex] = LTSTransitionList.removeTransToState(this.states[stateIndex], stateIndexes);
 			}
 		}
 	}
@@ -383,8 +368,8 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	public boolean hasERROR() {
-		for (int i = 0; i < this.states.length; i++){
-			if (LTSTransitionList.hasState(states[i], Declaration.ERROR)){
+		for (int i = 0; i < this.states.length; i++) {
+			if (LTSTransitionList.hasState(states[i], Declaration.ERROR)) {
 				return true;
 			}
 		}
@@ -395,8 +380,7 @@ public class LabelledTransitionSystem implements Automata {
 		this.name = prefix + ":" + name;
 		// BUGFIX don't prefix tau nor tau?
 		int i = 1;
-		if (alphabet[Declaration.TAU_MAYBE] != null
-				&& alphabet[Declaration.TAU_MAYBE].equals("tau?")) {
+		if (alphabet[Declaration.TAU_MAYBE] != null && alphabet[Declaration.TAU_MAYBE].equals("tau?")) {
 			i = 2;
 		}
 		for (; i < alphabet.length; i++) { // don't prefix tau
@@ -430,12 +414,17 @@ public class LabelledTransitionSystem implements Automata {
 		return toHide;
 	}
 
-	// hides every event but the ones in toShow
+	/**
+	 * hides every event but the ones in toShow
+	 * 
+	 * @param toShow
+	 */
 	public void expose(Collection<String> toShow) {
 		BitSet visible = new BitSet(alphabet.length);
 		for (int i = 1; i < alphabet.length; ++i) {
-			if (contains(alphabet[i], toShow))
+			if (contains(alphabet[i], toShow)) {
 				visible.set(i);
+			}
 		}
 		visible.set(0);
 		visible.set(1);
@@ -469,16 +458,14 @@ public class LabelledTransitionSystem implements Automata {
 		endseq = -9999;
 		prop = true;
 		for (int i = 0; i < this.states.length; i++)
-			this.states[i] = LTSTransitionList.addTransToError(this.states[i],
-					alphabet.length);
+			this.states[i] = LTSTransitionList.addTransToError(this.states[i], alphabet.length);
 	}
 
 	public void unMakeProperty() {
 		endseq = -9999;
 		prop = false;
 		for (int i = 0; i < this.states.length; i++)
-			this.states[i] = LTSTransitionList
-					.removeTransToError(this.states[i]);
+			this.states[i] = LTSTransitionList.removeTransToError(this.states[i]);
 	}
 
 	public boolean isNonDeterministic() {
@@ -497,8 +484,7 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	public LabelledTransitionSystem myclone() {
-		LabelledTransitionSystem m = new LabelledTransitionSystem(
-				this.getName());
+		LabelledTransitionSystem m = new LabelledTransitionSystem(this.getName());
 		m.endseq = endseq;
 		m.prop = prop;
 		m.boxIndexes = new HashMap<>(this.boxIndexes);
@@ -586,8 +572,7 @@ public class LabelledTransitionSystem implements Automata {
 		for (int j = 1; j < n; j++) {
 			for (int k = 0; k < this.states.length; k++) {
 				LTSTransitionList.offsetEvents(machs[j].states[k], alphaN * j);
-				states[k] = EventStateUtils
-						.union(states[k], machs[j].states[k]);
+				states[k] = EventStateUtils.union(states[k], machs[j].states[k]);
 			}
 		}
 	}
@@ -635,8 +620,7 @@ public class LabelledTransitionSystem implements Automata {
 		Iterator<?> e = inserts.keySet().iterator();
 		while (e.hasNext()) {
 			Integer ii = (Integer) e.next();
-			LabelledTransitionSystem m = (LabelledTransitionSystem) inserts
-					.get(ii);
+			LabelledTransitionSystem m = (LabelledTransitionSystem) inserts.get(ii);
 			machines[index] = m;
 			insertAt[index] = ii.intValue();
 			++index;
@@ -682,8 +666,7 @@ public class LabelledTransitionSystem implements Automata {
 			LTSTransitionList nonDetListIterator = listIterator;
 			while (nonDetListIterator != null) {
 				if (nonDetListIterator.getNext() >= 0) {
-					nonDetListIterator.setNext(nonDetListIterator.getNext()
-							+ offset);
+					nonDetListIterator.setNext(nonDetListIterator.getNext() + offset);
 				}
 				nonDetListIterator = nonDetListIterator.getNondet();
 			}
@@ -699,7 +682,7 @@ public class LabelledTransitionSystem implements Automata {
 
 	public Vector<String> getAlphabetV() {
 		Vector<String> v = new Vector<>(alphabet.length - 1);
-		for (int i = 1; i < alphabet.length; ++i){
+		for (int i = 1; i < alphabet.length; ++i) {
 			v.add(alphabet[i]);
 		}
 		return v;
@@ -717,12 +700,13 @@ public class LabelledTransitionSystem implements Automata {
 		if (state < 0 || state >= this.states.length)
 			return tr;
 		if (states[state] != null)
-			for (Enumeration<LTSTransitionList> e = states[state].elements(); e
-					.hasMoreElements();) {
+			for (Enumeration<LTSTransitionList> e = states[state].elements(); e.hasMoreElements();) {
 				LTSTransitionList t = e.nextElement();
 				// if(this.alphabet.length<=t.getEvent()){
 				// throw new
-				// InternalError("Automaton: "+this.name+" the action with id "+t.getEvent()+" is not contained into the alphabet of the automaton");
+				// InternalError("Automaton: "+this.name+" the action with id
+				// "+t.getEvent()+" is not contained into the alphabet of the
+				// automaton");
 				// }
 				tr.add(state, encode(t.getNext()), t.getEvent());
 			}
@@ -738,8 +722,7 @@ public class LabelledTransitionSystem implements Automata {
 	@Override
 	public Vector<String> getTraceToState(byte[] from, byte[] to) {
 		LTSTransitionList trace = new LTSTransitionList(0, 0);
-		LTSTransitionList.search(trace, states, decode(from), decode(to),
-				-123456);
+		LTSTransitionList.search(trace, states, decode(from), decode(to), -123456);
 		return LTSTransitionList.getPath(trace.getPath(), alphabet);
 	}
 
@@ -822,17 +805,12 @@ public class LabelledTransitionSystem implements Automata {
 		}
 
 		for (int i = 0; i < this.states.length; i++) {
-			builder.append("state: " + i + " transitions: " + this.states[i]
-					+ "\n");
+			builder.append("state: " + i + " transitions: " + this.states[i] + "\n");
 		}
 
 		builder.append("INTERFACES: " + "\n");
-		this.mapBoxInterface
-				.entrySet()
-				.stream()
-				.forEach(
-						t -> builder.append("\t box: " + t.getKey()
-								+ " interface: " + t.getValue() + "\n"));
+		this.mapBoxInterface.entrySet().stream()
+				.forEach(t -> builder.append("\t box: " + t.getKey() + " interface: " + t.getValue() + "\n"));
 		return builder.toString();
 	}
 
@@ -882,9 +860,8 @@ public class LabelledTransitionSystem implements Automata {
 	 * @return The set of states that can be encountered
 	 * @throws ErrorStateReachedException
 	 */
-	public List<Integer> simulate(List<String> word, List<String> wordAlphabet,
-			boolean stopOnError) throws NoStateReachedException,
-			ErrorStateReachedException {
+	public List<Integer> simulate(List<String> word, List<String> wordAlphabet, boolean stopOnError)
+			throws NoStateReachedException, ErrorStateReachedException {
 
 		BitSet state = nfaSimulation(word, wordAlphabet, stopOnError);
 		List<Integer> v = new Vector<Integer>();
@@ -894,8 +871,7 @@ public class LabelledTransitionSystem implements Automata {
 		return v;
 	}
 
-	public List<Integer> closure(List<Integer> state,
-			List<String> closeActions, boolean stopOnError)
+	public List<Integer> closure(List<Integer> state, List<String> closeActions, boolean stopOnError)
 			throws ErrorStateReachedException {
 
 		BitSet stateBS = new BitSet();
@@ -931,20 +907,14 @@ public class LabelledTransitionSystem implements Automata {
 	 */
 	public void setBoxInterface(String boxName, Set<String> boxInterface) {
 
-		Preconditions.checkNotNull(boxName,
-				"The name of the box cannot be null");
-		Preconditions.checkNotNull(boxInterface,
-				"The interface of the box cannot be null");
+		Preconditions.checkNotNull(boxName, "The name of the box cannot be null");
+		Preconditions.checkNotNull(boxInterface, "The interface of the box cannot be null");
 
 		Preconditions.checkArgument(this.boxIndexes.keySet().contains(boxName),
-				"The box " + boxName
-						+ " is not contained in the boxes of the LTS");
+				"The box " + boxName + " is not contained in the boxes of the LTS");
 
-		Preconditions
-				.checkArgument(
-						new HashSet<String>(Arrays.asList(this.alphabet))
-								.containsAll(boxInterface),
-						"The interface of the box includes some events that do not belong to the LTS");
+		Preconditions.checkArgument(new HashSet<String>(Arrays.asList(this.alphabet)).containsAll(boxInterface),
+				"The interface of the box includes some events that do not belong to the LTS");
 
 		this.mapBoxInterface.put(boxName, new HashSet<String>(boxInterface));
 	}
@@ -964,8 +934,7 @@ public class LabelledTransitionSystem implements Automata {
 	 */
 	public Set<String> getBoxInterface(String boxName) {
 
-		Preconditions.checkNotNull(boxName,
-				"The name of the box cannot be null");
+		Preconditions.checkNotNull(boxName, "The name of the box cannot be null");
 		Preconditions.checkArgument(this.mapBoxInterface.containsKey(boxName),
 				"The box " + boxName + " is not a box of the LTS");
 
@@ -987,9 +956,8 @@ public class LabelledTransitionSystem implements Automata {
 	 * @return The set of states that can be encountered
 	 * @throws ErrorStateReachedException
 	 */
-	private BitSet nfaSimulation(List<String> word, List<String> wordAlphabet,
-			boolean stopOnError) throws NoStateReachedException,
-			ErrorStateReachedException {
+	private BitSet nfaSimulation(List<String> word, List<String> wordAlphabet, boolean stopOnError)
+			throws NoStateReachedException, ErrorStateReachedException {
 
 		assert !wordAlphabet.contains("tau");
 
@@ -998,8 +966,7 @@ public class LabelledTransitionSystem implements Automata {
 		List<String> prefixTrace = new Vector<String>();
 
 		Map<String, Integer> alphaMap = alphabetMap();
-		Set<Integer> wordEvents = new HashSet<Integer>(), skipEvents = new HashSet<Integer>(
-				alphaMap.values());
+		Set<Integer> wordEvents = new HashSet<Integer>(), skipEvents = new HashSet<Integer>(alphaMap.values());
 
 		// Assuption: tau is represented with 0.
 		skipEvents.add(0);
@@ -1031,9 +998,7 @@ public class LabelledTransitionSystem implements Automata {
 
 			else
 				try {
-					state = nfaClosure(
-							nfaNextState(state, alphaMap.get(event),
-									stopOnError), skipEvents, stopOnError);
+					state = nfaClosure(nfaNextState(state, alphaMap.get(event), stopOnError), skipEvents, stopOnError);
 
 					if (state == null || state.isEmpty())
 						throw new NoStateReachedException(prefixTrace);
@@ -1061,8 +1026,7 @@ public class LabelledTransitionSystem implements Automata {
 	 * @return The set of states that can be encountered
 	 * @throws ErrorStateReachedException
 	 */
-	private BitSet nfaNextState(BitSet state, int event, boolean stopOnError)
-			throws ErrorStateReachedException {
+	private BitSet nfaNextState(BitSet state, int event, boolean stopOnError) throws ErrorStateReachedException {
 
 		BitSet nextState = new BitSet(this.states.length);
 
@@ -1098,8 +1062,8 @@ public class LabelledTransitionSystem implements Automata {
 	 * @return The set of states reachable through the events
 	 * @throws ErrorStateReachedException
 	 */
-	private BitSet nfaClosure(BitSet state, Set<Integer> events,
-			boolean stopOnError) throws ErrorStateReachedException {
+	private BitSet nfaClosure(BitSet state, Set<Integer> events, boolean stopOnError)
+			throws ErrorStateReachedException {
 		BitSet closure = new BitSet(this.states.length);
 		Stack<Integer> workList = new Stack<Integer>();
 
@@ -1116,8 +1080,7 @@ public class LabelledTransitionSystem implements Automata {
 			int s = workList.pop();
 
 			for (int action : events) {
-				int[] next = LTSTransitionList
-						.nextState(this.states[s], action);
+				int[] next = LTSTransitionList.nextState(this.states[s], action);
 
 				if (next != null)
 					for (int t : next)
@@ -1167,8 +1130,7 @@ public class LabelledTransitionSystem implements Automata {
 				LTSTransitionList p = sm[i].states[j];
 				while (p != null) {
 					LTSTransitionList tr = p;
-					tr.setEvent(actionMap.get(sm[i].alphabet[tr.getEvent()])
-							.intValue());
+					tr.setEvent(actionMap.get(sm[i].alphabet[tr.getEvent()]).intValue());
 					while (tr.getNondet() != null) {
 						tr.getNondet().setEvent(tr.getEvent());
 						tr = tr.getNondet();
@@ -1230,18 +1192,13 @@ public class LabelledTransitionSystem implements Automata {
 				o = oldtonew.get(old_prefix);
 				if (o != null) {
 					if (o instanceof String) {
-						na.setElementAt(
-								((String) o)
-										+ alphabet[i].substring(prefix_end), i);
+						na.setElementAt(((String) o) + alphabet[i].substring(prefix_end), i);
 					} else { // one - to - many
 						@SuppressWarnings("unchecked")
 						Vector<String> v = (Vector<String>) o;
-						na.setElementAt(
-								v.firstElement()
-										+ alphabet[i].substring(prefix_end), i);
+						na.setElementAt(v.firstElement() + alphabet[i].substring(prefix_end), i);
 						for (int j = 1; j < v.size(); ++j) {
-							na.addElement(v.elementAt(j)
-									+ alphabet[i].substring(prefix_end));
+							na.addElement(v.elementAt(j) + alphabet[i].substring(prefix_end));
 							otoni.put(new Integer(i), new Integer(new_index));
 							++new_index;
 						}
@@ -1342,8 +1299,8 @@ public class LabelledTransitionSystem implements Automata {
 						if (isTrace(v, index + 1, n[i]))
 							return true;
 					return false;
-				} else if (eno != Declaration.TAU
-						&& eno != Declaration.TAU_MAYBE) // ignore taus
+				} else if (eno != Declaration.TAU && eno != Declaration.TAU_MAYBE) // ignore
+																					// taus
 					return false;
 			}
 			return isTrace(v, index + 1, start);
@@ -1390,19 +1347,16 @@ public class LabelledTransitionSystem implements Automata {
 
 	private void addtransitions(Relation oni) {
 		for (int i = 0; i < states.length; i++) {
-			LTSTransitionList ns = LTSTransitionList.newTransitions(states[i],
-					oni);
+			LTSTransitionList ns = LTSTransitionList.newTransitions(states[i], oni);
 			if (ns != null)
 				states[i] = EventStateUtils.union(states[i], ns);
 		}
 	}
 
 	public LabelledTransitionSystem clone() {
-		LabelledTransitionSystem returnLTS = new LabelledTransitionSystem(
-				this.name);
+		LabelledTransitionSystem returnLTS = new LabelledTransitionSystem(this.name);
 		returnLTS.boxIndexes = new HashMap<>(this.boxIndexes);
-		returnLTS.mapBoxInterface = new HashMap<String, Set<String>>(
-				this.mapBoxInterface);
+		returnLTS.mapBoxInterface = new HashMap<String, Set<String>>(this.mapBoxInterface);
 		returnLTS.alphabet = new String[this.alphabet.length];
 		for (int i = 0; i < this.alphabet.length; i++) {
 			returnLTS.alphabet[i] = this.alphabet[i];
@@ -1411,8 +1365,7 @@ public class LabelledTransitionSystem implements Automata {
 		for (int i = 0; i < this.states.length; i++) {
 			returnLTS.states[i] = LTSTransitionList.copy(this.states[i]);
 		}
-		returnLTS.finalStateIndexes = new HashSet<Integer>(
-				this.finalStateIndexes);
+		returnLTS.finalStateIndexes = new HashSet<Integer>(this.finalStateIndexes);
 		return returnLTS;
 	}
 
@@ -1470,8 +1423,7 @@ public class LabelledTransitionSystem implements Automata {
 		int transitionNumber = 0;
 		for (int stateIndex = 0; stateIndex < this.states.length; stateIndex++) {
 			if (this.states[stateIndex] != null) {
-				Enumeration<LTSTransitionList> transitions = this.states[stateIndex]
-						.elements();
+				Enumeration<LTSTransitionList> transitions = this.states[stateIndex].elements();
 
 				while (transitions.hasMoreElements()) {
 					transitionNumber++;
@@ -1498,7 +1450,7 @@ public class LabelledTransitionSystem implements Automata {
 	public double getGraphDensity() {
 		double transitionNumber =
 
-		this.getTransitionNumber();
+				this.getTransitionNumber();
 		double stateNumber = this.getStates().length;
 
 		return transitionNumber / (stateNumber * (stateNumber - 1));
@@ -1527,6 +1479,13 @@ public class LabelledTransitionSystem implements Automata {
 		this.states = states;
 	}
 
+	public void removeOutgoingTransitionsWithLabel(int stateIndex, String label){
+		this.states[stateIndex]=LTSTransitionList.removeEvent(this.states[stateIndex], 
+				this.alphabetMap().get(label)
+				);
+							
+	}
+
 	public Map<String, Integer> getBoxIndexes() {
 		return boxIndexes;
 	}
@@ -1547,7 +1506,6 @@ public class LabelledTransitionSystem implements Automata {
 
 	public void addTransition(int source, int event, int destination) {
 		LTSTransitionList transition = new LTSTransitionList(event, destination);
-		this.states[source] = EventStateUtils.add(this.states[source],
-				transition);
+		this.states[source] = EventStateUtils.add(this.states[source], transition);
 	}
 }

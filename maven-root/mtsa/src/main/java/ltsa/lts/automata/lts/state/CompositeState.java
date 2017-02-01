@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.logging.LogFactory;
+
 import com.google.common.base.Preconditions;
 
 import ltsa.dispatcher.TransitionSystemDispatcher;
@@ -26,6 +28,8 @@ import ltsa.lts.output.LTSOutput;
  *
  */
 public class CompositeState {
+	/** Logger available to subclasses */
+	protected final org.apache.commons.logging.Log logger = LogFactory.getLog(getClass());
 
 	public static boolean reduceFlag = true;
 
@@ -83,7 +87,6 @@ public class CompositeState {
 	public int controlStackSpecificTier = -1;
 	public List<String> enactmentControlled;
 
-	public boolean isProbabilistic = false;
 	private int compositionType = -1;
 	/**
 	 * set of actions given priority
@@ -269,8 +272,6 @@ public class CompositeState {
 			applyHiding();
 		}
 
-		
-
 	}
 
 	private void applyHiding() {
@@ -340,7 +341,7 @@ public class CompositeState {
 		ltlProperty.setName(cs.getName());
 
 		if (name.equals("DEFAULT") && machines.isEmpty()) {
-			// debug feature for producing consituent machines
+			// debug feature for producing consistent machines
 			machines = cs.machines;
 			composition = cs.composition;
 		} else {
@@ -353,19 +354,39 @@ public class CompositeState {
 			exposeNotHide = true;
 			machines.add(saved = ltlProperty);
 			Analyser analyzer = new Analyser(this, output, null);
-			if (!cs.composition.hasERROR()) {
+			
+			// If the property has an error state it is necessary to do 
+			// a progress check to verify whether the peoperty is satisfied
+			if (!ltlProperty.hasERROR()) {
 
+				logger.debug("Composition has no error state");
 				// do full liveness check
 				ProgressCheck cc = new ProgressCheck(analyzer, output, cs.tracer);
 				boolean satisfied = cc.doLTLCheck();
 				if (!satisfied) {
+					this.satisfied=false;
+					logger.debug("Progress checker returns an error trace");
 					errorTrace = cc.getErrorTrace();
+					setErrorTrace(errorTrace);
+				}
+				else{
+					this.satisfied=true;
 				}
 			} else {
-				// do safety check
 
-				analyzer.analyse(cs.tracer);
-				setErrorTrace(analyzer.getErrorTrace());
+				// do safety check
+				logger.debug("The property does not contain an error state");
+				boolean satisfied=analyzer.analyse(cs.tracer);
+				if(satisfied){
+					this.satisfied=false;
+					logger.debug("Analyzer returned an error trace");
+					errorTrace = new Vector<String>(analyzer.getErrorTrace());
+					setErrorTrace(analyzer.getErrorTrace());
+				}
+				else{
+					logger.debug("The property is satisified");
+					this.satisfied=true;
+				}
 			}
 			hidden = saveHidden;
 			exposeNotHide = saveExposeNotHide;
@@ -544,7 +565,6 @@ public class CompositeState {
 		c.setComponentAlphabet(getComponentAlphabet());
 		c.controlStackEnvironments = controlStackEnvironments;
 		c.controlStackSpecificTier = controlStackSpecificTier;
-		c.isProbabilistic = isProbabilistic;
 		return c;
 	}
 

@@ -110,7 +110,7 @@ public class AssertDefinition extends FormulaDefinition {
 			String name = e.nextElement();
 			AssertDefinition p = definitions.get(name);
 			p.fac = new FormulaFactory();
-			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac,
+			p.fac.negateAndSetFormula(p.getLTLFormula().expand(p.fac,
 					new Hashtable<>(), p.initParams));
 		}
 	}
@@ -161,10 +161,10 @@ public class AssertDefinition extends FormulaDefinition {
 			Hashtable<String, Value> actualParams = new Hashtable<>();
 			for (int i = 0; i < pvalues.size(); ++i)
 				actualParams.put(p.params.elementAt(i), pvalues.elementAt(i));
-			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac,
+			p.fac.negateAndSetFormula(p.getLTLFormula().expand(p.fac,
 					new Hashtable<>(), actualParams));
 		} else {
-			p.fac.negateAndSetFormula(p.ltlFormula.expand(p.fac,
+			p.fac.negateAndSetFormula(p.getLTLFormula().expand(p.fac,
 					new Hashtable<>(), p.initParams));
 		}
 		CompositeState cs = compile(constraints, output, name.toString(), true);

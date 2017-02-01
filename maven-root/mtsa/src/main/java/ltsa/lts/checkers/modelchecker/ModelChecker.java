@@ -36,7 +36,7 @@ public class ModelChecker {
 	 * The output to be printed
 	 */
 	private final LTSOutput output;
-	
+
 	private CompositeState modifiedController;
 
 	/**
@@ -54,25 +54,19 @@ public class ModelChecker {
 	 * @throws NullPointerException
 	 *             if one of the parameters is null
 	 */
-	public ModelChecker(@Nonnull LTSOutput output,
-			@Nonnull CompositeState environment,
+	public ModelChecker(@Nonnull LTSOutput output, @Nonnull CompositeState environment,
 			@Nonnull CompositeState controller, @Nonnull CompositeState property) {
 
-		Preconditions.checkNotNull(output,
-				"The output of the system cannot be null");
-		Preconditions.checkNotNull(environment,
-				"The environment cannot be null");
+		Preconditions.checkNotNull(output, "The output of the system cannot be null");
+		Preconditions.checkNotNull(environment, "The environment cannot be null");
 		Preconditions.checkNotNull(controller, "The controller cannot be null");
-		Preconditions.checkNotNull(property,
-				"The property of interest cannot be null");
+		Preconditions.checkNotNull(property, "The property of interest cannot be null");
 
 		output.outln("*********************************************************");
-		output.outln("Running the model checker.\n"+
-					"\t ENVIRONMENT: "+ environment.getName() + "\n"+
-					"\t CONTROLLER: "+ controller.getName() + "\n"+
-					"\t PROPERTY: " + property.getName());
+		output.outln("Running the model checker.\n" + "\t ENVIRONMENT: " + environment.getName() + "\n"
+				+ "\t CONTROLLER: " + controller.getName() + "\n" + "\t PROPERTY: " + property.getName());
 		output.outln("*********************************************************");
-		
+
 		this.output = output;
 		this.environment = environment;
 		this.controller = controller;
@@ -80,25 +74,26 @@ public class ModelChecker {
 	}
 
 	/**
-	 * It is used to return the modified controller. It must be called after the check method
+	 * It is used to return the modified controller. It must be called after the
+	 * check method
+	 * 
 	 * @return a modified version of the controller
 	 */
-	public CompositeState getModifiedController(){
+	public CompositeState getModifiedController() {
 		return modifiedController;
 	}
+
 	/**
 	 * runs the realizability checker
 	 */
 	public CompositeState check() {
 		environment.compose(new EmptyLTSOuput());
-		LabelledTransitionSystem controllerLTS = controller.getMachines()
-				.get(0);
+		LabelledTransitionSystem controllerLTS = controller.getMachines().get(0);
 
-		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(
-				this.output).modify(controllerLTS);
-		this.modifiedController=new CompositeState(modifiedController.getName());
+		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(this.output).modify(controllerLTS);
+		this.modifiedController = new CompositeState(modifiedController.getName());
 		this.modifiedController.addMachine(modifiedController);
-		
+
 		CompositeState system = new CompositeState("System");
 		environment.getMachines().stream().forEach(system::addMachine);
 		system.addMachine(modifiedController.clone());
@@ -110,10 +105,15 @@ public class ModelChecker {
 			output.outln("RESULT: the property of interest is satisfied");
 		} else {
 			output.outln("RESULT: the property of interest is violated");
+			output.outln("Violating trace events:");
 			output.outln(system.getErrorTrace().toString());
+			if (ltlProperty.getFluentTracer() != null) {
+				output.outln("Violating trace fluents:");
+				ltlProperty.getFluentTracer().print(output, system.getErrorTrace(), true);
+			}
 		}
 		output.outln("*********************************************************");
-		
+
 		return system;
 
 	}

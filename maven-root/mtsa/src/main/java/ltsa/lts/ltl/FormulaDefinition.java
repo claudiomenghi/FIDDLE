@@ -14,8 +14,8 @@ import ltsa.lts.parser.actions.LabelSet;
 
 public class FormulaDefinition {
 
-	private Symbol symbol;
-	FormulaSyntax ltlFormula;
+	private final Symbol symbol;
+	private final FormulaSyntax ltlFormula;
 	CompositeState cached;
 	LabelSet alphaExtension;
 	

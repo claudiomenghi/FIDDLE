@@ -25,7 +25,6 @@ import MTSTools.ac.ic.doc.mtstools.model.Refinement;
 import MTSTools.ac.ic.doc.mtstools.model.RefinementByRelation;
 import MTSTools.ac.ic.doc.mtstools.model.SemanticType;
 import MTSTools.ac.ic.doc.mtstools.model.impl.LTSSimulationSemantics;
-import MTSTools.ac.ic.doc.mtstools.model.impl.MDP;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSDeterminiser;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSMinimiser;
 import MTSTools.ac.ic.doc.mtstools.model.impl.MTSMultipleComposer;
@@ -38,9 +37,7 @@ import MTSTools.ac.ic.doc.mtstools.model.operations.MTSConstraintBuilder;
 import MTSTools.ac.ic.doc.mtstools.model.operations.impl.MTSPropertyToBuchiConverter;
 import MTSTools.ac.ic.doc.mtstools.model.operations.impl.WeakAlphabetMergeBuilder;
 import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
-import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMDPConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
-import ltsa.ac.ic.doc.mtstools.util.fsp.MDPToAutomataConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import ltsa.lts.Diagnostics;
 import ltsa.lts.automata.lts.state.CompositeState;
@@ -333,86 +330,8 @@ public class TransitionSystemDispatcher {
 					compositeState.getName());
 			compositeState.setComposition(convert);
 
-		} else if (compositeState.makeMDP) {
-			mdpComposeAbstraction(compositeState, ltsOutput);
-		} else if (compositeState.makeEnactment) {
-			mdpComposeEnactment(compositeState, compositeState.enactmentControlled, ltsOutput);
 		} else {
 			compositeState.compose(ltsOutput);
-		}
-	}
-
-	/*
-	 * Composition (R*A) of an abstract environment (A) with a less abstract one
-	 * (R) Daniel Sykes 2014
-	 */
-	private static void mdpComposeAbstraction(CompositeState toCompose, LTSOutput ltsOutput) {
-		long initialTime = System.currentTimeMillis();
-		if (toCompose.getMachines().size() >= 2) {
-			MDP lastMachine = AutomataToMDPConverter.getInstance().convert(toCompose.getMachines().get(0));
-			for (int i = 1; i < toCompose.getMachines().size(); i++) {
-				MDP mdp1 = lastMachine;
-				MDP mdp2 = AutomataToMDPConverter.getInstance().convert(toCompose.getMachines().get(i));
-				System.out.println(mdp1);
-				System.out.println(mdp2);
-
-				// with a better class hierarchy this shouldn't be needed
-				MTS<Long, String> mts1 = AutomataToMDPConverter.getInstance().convert(mdp1);
-				MTS<Long, String> mts2 = AutomataToMDPConverter.getInstance().convert(mdp2);
-				BinaryRelation<Long, Long> simulation = new LTSSimulationSemantics().getLargestRelation(mts1, mts2);
-				if (simulation.size() == 0)
-					ltsOutput.outln("WARNING: simulation is empty");
-
-				// CompositeState goalBuchi =
-				// AssertDefinition.compile(ltsOutput, "MDPGOAL");
-
-				System.out.println("Name of *A* is " + toCompose.getMachines().get(i).getName()); //
-				MDP composed = MDP.composeAbstraction(mdp1, mdp2, simulation); // MDP.compose(mdp1,
-																				// mdp2);//
-				System.out.println("\n" + composed);
-				lastMachine = composed;
-			}
-
-			toCompose.setComposition(MDPToAutomataConverter.getInstance().convert(lastMachine, toCompose.getName()));
-			lastMachine.writePrismFile("h:/contsynth/controllers/" + toCompose.getName() + ".nm", toCompose.getName());
-
-			ltsOutput.outln("MDPs composed in " + (System.currentTimeMillis() - initialTime) + "ms.\n");
-		}
-	}
-
-	/*
-	 * Enactment: the composition of a controller with a probabilistic
-	 * environment Daniel Sykes 2014
-	 */
-	private static void mdpComposeEnactment(CompositeState toCompose, List<String> controlledActions,
-			LTSOutput ltsOutput) {
-		long initialTime = System.currentTimeMillis();
-		if (toCompose.getMachines().size() >= 2) {
-			MDP lastMachine = AutomataToMDPConverter.getInstance().convert(toCompose.getMachines().get(0));
-			for (int i = 1; i < toCompose.getMachines().size(); i++) {
-				MDP mdp1 = lastMachine;
-				MDP mdp2 = AutomataToMDPConverter.getInstance().convert(toCompose.getMachines().get(i));
-				System.out.println(mdp1);
-				System.out.println(mdp2);
-
-				System.out.println("Name of *C* is " + toCompose.getMachines().get(i).getName());
-
-				// apply state labels stored from synthesis
-				for (Long s : mdp2.getStates()) {
-					List<String> labels = lastControllerStateLabels.get(s);
-					for (String lab : labels)
-						mdp2.addStateLabel(s, lab);
-				}
-
-				MDP composed = MDP.composeEnactment(mdp1, mdp2, controlledActions);
-				System.out.println("\n" + composed);
-				lastMachine = composed;
-			}
-
-			toCompose.setComposition(MDPToAutomataConverter.getInstance().convert(lastMachine, toCompose.getName()));
-			lastMachine.writePrismFile("h:/contsynth/controllers/" + toCompose.getName() + ".nm", toCompose.getName());
-
-			ltsOutput.outln("MDPs composed in " + (System.currentTimeMillis() - initialTime) + "ms.\n");
 		}
 	}
 
@@ -1128,23 +1047,11 @@ public class TransitionSystemDispatcher {
 		}
 	}
 
-	
-
-	
-
-
-
-
 	private static Map<Long, List<String>> lastControllerStateLabels;
-
-	
 
 	public static Map<Long, List<String>> getLastControllerStateLabels() {
 		return lastControllerStateLabels;
 	}
-
-	
-
 
 	/**
 	 * Generate the appropriate Animator depending on the type of the Composite
@@ -1195,8 +1102,6 @@ public class TransitionSystemDispatcher {
 		} else
 			return numMachines;
 	}
-
-	
 
 	/**
 	 * 

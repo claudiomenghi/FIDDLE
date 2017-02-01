@@ -92,7 +92,6 @@ import ltsa.custom.CustomAnimator;
 import ltsa.custom.SceneAnimator;
 import ltsa.dispatcher.TransitionSystemDispatcher;
 import ltsa.editor.ColoredEditorKit;
-import ltsa.enactment.EnactmentOptions;
 import ltsa.exploration.Explorer;
 import ltsa.exploration.ExplorerDefinition;
 import ltsa.jung.LTSJUNGCanvas;
@@ -178,7 +177,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	private static final int DOENACTORSOPTIONS = 18;
 
 	private static final int DOSAFERYMULTICE = 20;
-	private static final int DOGRAPHUPDATE = 22;
 	private static final int DOPRECONDITION = 26;
 
 	private static final int DOREALIZABILITY = 27;
@@ -226,7 +224,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	JMenu window;
 	JMenu help;
 	JMenu option;
-	JMenu mts;
 	JMenu menuEnactment;
 	JMenu menuEnactmentEnactors;
 	JMenuItem fileNew;
@@ -315,7 +312,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 
 	private ApplicationContext applicationContext = null;
 
-	private EnactmentOptions<Long, String> enactmentOptions = new EnactmentOptions<>();
 
 	private String lastCompiled = "";
 
@@ -483,18 +479,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		buildMinimise.addActionListener(new DoAction(DOMINIMISECOMPOSITION));
 		build.add(buildMinimise);
 
-		// MTS Menu
-		mts = new JMenu("MTS");
-		mb.add(mts);
-
-		mtsRefinement = new JMenuItem("Refinement");
-		mtsRefinement.addActionListener(new DoAction(DOREFINEMENT));
-		mts.add(mtsRefinement);
-
-		mtsConsistency = new JMenuItem("Consistency");
-		mtsConsistency.addActionListener(new DoAction(DOCONSISTENCY));
-		mts.add(mtsConsistency);
-
+		
 		// window menu
 		window = new JMenu("Window");
 		mb.add(window);
@@ -2315,11 +2300,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		}
 	}
 
-	private void doDeadlockCheck() {
-		if (compileIfChange() && current != null) {
-			TransitionSystemDispatcher.hasCompositionDeadlockFreeImplementations(current, this);
-		}
-	}
 
 	private void doRefinement() {
 		if (compileIfChange() && current != null) {
