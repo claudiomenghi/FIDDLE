@@ -45,11 +45,13 @@ USER = 									(	userReq		->	REQUESTED		),
 CONTROLLER =	INIT,
 				INIT 			= 	(	userReq -> 	MANAGEREQUEST 	),
 				box MANAGEREQUEST 	= 	(	respOk 	-> 	INIT	
-										|
-										reqCancelled -> INIT		
-									)[A\{userReq,respOk,reqCancelled}].
+										//|
+										//reqCancelled -> INIT		
+									)[A\{userReq,respOk}].
+									
 
 
+|| PartialComponent=CONTROLLER.
 || System = (Environment || CONTROLLER).
 
 //***************************************************************************************************
@@ -64,12 +66,16 @@ assert P1 = ([](((F_ShipInfoReq || F_ProdInfoReq) -> (F_UsrReq))) && <>F_UsrAck 
 
 // requirement 2
 // 2 an offer is provided to the user only if the furniture and shipping services have confirmed the availability
-assert P2	=	[](F_OfferRcvd -> (F_CostAndTime && F_InfoRcvd))
+assert P2	=	[](F_OfferRcvd -> (<>(F_CostAndTime) && (<>F_InfoRcvd)))
 // returned: OK
 
 // requirement 3
 // 3 the furniture and the shipping requirements are activated only if the user has decided to purchase
-assert P3 =	[]((F_ShipReq || F_ProdReq) -> F_UsrAck)
+assert P3 =	(
+				([]((!F_ShipReq)U F_UsrAck))
+				&&
+				([]((!F_ProdReq)U F_UsrAck))
+			)
 // returned: OK
 
 // requirement 4
@@ -80,7 +86,7 @@ assert P4= []((F_ProdCancel || F_ShipCancel) -> F_ReqNacked)
 
 // requirement 5
 // 5 a request is marked as canceled when both the product ordering and the shipping services have canceled the request
-assert P5=[](F_ReqCancelled -> (F_ProdCancelled && F_ShipCancelled))
+assert P5=[](F_ReqCancelled -> <>(F_ProdCancelled && F_ShipCancelled))
 // returned: OK
 
 
@@ -95,6 +101,8 @@ assert P6=[](F_RespOk -> (F_ProdRequested && F_ShipRequested))
 assert P7= [](<>F_RespOk)
 // returned: OK
 
+
+assert P8= ([](<>F_RespOk)&&[](<>F_ReqCancelled))
 //***************************************************************************************************
 // FLUENTS
 //***************************************************************************************************
@@ -103,16 +111,15 @@ fluent F_ShipInfoReq = <shipInfoReq, A\{shipInfoReq}> initially False
 fluent F_ProdInfoReq = <prodInfoReq, A\{prodInfoReq}> initially False
 fluent F_UsrReq = <userReq, offerRcvd> initially False
 fluent F_OfferRcvd = <offerRcvd, A\{offerRcvd}> initially False
-fluent F_CostAndTime = <costAndTime, {shipReq,usrNack}> initially False
-fluent F_InfoRcvd = <infoRcvd, {prodReq,usrNack}> initially False
+fluent F_CostAndTime = <costAndTime, A\{costAndTime}> initially False
+fluent F_InfoRcvd = <infoRcvd, A\{infoRcvd}> initially False
 fluent F_ShipReq = <shipReq, A\{shipReq}> initially False
 fluent F_ProdReq = <prodReq, A\{prodReq}> initially False
-fluent F_UsrAck = <usrAck, respOk> initially False
-fluent F_JustUsrAck = <usrAck, A\{usrAck}>  initially False
+fluent F_UsrAck = <usrAck, A\{usrAck}> initially False
 fluent F_ShipCancel = <shipCancel, A\{shipCancel}> initially False
 fluent F_ProdCancel = <prodCancel, A\{prodCancel}>  initially False
-fluent F_ShipCancelled = <shipCancel, shipInfoReq> initially False
-fluent F_ProdCancelled = <prodCancel, prodInfoReq>  initially False
+fluent F_ShipCancelled = <shipCancel, A\{shipCancel}> initially False
+fluent F_ProdCancelled = <prodCancel, A\{prodCancel}>  initially False
 fluent F_ReqCancelled = <reqCancelled, A\{reqCancelled}> initially False
 fluent F_ReqJustCancelled = <reqCancelled, A\{reqCancelled}> initially False
 fluent F_ReqNacked = <usrNack, reqCancelled> initially False
@@ -120,6 +127,20 @@ fluent F_ShipRequested = <shipReq, shipInfoReq> initially False
 fluent F_ProdRequested = <prodReq, prodInfoReq> initially False
 fluent F_JustUsrNack = <usrNack, A\{usrNack}> initially False 
 fluent F_OfferAck = <offerRcvd, usrAck> initially False
+fluent F_End = <end, A> initially False
+
+ltl_postcondition CONTROLLER MANAGEREQUEST REQUESTED_PRODUCT_OR_DECLINED_REQUEST=(	(<>(F_ProdReq)&&<>(F_ShipReq))
+																					&&
+																					// P1
+																				  	//([](((F_ShipInfoReq || F_ProdInfoReq) -> (F_UsrReq))) && <>F_UsrAck && [](F_UsrAck->!<>F_ReqCancelled) && [](F_UsrAck-><>F_RespOk))
+																					// P2
+																					([](F_OfferRcvd -> ((<>F_CostAndTime)&&(<>F_InfoRcvd))))
+																					&&
+																					// P3
+																					([]((!F_ShipReq)U F_UsrAck))
+																					&&
+																					([]((!F_ProdReq)U F_UsrAck))
+																				 )
 
 //***************************************************************************************************
 // ADDITIONAL CONSTANTS

@@ -38,7 +38,6 @@ import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.probabilistic.ProbabilisticTransition;
 import ltsa.lts.chart.ConditionDefinition;
-import ltsa.lts.chart.DuplicatedTriggeredScenarioDefinitionException;
 import ltsa.lts.csp.BoxStateDefn;
 import ltsa.lts.csp.ChoiceElement;
 import ltsa.lts.csp.CompositeBody;
@@ -1945,7 +1944,7 @@ public class LTSCompiler {
 		Symbol box = current;
 		nextSymbol();
 
-		currentIs(Symbol.UPPERIDENT, "LTL property identifier expected");
+		currentIs(Symbol.UPPERIDENT, "FLTL property identifier expected");
 		Symbol name = current;
 		nextSymbol();
 		paramDefns(initparams, params);
@@ -1960,6 +1959,8 @@ public class LTSCompiler {
 		}
 		pushSymbol();
 		this.validateUniqueProcessName(name);
+		logger.debug("analyzing the postcondition: " + name);
+		logger.debug("process: " + process.getValue() + " box: " + box.getValue() + " property: " + name.getValue());
 		postconditionDefinitionManager.put(name, formula, ls, initparams, params, box.toString(), process.toString());
 
 		Symbol notName = new Symbol(name);

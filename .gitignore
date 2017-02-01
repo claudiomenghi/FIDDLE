@@ -6,3 +6,4 @@
 *.atxa
 *.out
 .recommenders/
+.sonarlint/*

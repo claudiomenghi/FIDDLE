@@ -164,8 +164,7 @@ public class Analyser implements Animator, Automata {
 		this(cs, output, eman, false);
 	}
 
-	public Analyser(CompositeState cs, LTSOutput output, EventManager eman,
-			boolean ignoreAsterix) {
+	public Analyser(CompositeState cs, LTSOutput output, EventManager eman, boolean ignoreAsterix) {
 		Preconditions.checkNotNull(cs, "The composite state cannot be null");
 		Preconditions.checkNotNull(output, "The output cannot be null");
 
@@ -214,11 +213,9 @@ public class Analyser implements Animator, Automata {
 		Counter newLabel = new Counter(0);
 		for (int i = 0; i < stateMachines.length; i++) {
 			for (int j = 0; j < stateMachines[i].getAlphabet().length; j++) {
-				if (!stateMachines[i].getAlphabet()[j].contains("?")) { // omit
-																		// the
-					// maybe
-					// actions
-					// compute sets of labels for term and non-terminating
+				if (!stateMachines[i].getAlphabet()[j].contains("?")) {
+					// omit the maybe actions compute sets of labels for term
+					// and non-terminating
 					// processes
 					if (stateMachines[i].getEndOfSequenceIndex() > 0) {
 						terminating.add(stateMachines[i].getAlphabet()[j]);
@@ -269,10 +266,14 @@ public class Analyser implements Animator, Automata {
 			// initialize low priority action bitSet
 			if (highAction != null) {
 				if (!lowpriority) {
-					if (LabelledTransitionSystem.contains(s, priorLabels))
+					if (LabelledTransitionSystem.contains(s, priorLabels)) {
 						highAction.set(index);
-				} else if (!LabelledTransitionSystem.contains(s, priorLabels))
-					highAction.set(index);
+					}
+				} else {
+					if (!LabelledTransitionSystem.contains(s, priorLabels)) {
+						highAction.set(index);
+					}
+				}
 			}
 		}
 		// set priority for tau & accept label
@@ -280,11 +281,13 @@ public class Analyser implements Animator, Automata {
 			if (lowpriority) {
 				highAction.set(0);
 				highAction.set(1); // tau? is also high
-			} else
+			} else{
 				highAction.clear(0);
-			if (acceptEvent > 0)
+			}
+			if (acceptEvent > 0){
 				highAction.clear(acceptEvent); // accept labels are always low
 												// priority
+			}
 		}
 		actionCount[0] = 0; // tau
 
@@ -295,13 +298,7 @@ public class Analyser implements Animator, Automata {
 				while (p != null) {
 					LTSTransitionList tr = p;
 					tr.setMachine(i);
-					Preconditions.checkArgument(actionMap
-							.containsKey(stateMachines[i].getAlphabet()[tr
-									.getEvent()]), "The label "
-							+ stateMachines[i].getAlphabet()[tr.getEvent()]
-							+ "is not contained in the action map");
-					tr.setEvent((actionMap.get(stateMachines[i].getAlphabet()[tr
-							.getEvent()])).intValue());
+					tr.setEvent((actionMap.get(stateMachines[i].getAlphabet()[tr.getEvent()])).intValue());
 					while (tr.getNondet() != null) {
 						tr.getNondet().setEvent(tr.getEvent());
 						tr.getNondet().setMachine(tr.getMachine());
@@ -319,21 +316,18 @@ public class Analyser implements Animator, Automata {
 				visible.set(i);
 			} else {
 				if (cs.exposeNotHide) {
-					if (LabelledTransitionSystem.contains(actionName[i],
-							cs.getHidden())) {
+					if (LabelledTransitionSystem.contains(actionName[i], cs.getHidden())) {
 						visible.set(i);
 					}
 				} else {
-					if (!LabelledTransitionSystem.contains(actionName[i],
-							cs.getHidden())) {
+					if (!LabelledTransitionSystem.contains(actionName[i], cs.getHidden())) {
 						visible.set(i);
 					}
 				}
 			}
 		}
 		if (actionMap.containsKey(LTLf2LTS.endSymbol.getValue())) {
-			explorerContext.endEvent = actionMap.get(LTLf2LTS.endSymbol
-					.getValue());
+			explorerContext.endEvent = actionMap.get(LTLf2LTS.endSymbol.getValue());
 		}
 	}
 
@@ -380,10 +374,8 @@ public class Analyser implements Animator, Automata {
 		output.outln("Composing...");
 		long start = System.currentTimeMillis();
 		newStateCompose();
-		LabelledTransitionSystem c = new LabelledTransitionSystem(
-				explorerContext, cs.getName(),
-				compositionEngine.getExploredStates(), compTrans, actionName,
-				explorerContext.endSequence);
+		LabelledTransitionSystem c = new LabelledTransitionSystem(explorerContext, cs.getName(),
+				compositionEngine.getExploredStates(), compTrans, actionName, explorerContext.endSequence);
 		if (dohiding && cs.getHidden() != null) {
 			if (!cs.exposeNotHide) {
 				c.conceal(cs.getHidden());
@@ -415,8 +407,7 @@ public class Analyser implements Animator, Automata {
 
 		} else {
 			if (ret == LTSConstants.ERROR) {
-				output.outln("Trace to property violation in "
-						+ stateMachines[errorMachine].getName() + ":");
+				output.outln("Trace to property violation in " + stateMachines[errorMachine].getName() + ":");
 				tracer.print(output, trace, true);
 				cs.satisfied = false;
 			} else {
@@ -439,8 +430,7 @@ public class Analyser implements Animator, Automata {
 			output.outln("Trace to DEADLOCK:");
 			printPath(trace);
 		} else if (ret == LTSConstants.ERROR) {
-			output.outln("Trace to property violation in "
-					+ stateMachines[errorMachine].getName() + ":");
+			output.outln("Trace to property violation in " + stateMachines[errorMachine].getName() + ":");
 			printPath(trace);
 		} else {
 			hasErrors = false;
@@ -484,11 +474,8 @@ public class Analyser implements Animator, Automata {
 	private List<int[]> eligibleTransitions(int[] state) {
 		List<int[]> asteriskTransitions = null;
 		if (partial != null) {
-			if (asteriskEvent > 0
-					&& LTSTransitionList
-							.hasEvent(stateMachines[machineNumber - 1]
-									.getStates()[state[machineNumber - 1]],
-									asteriskEvent)) {
+			if (asteriskEvent > 0 && LTSTransitionList
+					.hasEvent(stateMachines[machineNumber - 1].getStates()[state[machineNumber - 1]], asteriskEvent)) {
 				// do nothing
 			} else {
 				List<int[]> parTrans = partial.transitions(state);
@@ -512,8 +499,7 @@ public class Analyser implements Animator, Automata {
 				if (tr.getEvent() != 0 && ac[tr.getEvent()] == 0) {
 					nsucc++; // ignoring tau, this transition is possible
 					// bugfix 26-mar-04 to handle asterisk + priority
-					if (highAction != null && highAction.get(tr.getEvent())
-							&& tr.getEvent() != asteriskEvent) {
+					if (highAction != null && highAction.get(tr.getEvent()) && tr.getEvent() != asteriskEvent) {
 						++highs;
 					}
 				}
@@ -542,8 +528,7 @@ public class Analyser implements Animator, Automata {
 			while (ac[actionNo] > 0)
 				actionNo++;
 			// now compute the state for this action if not excluded tock
-			if (highs > 0 && !highAction.get(actionNo)
-					&& actionNo != acceptEvent)
+			if (highs > 0 && !highAction.get(actionNo) && actionNo != acceptEvent)
 				;// do nothing
 			else {
 				LTSTransitionList tr = trs[actionNo];
@@ -572,8 +557,7 @@ public class Analyser implements Animator, Automata {
 				} else if (actionNo != asteriskEvent)
 					computeNonDetTransitions(tr, state, transitions);
 				else
-					computeNonDetTransitions(tr, state,
-							asteriskTransitions = new ArrayList<>(4));
+					computeNonDetTransitions(tr, state, asteriskTransitions = new ArrayList<>(4));
 			}
 			++ac[actionNo];
 		}
@@ -583,8 +567,7 @@ public class Analyser implements Animator, Automata {
 			return mergeAsterisk(transitions, asteriskTransitions);
 	}
 
-	private void computeTauTransitions(LTSTransitionList first, int[] state,
-			List<int[]> v) {
+	private void computeTauTransitions(LTSTransitionList first, int[] state, List<int[]> v) {
 		LTSTransitionList down = first;
 		while (down != null) {
 			LTSTransitionList across = down;
@@ -599,8 +582,7 @@ public class Analyser implements Animator, Automata {
 		}
 	}
 
-	private void computeNonDetTransitions(LTSTransitionList first, int[] state,
-			List<int[]> v) {
+	private void computeNonDetTransitions(LTSTransitionList first, int[] state, List<int[]> v) {
 		LTSTransitionList tr = first;
 		while (tr != null) {
 			int[] next = LTSUtils.myclone(state);
@@ -615,8 +597,7 @@ public class Analyser implements Animator, Automata {
 		}
 	}
 
-	List<int[]> mergeAsterisk(List<int[]> transitions,
-			List<int[]> asteriskTransitions) {
+	List<int[]> mergeAsterisk(List<int[]> transitions, List<int[]> asteriskTransitions) {
 		if (transitions == null || asteriskTransitions == null)
 			return transitions;
 		if (transitions.size() == 0) {
@@ -655,9 +636,8 @@ public class Analyser implements Animator, Automata {
 
 	private void outStatistics(int states, int transitions) {
 		Runtime r = Runtime.getRuntime();
-		output.outln("-- States: " + states + " Transitions: " + transitions
-				+ " Memory used: " + (r.totalMemory() - r.freeMemory()) / 1000
-				+ "K");
+		output.outln("-- States: " + states + " Transitions: " + transitions + " Memory used: "
+				+ (r.totalMemory() - r.freeMemory()) / 1000 + "K");
 	}
 
 	/**
@@ -669,18 +649,15 @@ public class Analyser implements Animator, Automata {
 		System.gc(); // garbage collect before start
 
 		// composes the state machines
-		this.compositionEngine = CompositionEngineFactory
-				.createCompositionEngine(Options.getCompositionStrategyClass(),
-						coder);
+		this.compositionEngine = CompositionEngineFactory.createCompositionEngine(Options.getCompositionStrategyClass(),
+				coder);
 		this.compositionEngine.initialize();
 		this.compositionEngine.setModelExplorerContext(explorerContext);
 
 		if (partialOrderReduction) {
-			this.partial = new PartialOrder(alphabet, actionName,
-					stateMachines, new StackChecker(coder,
-							compositionEngine.getStackChecker()),
-					cs.getHidden(), cs.exposeNotHide, preserveObsEquiv,
-					highAction);
+			this.partial = new PartialOrder(alphabet, actionName, stateMachines,
+					new StackChecker(coder, compositionEngine.getStackChecker()), cs.getHidden(), cs.exposeNotHide,
+					preserveObsEquiv, highAction);
 			this.explorerContext.partial = partial;
 		}
 
@@ -706,8 +683,7 @@ public class Analyser implements Animator, Automata {
 				}
 
 				if (compositionEngine.getMaxStateGeneration() != LTSConstants.NO_MAX_STATE_GENERATION
-						&& explorerContext.stateCount > compositionEngine
-								.getMaxStateGeneration()) {
+						&& explorerContext.stateCount > compositionEngine.getMaxStateGeneration()) {
 					return LTSConstants.REACHED_THRESHOLD;
 				}
 			}
@@ -719,8 +695,7 @@ public class Analyser implements Animator, Automata {
 		v.stream().forEach(t -> output.outln("\t" + t));
 	}
 
-	private int analizeState(boolean checkDeadlocks, boolean callFromTracer,
-			byte[] fromState, byte[] target) {
+	private int analizeState(boolean checkDeadlocks, boolean callFromTracer, byte[] fromState, byte[] target) {
 		stateCount = 0;
 		explorerContext.stateCount = 0;
 
@@ -728,9 +703,8 @@ public class Analyser implements Animator, Automata {
 		MyHashQueue queue = new MyHashQueue(100001);
 
 		if (partialOrderReduction) {
-			partial = new PartialOrder(alphabet, actionName, stateMachines,
-					new StackChecker(coder, queue), cs.getHidden(),
-					cs.exposeNotHide, false, highAction);
+			partial = new PartialOrder(alphabet, actionName, stateMachines, new StackChecker(coder, queue),
+					cs.getHidden(), cs.exposeNotHide, false, highAction);
 			explorerContext.partial = partial;
 		}
 		queue.addPut(fromState, 0, null);
@@ -759,8 +733,7 @@ public class Analyser implements Animator, Automata {
 				}
 			} else {
 				if (transitions != null) {
-					Iterator<int[]> transitionsIterator = transitions
-							.iterator();
+					Iterator<int[]> transitionsIterator = transitions.iterator();
 					while (transitionsIterator.hasNext()) {
 						int[] next = transitionsIterator.next();
 						byte[] code = coder.encode(next);
@@ -841,10 +814,8 @@ public class Analyser implements Animator, Automata {
 		if (acceptEvent < 0)
 			return false;
 		int[] ds = coder.decode(state);
-		return LTSTransitionList
-				.hasEvent(
-						stateMachines[machineNumber - 1].getStates()[ds[machineNumber - 1]],
-						acceptEvent);
+		return LTSTransitionList.hasEvent(stateMachines[machineNumber - 1].getStates()[ds[machineNumber - 1]],
+				acceptEvent);
 	}
 
 	@Override
@@ -869,7 +840,7 @@ public class Analyser implements Animator, Automata {
 			v.addAll(trace);
 			return v;
 		}
-		if(ret==LTSConstants.DEADLOCK){
+		if (ret == LTSConstants.DEADLOCK) {
 			Vector<String> v = new Vector<>();
 			v.addAll(trace);
 			return v;
@@ -893,8 +864,7 @@ public class Analyser implements Animator, Automata {
 	@Override
 	public void setStackChecker(StackCheck s) {
 		if (partialOrderReduction) {
-			partial = new PartialOrder(alphabet, actionName, stateMachines,
-					new StackChecker(coder, s), cs.getHidden(),
+			partial = new PartialOrder(alphabet, actionName, stateMachines, new StackChecker(coder, s), cs.getHidden(),
 					cs.exposeNotHide, false, highAction);
 			explorerContext.partial = partial;
 		}
@@ -1018,8 +988,7 @@ public class Analyser implements Animator, Automata {
 	public BitSet menuStep(int choice) {
 		if (errorState)
 			return null;
-		theChoice = ((Integer) indexToAction.get(new Integer(choice)))
-				.intValue();
+		theChoice = ((Integer) indexToAction.get(new Integer(choice))).intValue();
 		currentA = step(theChoice);
 		if (errorState)
 			return null;
@@ -1161,8 +1130,7 @@ public class Analyser implements Animator, Automata {
 	int[] nonDetSelect(int[] x) {
 		int start = choices.indexOf(x);
 		int last = start + 1;
-		while (last < choices.size()
-				&& x[machineNumber] == ((int[]) choices.get(last))[machineNumber])
+		while (last < choices.size() && x[machineNumber] == ((int[]) choices.get(last))[machineNumber])
 			last++;
 		if (start + 1 == last)
 			return x;
@@ -1193,9 +1161,7 @@ public class Analyser implements Animator, Automata {
 		BitSet b = new BitSet();
 		for (int i = 1; i < actionName.length; i++) {
 			Integer ix = ((Integer) actionToIndex.get(new Integer(i)));
-			if (ix != null
-					&& ((lowpriority && !highAction.get(i)) || (!lowpriority && highAction
-							.get(i))))
+			if (ix != null && ((lowpriority && !highAction.get(i)) || (!lowpriority && highAction.get(i))))
 				b.set(ix.intValue());
 		}
 		return b;

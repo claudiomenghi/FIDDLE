@@ -2,6 +2,7 @@ package ltsa.lts.checkers.modelchecker;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -29,7 +30,8 @@ import com.google.common.base.Preconditions;
  * 
  * It implements STEPS 1,2 of the model checking procedure. <br/>
  * 
- * For each box it injects the LTS associated with the post condition of the box <br/>
+ * For each box it injects the LTS associated with the post condition of the box
+ * <br/>
  *
  */
 public class ModelCheckerLTSModifier {
@@ -69,75 +71,65 @@ public class ModelCheckerLTSModifier {
 	 *            is the LTS that must be verified
 	 * @return the LTS modified with post conditions
 	 */
-	public LabelledTransitionSystem modify(
-			@Nonnull LabelledTransitionSystem controller) {
+	public LabelledTransitionSystem modify(@Nonnull LabelledTransitionSystem controller) {
 
 		// STEP 1
-		Map<String, LabelledTransitionSystem> mapBoxPostCondition = this
-				.step1(controller);
+		Map<String, LabelledTransitionSystem> mapBoxPostCondition = this.step1(controller);
 
 		// STEP 2
-		LabelledTransitionSystem newController = this.step2(controller,
-				mapBoxPostCondition);
+		LabelledTransitionSystem newController = this.step2(controller, mapBoxPostCondition);
 
 		return newController;
 	}
 
-	private Map<String, LabelledTransitionSystem> step1(
-			LabelledTransitionSystem controller) {
+	private Map<String, LabelledTransitionSystem> step1(LabelledTransitionSystem controller) {
 		output.outln("APPLYING STEP1. Boxes: " + controller.getBoxes());
 
 		Map<String, LabelledTransitionSystem> mapBoxPostCondition = new HashMap<>();
 		for (String box : controller.getBoxes()) {
 
-			logger.debug("Searching the post condition for the box " + box
-					+ " of the controller: " + controller.getName());
+			logger.debug(
+					"Searching the post condition for the box " + box + " of the controller: " + controller.getName());
 
-			if (LTSCompiler.postconditionDefinitionManager.hasPostCondition(
-					controller.getName(), box)) {
+			if (LTSCompiler.postconditionDefinitionManager.hasPostCondition(controller.getName(), box)) {
 
 				String postConditionName = LTSCompiler.postconditionDefinitionManager
 						.getPostCondition(controller.getName(), box);
-				logger.debug("The postcondition " + postConditionName
-						+ " is associated with the box " + box);
+				logger.debug("The postcondition " + postConditionName + " is associated with the box " + box);
 
-				mapBoxPostCondition.put(box,
-						LTSCompiler.postconditionDefinitionManager.toFiniteLTS(
-								new EmptyLTSOuput(),
-								controller.getBoxInterface(box),
-								postConditionName));
+				mapBoxPostCondition.put(box, LTSCompiler.postconditionDefinitionManager.toFiniteLTS(new EmptyLTSOuput(),
+						controller.getBoxInterface(box), postConditionName));
 			} else {
-				logger.debug("no postcondition  associated with the box " + box
-						+ " of the controller " + controller.getName());
+				logger.debug("no postcondition  associated with the box " + box + " of the controller "
+						+ controller.getName());
 			}
 		}
 
 		Map<String, LabelledTransitionSystem> postConditions = new HashMap<>();
 
-		for (String box : mapBoxPostCondition.keySet()) {
+		for (String box : controller.getBoxes()) {
 			if (!mapBoxPostCondition.keySet().contains(box)) {
+				logger.debug("no postcondition  associated with the box " + box + " of the controller "
+						+ controller.getName());
+				logger.debug("Adding an automaton that can recognize all the events of the interface of the box");
 				Set<String> boxInterface = controller.getBoxInterface(box);
-				LabelledTransitionSystem boxInterfaceAutomaton = this
-						.createInterfaceLTS(boxInterface);
+				logger.debug("Interface of the box " + box + ": " + boxInterface);
+
+				LabelledTransitionSystem boxInterfaceAutomaton = this.createInterfaceLTS(boxInterface);
 				postConditions.put(box, boxInterfaceAutomaton);
 			} else {
 				Set<String> boxInterface = controller.getBoxInterface(box);
-				LabelledTransitionSystem boxInterfaceAutomaton = this
-						.createInterfaceLTS(boxInterface);
+				LabelledTransitionSystem boxInterfaceAutomaton = this.createInterfaceLTS(boxInterface);
 
 				Vector<LabelledTransitionSystem> machines = new Vector<>();
 				machines.add(boxInterfaceAutomaton);
-				LabelledTransitionSystem machinePostCondition = mapBoxPostCondition
-						.get(box);
+				LabelledTransitionSystem machinePostCondition = mapBoxPostCondition.get(box);
 				String postCondition = machinePostCondition.getName();
 
-				postConditions.put(
-						box,
-						processPost(controller, box, boxInterface,
-								postCondition,
-								LTSCompiler.postconditionDefinitionManager
-										.getPostCondition(controller.getName(),
-												box), mapBoxPostCondition));
+				postConditions.put(box,
+						processPost(controller, box, boxInterface, postCondition,
+								LTSCompiler.postconditionDefinitionManager.getPostCondition(controller.getName(), box),
+								mapBoxPostCondition));
 			}
 		}
 		return postConditions;
@@ -153,31 +145,28 @@ public class ModelCheckerLTSModifier {
 
 			int boxPosition = controller.getBoxIndexes().get(box);
 
-			LabelledTransitionSystem postConditionLTS = mapBoxPostCondition
-					.get(box);
-
+			LabelledTransitionSystem postConditionLTS = mapBoxPostCondition.get(box);
 
 			output.outln("\t Integrating the post-condition of box: " + box);
 
-			cs = new IntegratorEngine().apply(cs, boxPosition, box,
-					postConditionLTS);
+			LabelledTransitionSystem cscopy = new IntegratorEngine().apply(cs, boxPosition, box, postConditionLTS);
+
+			cscopy.getAccepting().forEach(s -> cscopy.removeOutgoingTransitionsWithLabel(s, "end"));
+
+			cs = cscopy;
+
 		}
 		cs.setName(controller.getName() + POST_CONDITION_SUFFIX);
 		return cs;
 
 	}
 
-	private LabelledTransitionSystem processPost(
-			LabelledTransitionSystem compiledProcess, String box,
-			Set<String> boxInterface, String postCondition,
-			String postConditionName,
-			Map<String, LabelledTransitionSystem> mapBoxPostCondition)
-			throws InternalError {
-		LabelledTransitionSystem machinePostCondition = mapBoxPostCondition
-				.get(box);
+	private LabelledTransitionSystem processPost(LabelledTransitionSystem compiledProcess, String box,
+			Set<String> boxInterface, String postCondition, String postConditionName,
+			Map<String, LabelledTransitionSystem> mapBoxPostCondition) throws InternalError {
+		LabelledTransitionSystem machinePostCondition = mapBoxPostCondition.get(box);
 
-		Set<String> postConditionCharacters = new HashSet<>(
-				machinePostCondition.getAlphabetEvents());
+		Set<String> postConditionCharacters = new HashSet<>(machinePostCondition.getAlphabetEvents());
 		postConditionCharacters.remove("tau");
 		postConditionCharacters.remove("@any");
 		postConditionCharacters.remove("end");
@@ -198,16 +187,13 @@ public class ModelCheckerLTSModifier {
 	 */
 	private LabelledTransitionSystem createInterfaceLTS(Set<String> boxInterface) {
 
-		StateMachine mc = new StateMachine(LTSCompiler.boxOfInterest
-				+ "-interface");
+		StateMachine mc = new StateMachine(LTSCompiler.boxOfInterest + "-interface");
 		String initStateName = LTSCompiler.boxOfInterest + "-interface";
 		mc.addState(initStateName);
 
 		boxInterface.stream().forEach(mc::addEvent);
-		boxInterface.stream().forEach(
-				event -> mc.addTransition(new Transition(mc
-						.getStateIndex(initStateName), new Symbol(event,
-						Symbol.UPPERIDENT), mc.getStateIndex(initStateName))));
+		boxInterface.stream().forEach(event -> mc.addTransition(new Transition(mc.getStateIndex(initStateName),
+				new Symbol(event, Symbol.UPPERIDENT), mc.getStateIndex(initStateName))));
 		return mc.makeCompactState();
 
 	}

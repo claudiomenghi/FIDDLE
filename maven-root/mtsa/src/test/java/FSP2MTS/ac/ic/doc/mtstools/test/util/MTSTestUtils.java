@@ -24,10 +24,5 @@ public class MTSTestUtils extends TestCase {
 		assertTrue("StrongSemantics: The second argument is not a refinement of the first.", strong.isARefinement(finalMTS, originalMTS));
 	}
 
-	public static MTS<Long, String> buildMTSFrom(String sourceString, LTSOutput ltsOuput) throws Exception {
-		CompositeState compositeOriginal = LTSATestUtils.buildCompositeState(sourceString, ltsOuput);
-		MTS<Long, String> originalMTS = AutomataToMTSConverter.getInstance().convert((LabelledTransitionSystem) compositeOriginal.getComposition());
-		return originalMTS;
-	}
 
 }
