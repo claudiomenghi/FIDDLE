@@ -655,7 +655,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		tools.add(new JLabel("Environment"));
 		tools.add(environmentTargetChoice);
 		tools.addSeparator();
-		tools.add(new JLabel("Controller"));
+		tools.add(new JLabel("Partial component"));
 		tools.add(controllerTargetChoice);
 		tools.addSeparator();
 

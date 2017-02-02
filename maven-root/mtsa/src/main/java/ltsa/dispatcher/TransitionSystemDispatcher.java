@@ -36,7 +36,6 @@ import MTSTools.ac.ic.doc.mtstools.model.operations.MTSAbstractBuilder;
 import MTSTools.ac.ic.doc.mtstools.model.operations.MTSConstraintBuilder;
 import MTSTools.ac.ic.doc.mtstools.model.operations.impl.MTSPropertyToBuchiConverter;
 import MTSTools.ac.ic.doc.mtstools.model.operations.impl.WeakAlphabetMergeBuilder;
-import MTSTools.ac.ic.doc.mtstools.utils.GenericMTSToLongStringMTSConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.AutomataToMTSConverter;
 import ltsa.ac.ic.doc.mtstools.util.fsp.MTSToAutomataConverter;
 import ltsa.lts.Diagnostics;
@@ -293,9 +292,7 @@ public class TransitionSystemDispatcher {
 				ltsOutput.outln(""); // leave an empty line
 			}
 
-			MTS<Long, String> mts = new GenericMTSToLongStringMTSConverter().transform(merge);
 
-			composition.setComposition(MTSToAutomataConverter.getInstance().convert(mts, composition.getName()));
 
 		}
 	}
@@ -367,8 +364,7 @@ public class TransitionSystemDispatcher {
 			while (iterator.hasNext()) {
 				MTS<Long, String> mts = iterator.next();
 				MTS<?, String> cr = new WeakAlphabetPlusCROperator(silentActions).compose(merge, mts);
-				merge = new GenericMTSToLongStringMTSConverter().transform(cr);
-
+				
 			}
 
 			ltsOutput.outln("+CR operator applied in " + (System.currentTimeMillis() - initialTime) + "ms.");
