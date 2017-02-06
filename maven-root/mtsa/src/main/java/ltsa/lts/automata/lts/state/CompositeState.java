@@ -356,7 +356,7 @@ public class CompositeState {
 			Analyser analyzer = new Analyser(this, output, null);
 			
 			// If the property has an error state it is necessary to do 
-			// a progress check to verify whether the peoperty is satisfied
+			// a progress check to verify whether the property is satisfied
 			if (!ltlProperty.hasERROR()) {
 
 				logger.debug("Composition has no error state");
@@ -370,13 +370,14 @@ public class CompositeState {
 					setErrorTrace(errorTrace);
 				}
 				else{
+					logger.debug("The progress checker does not return an error trace");
 					this.satisfied=true;
 				}
 			} else {
 
 				// do safety check
-				logger.debug("The property does not contain an error state");
-				boolean satisfied=analyzer.analyse(cs.tracer);
+				logger.debug("The property  contains an error state");
+				boolean satisfied=analyzer.analyse(cs.tracer, false, false);
 				if(satisfied){
 					this.satisfied=false;
 					logger.debug("Analyzer returned an error trace");
@@ -387,7 +388,7 @@ public class CompositeState {
 					logger.debug("The property is satisified");
 					this.satisfied=true;
 				}
-			}
+		 }
 			hidden = saveHidden;
 			exposeNotHide = saveExposeNotHide;
 		}

@@ -247,15 +247,18 @@ public class LTSTransitionList {
 
 	public static LTSTransitionList removeEvent(LTSTransitionList anEventState,
 			int anEvent) {
-		if (anEventState == null)
+		if (anEventState == null){
 			return null;
+		}
 
 		LTSTransitionList cleanEvent = anEventState;
-		if (cleanEvent.event == anEvent)
+		if (cleanEvent.event == anEvent){
 			cleanEvent = cleanEvent.list;
-		else
+		}
+		else{
 			cleanEvent.list = LTSTransitionList.removeEvent(cleanEvent.list,
 					anEvent);
+		}
 		return cleanEvent;
 	}
 

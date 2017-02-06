@@ -17,6 +17,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.google.common.base.Preconditions;
 
 import ltsa.lts.EventStateUtils;
@@ -41,6 +44,9 @@ import ltsa.lts.util.collections.StateMap;
  *
  */
 public class LabelledTransitionSystem implements Automata {
+
+	/** Logger available to subclasses */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * The name of the LTS
@@ -101,6 +107,17 @@ public class LabelledTransitionSystem implements Automata {
 		this.name = name;
 		this.finalStateIndexes = new HashSet<>();
 		this.boxIndexes = new HashMap<>();
+	}
+
+	public void removeTransitionsLabeledWithEvents(Set<String> events) {
+
+		events.forEach(event -> {
+			int eventIndex = this.getEvent(event);
+			logger.debug("event: "+event+" index: "+eventIndex);
+
+			for (int i = 0; i < this.states.length; i++)
+				this.states[i] = LTSTransitionList.removeEvent(this.states[i], eventIndex);
+		});
 	}
 
 	public LabelledTransitionSystem(String name, int maxStates) {
@@ -191,12 +208,16 @@ public class LabelledTransitionSystem implements Automata {
 	 *         is already present
 	 */
 	public int addEvent(String event) {
-		for (int i = 0; i < alphabet.length; i++) {
-			if (alphabet[i].equals(event)) {
-				return i;
+		if (alphabet == null) {
+			this.alphabet = new String[1];
+		} else {
+			for (int i = 0; i < alphabet.length; i++) {
+				if (alphabet[i].equals(event)) {
+					return i;
+				}
 			}
+			alphabet = Arrays.copyOf(alphabet, alphabet.length + 1);
 		}
-		alphabet = Arrays.copyOf(alphabet, alphabet.length + 1);
 		alphabet[alphabet.length - 1] = event;
 		return alphabet.length - 1;
 	}
@@ -777,8 +798,9 @@ public class LabelledTransitionSystem implements Automata {
 	 * @return true if and only if the state is accepting
 	 */
 	public boolean isAccepting(int stateIndex) {
-		if (stateIndex < 0 || stateIndex >= this.states.length)
+		if (stateIndex < 0 || stateIndex >= this.states.length) {
 			return false;
+		}
 		return LTSTransitionList.isAccepting(states[stateIndex], alphabet);
 	}
 
@@ -803,11 +825,11 @@ public class LabelledTransitionSystem implements Automata {
 				builder.append("," + this.alphabet[i]);
 			}
 		}
-
+		builder.append("\n");
 		for (int i = 0; i < this.states.length; i++) {
 			builder.append("state: " + i + " transitions: " + this.states[i] + "\n");
 		}
-
+		builder.append("\n");
 		builder.append("INTERFACES: " + "\n");
 		this.mapBoxInterface.entrySet().stream()
 				.forEach(t -> builder.append("\t box: " + t.getKey() + " interface: " + t.getValue() + "\n"));
@@ -1479,11 +1501,14 @@ public class LabelledTransitionSystem implements Automata {
 		this.states = states;
 	}
 
-	public void removeOutgoingTransitionsWithLabel(int stateIndex, String label){
-		this.states[stateIndex]=LTSTransitionList.removeEvent(this.states[stateIndex], 
-				this.alphabetMap().get(label)
-				);
-							
+	public void removeOutgoingTransitionsWithLabel(int stateIndex, String label) {
+		Preconditions.checkArgument(this.alphabetMap().containsKey(label),
+				"The label: " + label + " is not contained in the alphabet of the automaton");
+		if (this.states[stateIndex] != null) {
+			this.states[stateIndex] = LTSTransitionList.removeEvent(this.states[stateIndex],
+					this.alphabetMap().get(label));
+		}
+
 	}
 
 	public Map<String, Integer> getBoxIndexes() {
@@ -1500,7 +1525,11 @@ public class LabelledTransitionSystem implements Automata {
 	 * @return the index of the new state
 	 */
 	public int addNewState() {
-		this.states = Arrays.copyOf(this.states, this.states.length + 1);
+		if (this.states == null) {
+			this.states = new LTSTransitionList[1];
+		} else {
+			this.states = Arrays.copyOf(this.states, this.states.length + 1);
+		}
 		return this.states.length - 1;
 	}
 

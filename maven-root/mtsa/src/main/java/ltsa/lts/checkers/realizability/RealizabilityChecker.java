@@ -2,6 +2,8 @@ package ltsa.lts.checkers.realizability;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.logging.LogFactory;
+
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.output.LTSOutput;
@@ -14,6 +16,7 @@ import com.google.common.base.Preconditions;
  *
  */
 public class RealizabilityChecker {
+	protected final org.apache.commons.logging.Log logger = LogFactory.getLog(getClass());
 	/**
 	 * The environment to be considered
 	 */
@@ -111,6 +114,7 @@ public class RealizabilityChecker {
 		environment.getMachines().forEach(system::addMachine);
 		system.addMachine(modifiedControllerLTSStep1);
 
+		logger.debug("STEP 1: Checking whether C^B || E |= phi");
 		boolean satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
 
 		if (!satisfied) {
@@ -121,7 +125,8 @@ public class RealizabilityChecker {
 		} else {
 			this.output.outln("No counterexample found. ");
 			this.output
-					.outln("***** STEP 2: Checking whether C || E NOT |= phi ");
+					.outln("***** STEP 2: Checking whether C || E  |=  NOT phi ");
+			logger.debug("STEP 2: Checking whether C || E  |=  NOT phi");
 			modifiedControllerLTSStep2 = modifyController();
 			modifiedControllerLTSStep2.setName("STEP_2_"+controller.getName());
 
@@ -133,9 +138,10 @@ public class RealizabilityChecker {
 			if (secondCheckSatisfied) {
 				this.output.outln("No counterexample found. ");
 				this.output
-						.outln("---- REALIZABILITY RESULT: The controller could be realizable");
+						.outln("---- REALIZABILITY RESULT: The controller is not realizable");
 			} else {
 				this.output.outln("Counterexample found. ");
+				notProperty.getFluentTracer().print(output, system.getErrorTrace(), true);
 				this.output
 						.outln("---- REALIZABILITY RESULT: The controller could be realizable");
 			}

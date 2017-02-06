@@ -2,6 +2,9 @@ package ltsa.lts.checkers.modelchecker;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.output.LTSOutput;
@@ -16,6 +19,9 @@ import com.google.common.base.Preconditions;
  *
  */
 public class ModelChecker {
+
+	/** Logger available to subclasses */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * The environment to be considered
@@ -91,12 +97,14 @@ public class ModelChecker {
 		LabelledTransitionSystem controllerLTS = controller.getMachines().get(0);
 
 		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(this.output).modify(controllerLTS);
+		
+		logger.debug("The controller works on the alphabet: "+modifiedController.getAlphabet());
 		this.modifiedController = new CompositeState(modifiedController.getName());
 		this.modifiedController.addMachine(modifiedController);
 
 		CompositeState system = new CompositeState("System");
 		environment.getMachines().stream().forEach(system::addMachine);
-		system.addMachine(modifiedController.clone());
+		system.addMachine(modifiedController);
 
 		boolean result = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
 
