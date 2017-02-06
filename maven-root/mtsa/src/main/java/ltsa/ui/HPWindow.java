@@ -1895,6 +1895,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		compileIfChange();
 		CompositeState ltlProperty = AssertDefinition.compile(this, asserted);
 		this.logger.debug("Property of interest: " + ltlProperty.getName());
+		this.logger.debug("Machines of the property of interest: " + ltlProperty.getMachines().size());
 
 		String environmentName = (String) environmentTargetChoice.getSelectedItem();
 		String controllerName = (String) controllerTargetChoice.getSelectedItem();
@@ -1922,12 +1923,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			if (realizabilityChecker.getModifiedControllerStep2() != null) {
 				machines.add(realizabilityChecker.getModifiedControllerStep2());
 			}
-
 			CompositeState system = new CompositeState("System");
 			environment.getMachines().forEach(system::addMachine);
 			system.addMachine(realizabilityChecker.getModifiedControllerStep1());
 			system.compose(new EmptyLTSOuput());
 			LabelledTransitionSystem compositionStep1 = system.getComposition();
+			// adding the  property to the set of machine to be showed
+			machines.add(ltlProperty.getComposition());
 			compositionStep1.setName("COMPOSITION_STEP_1");
 			machines.add(compositionStep1);
 
@@ -1938,8 +1940,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 				system.addMachine(realizabilityChecker.getModifiedControllerStep2());
 				system.compose(new EmptyLTSOuput());
 				LabelledTransitionSystem compositionStep2 = system.getComposition();
+				// adding the negation of the property to the set of machine to be showed
+				machines.add(notLtlProperty.getComposition());
 				compositionStep2.setName("COMPOSITION_STEP_2");
+				
 				machines.add(compositionStep2);
+				
 			}
 
 			this.newMachines(machines);
@@ -2005,6 +2011,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 
 		final LabelledTransitionSystem controllerLTS = controller.getMachines().get(0);
 
+		// adds the post-conditions to the GUI
 		controllerLTS.getBoxes().stream().filter(
 				box -> LTSCompiler.postconditionDefinitionManager.hasPostCondition(controllerLTS.getName(), box))
 				.forEach(box -> {
@@ -2026,6 +2033,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 
 		machines.addAll(checkedMachines.getMachines());
 		machines.add(controller.getMachines().get(0));
+	//	machines.addAll(
+	//	ltlProperty.getMachines());
+		machines.add(ltlProperty.getComposition());
+		
 		machines.add(system.getComposition());
 
 		this.newMachines(machines);

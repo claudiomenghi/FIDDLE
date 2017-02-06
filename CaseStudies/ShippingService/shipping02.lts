@@ -40,9 +40,9 @@ USER = 									(	userReq		->	REQUESTED		),
 
  
 //***************************************************************************************************
-// CONTROLLER
+// COMPONENTS
 //***************************************************************************************************
-CONTROLLER =	INIT,
+COMPONENT1 =	INIT,
 				INIT 			= 	(	userReq -> 	MANAGEREQUEST 	),
 				box MANAGEREQUEST 	= 	(	respOk 	-> 	INIT	
 										//|
@@ -50,53 +50,64 @@ CONTROLLER =	INIT,
 									)[A\{userReq,respOk}].
 									
 
+set PreparingOfferInterface={prodInfoReq, infoRcvd, shipInfoReq, costAndTime}
 
-|| PartialComponent=CONTROLLER.
+set ManageRequestInterface={prodReq, shipReq}
+set DeclineRequestInterface={prodCancel, shipCancel}
+
+COMPONENT2 =	INIT,
+				INIT 				= 	(	userReq 	-> 	PREPARINGOFFER 				),
+				box PREPARINGOFFER	= 	(	offerRcvd 	->	WAITINGFORUSERCHOICE 		
+										)[PreparingOfferInterface],	
+				WAITINGFORUSERCHOICE=	(	usrAck		->	MANAGEREQUEST
+											|
+											usrNack		-> 	DECLINEREQUEST
+										),
+				box	MANAGEREQUEST	=	(	respOk 		-> 	INIT	
+										)[ManageRequestInterface],
+				box DECLINEREQUEST	=	( 	reqCancelled -> INIT	
+										)[DeclineRequestInterface].
+
+
+
+// experiment 1
+|| PartialComponent1=COMPONENT1.
+
+// experiment 2 (comment the post-conditions)
+// experiment 3 (uncomment the post-conditions)
+|| PartialComponent2=COMPONENT2.
+
+
 || System = (Environment || CONTROLLER).
 
 //***************************************************************************************************
 // REQUIREMENTS
 //***************************************************************************************************
+assert P1 = (! ( (!F_UsrReq) U (F_ShipInfoReq || F_ProdInfoReq) ) )
 
-// requirement 1
-// 1 the purchase and delivery must only check for some product or shipping info if the user has placed an order.
-// the system should not query the services if no user request is received
-assert P1 = []( ! ( (!F_UsrReq) U (F_ShipInfoReq || F_ProdInfoReq) ) )
-// returned: NOT OK
+assert P2	=[](F_UsrReq->( ! ( (!F_InfoRcvd) U F_OfferRcvd)))
 
-// requirement 2
-// 2 an offer is provided to the user only if the furniture and shipping services have confirmed the availability
-assert P2	=[]( ! ( (!F_InfoRcvd) U F_OfferRcvd))
-// returned: OK
+assert P3 =	[](F_UsrReq->(!((!F_UserAck) W F_ShipReq)) && (!(!(F_UserAck) W F_ProdReq)) )
+assert P3a =	[](F_UsrReq->(!((!F_UserAck) W F_ShipReq)&&<>F_ShipReq))
+assert P3b =	[](F_UsrReq->(!(!(F_UserAck) W F_ProdReq)) &&<>F_ProdReq)
 
-// requirement 3
-// 3 the furniture and the shipping requirements are activated only if the user has decided to purchase
-assert P3 =	( ([]( F_UserAck W F_ShipReq)) && ([](F_UserAck W F_ProdReq)) )
-// returned: OK
+assert P4=[](F_UsrReq->(!((!(F_UserNack) W (F_ProdCancel || F_ShipCancel)))))
 
-// requirement 4
-// 4 the purchase and delivery system allows canceling an order only if the user canceled the order
-assert P4= [](F_UserNack W (F_ProdCancel || F_ShipCancel))
-// returned: OK
+assert P4a=[](F_UsrReq->(!((!(F_UserNack) W (F_ProdCancel)))&&<>F_ProdCancel))
+assert P4b=[](F_UsrReq->(!((!(F_UserNack) W (F_ShipCancel)))&&<>F_ShipCancel))
 
 
-// requirement 5
-// 5 a request is marked as canceled when both the product ordering and the shipping services have canceled the request
-assert P5=[]( (F_ProdCancelled W F_ReqCancelled) && (F_ShipCancelled W F_ReqCancelled))
-// returned: OK
+assert P5=[]( F_UsrReq->(!((!(F_ProdCancelled) W F_ReqCancelled)) && !((!(F_ShipCancelled) W F_ReqCancelled))))
+assert P5a=[]( F_UsrReq->(!((!(F_ProdCancelled) W F_ReqCancelled))&&<>F_ReqCancelled))
+assert P5b=[]( F_UsrReq->(!(!(F_ShipCancelled) W F_ReqCancelled)&&<>F_ReqCancelled))
 
 
-// requirement 6
-// 6 the purchase and delivery system finishes successfully only when both the product ordering and the shupping service have handled correctly their requests
-assert P6=[]( (F_UserAck-> <>F_RespOk) && (F_UserNack-> <>F_ReqCancelled) )
-// returned: OK
+assert P6=[]( (F_UserAck-> <>F_RespOk) && (F_UserNack-> <>F_ReqCancelled) &&<>F_UserAck &&<>F_UserNack)
+assert P6a=[]( (F_UserAck-> <>F_RespOk) && <>F_UserAck )
+assert P6b=[]( (F_UserNack-> <>F_ReqCancelled) &&<>F_UserNack)
+assert P7= ([]((F_ReqCancelled-><>F_UsrReq)&&<>F_ReqCancelled))
 
 
-// requirement 7
-// 7 the controller should guarantee that infinitely many producs are shipped, the service does not stop its execution
-//assert P7= [](<>F_RespOk)
-// returned: OK
-assert P7= ([](<>F_RespOk)&&[](<>F_ReqCancelled))
 
 //***************************************************************************************************
 // FLUENTS
@@ -104,7 +115,7 @@ assert P7= ([](<>F_RespOk)&&[](<>F_ReqCancelled))
 fluent F_RespOk = <respOk, A\{respOk}>	initially False
 fluent F_ShipInfoReq = <shipInfoReq, A\{shipInfoReq}> initially False
 fluent F_ProdInfoReq = <prodInfoReq, A\{prodInfoReq}> initially False
-fluent F_UsrReq = <userReq, offerRcvd> initially False
+fluent F_UsrReq = <userReq, A\{userReq}> initially False
 fluent F_OfferRcvd = <offerRcvd, A\{offerRcvd}> initially False
 fluent F_CostAndTime = <costAndTime, A\{costAndTime}> initially False
 fluent F_InfoRcvd = <infoRcvd, A\{infoRcvd}> initially False
@@ -124,8 +135,8 @@ fluent F_ProdRequested = <prodReq, A\{prodReq}> initially False
 fluent F_OfferAck = <offerRcvd, A\{offerRcvd}> initially False
 fluent F_End = <end, A> initially False
 
-//ltl_postcondition CONTROLLER MANAGEREQUEST REQUESTED_PRODUCT_OR_DECLINED_REQUEST=(	(<>(F_ProdReq)&&<>(F_ShipReq))
-//																					&&
+ltl_postcondition COMPONENT2 PREPARINGOFFER REQUESTED_PRODUCT_OR_DECLINED_REQUEST=(<>(F_InfoRcvd))
+																					//&&
 																					// P1
 																				  	//([](((F_ShipInfoReq || F_ProdInfoReq) -> (F_UsrReq))) && <>F_UsrAck && [](F_UsrAck->!<>F_ReqCancelled) && [](F_UsrAck-><>F_RespOk))
 																					// P2
@@ -136,6 +147,8 @@ fluent F_End = <end, A> initially False
 //																					&&
 //																					([]((!F_ProdReq)U F_UsrAck))
 //																				 )
+
+ltl_postcondition COMPONENT2 MANAGEREQUEST CORRECTLY_MANAGE_REQUEST=(<>F_ShipReq)
 
 //***************************************************************************************************
 // ADDITIONAL CONSTANTS

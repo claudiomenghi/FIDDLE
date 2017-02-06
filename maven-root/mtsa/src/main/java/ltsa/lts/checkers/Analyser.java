@@ -14,6 +14,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.logging.LogFactory;
+
 import ltsa.lts.animator.Animator;
 import ltsa.lts.animator.ModelExplorerContext;
 import ltsa.lts.animator.PartialOrder;
@@ -43,6 +45,8 @@ import ltsa.lts.util.collections.MyList;
 import com.google.common.base.Preconditions;
 
 public class Analyser implements Animator, Automata {
+
+	protected final org.apache.commons.logging.Log logger = LogFactory.getLog(getClass());
 
 	private ModelExplorerContext explorerContext;
 
@@ -393,25 +397,29 @@ public class Analyser implements Animator, Automata {
 		return c;
 	}
 
-	public boolean analyse(FluentTrace tracer) {
+	public boolean analyse(FluentTrace tracer, boolean deadlocksEnabled, boolean callFromTracer) {
 		boolean hasErrors = true;
 		output.outln("Analysing...");
 		System.gc(); // garbage collect before start
 		long start = System.currentTimeMillis();
 
-		int ret = analizeState(true, true, coder.zero(), null);
+		int ret = analizeState(deadlocksEnabled, callFromTracer, coder.zero(), null);
 		long finish = System.currentTimeMillis();
 		if (ret == LTSConstants.DEADLOCK) {
 			output.outln("Trace to DEADLOCK:");
+			logger.debug("Trace to DEADLOCK: "+trace);
 			tracer.print(output, trace, true);
 
 		} else {
 			if (ret == LTSConstants.ERROR) {
 				output.outln("Trace to property violation in " + stateMachines[errorMachine].getName() + ":");
+				logger.debug("Trace to property violation: "+trace);
 				tracer.print(output, trace, true);
 				cs.satisfied = false;
 			} else {
 				hasErrors = false;
+				logger.debug("No deadlocks/errors: "+trace);
+				
 				output.outln("No deadlocks/errors");
 			}
 		}

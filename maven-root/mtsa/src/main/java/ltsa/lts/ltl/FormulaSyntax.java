@@ -73,7 +73,6 @@ public class FormulaSyntax {
 	public Formula expand(FormulaFactory fac, Hashtable<String, Value> locals, Hashtable<String, Value> globals) {
 		if (proposition != null) {
 			if (range == null) {
-				logger.debug("searching the proposition: "+proposition.getValue());
 				if (PredicateDefinition.definitions != null
 						&& PredicateDefinition.definitions.containsKey(proposition.toString()))
 					return fac.make(proposition);

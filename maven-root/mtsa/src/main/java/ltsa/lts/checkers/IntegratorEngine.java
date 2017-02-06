@@ -1,10 +1,19 @@
 package ltsa.lts.checkers;
 
+import java.util.BitSet;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.csp.Relation;
 import ltsa.lts.util.Counter;
 
 import com.google.common.base.Preconditions;
@@ -18,6 +27,9 @@ import com.google.common.base.Preconditions;
  *
  */
 public class IntegratorEngine {
+
+	/** Logger available to subclasses */
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
 	 * Given a Labeled Transition System, one of its boxes and the
@@ -38,69 +50,85 @@ public class IntegratorEngine {
 	 *             if the index of the box is not an index of a box of the
 	 *             original machine
 	 */
-	public LabelledTransitionSystem apply(
-			LabelledTransitionSystem controllerMachine, Integer boxIndex,
-			String boxName, LabelledTransitionSystem postConditionMachine) {
-		Preconditions.checkNotNull(controllerMachine,
-				"The first machine cannot be null");
-		Preconditions.checkNotNull(postConditionMachine,
-				"The machine of the post-condition cannot be null");
-		Preconditions
-				.checkArgument(controllerMachine.getBoxIndexes().values()
-						.contains(boxIndex),
-						"The specified index is not an index of the box of the state machine");
+	public LabelledTransitionSystem apply(LabelledTransitionSystem controllerMachine, Integer boxIndex, String boxName,
+			LabelledTransitionSystem postConditionMachine) {
+		Preconditions.checkNotNull(controllerMachine, "The first machine cannot be null");
+		Preconditions.checkNotNull(postConditionMachine, "The machine of the post-condition cannot be null");
+		Preconditions.checkArgument(controllerMachine.getBoxIndexes().values().contains(boxIndex),
+				"The specified index is not an index of the box of the state machine");
 
-		LabelledTransitionSystem postConditionClone = postConditionMachine
-				.myclone();
+		logger.debug("Integrating the postcondition " + postConditionMachine);
+
+		LabelledTransitionSystem postConditionClone = postConditionMachine.myclone();
 
 		LabelledTransitionSystem newMachine = new LabelledTransitionSystem("");
-		newMachine.setAlphabet(sharedAlphabet(controllerMachine,
-				postConditionClone));
+		newMachine.setAlphabet(sharedAlphabet(controllerMachine, postConditionClone));
 
-		newMachine.setBoxIndexes(new HashMap<String, Integer>(controllerMachine
-				.getBoxIndexes()));
+		newMachine.setBoxIndexes(new HashMap<String, Integer>(controllerMachine.getBoxIndexes()));
 		newMachine.getBoxIndexes().remove(postConditionMachine.getName());
 
-		controllerMachine
-				.getBoxes()
-				.stream()
-				.filter(Predicate.isEqual(boxName).negate())
-				.forEach(
-						box -> newMachine.setBoxInterface(box,
-								controllerMachine.getBoxInterface(box)));
+		controllerMachine.getBoxes().stream().filter(Predicate.isEqual(boxName).negate())
+				.forEach(box -> newMachine.setBoxInterface(box, controllerMachine.getBoxInterface(box)));
+
+		logger.debug("Size of the new machine: " + seqSize(controllerMachine, postConditionClone));
+
+		logger.debug("Postcondition:  " + postConditionClone);
 
 		// the number of states minus the box
-		newMachine.setStates(new LTSTransitionList[seqSize(controllerMachine,
-				postConditionClone)]);
+		newMachine.setStates(new LTSTransitionList[seqSize(controllerMachine, postConditionClone)]);
 
 		int offset = 0;
+		
+		
 		// copies the controller in the new machine
-		copyController(newMachine, offset, newMachine.getStates(),
-				controllerMachine, false, boxIndex);
+		
+		copyController(newMachine, offset, newMachine.getStates(), controllerMachine, false, boxIndex);
 
 		offset = controllerMachine.getStates().length;
-		
-		// copies the post-condition in the new machine
-		copyPostcondition(newMachine, offset, newMachine.getStates(),
-				postConditionClone, true);
-		newMachine.setEndOfSequence(postConditionClone.getEndOfSequenceIndex()
-				+ offset);
 
+		// copies the post-condition in the new machine
+		copyPostcondition(newMachine, offset, newMachine.getStates(), postConditionClone);
+
+		logger.debug("new machine: " + newMachine);
+		newMachine.setEndOfSequence(postConditionClone.getEndOfSequenceIndex() + offset);
+
+		// merges the two machines
 		LTSTransitionList tauTransition = new LTSTransitionList(0, offset);
 		newMachine.setState(boxIndex, tauTransition);
 
 		// removes the accepting states
 		LTSTransitionList boxList = controllerMachine.getTransitions(boxIndex);
 
-		
-		final int propertyOffset=offset;
-		postConditionMachine.getAccepting().forEach(
-				index -> newMachine.setState(
-						index + propertyOffset,
-						this.getMixTransitionList(boxList,
-								newMachine.getTransitions(index + propertyOffset))));
+		final int propertyOffset = offset;
+		postConditionMachine.getFinalStateIndexes().forEach(index -> {
+			newMachine.setState(index + propertyOffset,
+					this.getMixTransitionList(boxList, newMachine.getTransitions(index + propertyOffset)));
+		});
+
+		logger.debug("new machine: " + newMachine);
 
 		return newMachine;
+	}
+
+	public Map<String, Integer> getSharedAlphabet(LabelledTransitionSystem machine1,
+			LabelledTransitionSystem machine2) {
+		Map<String, Integer> sharedAlphabet = new HashMap<>();
+		int i = 0;
+		
+		for(String event: machine1.getAlphabetEvents()){
+			if (!sharedAlphabet.containsKey(event)) {
+				sharedAlphabet.put(event, i);
+			}
+			i++;
+		}
+		for(String event: machine2.getAlphabetEvents()){
+			if (!sharedAlphabet.containsKey(event)) {
+				sharedAlphabet.put(event, i);
+			}
+			i++;
+		}
+		return sharedAlphabet;
+
 	}
 
 	/**
@@ -111,8 +139,7 @@ public class IntegratorEngine {
 	 * @param acceptingList
 	 * @return
 	 */
-	private LTSTransitionList getMixTransitionList(LTSTransitionList boxList,
-			LTSTransitionList acceptingList) {
+	private LTSTransitionList getMixTransitionList(LTSTransitionList boxList, LTSTransitionList acceptingList) {
 
 		LTSTransitionList currentBoxTransition = boxList;
 
@@ -121,8 +148,7 @@ public class IntegratorEngine {
 			LTSTransitionList currentTransition = acceptingList;
 			boolean founded = false;
 			while (currentTransition != null && !founded) {
-				if (currentTransition.getEvent() == currentBoxTransition
-						.getEvent()) {
+				if (currentTransition.getEvent() == currentBoxTransition.getEvent()) {
 					founded = true;
 
 				} else {
@@ -130,16 +156,13 @@ public class IntegratorEngine {
 				}
 			}
 			if (founded) {
-				LTSTransitionList nonDet = new LTSTransitionList(
-						currentBoxTransition.getEvent(),
+				LTSTransitionList nonDet = new LTSTransitionList(currentBoxTransition.getEvent(),
 						currentBoxTransition.getNext());
 				nonDet.setNondet(currentBoxTransition.getNondet());
-				currentTransition.setNondet(this.concatenateNonDetTransitions(
-						currentTransition.getEvent(),
+				currentTransition.setNondet(this.concatenateNonDetTransitions(currentTransition.getEvent(),
 						currentTransition.getNondet(), nonDet));
 			} else {
-				LTSTransitionList newHead = new LTSTransitionList(
-						currentBoxTransition.getEvent(),
+				LTSTransitionList newHead = new LTSTransitionList(currentBoxTransition.getEvent(),
 						currentBoxTransition.getNext());
 				newHead.setNondet(currentBoxTransition.getNondet());
 				newHead.setList(head);
@@ -151,8 +174,8 @@ public class IntegratorEngine {
 		return head;
 	}
 
-	private LTSTransitionList concatenateNonDetTransitions(int event,
-			LTSTransitionList list1, LTSTransitionList list2) {
+	private LTSTransitionList concatenateNonDetTransitions(int event, LTSTransitionList list1,
+			LTSTransitionList list2) {
 
 		if (list1 == null) {
 			return list2;
@@ -164,8 +187,7 @@ public class IntegratorEngine {
 
 		while (currentTransition.getNondet() != null) {
 			if (currentTransition.getEvent() != event) {
-				throw new IllegalArgumentException(
-						"The transition in list 1 is not labeled with the correct event");
+				throw new IllegalArgumentException("The transition in list 1 is not labeled with the correct event");
 			}
 			currentTransition = currentTransition.getNondet();
 		}
@@ -173,8 +195,7 @@ public class IntegratorEngine {
 
 		while (currentTransition.getNondet() != null) {
 			if (currentTransition.getEvent() != event) {
-				throw new IllegalArgumentException(
-						"The transition in list 1 is not labeled with the correct event");
+				throw new IllegalArgumentException("The transition in list 1 is not labeled with the correct event");
 			}
 			currentTransition = currentTransition.getNondet();
 		}
@@ -214,8 +235,7 @@ public class IntegratorEngine {
 				LTSTransitionList p = sm[i].getStates()[j];
 				while (p != null) {
 					LTSTransitionList tr = p;
-					tr.setEvent(actionMap.get(
-							sm[i].getAlphabet()[tr.getEvent()]).intValue());
+					tr.setEvent(actionMap.get(sm[i].getAlphabet()[tr.getEvent()]).intValue());
 					while (tr.getNondet() != null) {
 						tr.getNondet().setEvent(tr.getEvent());
 						tr = tr.getNondet();
@@ -237,44 +257,31 @@ public class IntegratorEngine {
 		return length;
 	}
 
-	private void copyPostcondition(LabelledTransitionSystem newMachine,
-			int offset, LTSTransitionList[] dest, LabelledTransitionSystem m,
-			boolean last) {
+	private void copyPostcondition(LabelledTransitionSystem newMachine, int offset, LTSTransitionList[] dest,
+			LabelledTransitionSystem m) {
 		for (int i = 0; i < m.getStates().length; i++) {
-			if (!last) {
-				dest[i + offset] = LTSTransitionList.offsetSeq(offset,
-						m.getEndOfSequenceIndex(), m.getMaxStates() + offset,
-						m.getStates()[i]);
-			} else {
-				dest[i + offset] = LTSTransitionList.offsetSeq(offset,
-						m.getEndOfSequenceIndex(), m.getEndOfSequenceIndex()
-								+ offset, m.getStates()[i]);
-
-			}
+			dest[i + offset] = LTSTransitionList.offsetSeq(offset, newMachine.getMaxStates() + 1,
+					newMachine.getMaxStates() + 1, m.getStates()[i]);
 		}
-		m.getFinalStateIndexes().forEach(
-				e -> newMachine.addFinalStateIndex(e + offset));
+		m.getFinalStateIndexes().forEach(e -> newMachine.addFinalStateIndex(e + offset));
 	}
 
-	private void copyController(LabelledTransitionSystem newMachine,
-			int offset, LTSTransitionList[] dest, LabelledTransitionSystem m,
-			boolean last, int boxPosition) {
+	private void copyController(LabelledTransitionSystem newMachine, int offset, LTSTransitionList[] dest,
+			LabelledTransitionSystem m, boolean last, int boxPosition) {
 		for (int i = 0; i < m.getStates().length; i++) {
 
 			if (i != boxPosition) {
-				dest[i + offset] = offsetSeq(offset, m.getEndOfSequenceIndex(),
-						m.getEndOfSequenceIndex() + offset, m.getStates()[i]);
+				dest[i + offset] = offsetSeq(offset, m.getEndOfSequenceIndex(), m.getEndOfSequenceIndex() + offset,
+						m.getStates()[i]);
 
 			}
 		}
 
-		m.getFinalStateIndexes().forEach(
-				e -> newMachine.addFinalStateIndex(e + offset));
+		m.getFinalStateIndexes().forEach(e -> newMachine.addFinalStateIndex(e + offset));
 
 	}
 
-	private LTSTransitionList offsetSeq(int off, int seq, int max,
-			LTSTransitionList head) {
+	private LTSTransitionList offsetSeq(int off, int seq, int max, LTSTransitionList head) {
 		LTSTransitionList p = head;
 		while (p != null) {
 			LTSTransitionList q = p;

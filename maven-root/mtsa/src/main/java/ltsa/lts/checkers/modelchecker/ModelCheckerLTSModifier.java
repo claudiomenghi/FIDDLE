@@ -2,26 +2,22 @@ package ltsa.lts.checkers.modelchecker;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.annotation.Nonnull;
-
-import ltsa.lts.automata.automaton.StateMachine;
-import ltsa.lts.automata.automaton.transition.Transition;
-import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
-import ltsa.lts.checkers.IntegratorEngine;
-import ltsa.lts.output.LTSOutput;
-import ltsa.lts.parser.LTSCompiler;
-import ltsa.lts.parser.Symbol;
-import ltsa.ui.EmptyLTSOuput;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.google.common.base.Preconditions;
+
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.checkers.IntegratorEngine;
+import ltsa.lts.csp.Relation;
+import ltsa.lts.output.LTSOutput;
+import ltsa.lts.parser.LTSCompiler;
+import ltsa.ui.EmptyLTSOuput;
 
 /**
  * 
@@ -117,15 +113,43 @@ public class ModelCheckerLTSModifier {
 
 				LabelledTransitionSystem boxInterfaceAutomaton = this.createInterfaceLTS(boxInterface);
 				postConditions.put(box, boxInterfaceAutomaton);
+				
 			} else {
-				Set<String> boxInterface = controller.getBoxInterface(box);
-				LabelledTransitionSystem boxInterfaceAutomaton = this.createInterfaceLTS(boxInterface);
+				logger.debug(
+						"postcondition  associated with the box " + box + " of the controller " + controller.getName());
 
-				Vector<LabelledTransitionSystem> machines = new Vector<>();
-				machines.add(boxInterfaceAutomaton);
+				//Vector<LabelledTransitionSystem> machines = new Vector<>();
+				//machines.add(boxInterfaceAutomaton);
+
 				LabelledTransitionSystem machinePostCondition = mapBoxPostCondition.get(box);
 				String postCondition = machinePostCondition.getName();
+				
+				//machines.add(machinePostCondition);
 
+				CompositeState state = new CompositeState(machines);
+				//state.compose(new EmptyLTSOuput());
+
+				//machinePostCondition = state.getComposition();
+				//machinePostCondition.setName(postCondition);
+				machinePostCondition.getAccepting().forEach(machinePostCondition::addFinalStateIndex);
+				
+				Set<String> boxInterface = controller.getBoxInterface(box);
+				boxInterface.add("end");
+				logger.debug(
+						"postcondition  condition with filtered alphabet: " + machinePostCondition);
+				logger.debug("boxInterface: "+boxInterface);
+
+				Set<String> toBeRemoved=new HashSet<>(machinePostCondition.getAlphabetEvents());
+				toBeRemoved.removeAll(boxInterface);
+				machinePostCondition.removeTransitionsLabeledWithEvents(toBeRemoved);
+				
+				logger.debug(
+						"postcondition  condition with filtered alphabet: " + machinePostCondition);
+
+				
+				logger.debug("postcondition accepting states:"+machinePostCondition.getAccepting());
+				boxInterface.remove("end");
+				
 				postConditions.put(box,
 						processPost(controller, box, boxInterface, postCondition,
 								LTSCompiler.postconditionDefinitionManager.getPostCondition(controller.getName(), box),
@@ -146,13 +170,15 @@ public class ModelCheckerLTSModifier {
 			int boxPosition = controller.getBoxIndexes().get(box);
 
 			LabelledTransitionSystem postConditionLTS = mapBoxPostCondition.get(box);
+			
 
 			output.outln("\t Integrating the post-condition of box: " + box);
 
 			LabelledTransitionSystem cscopy = new IntegratorEngine().apply(cs, boxPosition, box, postConditionLTS);
 
-			cscopy.getAccepting().forEach(s -> cscopy.removeOutgoingTransitionsWithLabel(s, "end"));
-
+			if (cscopy.usesLabel("end")) {
+				cscopy.getAccepting().forEach(s -> cscopy.removeOutgoingTransitionsWithLabel(s, "end"));
+			}
 			cs = cscopy;
 
 		}
@@ -187,14 +213,17 @@ public class ModelCheckerLTSModifier {
 	 */
 	private LabelledTransitionSystem createInterfaceLTS(Set<String> boxInterface) {
 
-		StateMachine mc = new StateMachine(LTSCompiler.boxOfInterest + "-interface");
-		String initStateName = LTSCompiler.boxOfInterest + "-interface";
-		mc.addState(initStateName);
+		LabelledTransitionSystem lts = new LabelledTransitionSystem(LTSCompiler.boxOfInterest + "-interface");
+		int stateIndex = lts.addNewState();
+		// mc.addFinalState(initStateName);
 
-		boxInterface.stream().forEach(mc::addEvent);
-		boxInterface.stream().forEach(event -> mc.addTransition(new Transition(mc.getStateIndex(initStateName),
-				new Symbol(event, Symbol.UPPERIDENT), mc.getStateIndex(initStateName))));
-		return mc.makeCompactState();
+		boxInterface.stream().forEach(event -> {
+			int eventIndex = lts.addEvent(event);
+			lts.addTransition(stateIndex, eventIndex, stateIndex);
+
+		});
+		lts.addFinalStateIndex(stateIndex);
+		return lts;
 
 	}
 }

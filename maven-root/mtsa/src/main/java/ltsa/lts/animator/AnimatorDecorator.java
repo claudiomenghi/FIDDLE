@@ -5,12 +5,9 @@ import java.util.List;
 import java.util.Vector;
 
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
-import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.checkers.Analyser;
-import ltsa.lts.gui.EventManager;
 import ltsa.lts.ltl.FluentTrace;
 import ltsa.lts.operations.composition.parallel.StackCheck;
-import ltsa.lts.output.LTSOutput;
 import ltsa.lts.util.collections.MyList;
 
 public class AnimatorDecorator implements Animator {
@@ -27,7 +24,7 @@ public class AnimatorDecorator implements Animator {
 		return analyser.analyse(checkDeadlocks);
 	}
 	public boolean analyse(FluentTrace tracer) {
-		return analyser.analyse(tracer);
+		return analyser.analyse(tracer, true, true);
 	}
 	public LabelledTransitionSystem compose() {
 		return analyser.compose();
