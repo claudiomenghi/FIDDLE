@@ -1,22 +1,17 @@
 package ltsa.lts.checkers;
 
-import java.util.BitSet;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Preconditions;
+
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
-import ltsa.lts.csp.Relation;
 import ltsa.lts.util.Counter;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Given a Labeled Transition System, one of its boxes and the post-condition of
@@ -57,39 +52,30 @@ public class IntegratorEngine {
 		Preconditions.checkArgument(controllerMachine.getBoxIndexes().values().contains(boxIndex),
 				"The specified index is not an index of the box of the state machine");
 
-		logger.debug("Integrating the postcondition " + postConditionMachine);
-
 		LabelledTransitionSystem postConditionClone = postConditionMachine.myclone();
 
 		LabelledTransitionSystem newMachine = new LabelledTransitionSystem("");
+
+		logger.debug("Postcondition:  " + postConditionClone.getName());
+
 		newMachine.setAlphabet(sharedAlphabet(controllerMachine, postConditionClone));
 
-		newMachine.setBoxIndexes(new HashMap<String, Integer>(controllerMachine.getBoxIndexes()));
-		newMachine.getBoxIndexes().remove(postConditionMachine.getName());
-
-		controllerMachine.getBoxes().stream().filter(Predicate.isEqual(boxName).negate())
-				.forEach(box -> newMachine.setBoxInterface(box, controllerMachine.getBoxInterface(box)));
-
 		logger.debug("Size of the new machine: " + seqSize(controllerMachine, postConditionClone));
-
-		logger.debug("Postcondition:  " + postConditionClone);
 
 		// the number of states minus the box
 		newMachine.setStates(new LTSTransitionList[seqSize(controllerMachine, postConditionClone)]);
 
 		int offset = 0;
-		
-		
+
 		// copies the controller in the new machine
-		
-		copyController(newMachine, offset, newMachine.getStates(), controllerMachine, false, boxIndex);
+
+		copyController(newMachine, offset, newMachine.getStates(), controllerMachine,  boxIndex, boxName);
 
 		offset = controllerMachine.getStates().length;
 
 		// copies the post-condition in the new machine
 		copyPostcondition(newMachine, offset, newMachine.getStates(), postConditionClone);
 
-		logger.debug("new machine: " + newMachine);
 		newMachine.setEndOfSequence(postConditionClone.getEndOfSequenceIndex() + offset);
 
 		// merges the two machines
@@ -105,8 +91,6 @@ public class IntegratorEngine {
 					this.getMixTransitionList(boxList, newMachine.getTransitions(index + propertyOffset)));
 		});
 
-		logger.debug("new machine: " + newMachine);
-
 		return newMachine;
 	}
 
@@ -114,14 +98,14 @@ public class IntegratorEngine {
 			LabelledTransitionSystem machine2) {
 		Map<String, Integer> sharedAlphabet = new HashMap<>();
 		int i = 0;
-		
-		for(String event: machine1.getAlphabetEvents()){
+
+		for (String event : machine1.getAlphabetEvents()) {
 			if (!sharedAlphabet.containsKey(event)) {
 				sharedAlphabet.put(event, i);
 			}
 			i++;
 		}
-		for(String event: machine2.getAlphabetEvents()){
+		for (String event : machine2.getAlphabetEvents()) {
 			if (!sharedAlphabet.containsKey(event)) {
 				sharedAlphabet.put(event, i);
 			}
@@ -267,7 +251,7 @@ public class IntegratorEngine {
 	}
 
 	private void copyController(LabelledTransitionSystem newMachine, int offset, LTSTransitionList[] dest,
-			LabelledTransitionSystem m, boolean last, int boxPosition) {
+			LabelledTransitionSystem m, int boxPosition, String boxName) {
 		for (int i = 0; i < m.getStates().length; i++) {
 
 			if (i != boxPosition) {
@@ -277,7 +261,14 @@ public class IntegratorEngine {
 			}
 		}
 
-		m.getFinalStateIndexes().forEach(e -> newMachine.addFinalStateIndex(e + offset));
+		m.getBoxIndexes().entrySet().forEach(e -> {
+			if (e.getValue() != boxPosition) {
+				newMachine.addBoxIndex(e.getKey(), e.getValue() + offset);
+			}
+		});
+
+		m.getBoxes().stream().filter(Predicate.isEqual(boxName).negate())
+				.forEach(box -> newMachine.setBoxInterface(box, m.getBoxInterface(box)));
 
 	}
 

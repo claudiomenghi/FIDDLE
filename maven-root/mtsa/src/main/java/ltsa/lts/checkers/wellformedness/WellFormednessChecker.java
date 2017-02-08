@@ -82,9 +82,9 @@ public class WellFormednessChecker {
 		boolean result = system.checkLTL(new EmptyLTSOuput(), property);
 
 		if (result) {
-			output.outln("RESULT: all the valid traces satisfy the precondition");
+			output.outln("RESULT: all the valid traces satisfy the precondition "+preconditionName);
 		} else {
-			output.outln("RESULT: one of the valid traces violates the precondition");
+			output.outln("RESULT: one of the valid traces violates the precondition"+preconditionName);
 			output.outln(system.getErrorTrace().toString());
 		}
 		return system;

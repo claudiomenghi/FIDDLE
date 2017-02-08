@@ -96,6 +96,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 		List<int[]> transitions = ModelExplorer.eligibleTransitions(ctx, state);
 		if (transitions == null) {
 			if (!ModelExplorer.isEND(ctx, state)) {
+				System.out.println("end state reached");
 				deadlockDetected = true;
 			} else { // this is the end state
 				if (ctx.endSequence < 0)

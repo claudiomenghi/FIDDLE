@@ -222,7 +222,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	JMenu check;
 	JMenu build;
 	JMenu window;
-	JMenu help;
 	JMenu option;
 	JMenu menuEnactment;
 	JMenu menuEnactmentEnactors;
@@ -241,7 +240,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	JMenuItem buildCompile;
 	JMenuItem buildCompose;
 	JMenuItem buildMinimise;
-	JMenuItem helpAbout;
 	JMenuItem mtsRefinement;
 	JMenuItem mtsConsistency;
 
@@ -311,7 +309,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	private AppletButton isApplet = null;
 
 	private ApplicationContext applicationContext = null;
-
 
 	private String lastCompiled = "";
 
@@ -479,7 +476,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		buildMinimise.addActionListener(new DoAction(DOMINIMISECOMPOSITION));
 		build.add(buildMinimise);
 
-		
 		// window menu
 		window = new JMenu("Window");
 		mb.add(window);
@@ -501,15 +497,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		windowLayout.addActionListener(new WinLayoutAction());
 		window.add(windowLayout);
 		// help menu
-		help = new JMenu("Help");
-		mb.add(help);
-		helpAbout = new JMenuItem("About");
-		helpAbout.addActionListener(new HelpAboutAction());
-		help.add(helpAbout);
-		helpManual = new JCheckBoxMenuItem("Manual");
-		helpManual.setSelected(false);
-		helpManual.addActionListener(new HelpManualAction());
-		help.add(helpManual);
 		// option menu
 		OptionAction opt = new OptionAction();
 		option = new JMenu("Options");
@@ -659,21 +646,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		tools.add(controllerTargetChoice);
 		tools.addSeparator();
 
-		tools.addSeparator();
-		tools.add(createTool("src/main/java/ltsa/ui/icon/alphabet.gif", "Run Arranged Animation",
-				new DoAction(DOARRANGEDANIMATOR)));
-		tools.addSeparator();
-		tools.add(createTool("src/main/java/ltsa/ui/icon/exploration.gif", "Do Exploration",
-				new DoAction(DOEXPLORATION)));
-		tools.add(createTool("src/main/java/ltsa/ui/icon/manual.png", "Manual", new DoAction(DOEXPLORATIONMANUAL)));
-		tools.add(stepscount = createTextBox());
-		tools.add(createTool("src/main/java/ltsa/ui/icon/stepover.png", "Step Over",
-				new DoAction(DOEXPLORATIONSTEPOVER)));
-		tools.add(createTool("src/main/java/ltsa/ui/icon/resume.png", "Resume", new DoAction(DOEXPLORATIONRESUME)));
-
 		getContentPane().add("North", tools);
-		tools.addSeparator();
-		tools.add(createTool("src/main/java/ltsa/ui/icon/blanker.gif", "Blank Screen", new BlankAction()));
 
 		// >>> AMES: Text Search
 		findDialog = new FindDialog(this) {
@@ -1928,7 +1901,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			system.addMachine(realizabilityChecker.getModifiedControllerStep1());
 			system.compose(new EmptyLTSOuput());
 			LabelledTransitionSystem compositionStep1 = system.getComposition();
-			// adding the  property to the set of machine to be showed
+			// adding the property to the set of machine to be showed
 			machines.add(ltlProperty.getComposition());
 			compositionStep1.setName("COMPOSITION_STEP_1");
 			machines.add(compositionStep1);
@@ -1940,12 +1913,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 				system.addMachine(realizabilityChecker.getModifiedControllerStep2());
 				system.compose(new EmptyLTSOuput());
 				LabelledTransitionSystem compositionStep2 = system.getComposition();
-				// adding the negation of the property to the set of machine to be showed
+				// adding the negation of the property to the set of machine to
+				// be showed
 				machines.add(notLtlProperty.getComposition());
 				compositionStep2.setName("COMPOSITION_STEP_2");
-				
+
 				machines.add(compositionStep2);
-				
+
 			}
 
 			this.newMachines(machines);
@@ -2011,6 +1985,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 
 		final LabelledTransitionSystem controllerLTS = controller.getMachines().get(0);
 
+		machines.add(controller.getMachines().get(0));
 		// adds the post-conditions to the GUI
 		controllerLTS.getBoxes().stream().filter(
 				box -> LTSCompiler.postconditionDefinitionManager.hasPostCondition(controllerLTS.getName(), box))
@@ -2026,17 +2001,24 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		ModelChecker modelChecker = new ModelChecker(this, environment, controller, ltlProperty);
 		CompositeState checkedMachines = modelChecker.check();
 
+		machines.addAll(checkedMachines.getMachines());
+
 		CompositeState system = new CompositeState("System");
-		environment.getMachines().forEach(system::addMachine);
-		system.addMachine(modelChecker.getModifiedController().getMachines().get(0));
+		checkedMachines.getMachines().stream().filter(machine -> !machine.getName().equals(ltlProperty.getName())).forEach(machine ->system.addMachine(machine));
+		
+		StringBuilder machinesToString=new StringBuilder();
+		machinesToString.append("Machines: ");
+		system.getMachines().forEach(machine -> machinesToString.append(machine.getName()+"\t"));
+		logger.debug(machinesToString.toString());		
+		
+		StringBuilder machinesInterfaceToString=new StringBuilder();
+		machinesInterfaceToString.append("Machines: ");
+		system.getMachines().forEach(machine -> machinesInterfaceToString.append(machine.getName()+"["+machine.getAlphabetEvents()+"]"+machine.isProperty()+"\n"));
+		logger.debug(machinesInterfaceToString.toString());
+
+		
 		system.compose(new EmptyLTSOuput());
 
-		machines.addAll(checkedMachines.getMachines());
-		machines.add(controller.getMachines().get(0));
-	//	machines.addAll(
-	//	ltlProperty.getMachines());
-		machines.add(ltlProperty.getComposition());
-		
 		machines.add(system.getComposition());
 
 		this.newMachines(machines);
@@ -2310,7 +2292,6 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			postState(current);
 		}
 	}
-
 
 	private void doRefinement() {
 		if (compileIfChange() && current != null) {

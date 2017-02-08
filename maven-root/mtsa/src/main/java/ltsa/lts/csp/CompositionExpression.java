@@ -206,7 +206,6 @@ public class CompositionExpression {
 		c.makeAbstract = makeAbstract;
 		c.makeMDP = makeMDP;
 		c.makeEnactment = makeEnactment;
-		c.makeController = makeController;
 		c.makeSyncController = makeSyncController;
 		c.checkCompatible = checkCompatible;
 		c.isStarEnv = isStarEnv;
@@ -219,7 +218,7 @@ public class CompositionExpression {
 			c.makeDeterministic = true;
 			c.isProperty = true;
 		}
-		if (c.makeController || c.checkCompatible || c.isPlant
+		if ( c.checkCompatible || c.isPlant
 				|| c.isControlledDet || c.makeSyncController) {
 			this.buildAndSetGoal(c);
 		}

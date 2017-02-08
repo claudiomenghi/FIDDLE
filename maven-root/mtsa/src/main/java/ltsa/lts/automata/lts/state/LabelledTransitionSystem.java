@@ -113,8 +113,6 @@ public class LabelledTransitionSystem implements Automata {
 
 		events.forEach(event -> {
 			int eventIndex = this.getEvent(event);
-			logger.debug("event: "+event+" index: "+eventIndex);
-
 			for (int i = 0; i < this.states.length; i++)
 				this.states[i] = LTSTransitionList.removeEvent(this.states[i], eventIndex);
 		});
@@ -417,6 +415,78 @@ public class LabelledTransitionSystem implements Automata {
 		return hasDuplicates;
 	}
 
+	public void removeEvent(String event) {
+		if (this.getAlphabetEvents().contains(event)) {
+			Set<String> events = new HashSet<>();
+			events.add(event);
+			this.removeTransitionsLabeledWithEvents(events);
+
+			String[] oldAlphabet = alphabet;
+			this.alphabet = new String[this.alphabet.length - 1];
+			
+			boolean found=false;
+			for (int i = 0; i < oldAlphabet.length; i++) {
+				if (oldAlphabet[i].equals(event)) {
+					found = true;
+				} else {
+					if (found) {
+						this.alphabet[i - 1] = oldAlphabet[i];
+					} else {
+						this.alphabet[i] = oldAlphabet[i];
+					}
+				}
+			}
+		}
+	}
+
+	public void relabel(String oldLabel, String newLabel) {
+
+		int oldLabelIndex = -1;
+		for (int i = 0; i < alphabet.length; i++) {
+			if (alphabet[i] == oldLabel) {
+				oldLabelIndex = i;
+			}
+		}
+		if (oldLabelIndex == -1) {
+			throw new IllegalArgumentException("label " + oldLabel + " not contained in the alphabet of the automaton");
+		}
+
+		int newLabelIndex = -1;
+		for (int i = 0; i < alphabet.length; i++) {
+			if (alphabet[i] == newLabel) {
+				newLabelIndex = i;
+			}
+		}
+		if (newLabelIndex == -1) {
+			throw new IllegalArgumentException("label " + newLabel + " not contained in the alphabet of the automaton");
+		}
+		boolean found = false;
+		Hashtable<Integer, Integer> oldToNew = new Hashtable<>();
+
+		String[] oldAlphabet = alphabet;
+		this.alphabet = new String[this.alphabet.length - 1];
+		for (int i = 0; i < oldAlphabet.length; i++) {
+			if (oldAlphabet[i].equals(oldLabel)) {
+				found = true;
+				oldToNew.put(i, newLabelIndex);
+			} else {
+				if (found) {
+					this.alphabet[i - 1] = oldAlphabet[i];
+					oldToNew.put(i, i - 1);
+				} else {
+					this.alphabet[i] = oldAlphabet[i];
+					oldToNew.put(i, i);
+				}
+			}
+		}
+
+		for (int i = 0; i < this.states.length; i++) {
+
+			this.states[i] = LTSTransitionList.renumberEvents(this.states[i], oldToNew);
+		}
+
+	}
+
 	public void relabel(Relation oldtonew) {
 		hasDuplicates = false;
 		if (oldtonew.isRelation())
@@ -679,6 +749,14 @@ public class LabelledTransitionSystem implements Automata {
 		for (int i = 0; i < states.length; i++) {
 			states[i] = this.offsetSeq(offset, states[i]);
 		}
+		Set<Integer> oldFinalStateIndexes = this.finalStateIndexes;
+		this.finalStateIndexes = new HashSet<>();
+		oldFinalStateIndexes.forEach(index -> this.finalStateIndexes.add(index + offset));
+
+		Map<String, Integer> oldBoxIndexes = this.boxIndexes;
+		this.boxIndexes = new HashMap<>();
+		oldBoxIndexes.entrySet().forEach(e -> this.boxIndexes.put(e.getKey(), e.getValue() + offset));
+
 	}
 
 	private LTSTransitionList offsetSeq(int offset, LTSTransitionList head) {
@@ -1508,7 +1586,11 @@ public class LabelledTransitionSystem implements Automata {
 			this.states[stateIndex] = LTSTransitionList.removeEvent(this.states[stateIndex],
 					this.alphabetMap().get(label));
 		}
+	}
 
+	public void removeTransition(int stateSource, int event, int stateDestination) {
+		this.states[stateSource] = LTSTransitionList.remove(this.states[stateSource],
+				new LTSTransitionList(event, stateDestination));
 	}
 
 	public Map<String, Integer> getBoxIndexes() {

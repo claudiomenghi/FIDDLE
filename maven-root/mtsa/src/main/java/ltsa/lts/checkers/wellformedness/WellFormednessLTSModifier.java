@@ -6,7 +6,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import ltsa.lts.Diagnostics;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.google.common.base.Preconditions;
+
+import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.IntegratorEngine;
@@ -14,13 +19,6 @@ import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
 import ltsa.ui.EmptyLTSOuput;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;
-
-import com.google.common.base.Preconditions;
 
 /**
  * 
@@ -88,229 +86,199 @@ public class WellFormednessLTSModifier {
 	 *            the box of interest
 	 * @return the LTS modified with post conditions
 	 */
-	public LabelledTransitionSystem modify(LabelledTransitionSystem controller,
-			String boxOfInterest) {
+	public LabelledTransitionSystem modify(LabelledTransitionSystem controller, String boxOfInterest) {
 
 		output.outln("\t APPLYING STEP1. Boxes: " + controller.getBoxes());
 		logger.debug("APPLYING STEP1. Boxes: " + controller.getBoxes());
 
 		// STEP 1
-		Map<String, LabelledTransitionSystem> mapBoxPostCondition = this
-				.step1(controller);
+		Map<String, LabelledTransitionSystem> mapBoxPostCondition = this.step1(controller);
 
-		logger.debug("Boxes with post-conditions: "
-				+ mapBoxPostCondition.keySet());
+		logger.debug("Boxes with post-conditions: " + mapBoxPostCondition.keySet());
 		// STEP 2
-		Set<String> boxesToBeConsideredInStep2 = new HashSet<>(
-				controller.getBoxes());
+		Set<String> boxesToBeConsideredInStep2 = new HashSet<>(controller.getBoxes());
 		boxesToBeConsideredInStep2.remove(boxOfInterest);
 
 		logger.debug("APPLYING STEP2. Boxes: " + boxesToBeConsideredInStep2);
-		LabelledTransitionSystem newController = this.step2(controller,
-				boxesToBeConsideredInStep2, mapBoxPostCondition);
+		LabelledTransitionSystem newController = this.step2(controller, boxesToBeConsideredInStep2,
+				mapBoxPostCondition);
 
-		logger.debug("Size of the new controller: " + newController.getName()
-				+ ": " + newController.size());
+		logger.debug("Size of the new controller: " + newController.getName() + ": " + newController.size());
 		logger.debug("APPLYING STEP3. Box of interest: " + boxOfInterest);
 		// STEP 3
-		newController = this.step3(newController, boxOfInterest,
-				mapBoxPostCondition);
-		logger.debug("Size of the new controller: " + newController.getName()
-				+ ": " + newController.size());
+		newController = this.step3(newController, boxOfInterest, mapBoxPostCondition);
+		logger.debug("Size of the new controller: " + newController.getName() + ": " + newController.size());
 		return newController;
 	}
 
-	private Map<String, LabelledTransitionSystem> step1(
-			LabelledTransitionSystem controller) {
+	private Map<String, LabelledTransitionSystem> step1(LabelledTransitionSystem controller) {
+		output.outln("APPLYING STEP1. Boxes: " + controller.getBoxes());
 
 		Map<String, LabelledTransitionSystem> mapBoxPostCondition = new HashMap<>();
 		for (String box : controller.getBoxes()) {
 
-			logger.debug("Searching the post condition for the box " + box
-					+ " of the controller: " + controller.getName());
+			logger.debug(
+					"Searching the post condition for the box " + box + " of the controller: " + controller.getName());
 
-			if (LTSCompiler.postconditionDefinitionManager
-					.getMapBoxPostcondition().containsKey(controller.getName())) {
-				logger.debug("a postcondition is associated with the controller "
-						+ controller.getName());
+			if (LTSCompiler.postconditionDefinitionManager.hasPostCondition(controller.getName(), box)) {
 
-				if (LTSCompiler.postconditionDefinitionManager
-						.getMapBoxPostcondition().get(controller.getName())
-						.containsKey(box)) {
-					String postConditionName = LTSCompiler.postconditionDefinitionManager
-							.getMapBoxPostcondition().get(controller.getName())
-							.get(box);
-					logger.debug("The postcondition: " + postConditionName
-							+ " is associated with the box: " + box
-							+ " of the controller " + controller.getName());
+				String postConditionName = LTSCompiler.postconditionDefinitionManager
+						.getPostCondition(controller.getName(), box);
+				logger.debug("The postcondition " + postConditionName + " is associated with the box " + box);
 
-					mapBoxPostCondition.put(box,
-							LTSCompiler.postconditionDefinitionManager
-									.toFiniteLTS(
-											new EmptyLTSOuput(),
-											new HashSet<String>(controller
-													.getAlphabetEvents()),
-											postConditionName));
-				} else {
-					logger.debug("No postcondition is associated with the box: "
-							+ box
-							+ " of the controller "
-							+ controller.getName());
-				}
+				mapBoxPostCondition.put(box, LTSCompiler.postconditionDefinitionManager.toFiniteLTS(new EmptyLTSOuput(),
+						controller.getBoxInterface(box), postConditionName));
 			} else {
-				logger.debug("No post condition associated with the box: "
-						+ box + " of the controller: " + controller.getName());
+				logger.debug("no postcondition  associated with the box " + box + " of the controller "
+						+ controller.getName());
 			}
 		}
-		return mapBoxPostCondition;
+
+		Map<String, LabelledTransitionSystem> postConditions = new HashMap<>();
+
+		for (String box : controller.getBoxes()) {
+			if (!mapBoxPostCondition.keySet().contains(box)) {
+				logger.debug("no postcondition  associated with the box " + box + " of the controller "
+						+ controller.getName());
+				logger.debug("Adding an automaton that can recognize all the events of the interface of the box");
+				Set<String> boxInterface = controller.getBoxInterface(box);
+				logger.debug("Interface of the box " + box + ": " + boxInterface);
+
+				LabelledTransitionSystem boxInterfaceAutomaton = this.createInterfaceLTS(boxInterface);
+				postConditions.put(box, boxInterfaceAutomaton);
+
+			} else {
+				logger.debug(
+						"postcondition  associated with the box " + box + " of the controller " + controller.getName());
+
+				LabelledTransitionSystem machinePostCondition = mapBoxPostCondition.get(box);
+
+				machinePostCondition.getAccepting().forEach(machinePostCondition::addFinalStateIndex);
+				machinePostCondition.getAccepting().forEach(state -> machinePostCondition.removeTransition(state,
+
+						machinePostCondition.getEvent("end"), state));
+
+				Set<String> boxInterface = controller.getBoxInterface(box);
+				boxInterface.add("end");
+				logger.debug("Postcondition associated with  the box: " + box + " alphabet: " + boxInterface);
+
+				Set<String> toBeRemoved = new HashSet<>(machinePostCondition.getAlphabetEvents());
+				toBeRemoved.removeAll(boxInterface);
+				machinePostCondition.removeTransitionsLabeledWithEvents(toBeRemoved);
+
+				logger.debug("postcondition accepting states:" + machinePostCondition.getAccepting());
+				boxInterface.remove("end");
+				postConditions.put(box, mapBoxPostCondition.get(box));
+			}
+		}
+		return postConditions;
 	}
 
-	private LabelledTransitionSystem step2(LabelledTransitionSystem controller,
-			Set<String> boxes,
+	private LabelledTransitionSystem step2(LabelledTransitionSystem controller, Set<String> boxes,
 			Map<String, LabelledTransitionSystem> mapBoxPostCondition) {
 		output.outln("\t APPLYING STEP2. Boxes: " + boxes);
 
+		output.outln("APPLYING STEP2. Boxes: " + mapBoxPostCondition.keySet());
+
 		LabelledTransitionSystem cs = controller.clone();
+
 		for (String box : boxes) {
 
 			int boxPosition = controller.getBoxIndexes().get(box);
 
-			logger.debug("Analizing the box: " + box);
-			if (mapBoxPostCondition.containsKey(box)) {
-				LabelledTransitionSystem postConditionLTS = mapBoxPostCondition
-						.get(box);
-				logger.debug("\t \t Integrating the post-condition of box: "
-						+ box);
-				Vector<String> toHide=new Vector<>();
-				toHide.add(LTLf2LTS.endSymbol.getValue());
-				
-				postConditionLTS.conceal(toHide);
-				cs = new IntegratorEngine().apply(cs, boxPosition, box,
-						postConditionLTS);
-			} else {
-				logger.debug("No post-condition associated with the box: "
-						+ box + " adding the self-loop");
-				cs = this.addInterfaceSelfLoop(cs, box);
+			LabelledTransitionSystem postConditionLTS = mapBoxPostCondition.get(box);
+
+			output.outln("\t Integrating the post-condition of box: " + box);
+
+			LabelledTransitionSystem cscopy = new IntegratorEngine().apply(cs, boxPosition, box, postConditionLTS);
+
+			for (int eventIndex = 0; eventIndex < cs.getAlphabet().length; eventIndex++) {
+				for (int finalStateIndex : cscopy.getFinalStateIndexes()) {
+					cscopy.removeTransition(finalStateIndex,eventIndex , finalStateIndex);
+				}
 			}
+			cs = cscopy;
+
 		}
 		cs.setName(controller.getName() + POST_CONDITION_SUFFIX);
-		
+
+		cs.relabel("end", "tau");
+		cs.removeEvent("@any");
 		return cs;
 
 	}
 
-	private LabelledTransitionSystem step3(LabelledTransitionSystem controller,
-			String box,
+	private LabelledTransitionSystem step3(LabelledTransitionSystem controller, String box,
 			Map<String, LabelledTransitionSystem> mapBoxPostCondition) {
 		output.outln("\t APPLYING STEP3. Box: " + box);
 
 		LabelledTransitionSystem newController;
 
-		if (mapBoxPostCondition.containsKey(box)) {
-			LabelledTransitionSystem machinePostCondition = mapBoxPostCondition
-					.get(box);
-			output.outln("\t \t Integrating the post-condition of box: " + box);
-			logger.debug("Integrating the post-condition: "
-					+ machinePostCondition.getName()
-					+ " associated with the box: " + box
-					+ " in the controller: " + controller.getName());
-			String postCondition = machinePostCondition.getName();
+		LabelledTransitionSystem machinePostCondition = mapBoxPostCondition.get(box);
+		output.outln("\t \t Integrating the post-condition of box: " + box);
+		logger.debug("Integrating the post-condition: " + machinePostCondition.getName() + " associated with the box: "
+				+ box + " in the controller: " + controller.getName());
 
-			machinePostCondition = processPost(controller, box,
-					controller.getBoxInterface(box), postCondition,
-					mapBoxPostCondition);
+		machinePostCondition = mapBoxPostCondition.get(box);
 
-			int newInitiatilState = machinePostCondition.addInitialState();
-
-			int eventIndex = machinePostCondition.addEvent(LTLf2LTS.endSymbol
-					.getValue());
-			int endStateIndex = machinePostCondition.addNewState();
-			machinePostCondition.addFinalStateIndex(endStateIndex);
-			machinePostCondition.addTransition(endStateIndex, eventIndex,
-					endStateIndex);
-
-			int tauIndex = machinePostCondition.addEvent(MTSConstants.TAU);
-			machinePostCondition.addTransition(newInitiatilState, tauIndex, 1);
-			machinePostCondition.addTransition(0, eventIndex, endStateIndex);
-
-			int boxPosition = controller.getBoxIndexes().get(box);
-
-			logger.debug("Post-condition size: " + machinePostCondition.size());
-
-			newController = new IntegratorEngine().apply(controller,
-					boxPosition, box, machinePostCondition);
-			newController.setName(controller.getName() + POST_CONDITION_SUFFIX);
-
-		} else {
-			logger.debug("No post-condition associated with the box: " + box);
-			logger.debug("Creating a self-loop with the interface events ");
-
-			newController = this.addInterfaceSelfLoop(controller, box);
-			int eventIndex = newController.addEvent(LTLf2LTS.endSymbol
-					.getValue());
-			int addedStateIndex = newController.addNewState();
-
-			newController.addTransition(addedStateIndex, eventIndex,
-					addedStateIndex);
-
-			newController.addFinalStateIndex(addedStateIndex);
-
-			int boxIndex = newController.getBoxIndexes().get(box);
-			newController.addTransition(boxIndex, eventIndex, addedStateIndex);
+		for (int eventIndex = 0; eventIndex < machinePostCondition.getAlphabet().length; eventIndex++) {
+			for (int finalStateIndex : machinePostCondition.getFinalStateIndexes()) {
+				machinePostCondition.removeTransition(finalStateIndex, eventIndex, finalStateIndex);
+			}
 		}
+
+		machinePostCondition.setName(controller.getName() + POST_CONDITION_SUFFIX);
+		machinePostCondition.relabel("end", "tau");
+		machinePostCondition.removeEvent("@any");
+		
+		int newInitiatilState = machinePostCondition.addInitialState();
+
+		int eventIndex = machinePostCondition.addEvent(LTLf2LTS.endSymbol.getValue());
+		int endStateIndex = machinePostCondition.addNewState();
+		machinePostCondition.addTransition(endStateIndex, eventIndex, endStateIndex);
+
+		int tauIndex = machinePostCondition.addEvent(MTSConstants.TAU);
+		machinePostCondition.addTransition(newInitiatilState, tauIndex, 1);
+		machinePostCondition.addTransition(0, eventIndex, endStateIndex);
+
+		int boxPosition = controller.getBoxIndexes().get(box);
+
+		logger.debug("Post-condition size: " + machinePostCondition.size());
+
+		// errore
+		newController = new IntegratorEngine().apply(controller, boxPosition, box, machinePostCondition);
+		newController.setName(controller.getName() + POST_CONDITION_SUFFIX);
+
+		newController.removeEvent("@any");
 		return newController;
 	}
 
-	private LabelledTransitionSystem addInterfaceSelfLoop(
-			LabelledTransitionSystem compiledProcess, String box) {
-		Set<String> boxInterface = compiledProcess.getBoxInterface(box);
-		Integer boxIndex = compiledProcess.getBoxIndexes().get(box);
+	
+	/**
+	 * returns a LTS with a single state and a self-loop labeled with the events
+	 * of the interface of the box
+	 * 
+	 * @param boxInterface
+	 *            the set of the events in the interface of the box
+	 * @return a LTS with a single state and a self-loop labeled with the events
+	 *         of the interface of the box
+	 * @throws NullPointerException
+	 *             if the interface of the box is null
+	 */
+	private LabelledTransitionSystem createInterfaceLTS(Set<String> boxInterface) {
 
-		LTSTransitionList holdOutgoingTransitions = compiledProcess
-				.getTransitions(boxIndex);
+		LabelledTransitionSystem lts = new LabelledTransitionSystem(LTSCompiler.boxOfInterest + "-interface");
+		int stateIndex = lts.addNewState();
+		// mc.addFinalState(initStateName);
 
-		compiledProcess.setState(boxIndex, null);
+		boxInterface.stream().forEach(event -> {
+			int eventIndex = lts.addEvent(event);
+			lts.addTransition(stateIndex, eventIndex, stateIndex);
 
-		int newState = compiledProcess.addNewState();
-		compiledProcess.addTransition(boxIndex,
-				compiledProcess.getEvent(MTSConstants.TAU), newState);
+		});
+		lts.addFinalStateIndex(stateIndex);
+		return lts;
 
-		LTSTransitionList newTransitions = holdOutgoingTransitions;
-		for (String event : boxInterface) {
-			compiledProcess.addEvent(event);
-			int eventIndex = compiledProcess.getEvent(event);
-			newTransitions = LTSTransitionList.addTransition(newTransitions,
-					eventIndex, newState);
-		}
-
-		compiledProcess.setState(newState, newTransitions);
-		return compiledProcess;
 	}
 
-	private LabelledTransitionSystem processPost(
-			LabelledTransitionSystem compiledProcess, String box,
-			Set<String> boxInterface, String postCondition,
-			Map<String, LabelledTransitionSystem> mapBoxPostCondition)
-			throws InternalError {
-		LabelledTransitionSystem machinePostCondition = mapBoxPostCondition
-				.get(box);
-
-		Set<String> postConditionCharacters = new HashSet<>(
-				machinePostCondition.getAlphabetEvents());
-		postConditionCharacters.remove("tau");
-		postConditionCharacters.remove("@any");
-		postConditionCharacters.remove("end");
-		if (!boxInterface.containsAll(postConditionCharacters)) {
-
-			postConditionCharacters.removeAll(boxInterface);
-			output.outln("The actions " + postConditionCharacters
-					+ " of the postcondition " + postCondition
-					+ " are not contained in the interface of the box " + box);
-			Diagnostics.fatal("The actions " + postConditionCharacters
-					+ " of the postcondition " + postCondition
-					+ " are not contained in the interface of the box " + box);
-		}
-
-		return machinePostCondition;
-	}
 }

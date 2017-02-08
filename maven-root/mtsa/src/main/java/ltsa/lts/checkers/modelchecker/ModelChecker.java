@@ -98,7 +98,7 @@ public class ModelChecker {
 
 		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(this.output).modify(controllerLTS);
 		
-		logger.debug("The controller works on the alphabet: "+modifiedController.getAlphabet());
+		logger.debug("The controller works on the alphabet: "+modifiedController.getAlphabetEvents());
 		this.modifiedController = new CompositeState(modifiedController.getName());
 		this.modifiedController.addMachine(modifiedController);
 
