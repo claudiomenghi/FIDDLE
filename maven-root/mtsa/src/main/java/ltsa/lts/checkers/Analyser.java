@@ -654,8 +654,8 @@ public class Analyser implements Animator, Automata {
 	 * @return the composition of LTS
 	 */
 	private int newStateCompose() {
-		System.gc(); // garbage collect before start
-
+		System.gc(); 
+		
 		// composes the state machines
 		this.compositionEngine = CompositionEngineFactory.createCompositionEngine(Options.getCompositionStrategyClass(),
 				coder);

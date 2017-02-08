@@ -134,7 +134,7 @@ fluent F_ShipCancelled = <shipCancel, A\{shipCancel}> initially False
 
 fluent F_ShipReq = <shipReq, A\{shipReq}> initially False
 fluent F_ProdReq = <prodReq, A\{prodReq}> initially False
-fluent F_UserReq=<userReq, A\{userReq}>
+
 
 fluent F_ProdCancelled = <prodCancel, A\{prodCancel}>  initially False
 fluent F_ReqCancelled = <reqCancelled, A\{reqCancelled}> initially False
@@ -147,30 +147,29 @@ fluent F_End = <end, A> initially False
 ltl_postcondition COMPONENT2 PREPARINGOFFER PREPARINGOFFER_POST=(<>(F_InfoRcvd))
 
  																				
-ltl_postcondition COMPONENT2 MANAGEREQUEST CORRECTLY_MANAGE_REQUEST=// necessary to make P3a satisfied
+ltl_postcondition COMPONENT2 MANAGEREQUEST CORRECTLY_MANAGE_REQUEST_POST=// necessary to make P3a satisfied
 																	(
 																		(<>F_ShipReq)
 																		// necessary to make P3b satisfied
 																		&&
-																	(<>F_ProdReq)
+																		(<>F_ProdReq)
 																	)
 
 ltl_postcondition COMPONENT2 DECLINEREQUEST CORRECTLY_DECLINE_REQUEST=// necessary to make P5a satisfied
 																		(
 																		(<>F_ProdCancelled)
 																		// necessary to make P5b satisfied
-																		&&
+																	&&
 																		(<>F_ShipCancelled)
 																	 )
 
-
-
-ltl_precondition COMPONENT2 PREPARINGOFFER PREPARINGOFFER_PRE=<>(F_UserReq && !(<>F_RespOk||<>F_ReqCancelled))
+ltl_precondition COMPONENT2 PREPARINGOFFER PREPARINGOFFER_PRE=<>(F_UserReq && !(<>F_RespOk||<>F_ReqCanc))
 
 ltl_precondition COMPONENT2 MANAGEREQUEST CORRECTLY_MANAGE_REQUEST_PRE=[](F_UserReq -> <>F_InfoRcvd)
 
 
 ltl_precondition COMPONENT2 DECLINEREQUEST CORRECTLY_DECLINE_REQUEST_PRE=[](F_UserReq -> <>F_InfoRcvd)
+
 //***************************************************************************************************
 // ADDITIONAL CONSTANTS
 //***************************************************************************************************

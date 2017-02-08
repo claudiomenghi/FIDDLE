@@ -71,7 +71,6 @@ public class CompositeState {
 	public boolean makeMinimal = false;
 	public boolean makeCompose = false; // force composition if true
 	public boolean isProperty = false;
-	public boolean makeController = false;
 	public boolean makeSyncController = false;
 	public boolean checkCompatible = false;
 	public boolean isStarEnv = false;
@@ -191,7 +190,7 @@ public class CompositeState {
 		if (machines != null && !machines.isEmpty()) {
 
 			Analyser analyzer = new Analyser(this, output, null, ignoreAsterisk);
-			this.composition = analyzer.composeNoHide();
+			this.composition = analyzer.compose();
 			this.applyLTSOperations(output);
 		}
 	}
@@ -422,12 +421,7 @@ public class CompositeState {
 		return composition;
 	}
 
-	public boolean compositionNotRequired() {
-		return (hidden == null && priorityLabels == null && !makeDeterministic && !makeMinimal && !makeCompose
-				&& !makeController && !makeSyncController);
-	}
-
-	/*
+		/*
 	 * prefix all constituent machines
 	 */
 	public void prefixLabels(String prefix) {
@@ -561,7 +555,7 @@ public class CompositeState {
 		c.makeControlStack = makeControlStack;
 		c.makeOptimistic = makeOptimistic;
 		c.makePessimistic = makePessimistic;
-		c.makeController = makeController;
+		
 		c.setMakeComponent(isMakeComponent());
 		c.setComponentAlphabet(getComponentAlphabet());
 		c.controlStackEnvironments = controlStackEnvironments;

@@ -896,7 +896,7 @@ public class TransitionSystemDispatcher {
 	 * @param ltsOutput
 	 */
 	public static void checkFLTL(CompositeState compositeState, CompositeState ltlProperty, LTSOutput ltsOutput) {
-		if (compositeState.makeController || compositeState.checkCompatible || compositeState.makeSyncController) {
+		if (compositeState.checkCompatible || compositeState.makeSyncController) {
 			checkControllerFLTL(compositeState, ltlProperty, ltsOutput);
 		} else {
 			compositeState.checkLTL(ltsOutput, ltlProperty);
@@ -1032,7 +1032,7 @@ public class TransitionSystemDispatcher {
 		if (MTSUtils.isMTSRepresentation(compositeState)) {
 			Diagnostics.fatal("MTS Progress check has not been defined yet.");
 		} else {
-			if (compositeState.makeController || compositeState.checkCompatible || compositeState.makeSyncController) {
+			if (compositeState.checkCompatible || compositeState.makeSyncController) {
 				Vector<LabelledTransitionSystem> machines = new Vector<LabelledTransitionSystem>();
 				machines.add(compositeState.getComposition());
 				CompositeState cs = new CompositeState(compositeState.getName(), machines);

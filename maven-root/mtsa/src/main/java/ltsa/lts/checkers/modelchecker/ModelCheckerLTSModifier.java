@@ -14,7 +14,6 @@ import com.google.common.base.Preconditions;
 
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.IntegratorEngine;
-import ltsa.lts.csp.Relation;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
 import ltsa.ui.EmptyLTSOuput;
@@ -113,47 +112,29 @@ public class ModelCheckerLTSModifier {
 
 				LabelledTransitionSystem boxInterfaceAutomaton = this.createInterfaceLTS(boxInterface);
 				postConditions.put(box, boxInterfaceAutomaton);
-				
+
 			} else {
 				logger.debug(
 						"postcondition  associated with the box " + box + " of the controller " + controller.getName());
 
-				//Vector<LabelledTransitionSystem> machines = new Vector<>();
-				//machines.add(boxInterfaceAutomaton);
-
 				LabelledTransitionSystem machinePostCondition = mapBoxPostCondition.get(box);
-				String postCondition = machinePostCondition.getName();
-				
-				//machines.add(machinePostCondition);
 
-				CompositeState state = new CompositeState(machines);
-				//state.compose(new EmptyLTSOuput());
-
-				//machinePostCondition = state.getComposition();
-				//machinePostCondition.setName(postCondition);
 				machinePostCondition.getAccepting().forEach(machinePostCondition::addFinalStateIndex);
-				
+				machinePostCondition.getAccepting().forEach(state -> machinePostCondition.removeTransition(state,
+
+						machinePostCondition.getEvent("end"), state));
+
 				Set<String> boxInterface = controller.getBoxInterface(box);
 				boxInterface.add("end");
-				logger.debug(
-						"postcondition  condition with filtered alphabet: " + machinePostCondition);
-				logger.debug("boxInterface: "+boxInterface);
+				logger.debug("Postcondition associated with  the box: " + box + " alphabet: " + boxInterface);
 
-				Set<String> toBeRemoved=new HashSet<>(machinePostCondition.getAlphabetEvents());
+				Set<String> toBeRemoved = new HashSet<>(machinePostCondition.getAlphabetEvents());
 				toBeRemoved.removeAll(boxInterface);
 				machinePostCondition.removeTransitionsLabeledWithEvents(toBeRemoved);
-				
-				logger.debug(
-						"postcondition  condition with filtered alphabet: " + machinePostCondition);
 
-				
-				logger.debug("postcondition accepting states:"+machinePostCondition.getAccepting());
+				logger.debug("postcondition accepting states:" + machinePostCondition.getAccepting());
 				boxInterface.remove("end");
-				
-				postConditions.put(box,
-						processPost(controller, box, boxInterface, postCondition,
-								LTSCompiler.postconditionDefinitionManager.getPostCondition(controller.getName(), box),
-								mapBoxPostCondition));
+				postConditions.put(box, mapBoxPostCondition.get(box));
 			}
 		}
 		return postConditions;
@@ -170,34 +151,25 @@ public class ModelCheckerLTSModifier {
 			int boxPosition = controller.getBoxIndexes().get(box);
 
 			LabelledTransitionSystem postConditionLTS = mapBoxPostCondition.get(box);
-			
 
 			output.outln("\t Integrating the post-condition of box: " + box);
 
 			LabelledTransitionSystem cscopy = new IntegratorEngine().apply(cs, boxPosition, box, postConditionLTS);
 
-			if (cscopy.usesLabel("end")) {
-				cscopy.getAccepting().forEach(s -> cscopy.removeOutgoingTransitionsWithLabel(s, "end"));
+			for (int eventIndex = 0; eventIndex < cs.getAlphabet().length; eventIndex++) {
+				for (int finalStateIndex : cscopy.getFinalStateIndexes()) {
+					cscopy.removeTransition(finalStateIndex,eventIndex , finalStateIndex);
+				}
 			}
 			cs = cscopy;
 
 		}
 		cs.setName(controller.getName() + POST_CONDITION_SUFFIX);
+
+		cs.relabel("end", "tau");
+		cs.removeEvent("@any");
 		return cs;
 
-	}
-
-	private LabelledTransitionSystem processPost(LabelledTransitionSystem compiledProcess, String box,
-			Set<String> boxInterface, String postCondition, String postConditionName,
-			Map<String, LabelledTransitionSystem> mapBoxPostCondition) throws InternalError {
-		LabelledTransitionSystem machinePostCondition = mapBoxPostCondition.get(box);
-
-		Set<String> postConditionCharacters = new HashSet<>(machinePostCondition.getAlphabetEvents());
-		postConditionCharacters.remove("tau");
-		postConditionCharacters.remove("@any");
-		postConditionCharacters.remove("end");
-
-		return machinePostCondition;
 	}
 
 	/**
