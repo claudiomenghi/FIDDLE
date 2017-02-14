@@ -4,13 +4,17 @@ import java.util.Vector;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.google.common.base.Preconditions;
 
 /**
  * -- evaluate {a,b,c,d,e} labels
  */
 public class ActionSet extends ActionLabels {
-
+	protected final Log logger = LogFactory.getLog(getClass());
+	
 	private LabelSet set;
 	protected Vector<String> actions;
 
@@ -28,7 +32,10 @@ public class ActionSet extends ActionLabels {
 
 	@Override
 	protected void initialise() {
+
+		logger.debug("Set:::::: "+set);
 		actions = set.getActions(locals, globals);
+		logger.debug("Actions:::::: "+actions);
 		current = low = 0;
 		high = actions.size() - 1;
 	}
@@ -57,7 +64,9 @@ public class ActionSet extends ActionLabels {
 		}
 		builder.append("}");
 		builder.append(" label set: {");
-		set.labels.forEach(action -> builder.append(action + "\t"));
+		if (set != null && set.labels != null) {
+			set.labels.forEach(action -> builder.append(action + "\t"));
+		}
 		builder.append("}");
 		return builder.toString();
 	}

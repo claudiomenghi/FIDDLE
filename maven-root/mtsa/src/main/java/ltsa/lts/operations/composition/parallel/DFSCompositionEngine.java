@@ -26,7 +26,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 	private ModelExplorerContext ctx;
 	private boolean deadlockDetected;
 	private long maxStateGeneration;
-	
+
 	public DFSCompositionEngine(StateCodec coder) {
 		Preconditions.checkNotNull(coder, "The coder cannot be null");
 		this.coder = coder;
@@ -88,7 +88,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 
 	@Override
 	public void processNextState() {
-		byte[] encodedState=getNextState();
+		byte[] encodedState = getNextState();
 		int[] state = coder.decode(encodedState);
 		this.analysed.markNextState(ctx.stateCount++);
 
@@ -96,7 +96,6 @@ public class DFSCompositionEngine implements CompositionEngine {
 		List<int[]> transitions = ModelExplorer.eligibleTransitions(ctx, state);
 		if (transitions == null) {
 			if (!ModelExplorer.isEND(ctx, state)) {
-				System.out.println("end state reached");
 				deadlockDetected = true;
 			} else { // this is the end state
 				if (ctx.endSequence < 0)
@@ -110,8 +109,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 			if (ModelExplorer.isFinal(ctx, state)) {
 				ctx.finalStates.add(encodedState);
 			}
-			CompositionEngineCommon.processTransitions(coder, ctx,
-					transitions, analysed, state);
+			CompositionEngineCommon.processTransitions(coder, ctx, transitions, analysed, state);
 		}
 	}
 
@@ -123,7 +121,7 @@ public class DFSCompositionEngine implements CompositionEngine {
 	@Override
 	public void setModelExplorerContext(ModelExplorerContext ctx) {
 		this.ctx = ctx;
-		this.ctx.finalStates=new HashSet<>();
+		this.ctx.finalStates = new HashSet<>();
 	}
 
 	@Override
@@ -169,12 +167,10 @@ public class DFSCompositionEngine implements CompositionEngine {
 
 					trapStateCode = coder.encode(trapState);
 				}
-				ctx.compTrans.add(analysed.getNextStateNumber(), trapStateCode,
-						tauIndex);
+				ctx.compTrans.add(analysed.getNextStateNumber(), trapStateCode, tauIndex);
 			}
 			analysed.removeNextState();
 		}
 	}
-	
-	
+
 }

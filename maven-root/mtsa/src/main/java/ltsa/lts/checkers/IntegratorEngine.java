@@ -9,8 +9,11 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.common.base.Preconditions;
 
+import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.csp.Declaration;
+import ltsa.lts.csp.Relation;
 import ltsa.lts.util.Counter;
 
 /**
@@ -69,7 +72,7 @@ public class IntegratorEngine {
 
 		// copies the controller in the new machine
 
-		copyController(newMachine, offset, newMachine.getStates(), controllerMachine,  boxIndex, boxName);
+		copyController(newMachine,  newMachine.getStates(), controllerMachine, boxIndex, boxName);
 
 		offset = controllerMachine.getStates().length;
 
@@ -79,7 +82,8 @@ public class IntegratorEngine {
 		newMachine.setEndOfSequence(postConditionClone.getEndOfSequenceIndex() + offset);
 
 		// merges the two machines
-		LTSTransitionList tauTransition = new LTSTransitionList(0, offset);
+		LTSTransitionList tauTransition = new LTSTransitionList(Declaration.TAU
+				, offset);
 		newMachine.setState(boxIndex, tauTransition);
 
 		// removes the accepting states
@@ -92,27 +96,6 @@ public class IntegratorEngine {
 		});
 
 		return newMachine;
-	}
-
-	public Map<String, Integer> getSharedAlphabet(LabelledTransitionSystem machine1,
-			LabelledTransitionSystem machine2) {
-		Map<String, Integer> sharedAlphabet = new HashMap<>();
-		int i = 0;
-
-		for (String event : machine1.getAlphabetEvents()) {
-			if (!sharedAlphabet.containsKey(event)) {
-				sharedAlphabet.put(event, i);
-			}
-			i++;
-		}
-		for (String event : machine2.getAlphabetEvents()) {
-			if (!sharedAlphabet.containsKey(event)) {
-				sharedAlphabet.put(event, i);
-			}
-			i++;
-		}
-		return sharedAlphabet;
-
 	}
 
 	/**
@@ -219,7 +202,8 @@ public class IntegratorEngine {
 				LTSTransitionList p = sm[i].getStates()[j];
 				while (p != null) {
 					LTSTransitionList tr = p;
-					tr.setEvent(actionMap.get(sm[i].getAlphabet()[tr.getEvent()]).intValue());
+					tr.setEvent(actionMap.get(
+							sm[i].getAlphabet()[tr.getEvent()]).intValue());
 					while (tr.getNondet() != null) {
 						tr.getNondet().setEvent(tr.getEvent());
 						tr = tr.getNondet();
@@ -242,53 +226,29 @@ public class IntegratorEngine {
 	}
 
 	private void copyPostcondition(LabelledTransitionSystem newMachine, int offset, LTSTransitionList[] dest,
-			LabelledTransitionSystem m) {
-		for (int i = 0; i < m.getStates().length; i++) {
+			LabelledTransitionSystem postCondition) {
+		for (int i = 0; i < postCondition.getStates().length; i++) {
 			dest[i + offset] = LTSTransitionList.offsetSeq(offset, newMachine.getMaxStates() + 1,
-					newMachine.getMaxStates() + 1, m.getStates()[i]);
+					newMachine.getMaxStates() + 1, postCondition.getStates()[i]);
 		}
-		m.getFinalStateIndexes().forEach(e -> newMachine.addFinalStateIndex(e + offset));
+		postCondition.getFinalStateIndexes().forEach(index -> newMachine.addFinalStateIndex(index + offset));
 	}
 
-	private void copyController(LabelledTransitionSystem newMachine, int offset, LTSTransitionList[] dest,
+	private void copyController(LabelledTransitionSystem newMachine, LTSTransitionList[] dest,
 			LabelledTransitionSystem m, int boxPosition, String boxName) {
 		for (int i = 0; i < m.getStates().length; i++) {
-
 			if (i != boxPosition) {
-				dest[i + offset] = offsetSeq(offset, m.getEndOfSequenceIndex(), m.getEndOfSequenceIndex() + offset,
-						m.getStates()[i]);
-
+				dest[i] = m.getStates()[i];
 			}
 		}
 
 		m.getBoxIndexes().entrySet().forEach(e -> {
 			if (e.getValue() != boxPosition) {
-				newMachine.addBoxIndex(e.getKey(), e.getValue() + offset);
+				newMachine.addBoxIndex(e.getKey(), e.getValue());
 			}
 		});
 
 		m.getBoxes().stream().filter(Predicate.isEqual(boxName).negate())
 				.forEach(box -> newMachine.setBoxInterface(box, m.getBoxInterface(box)));
-
 	}
-
-	private LTSTransitionList offsetSeq(int off, int seq, int max, LTSTransitionList head) {
-		LTSTransitionList p = head;
-		while (p != null) {
-			LTSTransitionList q = p;
-			while (q != null) {
-				if (q.getNext() >= 0) {
-					if (q.getNext() == seq)
-						q.setNext(max);
-					else
-						q.setNext(q.getNext() + off);
-				}
-				q = q.getNondet();
-			}
-			p = p.getList();
-		}
-
-		return head;
-	}
-
 }

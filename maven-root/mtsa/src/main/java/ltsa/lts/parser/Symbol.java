@@ -209,7 +209,7 @@ public class Symbol {
 	public static final int LTLPRECONDITION = 7002;
 	public static final int LTLPOSTCONDITION = 7003;
 	public static final int BOX = 7004;
-	public static final int REPLACEMENT = 7006;
+	public static final int SUBCOMPONENT = 7006;
 	public static final int FINAL = 7007;
 
 	public int kind;
@@ -221,7 +221,7 @@ public class Symbol {
 	private BigDecimal doubleValue;
 	private Object any; // add additional information
 
-	public static final String replacementCheckingEvent="init";
+	public static final String subcomponentCheckingEvent="init";
 	
 	public Symbol(String string) {
 		this();
@@ -353,8 +353,8 @@ public class Symbol {
 		// _______________________________________________________________________________________
 		switch (kind) {
 
-		case REPLACEMENT:
-			return "replacement";
+		case SUBCOMPONENT:
+			return "subcomponent";
 		case FINAL:
 			return "final";
 		case BOX:
@@ -681,7 +681,7 @@ public class Symbol {
 	static {
 		blueSymbols.add(BOX);
 		blueSymbols.add(FINAL);
-		blueSymbols.add(REPLACEMENT);
+		blueSymbols.add(SUBCOMPONENT);
 		blueSymbols.add(LTLPRECONDITION);
 		blueSymbols.add(LTLPOSTCONDITION);
 		blueSymbols.add(OPTIMISTIC);

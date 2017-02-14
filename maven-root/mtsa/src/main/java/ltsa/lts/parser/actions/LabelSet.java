@@ -44,9 +44,12 @@ public class LabelSet {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("{");
-		for (ActionLabels label : labels) {
-			builder.append(label.toString());
+		if (labels != null) {
+			for (ActionLabels label : labels) {
+				builder.append(label.toString()+",");
+			}
 		}
+		
 		builder.append("}");
 		return builder.toString();
 	}
@@ -56,18 +59,18 @@ public class LabelSet {
 		return actions2;
 	}
 
-	protected Vector<String> getActions(Hashtable<String, Value> locals,
-			Hashtable<String, Value> params) {
-		if (isConstant)
+	protected Vector<String> getActions(Hashtable<String, Value> locals, Hashtable<String, Value> params) {
+		if (isConstant) {
 			return actions;
-		if (labels == null)
+		}
+		if (labels == null) {
 			return null;
+		}
 		Vector<String> v = new Vector<String>();
 		Hashtable<String, String> dd = new Hashtable<>(); // detect and discard
 															// duplicates
 		@SuppressWarnings("unchecked")
-		Hashtable<String, Value> mylocals = locals != null ? (Hashtable<String, Value>) locals
-				.clone() : null;
+		Hashtable<String, Value> mylocals = locals != null ? (Hashtable<String, Value>) locals.clone() : null;
 		Enumeration<ActionLabels> e = labels.elements();
 		while (e.hasMoreElements()) {
 			ActionLabels l = e.nextElement();

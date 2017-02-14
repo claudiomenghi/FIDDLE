@@ -88,7 +88,7 @@ public class StateMachine {
 	private boolean exposeNotHide = false;
 	private boolean isStarEnv = false;
 
-	private boolean isReplacement = false;
+	private boolean isSubcomponent = false;
 
 	private HashMap<Integer, LabelledTransitionSystem> sequentialInserts;
 	Hashtable<Integer, Integer> preInsertsLast;
@@ -119,12 +119,12 @@ public class StateMachine {
 		make(spec);
 	}
 
-	public boolean isReplacement() {
-		return isReplacement;
+	public boolean isSubcomponent() {
+		return isSubcomponent;
 	}
 
-	public void setReplacement(boolean isReplacement) {
-		this.isReplacement = isReplacement;
+	public void setSubcomponent(boolean isSubcomponent) {
+		this.isSubcomponent = isSubcomponent;
 	}
 
 	private void make(ProcessSpec spec) {
@@ -171,8 +171,7 @@ public class StateMachine {
 	 *            the name of the final state to be added
 	 */
 	public void addFinalState(String stateName) {
-		Preconditions.checkNotNull(stateName,
-				"The name of the final state cannot be null");
+		Preconditions.checkNotNull(stateName, "The name of the final state cannot be null");
 		this.finalStates.add(stateName);
 	}
 
@@ -184,8 +183,12 @@ public class StateMachine {
 	 * @return
 	 */
 	public LabelledTransitionSystem makeCompactState() {
-		LabelledTransitionSystem c = new LabelledTransitionSystem(kludgeName,
-				this.stateLabel.lastLabel().intValue());
+		LabelledTransitionSystem c = new LabelledTransitionSystem(kludgeName, this.stateLabel.lastLabel().intValue());
+
+		for (String finalStateName : this.getFinalStates()) {
+			int finalStateIndex = explicitStates.get(finalStateName);
+			c.addFinalStateIndex(finalStateIndex);
+		}
 		Integer endIndex = explicitStates.get("END");
 		if (endIndex != null) {
 			c.setEndOfSequence(endIndex.intValue());
@@ -219,8 +222,7 @@ public class StateMachine {
 			}
 			int ev = getEventIndex(action);
 			LTSTransitionList evSt = EventStateFactory.createEventState(ev, t);
-			c.getStates()[t.getFrom()] = EventStateUtils.add(
-					c.getStates()[t.getFrom()], evSt);
+			c.getStates()[t.getFrom()] = EventStateUtils.add(c.getStates()[t.getFrom()], evSt);
 		}
 		if (sequentialInserts != null)
 			c.expandSequential(sequentialInserts);
@@ -235,9 +237,7 @@ public class StateMachine {
 		}
 		if (isProperty) {
 			if (c.isNonDeterministic() || c.hasTau())
-				Diagnostics
-						.fatal("primitive property processes must be deterministic: "
-								+ name);
+				Diagnostics.fatal("primitive property processes must be deterministic: " + name);
 			c.makeProperty();
 		}
 		checkForERROR(c);
@@ -279,17 +279,14 @@ public class StateMachine {
 
 	private Integer getEventIndex(String event) {
 		Preconditions.checkArgument(this.alphabet.keySet().contains(event),
-				"Event: " + event
-						+ " not contained in the alphabet of the machine "
-						+ this.name);
+				"Event: " + event + " not contained in the alphabet of the machine " + this.name);
 		return this.alphabet.get(event);
 	}
 
 	// is the first state = ERROR ie P = ERROR?
 	void checkForERROR(LabelledTransitionSystem c) {
 		Preconditions.checkArgument(this.explicitStates.containsKey(name),
-				"compact state " + name
-						+ " not contained into the explicit states");
+				"compact state " + name + " not contained into the explicit states");
 		Integer i = explicitStates.get(name);
 		if (i.intValue() == Declaration.ERROR) {
 			c.setStates(new LTSTransitionList[1]);
@@ -305,8 +302,7 @@ public class StateMachine {
 		sequentialInserts.put(state, mach);
 	}
 
-	public void preAddSequential(Integer start, Integer end,
-			LabelledTransitionSystem mach) {
+	public void preAddSequential(Integer start, Integer end, LabelledTransitionSystem mach) {
 		if (preInsertsLast == null)
 			preInsertsLast = new Hashtable<>();
 		if (preInsertsMach == null)
@@ -324,8 +320,7 @@ public class StateMachine {
 			LabelledTransitionSystem mach = preInsertsMach.get(start);
 			Integer end = preInsertsLast.get(start);
 			Integer newStart = new Integer(map[start.intValue()]);
-			mach.offsetSeq(newStart.intValue(),
-					end.intValue() >= 0 ? map[end.intValue()] : end.intValue());
+			mach.offsetSeq(newStart.intValue(), end.intValue() >= 0 ? map[end.intValue()] : end.intValue());
 			addSequential(newStart, mach);
 		}
 	}
@@ -366,8 +361,7 @@ public class StateMachine {
 		for (int i = 0; i < map.length; ++i) {
 			Integer alias = new Integer(map[i]);
 			if (!oldnew.containsKey(alias)) {
-				Integer newi = map[i] >= 0 ? number(alias, newLabel)
-						: new Integer(-1);
+				Integer newi = map[i] >= 0 ? number(alias, newLabel) : new Integer(-1);
 				oldnew.put(alias, newi);
 				map[i] = newi.intValue();
 			} else {
@@ -393,17 +387,11 @@ public class StateMachine {
 		output.outln("PROCESS: " + name);
 		// print alphabet
 		output.outln("ALPHABET:");
-		alphabet.keySet().stream()
-				.forEach(s -> output.outln("\t" + alphabet.get(s) + "\t" + s));
+		alphabet.keySet().stream().forEach(s -> output.outln("\t" + alphabet.get(s) + "\t" + s));
 		// print states
 		output.outln("EXPLICIT STATES:");
 
-		explicitStates
-				.keySet()
-				.stream()
-				.forEach(
-						s -> output.outln("\t" + explicitStates.get(s) + "\t"
-								+ s));
+		explicitStates.keySet().stream().forEach(s -> output.outln("\t" + explicitStates.get(s) + "\t" + s));
 		// print transitions
 		output.outln("TRANSITIONS:");
 		transitions.forEach(t -> output.outln("\t" + t));
@@ -423,31 +411,21 @@ public class StateMachine {
 		builder.append("PROCESS: " + name + "\n");
 		// print alphabet
 		builder.append("ALPHABET:" + "\n");
-		alphabet.keySet()
-				.stream()
-				.forEach(
-						s -> builder.append("\t" + alphabet.get(s) + "\t" + s
-								+ "\n"));
+		alphabet.keySet().stream().forEach(s -> builder.append("\t" + alphabet.get(s) + "\t" + s + "\n"));
 		// print states
 		builder.append("EXPLICIT STATES:" + "\n");
 
-		explicitStates
-				.keySet()
-				.stream()
-				.forEach(
-						s -> builder.append("\t" + explicitStates.get(s) + "\t"
-								+ s + "\n"));
+		explicitStates.keySet().stream().forEach(s -> builder.append("\t" + explicitStates.get(s) + "\t" + s + "\n"));
 		// print transitions
 		builder.append("TRANSITIONS:" + "\n");
 		transitions.forEach(t -> builder.append("\t" + t + "\n"));
 
 		builder.append("INTERFACES: " + "\n");
-		this.mapBoxInterface
-				.entrySet()
-				.stream()
-				.forEach(
-						t -> builder.append("\t box: " + t.getKey()
-								+ " interface: " + t.getValue() + "\n"));
+		this.mapBoxInterface.entrySet().stream()
+				.forEach(t -> builder.append("\t box: " + t.getKey() + " interface: " + t.getValue() + "\n"));
+
+		builder.append("FINAL STATES: " + "\n");
+		this.finalStates.forEach(s -> builder.append("\t" + s));
 		return builder.toString();
 	}
 
@@ -477,8 +455,7 @@ public class StateMachine {
 	 *             if the event is null
 	 */
 	public void addEvent(String event) {
-		Preconditions.checkNotNull(event,
-				"The event to be considered cannot be null");
+		Preconditions.checkNotNull(event, "The event to be considered cannot be null");
 		alphabet.put(event, eventLabel.label());
 
 	}
@@ -490,8 +467,7 @@ public class StateMachine {
 	 *            the transition to be added
 	 */
 	public void addTransition(Transition transition) {
-		Preconditions.checkNotNull(transition,
-				"The transition to be considered cannot be null");
+		Preconditions.checkNotNull(transition, "The transition to be considered cannot be null");
 		this.transitions.add(transition);
 	}
 
@@ -505,23 +481,6 @@ public class StateMachine {
 	}
 
 	/**
-	 * adds the state and the corresponding id
-	 * 
-	 * @param state
-	 *            the state to be added
-	 * @param id
-	 *            the id of the state
-	 * @throws NullPointerException
-	 *             if the state is null
-	 */
-	@Deprecated
-	public void addState(String state, int id) {
-		Preconditions.checkNotNull(state,
-				"The state to be considered cannot be null");
-		this.explicitStates.put(state, id);
-	}
-
-	/**
 	 * adds the state to the state machine
 	 * 
 	 * @param state
@@ -530,8 +489,7 @@ public class StateMachine {
 	 *             if the state is null
 	 */
 	public void addState(String state) {
-		Preconditions.checkNotNull(state,
-				"The state to be considered cannot be null");
+		Preconditions.checkNotNull(state, "The state to be considered cannot be null");
 
 		if (state.equals("ERROR")) {
 			this.explicitStates.put("ERROR", new Integer(Declaration.ERROR));
@@ -552,11 +510,9 @@ public class StateMachine {
 	 *             if the state is not contained into the state of the machine
 	 */
 	public Integer getStateIndex(String state) {
-		Preconditions.checkNotNull(state,
-				"The state to be considered cannot be null");
+		Preconditions.checkNotNull(state, "The state to be considered cannot be null");
 		Preconditions.checkArgument(this.explicitStates.containsKey(state),
-				"The state " + state
-						+ " is not contained into the state of the machine");
+				"The state " + state + " is not contained into the state of the machine");
 		return this.explicitStates.get(state);
 	}
 

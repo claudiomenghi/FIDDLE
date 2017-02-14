@@ -1,116 +1,98 @@
 # Purchase&Delivery
 
-In the purchase and delivery example, we imagine that the developer has to design a system that manages book orders.
+In the *purchase and delivery* example, we imagine that the developer has to design a system that manages book orders.
 The users purchese books online which must be delivered.
 The purchase and delivering component must use a furniture-sale and a shipping service to provide the desired functionality to the user.
 
-We consider two partial design for the purchase and delivering component. 
-These designs are contained in the file `purchaseAndDelivery.lts`, where the two purchase and delivering components are indicated as `purchaseAndDelivery1` and `purchaseAndDelivery2`, respectively.
+We consider two partial designs for the purchase and delivering component. 
+These designs are contained in the file *purchaseAndDelivery.lts*, where the two purchase and delivering components are indicated as `PartialComponent1` and `PartialComponent2`, respectively.
 
 Before discussing the two designs, we describe the environment in which they operate and the properties the components aim to ensure.
 
 #### Environment
 The environment where the components are deployed is composed by three components:
+
 * *Furniture sale*: aims at providing information about books and provide the books for being delivered<br/>
-![Furniture sale](furnitureSale.png "Furniture sale")
+<img src="Img/furnitureSale.png" alt="Furniture sale" style="width: 300px;"/>
 
 * *Shipping service*: provides information about cost and time of the shipping and allows to ship a book<br/>
-![Shipping interface](shippingService.png "Shipping interface")
+<img src="Img/shippingService.png" alt="Shipping interface" style="width: 300px;"/>
+
 
 * *User*: performs requests to the purchase and delivery system<br/>
-![User](user.png "User")
+![User](Img/user.png "User")
 
-The purchase and delivering component must synchronize the *Furniture sale*, the *Shipping service* and the *User*.
+The purchase and delivering component must synchronize the *furniture sale*, the *shipping service* and the *user*.
 #### Properties of interest
 
 * the system must check the presence of some book or ask shipping info only if the user sent a request:
-  * `P1=(! ( (!F_UsrReq) U (F_ShipInfoReq || F_ProdInfoReq) ) )`;
+  * `P1=(!((!F_UsrReq) U (F_ShipInfoReq || F_ProdInfoReq)))`;
 * an offer is provided to the user only if the furniture service has confirmed the availability of the requested product:
-  * `P2=[](F_UsrReq->(  ! ( (!F_InfoRcvd) U F_OfferRcvd))) `;
-* furniture and shipping are activated only if the user has decided to purchase. Specifically, after a user requests information about a product (i.e., the event `usrReq` occurs) a `userAck` always precedes a `shipReq` and a `userAck` always precedes a `prodReq`):
-  * `P3=[](F_UsrReq->(((!((!F_UserAck) W F_ShipReq))&&<>F_ShipReq) && ((!(!(F_UserAck) W F_ProdReq))&&<>F_ProdReq) ))`;
-* the system allows canceling an order only if the cancellation procedure was initiated by a user (i.e., a `prodCancel` or `shipCancel` event is always precedeed by a `userNack`):
-  * `P4=[](F_UsrReq->(!((!(F_UserNack) W (F_ProdCancel || F_ShipCancel)))))`;
-* a request is marked as canceled when both the product ordering and the shipping services have canceled the request (i.e., `F_ProdCancelled` and `F_ShipCancelled` always occur before `F_ReqCancelled`):
-  * `P5=[]( F_UsrReq->(!((!(F_ProdCancelled) W F_ReqCancelled)) && !((!(F_ShipCancelled) W F_ReqCancelled))))`;
-* a request succeeds only when both the product ordering and the shipping service have handled their requests correctly (i.e., the event `respOk` can occur only after the `prodReq` and the `shipReq` events occurred. These events indicate that a product request and a shipping request have been received and handled correctly by the furniture sale and the shipping services):
-  * `P6=[]((F_UsrReq && <>F_RespOk)-> (<>F_ShipReq && <>F_ProdReq))`;
+  * `P2=[](F_UsrReq->(!((!F_InfoRcvd) U F_OfferRcvd))) `;
+* the shipping service is activated only if the user has decided to purchase. Specifically, after a user requests information about a product (i.e., the event `usrReq` occurs) a `userAck` always precedes a `shipReq`:
+  * `P3=[](F_UsrReq->((!((!F_UserAck) W F_ShipReq))&&<>F_ShipReq))`;
 * after the user cancels a request, he/she can start a new session with the purchase and delivery system by performing a new request:
-  * `P7=[]((<>F_ReqCancelled)->(<>F_UsrReq))`.
+  * `P4=[](F_UsrReq & !F_ReqCanc -> (!F_UserAck W F_ReqCanc))`
+  
 
 ## Partial design 1
 
-In the first design the purchase and delivery component is made by two states: the regular state `1` and the black box state `2`. 
+In the first design the purchase and delivery component is made by four states: the regular states `1` and `3` and the black box states `2` and `4`. 
 The purchase and delivery moves from state `1` to state `2` whenever a `userReq` event is triggered.
-It moves from `2` to `1` whenever a `respOk` event is reveived. 
-The interface of state `2` contains all the events of the environment with the exception of `userReq` and `respOk`.
+It moves from `2` to `3` whenever a `offerRcvd` event is reveived. 
+The state `3` is left when a `userAck` event occur. 
+Finally, the purchase and delivery component moves from state `4` to `1` whenever a `respOk` or a `reqCanc` event occurs.
 
-
-![Partial Design 1](PartialDesign1.png "Partial Design 1")
+![Partial Design 1](Img/PartialDesign1.png "Partial Design 1")
 
 #### Experiment 1
-The following Table contains the results obtained without adding post-conditions to the state 2, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed.
-    
+*Running the realizability checker*:
 
-By running the *realizability checker* it is possible to conclude that:
+The following Table contains the results obtained without adding any post-condition to the state 2, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed. By running the *realizability checker* it is possible to conclude that:
 
-| Property | Realizability Checker | 
-| ---------|-----------------------|
-| P1       |        <p style="color:green">T</p>             |  
-| P2       |        <p style="color:green">T</p>             |   
-| P3       |       <p style="color:green">T</p>             |    
-| P4       |        <p style="color:green">T</p>           |     
-| P5       |        <p style="color:green">T</p>            |      
-| P6       |       <p style="color:green">T</p>            |      
-| P7       |       <p style="color:red">F</p>             |     
+<table border="1">
+    <tr>
+        <th>Property</th>
+        <th>Realizability Checker</th>
+    </tr>
+    <tr>
+        <td>P1</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P2</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P3</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P4</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P4a</td>
+        <td><p style="color:red">F</p></td>
+    </tr>
+</table>
 
-##### Realizability checker
 
-* `P1`: it is possible to realize a component that ensures that the system satisfies `P1`. Specifically, the realizability checker returned the following trace:<br/>
-`userReq`, `offerRcvd`, `usrNack`,	`reqCancelled`,	`shipInfoReq`,	`costAndTime`,	`shipReq`, `shipInfoReq`, `costAndTime`, `shipReq`, `shipInfoReq`, `costAndTime`.<br/>
-This is a trace that can be enforced by the purchase and delivery component that ensures that the system asks shipping info only if the user sent a request.
+* `P1`: it could be possible to realize a component that ensures that the system satisfies `P1`. Specifically, the realizability checker returned the following trace:<br/>
+`userReq`, `offerRcvd`, `usrNack`,	`reqCanc`,	`shipInfoReq`,	`costAndTime`,	`shipReq`, `shipInfoReq`, `costAndTime`, `shipReq`, `shipInfoReq`, `costAndTime`.<br/>
+This is a trace that can be enforced by the purchase and delivery component and ensures that the system asks shipping info if and only if the user sent a request.
 * `P2`: it is possible to realize a component that ensures that the system satisfies `P2`. Specifically, the realizability checker returned the following trace:<br/> 
-`userReq`, `prodInfoReq`, `infoRcvd`, `offerRcvd`, `usrNack`, `reqCancelled`, `shipInfoReq`, `costAndTime`, `prodReq`, `prodInfoReq`, `infoRcvd`, `shipReq`, `shipInfoReq`, `costAndTime`, `prodReq`, `prodInfoReq`, `infoRcvd`, `shipReq`.<br/> 
+`userReq`, `shipInfoReq`, `costAndTime`, `prodInfoReq`, `infoRcvd`, `offerRcvd`, `usrNack`, `reqCanc`, `shipReq`, `shipInfoReq`, `prodReq`, `prodInfoReq`, `infoRcvd`, `costAndTime`, `shipReq`, `shipInfoReq`, `prodReq`, `prodInfoReq`, `infoRcvd`, `costAndTime`.<br/> 
 This trace ensures that after a `userReq` event occurs, the offer is provided to the user (the event `offerRcvd` occurs) only if the furniture service has confirmed the availability of the requested product (the event `inforRcvd` occurs). 
-* `P3`: it is possible to realize a component that ensure that the system satisfies `P3`. Specifically, the realizability checker returned the following trace:<br/>
-`userReq`, `offerRcvd`, `shipInfoReq`, `costAndTime`, `usrAck`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `respOk`, `userReq`, `offerRcvd`, `usrAck`.
-This trace satisfies `P3` since the event `shipReq` never occurs. However, the developer would probably force the `shipReq` to finally occur. Thus we designed the properties `P3a` and `P3b` as follows
- * `P3a =[]((F_UsrReq&& (<>F_RespOk))->((!((!F_UserAck) W F_ShipReq))&& (<>F_ShipReq)))`<br/>
- Also a partial component that satisfies this requirement is satifiable. Specifically, the realizability checker returned the following trace:<br/>
- `userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `costAndTime`, `shipReq`, `respOk`, `userReq`, `offerRcvd`, `usrAck`,	`shipInfoReq`, `prodInfoReq`, `infoRcvd`, `prodReq`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `costAndTime`, `shipReq`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `prodInfoReq`, `infoRcvd`, `prodReq`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `costAndTime`, `shipReq`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `prodInfoReq`, `infoRcvd`, `prodReq`.
- A similar trace can be found by considering the requirement `P3b` as follows:
-  * `P3b =[]((F_UsrReq&& (<>F_RespOk))->((!((!F_UserAck) W F_ProdReq))&& (<>F_ProdReq)))`<br/>
-   Also a partial component that satisfies this requirement is satifiable. Specifically, the realizability checker returned the following trace:<br/>
-`userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `costAndTime`, `prodInfoReq`, `infoRcvd`, `prodReq`, `prodInfoReq`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `infoRcvd`, `prodReq`, `prodInfoReq`, `respOk`, `userReq`,	`offerRcvd`, `usrAck`, `infoRcvd`,	`prodReq`, `prodInfoReq`, `respOk`.	
-* `P4:` it is possible to realize a component that ensures that the system satisfies `P1`. Specifically, the realizability checker returned the following trace:<br/> 
-`userReq`, `offerRcvd`, `usrNack`, `reqCancelled`, `shipInfoReq`, `costAndTime`, `prodInfoReq`, `shipCancel`, `shipInfoReq`, `costAndTime`, `shipCancel`, `shipInfoReq`, `costAndTime`, `shipCancel`.<br/>
-This trance ensures that a `userAck` event is followed by a `F_ShipCancel`. However, as previously it is possible to force the events `prodCancel` and `shipCancel` to occur. Specifically, the requirements `P4a` and `P4b` are designed as follows:
- * `P4a=[]((F_UsrReq&&<>F_ProdCancel)->(!((!(F_UserNack) W (F_ProdCancel)))))`<br/>
-  Also a partial component that satisfies this requirement is satifiable. Specifically, the realizability checker returned the following trace:<br/>
-  `userReq`, `offerRcvd`, `usrNack`, `reqCancelled`, `shipInfoReq`,	`costAndTime`, `prodInfoReq`, `infoRcvd`, `prodCancel`, `shipReq`,	`shipInfoReq`, `costAndTime`, `prodInfoReq`, `infoRcvd`, `prodCancel`, `shipReq`, `shipInfoReq`, `costAndTime`, `prodInfoReq`, `infoRcvd`, `prodCancel`.
- * `P4b=[]((F_UsrReq&&<>F_ShipCancelled)->(!((!(F_UserNack) W (F_ShipCancelled)))))`<br/>
-  Also a partial component that satisfies this requirement is satifiable. Specifically, the realizability checker returned the following trace:<br/>
-  `userReq`, `offerRcvd`, `usrNack`, `reqCancelled`, `shipInfoReq`,	`costAndTime`, `prodInfoReq`, `shipCancel`,	`shipInfoReq`, `costAndTime`, `shipCancel`,	`shipInfoReq`, `costAndTime`, `shipCancel`.	
-* `P5:[]( F_UsrReq->(!((!(F_ProdCancelled) W F_ReqCancelled)) && !((!(F_ShipCancelled) W F_ReqCancelled))))`  it is possible to realize a component that ensure that the system satisfies `P5`. Specifically, the realizability checker returned the following trace:<br/>
-`userReq`, `offerRcvd`, `usrNack`, `shipInfoReq`, `costAndTime`, `shipCancel`, `shipInfoReq`, `costAndTime`, `prodInfoReq`, `infoRcvd`, `prodCancel`, `reqCancelled`, `prodInfoReq`, `infoRcvd`, `prodCancel`, `prodInfoReq`, `shipCancel`, `shipInfoReq`, `costAndTime`, `infoRcvd`, `prodCancel`, `prodInfoReq`, `shipCancel`, `shipInfoReq`, `costAndTime`, `infoRcvd`,	`prodCancel`, `prodInfoReq`, `shipCancel`.	
-Note that the subproperty `!((!(F_ShipCancelled) W F_ReqCancelled))` is satisfied since the fluent `F_ReqCancelled` is never true. Thus, it is possible to decompose `P5` as follows:
-  * `P5a=[]( F_UsrReq&&<>F_ReqCancelled->(!((!(F_ProdCancelled) W F_ReqCancelled))))`<br/>
-A component that satisfies this requirement is realizable. Specifically, the realizability checker returned the following trace:<br/>
-`userReq`, `offerRcvd`, `usrNack`, `shipInfoReq`, `costAndTime`, `prodInfoReq`, `infoRcvd`, `prodCancel`, `reqCancelled`, `shipReq`, `shipInfoReq`, `costAndTime`, `shipReq`, `shipInfoReq`, `costAndTime`, `shipReq`.		
- * `P5b=[]( F_UsrReq&&<>F_ReqCancelled->(!(!(F_ShipCancelled) W F_ReqCancelled)))`<br/>
- A component that satisfies this requirement is realizable. Specifically, the realizability checker returned the following trace:
-<br/>
-`userReq`, `offerRcvd`, `usrNack`, `shipInfoReq`, `costAndTime`, `shipCancel`, `reqCancelled`, `shipInfoReq`, `costAndTime`, `prodInfoReq`, `shipCancel`, `shipInfoReq`, `costAndTime`, `shipCancel`, `shipInfoReq`, `costAndTime`, `shipCancel`. 
-* `P6=[]( (F_UserAck-> <>F_RespOk) && (F_UserNack-> <>F_ReqCancelled) )` it is possible to realize a component that ensure that the system satisfies `P6`. Specifically, the realizability checker returned the following trace:<br/>
-`userReq`, `offerRcvd`, `usrNack`, `reqCancelled`, `shipInfoReq`, `costAndTime`, `shipReq`, `shipInfoReq`, `costAndTime`, `shipReq`, `shipInfoReq`, `costAndTime`.	
-Note that the requirement does not force the fluents `F_UserAck` and `F_UserNack` occur. Thus we rewritten `P6` as:
- * `P6a=[]( (F_UserAck-> <>F_RespOk) && <>F_UserAck )`<br/>
-    A component that realizes `P6a` could exist.
- * `P6b=[]( (F_UserNack-> <>F_ReqCancelled) &&<>F_UserNack)`<br/>
-    A component that realizes `P6b` could exist.
-* `P7= ([]((F_ReqCancelled-><>F_UsrReq)&&<>F_ReqCancelled))`<br/> 
-A component that satisfies `P7` is not realizable. Specifically, the box `2` can be left only if a `respOk` event occurs and no `userReq` event can occur while the purchase and delivery component is in `2`. Thus, after a `reqCanc` it is not possible to trigger the event `userReq`.
-This implies that the design of the partial controller must be modified.
+* `P3`: it is possible to realize a component that ensures the system satisfies `P3`. Specifically, the realizability checker returned the following trace:<br/>
+`userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `costAndTime`, `shipReq`, `prodInfoReq`, `infoRcvd`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `costAndTime`, `shipReq`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `costAndTime`, `shipReq`, `respOk`.<br/>
+This trace satisfies `P3` since the event `shipReq` is always preceeded by a `userAck`.
+* `P4= [](F_UsrReq->((!F_UserAck) U F_ReqCanc))`<br/> 
+A component that satisfies `P4` is  realizable. Specifically, the realizability checker returned the following trace:<br/> 
+`userReq`, `shipInfoReq`, `costAndTime`, `shipCancel`, `shipInfoReq`, `costAndTime`, `shipCancel`, `shipInfoReq`, `costAndTime`
+In this trace the event `reqCanc` never occurred for this reason the developer checks the requirement `P4a` made as follows
+* `P4a=[]((<>F_ReqCanc)&&(F_UsrReq && !F_ReqCanc -> (!F_UserAck W F_ReqCanc)))`<br/> 
+A component that satisfies `P4` is not realizable. Indeed, a component in which a `reqCanc` event is not preceeded by a `usrAck` is not realizable.
 
 ## Partial design 2
 In the second design the purchase and delivery component is made by five states: the regulars state `1` and `3` and the boxes `2`, `4` and `5`. 
@@ -119,49 +101,69 @@ It moves from `2` to `3` whenever a `offerRcvd` event is reveived.
 It moves from `3` to `4` and from `4` to `1` whenever a `userAck` and a `respOk` event is reveived. 
 It moves from `3` to `5` and from `5` to `1` whenever a `userNack` and a `reqCanc` event is reveived. 
 
-![Partial Design 2](PartialDesign2.png "Partial Design 2")
+![Partial Design 2](Img/PartialDesign2.png "Partial Design 2")
 
-#### Experiment 2
-The following Table contains the results obtained without adding post-conditions to the boxes, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed.
-    
+#### Experiment 2: partial design 2 with no post-conditions
+*Running the realizability checker*:
 
-By running the *realizability checker* it is possible to conclude that a component that ensures the satisfaction of all the properties of interest could be realizable. Specifically, also property `P7` can be satisfied by the current partial component.
+The following Table contains the results obtained without adding post-conditions to the boxes, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed. By running the *realizability checker* it is possible to conclude that a component that ensures the satisfaction of all the properties of interest could be realizable. Specifically, also property `P4` can be satisfied by the current partial component.
 
-| Property | Realizability Checker | 
-| ---------|-----------------------|
-| P1       |        <p style="color:green">T</p>             |  
-| P2       |        <p style="color:green">T</p>             |   
-| P3a       |       <p style="color:green">T</p>             |    
-| P3b       |       <p style="color:green">T</p>             |    
-| P4a       |        <p style="color:green">T</p>           |     
-| P4b       |        <p style="color:green">T</p>           |     
-| P5a       |        <p style="color:green">T</p>            |    
-| P5b       |        <p style="color:green">T</p>            |    
-| P6a       |       <p style="color:green">T</p>            |     
-| P6b       |       <p style="color:green">T</p>            |     
-| P7       |       <p style="color:green">T</p>             |     
+<table border="1">
+    <tr>
+        <th>Property</th>
+        <th>Realizability Checker</th>
+    </tr>
+    <tr>
+        <td>P1</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P2</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P3</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P4</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P4a</td>
+        <td><p style="color:green">T</p></td>
+    </tr>
+</table>
 
 
-##### Model checker
-The following Table contains the results obtained without adding post-conditions to the boxes, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed.
+*Running the model checker*:
+
+The following Table contains the results obtained without adding post-conditions to the boxes, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed. By running the *model checker* it is possible to conclude that the partial design satisfies the following properties. 
 
 
-By running the *model checker* it is possible to conclude that the partial design satisfies the following properties. 
+<table border="1">
+    <tr>
+        <th>Property</th>
+        <th>Model checker</th>
+    </tr>
+    <tr>
+        <td>P1</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P2</td>
+        <td><p style="color:red">F</p> </td>
+    </tr>
+    <tr>
+        <td>P3</td>
+        <td><p style="color:red">F</p> </td>
+    </tr>
+    <tr>
+        <td>P4</td>
+        <td><p style="color:red">F</p> </td>
+    </tr>
+</table>
 
-
-| Property | Model checker | 
-| ---------|-----------------------|
-| P1       |        <p style="color:green">T</p>             |  
-| P2       |        <p style="color:red">F</p>             |   
-| P3a       |       <p style="color:red">F</p>             |    
-| P3b       |       <p style="color:red">F</p>             |    
-| P4a       |        <p style="color:green">T</p>           |     
-| P4b       |        <p style="color:green">T</p>           |     
-| P5a       |        <p style="color:red">F</p>            |    
-| P5b       |        <p style="color:red">F</p>            |    
-| P6a       |       <p style="color:green">T</p>            |     
-| P6b       |       <p style="color:green">T</p>            |     
-| P7       |       <p style="color:green">T</p>             | 
 
 
 
@@ -169,53 +171,108 @@ By running the *model checker* it is possible to conclude that the partial desig
 * `P2`: the partial design `2` violates the property `P2`. Specifically, the model checker returned the following counterexample:<br/>
 `userReq`, `tau`, `offerRcvd`.<br/>
 In this trace the event `offerRcvd` is not preceeded by the event `infoRcvd`.
-* `P3a`: the partial design `2` violates the property `P3a`. Specifically, the model checker returned the following counterexample:<br/>
+* `P3`: the partial design `2` violates the property `P3`. Specifically, the model checker returned the following counterexample:<br/>
 `userReq`, `tau`, `offerRcvd`, `usrNack`, `tau`, `reqCancelled`, `userReq`, `tau`, `offerRcvd`, `usrNack`, `tau`, `reqCancelled` `usrReq`, `tau`, `offerRcvd`, `usrNack`<br/>
 In this trace the event `userReq` is never followed by a `shipReq`.
-* `P3b`: the partial design `2` violates the property `P3b`. Specifically, the model checker returned the following counterexample:<br/>
-`userReq`, `tau`, `offerRcvd`, `usrNack`, `tau`, `reqCancelled`, `userReq`, `tau`, `offerRcvd`,	`usrNack`, `tau`, `reqCancelled`, `userReq`, `tau`, `offerRcvd`, `usrNack`.	<br/>
-In this trace the event `userReq` is never followed by a `prodReq`.
-* `P5a`:  the partial design `2` violates the property `P5a`. Specifically, the model checker returned the following counterexample:<br/>
-`userReq`, `tau`, `offerRcvd`, `usrAck`, `tau`, `respOk`, `userReq`, `tau`, `offerRcvd`, `usrAck`, `tau`, `respOk`, `userReq`, `tau`, `offerRcvd`, `usrAck`.	<br/>
-In this trace the event `userReq` is not followed by a `reqCancelled`.
-* `P5b`: the partial design `2` violates the property `P5b`. Specifically, the model checker returned the following counterexample:<br/>
-`userReq`, `tau`, `offerRcvd`, `usrNack`, `tau`, `reqCancelled`, `userReq`, `tau`, `shipInfoReq`, `costAndTime`, `offerRcvd`, `usrAck`, `tau`, `respOk`, `userReq`, `tau`, `offerRcvd`, `usrAck`, `tau`, `respOk`, `userReq`, `tau`, `offerRcvd`, `userAck`. <br/>
-In this trace the event `reqCancelled` follows the event `userReq` without being preceeded by a `shipCancelled`. 
+* `P4`: the partial design `2` violates the property `P4`. Specifically, the model checker returned the following counterexample:<br/>
+`userReq`, `tau`, `offerRcvd`, `usrAck`, `tau`, `respOk`, `userReq`, `tau`, `offerRcvd`, `usrNack`, `tau`, `reqCanc`, `userReq`, `tau`, `offerRcvd`, `usrNack`, `tau`, `reqCanc`, `tau`, `offerRcvd`, `usrNack`, `tau`. <br/>
+In this trace, after a `userReq` event occurs, the event `reqCanc` is not preceeded by a `usrNack`. 
 
-## Partial design 2 with post-conditions
+#### Experiment 3: partial design 2 with post-conditions
+*Running the model checker*:
  
-The following Table contains the results obtained by adding post-conditions to the boxes, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed.
+The following Table contains the results obtained by adding post-conditions to the boxes, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed. By running the *model checker* it is possible to conclude that the partial design satisfies the following properties. 
 
 
-By running the *model checker* it is possible to conclude that the partial design satisfies the following properties. 
+<table border="1">
+    <tr>
+        <th>Property</th>
+        <th>Model checker</th>
+    </tr>
+    <tr>
+        <td>P1</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P2</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P3</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>P4</td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+</table>
 
-
-| Property | Model checker | 
-| ---------|-----------------------|
-| P1       |        <p style="color:green">T</p>             |  
-| P2       |        <p style="color:green">T</p>             |   
-| P3a       |       <p style="color:green">T</p>             |    
-| P3b       |       <p style="color:green">T</p>             |    
-| P4a       |        <p style="color:green">T</p>           |     
-| P4b       |        <p style="color:green">T</p>           |     
-| P5a       |        <p style="color:green">T</p>            |    
-| P5b       |        <p style="color:green">F</p>            |    
-| P6a       |       <p style="color:green">T</p>            |     
-| P6b       |       <p style="color:green">T</p>            |     
-| P7       |       <p style="color:green">T</p>             | 
 
 
 * `P1`: the property was already satisfied also without post-conditions;
-* `P2`: the post-condition `<>(F_InfoRcvd)` on box `2` ensures the satisfaction of `P2`.
-* `P3a`:  the post-condition `<>(F_ShipReq)` on box `4` ensures the satisfaction of `P3a`. 
-* `P3b`: the post-condition `<>(F_ProdReq)` on box `4` ensures the satisfaction of `P3b`.
-* `P4a`: the property was already satisfied also without post-conditions;
-* `P4b`: the property was already satisfied also without post-conditions;
-* `P5a`:  the post-condition `<>(F_ProdCancelled)` is added on box `5`.
-* `P5b`:  the post-condition `<>(F_ShipCancelled)` is added on box `5`.
-* `P6a`: the property was already satisfied also without post-conditions;
-* `P6b`: the property was already satisfied also without post-conditions;
-* `P7`: the property was already satisfied also without post-conditions;
+* `P2`: the post-condition `<>(F_InfoRcvd)&&<>(F_CostAndTime)` on box `2` ensures the satisfaction of `P2`.
+* `P3`:  the post-condition `<>(F_ShipReq)` on box `4` ensures the satisfaction of `P3`. 
+* `P4`: the post-condition `((!F_UserAck) U F_ReqCanc)` on box `5` ensures the satisfaction of `P4`
 
 
-TODO: show a refinement (without boxes) that satisfies the properties of interest 
+
+#### Experiment 4: partial design 2 with pre-conditions
+*Running the well-formedness checker*:
+
+The following Table contains the results obtained by adding post-conditions to the boxes, where `T` means that the procedure returns a positive results while `F` specifies that the procedure failed. By running the *model checker* it is possible to conclude that the partial design satisfies all the pre-conditions of the boxes. 
+
+
+<table border="1">
+    <tr>
+        <th>Precondition</th>
+        <th>Well-formedness checker</th>
+    </tr>
+    <tr>
+        <td>Box 2 </td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>Box 4 </td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+    <tr>
+        <td>Box 5 </td>
+        <td><p style="color:green">T</p> </td>
+    </tr>
+</table>    
+
+## Sub-component 1 for state 2
+
+In the following a sub-component for state `2` is shown. 
+Specifically, the sub-component is made by states `1`, `2`, `3` and `4`.
+The sub-component moves from `1` to `2`, `2` to `3` and `3` to `4` when events `shipInfoReq`, `costAndTime` and `prodInfoReq` occur.
+
+![Subcomponent for state 2](Img/subcomponent1.png "Subcomponent for state 2")
+
+#### Experiment 5: checking a sub-component
+
+*Running the substitutability checker*:
+
+By running the sub-stitutability checker it is possible to verify whether the sub-component satisfies the post-conditions of the corresponding box. Specifically the substitutability checker is used to verify whether the sub-component 1 ensures that the post-condition `<>(F_InfoRcvd)&&<>(F_CostAndTime)` is satisfied.
+
+The substitutability checker returned the following counterexample:<br/>
+`userReq`, `init`, `shipInfoReq`, `costAndTime`, `prodInfoReq`, `end`, `end`, `end`.<br/>
+Indeed, this run reaches the final state of the sub-component and in this run the event `infoRcvd` does not occur.
+
+
+## Sub-component 2 for state 2
+
+In the following a sub-component for state `2` is shown. 
+Specifically, the sub-component is made by states `1`, `2`, `3`, `4` and `5`.
+The sub-component moves from `1` to `2`, `2` to `3`, `3` to `4` and `4` to `5`  when events `shipInfoReq`, `costAndTime`, `prodInfoReq` and `infoRcvd` occur.
+
+![Subcomponent for state 2](Img/subcomponent2.png "Subcomponent for state 2")
+
+#### Experiment 6: checking a sub-component
+
+*Running the substitutability checker*:
+
+By running the sub-stitutability checker it is possible to verify whether the sub-component satisfies the post-conditions of the corresponding box. Specifically the substitutability checker is used to verify whether the sub-component 1 ensures that the FLTL post-condition `<>(F_InfoRcvd)&&<>(F_CostAndTime)` is satisfied.
+
+The substitutability checker confirms that the post-condition is satisfied.
+

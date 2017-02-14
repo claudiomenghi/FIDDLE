@@ -83,9 +83,9 @@ public class LTSCompiler {
 	public static PostconditionDefinitionManager postconditionDefinitionManager;
 
 	public static Hashtable<String, ProcessSpec> processes;
-	public static Hashtable<String, ProcessSpec> replacements;
+	public static Hashtable<String, ProcessSpec> subcomponents;
 
-	public static HashMap<String, String> mapBoxReplacementName;
+	public static HashMap<String, String> mapBoxSubComponentName;
 
 	public static Hashtable<String, LabelledTransitionSystem> compiled;
 	public static Hashtable<String, CompositionExpression> composites;
@@ -115,9 +115,9 @@ public class LTSCompiler {
 		LabelSet.constants = new Hashtable<>();
 		ProgressDefinition.definitions = new Hashtable<>();
 		MenuDefinition.definitions = new Hashtable<>();
-		mapBoxReplacementName = new HashMap<>();
+		mapBoxSubComponentName = new HashMap<>();
 		processes = new Hashtable<>();
-		replacements = new Hashtable<>();
+		subcomponents = new Hashtable<>();
 		Def.init();
 		PredicateDefinition.init();
 		AssertDefinition.init();
@@ -143,9 +143,9 @@ public class LTSCompiler {
 		ProbabilisticTransition.setLastProbBundle(ProbabilisticTransition.NO_BUNDLE);
 		nextSymbol();
 		while (current.kind != Symbol.EOFSYM) {
-			if (current.kind == Symbol.REPLACEMENT) {
+			if (current.kind == Symbol.SUBCOMPONENT) {
 				nextSymbol();
-				ProcessSpec p = compileReplacement();
+				ProcessSpec p = compileSubcomponent();
 
 				nextSymbol();
 				currentIs(Symbol.AT, "sub-controller interface expected");
@@ -157,7 +157,7 @@ public class LTSCompiler {
 				if (processes.put(p.getName(), p) != null) {
 					Diagnostics.fatal("duplicate process definition: " + p.getName(), p.getName());
 				} else {
-					replacements.put(p.getName(), p);
+					subcomponents.put(p.getName(), p);
 
 				}
 			} else if (current.kind == Symbol.LTLPRECONDITION) {
@@ -513,7 +513,7 @@ public class LTSCompiler {
 		compiled = new Hashtable<>(); // compiled
 		allComposites = new Hashtable<>(); // All composites
 		preconditionDefinitionManager.reset();
-		mapBoxReplacementName = new HashMap<>();
+		mapBoxSubComponentName = new HashMap<>();
 		postconditionDefinitionManager.reset();
 		doparse(composites, processes, compiled);
 	}
@@ -645,8 +645,10 @@ public class LTSCompiler {
 		LabelledTransitionSystem compiled;
 		if (!processSpec.imported()) {
 			StateMachine one = new StateMachine(processSpec);
+			logger.debug(one.toString());
 			compiled = one.makeCompactState();
 			output.outln("Compiled: " + compiled.getName());
+		
 
 		} else {
 			compiled = new AutCompactState(processSpec.getSymbol(), processSpec.importFile);
@@ -686,7 +688,7 @@ public class LTSCompiler {
 			compiled.put(compiledProcess.getName(), compiledProcess);
 		}
 
-		AssertDefinition.compileConstraints(output, compiled);
+
 	}
 
 	private LabelledTransitionSystem compileSingleProcess(ProcessSpec processSpec) {
@@ -703,28 +705,28 @@ public class LTSCompiler {
 		return compiledProcess;
 	}
 
-	private ProcessSpec compileReplacement() {
-		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the process the replacement refers to.");
+	private ProcessSpec compileSubcomponent() {
+		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the process the subcomponent refers to.");
 		nextSymbol();
 
-		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the box the replacement refers to.");
+		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the box the subcomponent refers to.");
 		Symbol box = current;
 
 		nextSymbol();
-		ProcessSpec replacementSpec = stateDefns();
+		ProcessSpec subComponentSpec = stateDefns();
 
-		if (mapBoxReplacementName.containsKey(box.getValue())) {
-			Diagnostics.fatal("duplicate replacement for the box: " + box);
+		if (mapBoxSubComponentName.containsKey(box.getValue())) {
+			Diagnostics.fatal("duplicate subcomponent for the box: " + box);
 		} else {
-			mapBoxReplacementName.put(box.getValue(), replacementSpec.getName());
+			mapBoxSubComponentName.put(box.getValue(), subComponentSpec.getName());
 		}
-		if (processes.containsKey(replacementSpec.getName())) {
-			Diagnostics.fatal("duplicate replacement definition: " + replacementSpec.getName(),
-					replacementSpec.getName());
+		if (processes.containsKey(subComponentSpec.getName())) {
+			Diagnostics.fatal("duplicate subcomponent definition: " + subComponentSpec.getName(),
+					subComponentSpec.getName());
 		}
-		replacementSpec.setReplacement(true);
+		subComponentSpec.setSubComponent(true);
 
-		return replacementSpec;
+		return subComponentSpec;
 	}
 
 	private CompositeState noCompositionExpression(Hashtable<String, LabelledTransitionSystem> compiledProcesses) {
@@ -753,10 +755,7 @@ public class LTSCompiler {
 			c.alphaHidden = labelSet();
 		}
 
-		// Controller Synthesis
-		if (Symbol.SINE == current.kind) {
-			parseControllerGoal(c);
-		}
+		
 
 		if (Symbol.BITWISE_OR == current.kind) {
 			nextSymbol();
@@ -962,36 +961,12 @@ public class LTSCompiler {
 			p.alphaHidden = labelSet();
 		}
 
-		if (Symbol.SINE == current.kind) {
-			parseControllerGoal(p);
-		}
-
-		p.getName();
+			p.getName();
 		currentIs(Symbol.DOT, "dot expected");
 		return p;
 	}
 
-	private void parseControllerGoal(ProcessSpec p) {
-		expectLeftCurly();
-		nextSymbol();
-		currentIs(Symbol.UPPERIDENT, "goal identifier expected");
-		p.goal = current;
-		nextSymbol();
-		currentIs(Symbol.RCURLY, "} expected");
-		nextSymbol();
-	}
-
-	// TODO reutilizar codigo,los metodos son iguales. Pueden hacer una interfaz
-	// hasGoal que tenga el metodo setGoal()
-	private void parseControllerGoal(CompositionExpression c) {
-		expectLeftCurly();
-		nextSymbol();
-		currentIs(Symbol.UPPERIDENT, "goal identifier expected");
-		c.goal = current;
-		nextSymbol();
-		currentIs(Symbol.RCURLY, "} expected");
-		nextSymbol();
-	}
+	
 
 	private boolean isLabelSet() {
 		if (current.kind == Symbol.LCURLY)
