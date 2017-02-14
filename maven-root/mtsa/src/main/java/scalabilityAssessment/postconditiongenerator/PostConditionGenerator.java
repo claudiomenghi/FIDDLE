@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 import ltsa.lts.ltl.PredicateDefinition;
 import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.ltl.formula.factory.FormulaFactory;
@@ -49,7 +51,9 @@ public class PostConditionGenerator {
 	}
 
 	private void makePredicate(String end, List<String> alphabet) {
-
+		Preconditions.checkNotNull(end, "The end string cannot be null");
+		Preconditions.checkNotNull(alphabet, "The alphabet cannot be null");
+		
 		Symbol eventSymbol = new Symbol(end, Symbol.UPPERIDENT);
 		Symbol fluentEventSymbol = new Symbol("F_" + eventSymbol.getValue(),
 				Symbol.UPPERIDENT);

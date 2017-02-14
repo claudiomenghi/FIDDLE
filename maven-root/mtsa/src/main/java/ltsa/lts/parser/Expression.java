@@ -99,12 +99,14 @@ public class Expression {
 
 	public static BigDecimal evaluate(Stack<Symbol> s, Hashtable<String, Value> locals,
 			Hashtable<String, Value> globals) {
-		Stack<Symbol> mine = (Stack) s.clone();
+		@SuppressWarnings("unchecked")
+		Stack<Symbol> mine = (Stack<Symbol>) s.clone();
 		return eval(mine, locals, globals);
 	}
 
 	public static Value getValue(Stack<Symbol> s, Hashtable<String, Value> locals,
 			Hashtable<String, Value> globals) {
+		@SuppressWarnings("unchecked")
 		Stack<Symbol> mine = (Stack<Symbol>) s.clone();
 		return getVal(mine, locals, globals);
 	}

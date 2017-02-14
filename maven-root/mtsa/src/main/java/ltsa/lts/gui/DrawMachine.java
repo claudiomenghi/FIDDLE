@@ -28,6 +28,7 @@ public class DrawMachine {
 	Font labelFont; // used for drawing labels
 	Font nameFont; // used for displaying names
 	Font stateFont = new Font("SansSerif", Font.BOLD, 18);
+	Font stateFontWhite = new Font("SansSerif", Font.BOLD, 18);
 
 	protected boolean displayName = false; // draw machine name
 	protected boolean newLabelFormat = true; // draw new label format
@@ -381,11 +382,12 @@ public class DrawMachine {
 		if (highlight) {
 			g.setColor(Color.red);
 		} else {
-			g.setColor(Color.cyan);
-		}
+			if (this.mach.getBoxIndexes().values().contains(id)) {
+				g.setColor(Color.black);
 
-		if (this.mach.getBoxes().contains(id)) {
-			g.setColor(Color.black);
+			} else {
+				g.setColor(Color.cyan);
+			}
 		}
 
 		if (id >= 0 && accepting.get(id)) {
@@ -394,8 +396,13 @@ public class DrawMachine {
 			g.fillArc(x, y, STATESIZE, STATESIZE, 0, 360);
 		}
 
-		g.setColor(Color.black);
-		g.setFont(stateFont);
+		if (!highlight && this.mach.getBoxIndexes().values().contains(id)) {
+			g.setColor(Color.white);
+			g.setFont(stateFont);
+		} else {
+			g.setColor(Color.black);
+			g.setFont(stateFont);
+		}
 		if (id >= 0 && accepting.get(id)) {
 			g.drawArc(x - 3, y - 3, STATESIZE + 6, STATESIZE + 6, 0, 360);
 		}

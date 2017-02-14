@@ -7,3 +7,4 @@
 *.out
 .recommenders/
 .sonarlint/*
+out.pdf
