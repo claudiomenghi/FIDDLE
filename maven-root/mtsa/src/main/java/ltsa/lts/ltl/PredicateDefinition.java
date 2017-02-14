@@ -144,6 +144,46 @@ public class PredicateDefinition {
 		return p;
 	}
 
+	public static void compileWithEnd(PredicateDefinition p) {
+		if (p == null)
+			return;
+		if (p.range == null) {
+			if (!(p.initiatingActions != null && p.terminatingActions != null
+					&& p.trueSet == null && p.falseSet == null)) {
+				
+				p.terminatingActions.add("end");
+				p.initiatingActions = p.trueSet.getActions(null, null);
+				p.terminatingActions = p.falseSet.getActions(null, null);
+			}
+			assertDisjoint(p.initiatingActions, p.terminatingActions, p);
+			if (p.expr != null) {
+				int ev = Expression.evaluate(p.expr, null, null).intValue();
+				p.initial = (ev > 0);
+			}
+		} else {
+			Hashtable<String, Value> locals = new Hashtable<>();
+			p.range.initContext(locals, null);
+			while (p.range.hasMoreNames()) {
+				String s = p.range.nextName();
+				Vector<String> trueActions = p.trueSet.getActions(locals, null);
+				Vector<String> falseActions = p.falseSet.getActions(locals,
+						null);
+				falseActions.add("end");
+				boolean init = false;
+				assertDisjoint(trueActions, falseActions, p);
+				if (p.expr != null) {
+					int ev = Expression.evaluate(p.expr, locals, null)
+							.intValue();
+					init = (ev > 0);
+				}
+				String newName = p.symbol + "." + s;
+				definitions.put(newName, new PredicateDefinition(newName,
+						trueActions, falseActions, init));
+			}
+			p.range.clearContext();
+		}
+	}
+	
 	public static void compile(PredicateDefinition p) {
 		if (p == null)
 			return;
@@ -200,6 +240,7 @@ public class PredicateDefinition {
 		if (!definitions.containsKey(n.toString())) {
 			if (definitions.put(n.toString(), new PredicateDefinition(n, rng,
 					ts, fs, es)) != null) {
+				
 				Diagnostics
 						.fatal("duplicate LTL predicate definition: " + n, n);
 			}
@@ -228,6 +269,15 @@ public class PredicateDefinition {
 
 		v.forEach(p -> compile(p));
 	}
+	
+	public static void compileAllWithEnd() {
+		if (definitions == null)
+			return;
+		List<PredicateDefinition> v = new ArrayList<>();
+		v.addAll(definitions.values());
+
+		v.forEach(p -> compileWithEnd(p));
+	}
 
 	public PredicateDefinition clone() {
 		PredicateDefinition def = new PredicateDefinition(this.symbol,
@@ -255,18 +305,22 @@ public class PredicateDefinition {
 		alp.remove(predicateSymbol.getValue());
 		
 		final Vector<ActionLabels> v = new Vector<>();
-		logger.debug("ALPHABET: "+alp);
 		
 		alp.forEach(a -> v.add(new ActionName(new Symbol(a,
 				Symbol.IDENTIFIER))));
+		
 		ActionLabels endFluentActions = new ActionSet(new LabelSet(v));
-		logger.debug("END FLUENT ACTIONS: "+endFluentActions);
 		
 		Stack<Symbol> symbols=new Stack<>();
 		symbols.add(new Symbol("False", 123));
+		logger.debug("Fluent: "+endFluentActions.toString());
+		PredicateDefinition.remove(fluentName);
 		PredicateDefinition.put(fluentName, null, initialFluentActions,
 				endFluentActions, symbols);
+		PredicateDefinition predicate=PredicateDefinition.get(fluentName.getValue());
+		logger.debug(predicate.falseSet);
 		compile(definitions.get(fluentName.toString()));
 	}
 
+	
 }

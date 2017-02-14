@@ -53,8 +53,7 @@ public class PrintWindow extends JSplitPane implements LTSOutput, EventClient {
 		// scrollable output pane
 		output = new JTextArea(23, 50);
 		output.setEditable(false);
-		right = new JScrollPane(output,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+		right = new JScrollPane(output, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		output.setBackground(Color.white);
 		output.setBorder(new EmptyBorder(0, 5, 0, 0));
@@ -123,16 +122,18 @@ public class PrintWindow extends JSplitPane implements LTSOutput, EventClient {
 	private void new_machines(CompositeState cs) {
 		int hasC = (cs != null && cs.getComposition() != null) ? 1 : 0;
 		if (cs != null && cs.getMachines() != null && cs.getMachines().size() > 0) { // get
-																			// set
-																			// of
-																			// machines
+			// set
+			// of
+			// machines
 			sm = new LabelledTransitionSystem[cs.getMachines().size() + hasC];
-			Enumeration e = cs.getMachines().elements();
-			for (int i = 0; e.hasMoreElements(); i++)
-				sm[i] = (LabelledTransitionSystem) e.nextElement();
+			Enumeration<LabelledTransitionSystem> e = cs.getMachines().elements();
+			for (int i = 0; e.hasMoreElements(); i++){
+				sm[i] = e.nextElement();
+			}
 			Nmach = sm.length;
-			if (hasC == 1)
+			if (hasC == 1){
 				sm[Nmach - 1] = cs.getComposition();
+			}
 		} else
 			Nmach = 0;
 		DefaultListModel lm = new DefaultListModel();
@@ -143,8 +144,9 @@ public class PrintWindow extends JSplitPane implements LTSOutput, EventClient {
 				lm.addElement(sm[i].getName());
 		}
 		list.setModel(lm);
-		if (selectedMachine >= Nmach)
+		if (selectedMachine >= Nmach){
 			selectedMachine = 0;
+		}
 		clearOutput();
 	}
 
@@ -178,8 +180,7 @@ public class PrintWindow extends JSplitPane implements LTSOutput, EventClient {
 		else
 			message = "Save as Aldebaran format (.aut) in:";
 
-		FileDialog fd = new FileDialog((Frame) getTopLevelAncestor(), message,
-				FileDialog.SAVE);
+		FileDialog fd = new FileDialog((Frame) getTopLevelAncestor(), message, FileDialog.SAVE);
 		if (Nmach > 0) {
 			String fname = sm[selectedMachine].getName();
 			int colon = fname.indexOf(':', 0);

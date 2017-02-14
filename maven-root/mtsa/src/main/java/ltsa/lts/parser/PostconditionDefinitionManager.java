@@ -175,11 +175,11 @@ public class PostconditionDefinitionManager {
 
 		output.outln("FORMULA: " + post.getFac().getFormula() + " considered");
 
-		return new LTLf2LTS().toCompositeState(post.getFac().getFormula(),
+		return new LTLf2LTS().postconditionToLTS(post.getFac().getFormula(),
 				output, alphabetCharacters, name);
 	}
 
-	public LabelledTransitionSystem toFiniteLTS(LTSOutput output,
+	public LabelledTransitionSystem toLTS(LTSOutput output,
 			Set<String> alphabetCharacters, String name) {
 		return this.compile(output, alphabetCharacters, name).getComposition();
 	}

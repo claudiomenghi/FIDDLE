@@ -58,7 +58,7 @@ public class ProcessSpec extends Declaration {
 		return isReplacement;
 	}
 
-	public void setReplacement(boolean isReplacement) {
+	public void setSubComponent(boolean isReplacement) {
 		this.isReplacement = isReplacement;
 	}
 

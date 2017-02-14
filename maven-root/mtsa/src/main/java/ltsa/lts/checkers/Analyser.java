@@ -16,6 +16,8 @@ import java.util.Vector;
 
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Preconditions;
+
 import ltsa.lts.animator.Animator;
 import ltsa.lts.animator.ModelExplorerContext;
 import ltsa.lts.animator.PartialOrder;
@@ -25,12 +27,11 @@ import ltsa.lts.automata.automaton.Automata;
 import ltsa.lts.automata.automaton.event.LTSEvent;
 import ltsa.lts.automata.lts.Alphabet;
 import ltsa.lts.automata.lts.LTSConstants;
-import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LTSTransitionList;
+import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.gui.EventManager;
 import ltsa.lts.ltl.FluentTrace;
-import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.operations.composition.parallel.CompositionEngine;
 import ltsa.lts.operations.composition.parallel.CompositionEngineFactory;
 import ltsa.lts.operations.composition.parallel.StackCheck;
@@ -41,8 +42,6 @@ import ltsa.lts.util.Options;
 import ltsa.lts.util.collections.MyHashQueue;
 import ltsa.lts.util.collections.MyHashQueueEntry;
 import ltsa.lts.util.collections.MyList;
-
-import com.google.common.base.Preconditions;
 
 public class Analyser implements Animator, Automata {
 
@@ -285,10 +284,10 @@ public class Analyser implements Animator, Automata {
 			if (lowpriority) {
 				highAction.set(0);
 				highAction.set(1); // tau? is also high
-			} else{
+			} else {
 				highAction.clear(0);
 			}
-			if (acceptEvent > 0){
+			if (acceptEvent > 0) {
 				highAction.clear(acceptEvent); // accept labels are always low
 												// priority
 			}
@@ -330,9 +329,7 @@ public class Analyser implements Animator, Automata {
 				}
 			}
 		}
-		if (actionMap.containsKey(LTLf2LTS.endSymbol.getValue())) {
-			explorerContext.endEvent = actionMap.get(LTLf2LTS.endSymbol.getValue());
-		}
+
 	}
 
 	private void printStateMachineSize(LTSOutput output) {
@@ -407,19 +404,19 @@ public class Analyser implements Animator, Automata {
 		long finish = System.currentTimeMillis();
 		if (ret == LTSConstants.DEADLOCK) {
 			output.outln("Trace to DEADLOCK:");
-			logger.debug("Trace to DEADLOCK: "+trace);
+			logger.debug("Trace to DEADLOCK: " + trace);
 			tracer.print(output, trace, true);
 
 		} else {
 			if (ret == LTSConstants.ERROR) {
 				output.outln("Trace to property violation in " + stateMachines[errorMachine].getName() + ":");
-				logger.debug("Trace to property violation: "+trace);
+				logger.debug("Trace to property violation: " + trace);
 				tracer.print(output, trace, true);
 				cs.satisfied = false;
 			} else {
 				hasErrors = false;
-				logger.debug("No deadlocks/errors: "+trace);
-				
+				logger.debug("No deadlocks/errors: " + trace);
+
 				output.outln("No deadlocks/errors");
 			}
 		}
@@ -654,8 +651,8 @@ public class Analyser implements Animator, Automata {
 	 * @return the composition of LTS
 	 */
 	private int newStateCompose() {
-		System.gc(); 
-		
+		System.gc();
+
 		// composes the state machines
 		this.compositionEngine = CompositionEngineFactory.createCompositionEngine(Options.getCompositionStrategyClass(),
 				coder);
@@ -952,9 +949,9 @@ public class Analyser implements Animator, Automata {
 	private BitSet allActions() {
 		BitSet b = new BitSet(actionCount.length);
 		if (choices != null) {
-			Iterator e = choices.iterator();
+			Iterator<int[]> e = choices.iterator();
 			while (e.hasNext()) {
-				int[] next = (int[]) e.next();
+				int[] next = e.next();
 				b.set(next[machineNumber]);
 			}
 		}

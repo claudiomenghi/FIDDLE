@@ -22,13 +22,13 @@ import com.google.common.base.Preconditions;
  * @author Claudio Menghi
  *
  */
-public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {
+public class PreconditionFiniteFormulaGeneratorVisitor implements FormulaVisitor {
 
 	private FormulaFactory fac;
 
 	private Formula end;
 
-	public FiniteFormulaGeneratorVisitor(FormulaFactory fac, Formula end) {
+	public PreconditionFiniteFormulaGeneratorVisitor(FormulaFactory fac, Formula end) {
 		Preconditions.checkNotNull(fac, "The formula factory cannot be null");
 		this.fac = fac;
 		this.end = end;

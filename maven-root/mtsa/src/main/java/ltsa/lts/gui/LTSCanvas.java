@@ -136,8 +136,9 @@ public class LTSCanvas extends JPanel implements Scrollable {
 			drawing[id] = new DrawMachine(m, this, nameFont, labelFont,
 					displayName, newLabelFormat, SEPARATION, ARCINC);
 		}
-		if (singleMode)
+		if (singleMode){
 			focus = drawing[id];
+		}
 		drawing[id].select(last, current, name);
 		Dimension d = drawing[id].getSize();
 		Dimension e = getPreferredSize();
