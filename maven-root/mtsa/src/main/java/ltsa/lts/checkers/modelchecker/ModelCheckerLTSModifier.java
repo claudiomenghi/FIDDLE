@@ -68,7 +68,6 @@ public class ModelCheckerLTSModifier {
 	 */
 	public LabelledTransitionSystem modify(@Nonnull LabelledTransitionSystem controller) {
 
-		
 		// STEP 1
 		Map<String, LabelledTransitionSystem> mapBoxPostCondition = this.step1(controller);
 
@@ -141,6 +140,8 @@ public class ModelCheckerLTSModifier {
 		}
 		return postConditions;
 	}
+
+	
 
 	protected LabelledTransitionSystem step2(LabelledTransitionSystem controller,
 			Map<String, LabelledTransitionSystem> mapBoxPostCondition, Set<String> boxes) {

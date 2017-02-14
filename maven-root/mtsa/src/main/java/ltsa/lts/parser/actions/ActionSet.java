@@ -32,10 +32,7 @@ public class ActionSet extends ActionLabels {
 
 	@Override
 	protected void initialise() {
-
-		logger.debug("Set:::::: "+set);
 		actions = set.getActions(locals, globals);
-		logger.debug("Actions:::::: "+actions);
 		current = low = 0;
 		high = actions.size() - 1;
 	}

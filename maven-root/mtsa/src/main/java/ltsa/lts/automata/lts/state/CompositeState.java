@@ -360,6 +360,8 @@ public class CompositeState {
 
 				logger.debug("Composition has no error state");
 				// do full liveness check
+				
+				logger.debug("Checking");
 				ProgressCheck cc = new ProgressCheck(analyzer, output, cs.tracer);
 				boolean satisfied = cc.doLTLCheck();
 				if (!satisfied) {
