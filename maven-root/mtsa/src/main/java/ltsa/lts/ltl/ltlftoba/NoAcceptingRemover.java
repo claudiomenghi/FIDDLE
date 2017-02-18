@@ -23,12 +23,11 @@ import com.google.common.base.Preconditions;
  * 
  *
  */
-public class NoAcceptingRemover implements
-		Function<LabelledTransitionSystem, LabelledTransitionSystem> {
+public class NoAcceptingRemover implements Function<LabelledTransitionSystem, LabelledTransitionSystem> {
 
 	/** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
-	
+
 	/**
 	 * removes the states from which it is not reachable an accepting state that
 	 * can be entered infinitely many often.
@@ -41,23 +40,21 @@ public class NoAcceptingRemover implements
 	@Override
 	public LabelledTransitionSystem apply(LabelledTransitionSystem s) {
 
-		Preconditions.checkNotNull(s,
-				"The automaton to be considered cannot be null");
+		Preconditions.checkNotNull(s, "The automaton to be considered cannot be null");
 		LabelledTransitionSystem ret = s.myclone();
 
 		Set<Integer> states = this.getStatesFromWichReachableAccepting(ret);
 
-		logger.debug("States from which an accepting state can be reached: "+states);
-		
-		Set<Integer> allStates=new HashSet<>();
-		for(int i=0; i<ret.getNumberOfStates(); i++){
+		logger.debug("States from which an accepting state can be reached: " + states);
+
+		Set<Integer> allStates = new HashSet<>();
+		for (int i = 0; i < ret.getNumberOfStates(); i++) {
 			allStates.add(i);
 		}
 		allStates.removeAll(states);
-		logger.debug("States from which an accepting state can not be reached: "+allStates);
-		
-		ret.removeStates(allStates);
+		logger.debug("States from which an accepting state can not be reached: " + allStates);
 
+		ret.removeStates(allStates);
 
 		return ret;
 	}
@@ -77,12 +74,9 @@ public class NoAcceptingRemover implements
 	 * @throws NullPointerException
 	 *             if one of the parameters is null
 	 */
-	private LabelledTransitionSystem retainStates(LabelledTransitionSystem s,
-			Set<Integer> states) {
-		Preconditions.checkNotNull(s,
-				"The automaton to be considered cannot be null");
-		Preconditions.checkNotNull(states,
-				"The set of the states to be considered cannot be null");
+	private LabelledTransitionSystem retainStates(LabelledTransitionSystem s, Set<Integer> states) {
+		Preconditions.checkNotNull(s, "The automaton to be considered cannot be null");
+		Preconditions.checkNotNull(states, "The set of the states to be considered cannot be null");
 		// if (!states.contains(0)) {
 		// throw new IllegalArgumentException(
 		// "The initial state must be contained into the set of the states");
@@ -103,40 +97,34 @@ public class NoAcceptingRemover implements
 		for (Entry<Integer, Integer> entry : mapOldIndexNewIndex.entrySet()) {
 			int oldIndex = entry.getKey();
 			int newIndex = entry.getValue();
-			s.getStates()[newIndex] = relabelList(
-					oldState.getStates()[oldIndex], mapOldIndexNewIndex);
+			s.getStates()[newIndex] = relabelList(oldState.getStates()[oldIndex], mapOldIndexNewIndex);
 		}
 		return s;
 	}
 
-	private LTSTransitionList relabelList(LTSTransitionList transition,
-			Map<Integer, Integer> mapOldIndexNewIndex) {
+	private LTSTransitionList relabelList(LTSTransitionList transition, Map<Integer, Integer> mapOldIndexNewIndex) {
 
 		LTSTransitionList currentTransition = transition;
 		while (currentTransition != null) {
-			currentTransition.setNext(mapOldIndexNewIndex.get(currentTransition
-					.getNext()));
-			currentTransition.setNondet(relabelNonDet(
-					currentTransition.getNondet(), mapOldIndexNewIndex));
+			currentTransition.setNext(mapOldIndexNewIndex.get(currentTransition.getNext()));
+			currentTransition.setNondet(relabelNonDet(currentTransition.getNondet(), mapOldIndexNewIndex));
 			currentTransition = currentTransition.getList();
 		}
 		return transition;
 	}
 
-	private LTSTransitionList relabelNonDet(LTSTransitionList transition,
-			Map<Integer, Integer> mapOldIndexNewIndex) {
+	private LTSTransitionList relabelNonDet(LTSTransitionList transition, Map<Integer, Integer> mapOldIndexNewIndex) {
 
 		LTSTransitionList currentTransition = transition;
 		while (currentTransition != null) {
-			currentTransition.setNext(mapOldIndexNewIndex.get(currentTransition
-					.getNext()));
+			currentTransition.setNext(mapOldIndexNewIndex.get(currentTransition.getNext()));
 			currentTransition = currentTransition.getNondet();
 		}
 		return transition;
 	}
 
-	private LTSTransitionList keepOnlyNextTransitionBetweenStates(int source,
-			LTSTransitionList transitions, Set<Integer> states) {
+	private LTSTransitionList keepOnlyNextTransitionBetweenStates(int source, LTSTransitionList transitions,
+			Set<Integer> states) {
 		visited.add(transitions);
 		if (transitions == null) {
 			return null;
@@ -146,20 +134,16 @@ public class NoAcceptingRemover implements
 		}
 		LTSTransitionList nextTransitions;
 		if (!visited.contains(transitions)) {
-			 nextTransitions = this
-					.keepOnlyNextTransitionBetweenStates(source,
-							transitions.getList(), states);
-		}
-		else{
-			nextTransitions=null;
+			nextTransitions = this.keepOnlyNextTransitionBetweenStates(source, transitions.getList(), states);
+		} else {
+			nextTransitions = null;
 		}
 		LTSTransitionList retTransition = null;
-		LTSTransitionList nonDetTransitions = this.getNonDetTransitions(source,
-				transitions.getNondet(), states);
+		LTSTransitionList nonDetTransitions = this.getNonDetTransitions(source, transitions.getNondet(), states);
 
 		if (states.contains(transitions.getNext())) {
-			retTransition = new LTSTransitionList(transitions.getEvent(),
-					transitions.getNext(), transitions.getMachine());
+			retTransition = new LTSTransitionList(transitions.getEvent(), transitions.getNext(),
+					transitions.getMachine());
 			retTransition.setNondet(nonDetTransitions);
 			retTransition.setList(nextTransitions);
 
@@ -176,20 +160,16 @@ public class NoAcceptingRemover implements
 
 	}
 
-	private LTSTransitionList getNonDetTransitions(int source,
-			LTSTransitionList transitions, Set<Integer> states) {
+	private LTSTransitionList getNonDetTransitions(int source, LTSTransitionList transitions, Set<Integer> states) {
 
 		if (transitions == null) {
 			return null;
 		}
 		if (transitions.getList() != null) {
-			throw new InternalError("The transition with source " + source
-					+ " and destination " + transitions.getNext()
-					+ " and event " + transitions.getEvent()
-					+ " must have a null list");
+			throw new InternalError("The transition with source " + source + " and destination " + transitions.getNext()
+					+ " and event " + transitions.getEvent() + " must have a null list");
 		}
-		LTSTransitionList next = this.getNonDetTransitions(source,
-				transitions.getNondet(), states);
+		LTSTransitionList next = this.getNonDetTransitions(source, transitions.getNondet(), states);
 		if (states.contains(transitions.getNext())) {
 			transitions.setNondet(next);
 			return transitions;
@@ -203,23 +183,25 @@ public class NoAcceptingRemover implements
 	 * 
 	 * @return the states from which an accepting state is reachable
 	 */
-	private Set<Integer> getStatesFromWichReachableAccepting(
-			LabelledTransitionSystem ret) {
-		Map<Integer, Set<Integer>> reversedReachable = this
-				.computeInverseTransitionRelation(ret);
+	private Set<Integer> getStatesFromWichReachableAccepting(LabelledTransitionSystem ret) {
+		Map<Integer, Set<Integer>> reversedReachable = this.computeInverseTransitionRelation(ret);
 
 		Set<Integer> reachable = new HashSet<>();
-		
-		logger.debug("Accepting states:  "+ret.getAccepting());
+
+		logger.debug("Accepting states:  " + ret.getAccepting());
 		Set<Integer> current = ret.getAccepting();
+
+		boolean[] visited = new boolean[ret.getStates().length];
 
 		while (!current.isEmpty()) {
 			Integer evaluated = current.iterator().next();
-			reachable.add(evaluated);
 			current.remove(evaluated);
-			Set<Integer> prev = new HashSet<>(reversedReachable.get(evaluated));
-			prev.removeAll(reachable);
-			current.addAll(prev);
+			if (!visited[evaluated]) {
+				visited[evaluated] = true;
+				reachable.add(evaluated);
+				Set<Integer> prev = new HashSet<>(reversedReachable.get(evaluated));
+				current.addAll(prev);
+			}
 		}
 
 		return reachable;
@@ -232,8 +214,7 @@ public class NoAcceptingRemover implements
 	 *            a map that maps each state to its predecessors
 	 * @return a map that maps each state to its predecessors.
 	 */
-	private Map<Integer, Set<Integer>> computeInverseTransitionRelation(
-			LabelledTransitionSystem ret) {
+	private Map<Integer, Set<Integer>> computeInverseTransitionRelation(LabelledTransitionSystem ret) {
 
 		Map<Integer, Set<Integer>> reverseTransitionMap = new HashMap<>();
 		LTSTransitionList[] transitions = ret.getStates();
@@ -255,10 +236,8 @@ public class NoAcceptingRemover implements
 			Map<Integer, Set<Integer>> reverseTransitionMap) {
 		if (transition != null) {
 			reverseTransitionMap.get(transition.getNext()).add(sourceState);
-			this.updateIndexes(sourceState, transition.getList(),
-					reverseTransitionMap);
-			this.updateIndexes(sourceState, transition.getNondet(),
-					reverseTransitionMap);
+			this.updateIndexes(sourceState, transition.getList(), reverseTransitionMap);
+			this.updateIndexes(sourceState, transition.getNondet(), reverseTransitionMap);
 		}
 
 	}

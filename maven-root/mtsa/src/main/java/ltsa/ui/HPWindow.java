@@ -132,6 +132,7 @@ import ltsa.lts.parser.ltsinput.LTSInput;
 import ltsa.lts.util.MTSUtils;
 import ltsa.lts.util.Options;
 
+
 public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput, LTSError, Runnable {
 
 	/** Logger available to subclasses */
@@ -2124,11 +2125,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		if (current != null) {
 			TransitionSystemDispatcher.applyComposition(current, this);
 			postState(current);
-			System.out.println("%GRAPH DENSITY: " + current.getComposition().getGraphDensity());
-			System.out.println("%COMPOSITION STATES: " + current.getComposition().getStates().length);
-			System.out.println("%COMPOSITION TRANSITIONS: " + current.getComposition().getTransitionNumber());
-			System.out.println("%COMPOSITION SIZE: " + current.getComposition().size());
-			System.out.println("%COMPOSITION Alphabet:" + current.getComposition().getAlphabet().length);
+			logger.info("%GRAPH DENSITY: " + current.getComposition().getGraphDensity());
+			logger.info("%COMPOSITION STATES: " + current.getComposition().getStates().length);
+			logger.info("%COMPOSITION TRANSITIONS: " + current.getComposition().getTransitionNumber());
+			logger.info("%COMPOSITION SIZE: " + current.getComposition().size());
+			logger.info("%COMPOSITION Alphabet:" + current.getComposition().getAlphabet().length);
 		}
 	}
 

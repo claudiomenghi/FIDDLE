@@ -38,6 +38,7 @@ public class ModelChecker {
 	 */
 	private final CompositeState ltlProperty;
 
+	private boolean result;
 	/**
 	 * The output to be printed
 	 */
@@ -89,6 +90,7 @@ public class ModelChecker {
 		return modifiedController;
 	}
 
+	
 	/**
 	 * runs the realizability checker
 	 */
@@ -98,7 +100,6 @@ public class ModelChecker {
 
 		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(this.output).modify(controllerLTS);
 		
-		logger.debug("The controller works on the alphabet: "+modifiedController.getAlphabetEvents());
 		this.modifiedController = new CompositeState(modifiedController.getName());
 		this.modifiedController.addMachine(modifiedController);
 
@@ -122,7 +123,16 @@ public class ModelChecker {
 		}
 		output.outln("*********************************************************");
 
+		this.result=result;
 		return system;
 
 	}
+
+	public boolean getResult() {
+		return result;
+	}
+
+	
+	
+	
 }

@@ -40,6 +40,26 @@ public class SubstitutabilityChecker {
 	private LabelledTransitionSystem environmentParallelPrePlusSubcomponentLTS;
 
 	private LabelledTransitionSystem preconditionPlusSubcomponent;
+	
+	private boolean result;
+	private int resultingcomponentsize;
+	private long effectiveCheckingtime;
+	
+	public int getResultComponentSize(){
+		return this.resultingcomponentsize;
+	}
+	
+	public boolean getResult(){
+		return this.result;
+	}
+	
+	public CompositeState getPostCondition(){
+		return postConditionState;
+	}
+	
+	public long getEffectiveCheckingTime(){
+		return effectiveCheckingtime;
+	}
 
 	/**
 	 * Creates the model checker
@@ -148,13 +168,16 @@ public class SubstitutabilityChecker {
 				.forEach(machine -> events.addAll(machine.getAlphabetEvents()));
 		this.logger.debug("SYSTEM MACHINES Alphabet: " + events.toString());
 
-		Minimiser min = new Minimiser(environmentParallelPrePlusReplacement.getComposition(), new EmptyLTSOuput());
 
-		CompositeState newEnvironmentParallelPrePlusReplacement = new CompositeState(
-				environmentParallelPrePlusReplacement.getName());
-		newEnvironmentParallelPrePlusReplacement.addMachine(min.minimise());
-		newEnvironmentParallelPrePlusReplacement.compose(new EmptyLTSOuput());
+		LabelledTransitionSystem tmp=environmentParallelPrePlusReplacement.getComposition();
+		
+
+		long subinit = System.currentTimeMillis();
 		boolean result = environmentParallelPrePlusReplacement.checkLTL(ltsOutput, postConditionState);
+		long  subend = System.currentTimeMillis();
+
+		this.effectiveCheckingtime=subend-subinit;
+		this.result=result;
 		if (result) {
 			this.ltsOutput.outln("The post-condition is satisfied");
 		} else {
@@ -211,9 +234,11 @@ public class SubstitutabilityChecker {
 		preconditionPlusSubcomponent.getFinalStateIndexes()
 				.forEach(index -> preconditionPlusSubcomponent.addTransition(index, endEventIndex, index));
 
-		logger.debug("Size of the obtained sub-controller: " + preconditionPlusSubcomponent.size());
+		logger.debug("Size of the obtained sub-component: " + preconditionPlusSubcomponent.size());
 
+		resultingcomponentsize=preconditionPlusSubcomponent.size();
 		this.ltsOutput.outln("Computing the sequential composition between the precondition and the sub-controller");
+		
 	}
 
 	private LabelledTransitionSystem transformPreconditioninLTS(Set<String> environmentEvents, Formula precondition,

@@ -160,8 +160,7 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 		LabelledTransitionSystem postConditionLTS = mapBoxPostCondition.get(boxOfInterest);
 
 		postConditionLTS.relabelAndKeepOldLabel("end", MTSConstants.TAU);
-		logger.debug(postConditionLTS);
-
+	
 		int newInitiatilState = postConditionLTS.addInitialState();
 
 		int tauIndex = postConditionLTS.addEvent(MTSConstants.TAU);
@@ -174,11 +173,10 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 		postConditionLTS.addTransition(newInitiatilState, endeventIndex, endStateIndex);
 		postConditionLTS.addTransition(endStateIndex, endeventIndex, endStateIndex);
 
-		logger.debug(postConditionLTS);
+
 		LabelledTransitionSystem cscopy = new IntegratorEngine().apply(controller, boxPosition, boxOfInterest,
 				postConditionLTS);
 
-		logger.debug(cscopy);
 
 		for (int eventIndex = 0; eventIndex < cscopy.getAlphabet().length; eventIndex++) {
 			for (int finalStateIndex : cscopy.getFinalStateIndexes()) {

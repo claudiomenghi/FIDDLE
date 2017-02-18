@@ -1,4 +1,3 @@
-
 /* Corrected deadlock.lts by introducing local mutex CondDB. However, we run into
    the problem that internal does not release this mutex when it waits - introduced
    ML_WaitCV for that, but does not seem to fit Rich's mapping of mutexes and CVs */
@@ -156,17 +155,8 @@ WakeUp = ( when (!Timeout) [ConditionVariable].broadcast -> [Mutex].lock -> END
 || DbCV_CondVar = (CondVar('dbCV) || Mutex('dbCV)).
 
 
-Complete (CV=Null) = (      [CV].add_loop -> 
-                            Complete 
-                            | 
-                            [CV].wait -> 
-                            Wait
-                     ),
-                    Wait = (
-                            {[CV].broadcast, [CV].wait_timeout} -> 
-                            Complete
-                    ).
-
+Complete (CV=Null) = ([CV].add_loop -> Complete | [CV].wait -> Wait),
+Wait = ({[CV].broadcast, [CV].wait_timeout} -> Complete).
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
@@ -280,44 +270,26 @@ const CheckAccess_ConditionSetChanged = False
 
 /************************************/
 
-|| Checker_SavedWakeupStruct = (
-            {external, internal.local}::(savedWakeupStruct:Variable(MaxCondListIndex, 2, CheckAccess_SavedWakeupStruct, CondChecker_Detailed_Access)) 
-            ||
-	       if (CondChecker_Detailed_Access) then (
-                external:Begin_End_Access_Pattern('savedWakeupStruct, MaxCondListIndex))
-            ).
+|| Checker_SavedWakeupStruct = 
+	({external, internal.local}::(savedWakeupStruct:Variable(MaxCondListIndex, 2, CheckAccess_SavedWakeupStruct, CondChecker_Detailed_Access)) ||
+	if (CondChecker_Detailed_Access) then (external:Begin_End_Access_Pattern('savedWakeupStruct, MaxCondListIndex))).
 
-|| Checker_ConditionSetChanged = (
-            {external, internal.local}::(conditionSetChanged:Variable(True, 2, CheckAccess_ConditionSetChanged, CondChecker_Detailed_Access)) 
-            ||
-            if (CondChecker_Detailed_Access) then (
-                external:Begin_End_Access_Pattern('conditionSetChanged, True))
-            ).
+|| Checker_ConditionSetChanged = 
+	({external, internal.local}::(conditionSetChanged:Variable(True, 2, CheckAccess_ConditionSetChanged, CondChecker_Detailed_Access)) ||
+								if (CondChecker_Detailed_Access) then (external:Begin_End_Access_Pattern('conditionSetChanged, True))).
 
 
-RC_ExecConditionChecker_Internal = (   condList.lock -> 
-									   condDB.lock -> 
-                                       WaitForConditions
-                                    ), // change suggested by Rich
-                                    WaitForConditions = (   local.conditionSetChanged.begin_read ->                                                         local.conditionSetChanged.end_read[hasSetChanged:Boolean] ->                                   local.dbChanged.begin_read ->                                                                   local.dbChanged.end_read[hasDBChanged:Boolean] ->
-					                                        if (!(hasSetChanged || hasDBChanged)) then 
-                                                                ML_Wait_CV('condDB, 'condList, 'condListCV);
-                                                                WaitForConditions
-					                                       else 
-                                                                ResetFlags
-                                                        ),
-                                    ResetFlags = (  local.conditionSetChanged.begin_assign ->                                                       local.conditionSetChanged.end_assign[False] ->
-				                                    local.dbChanged.begin_assign -> 
-                                                    local.dbChanged.end_assign[False] -> 
-				                                    condDB.unlock -> 
-                                                    FindMetConditions
-                                                ),
-                                    FindMetConditions = Database_DBQuery(True, 'database);
-                                    Continue,  // performing the query with true shows the deadlock, and with false the data race
-                                    Continue = (    condList.unlock ->      
-                                                    ExecConditionChecker_ProcessCCStructs('local);
-                                                    RC_ExecConditionChecker_Internal
-                                                )
+RC_ExecConditionChecker_Internal = (condList.lock -> 
+									condDB.lock -> WaitForConditions), // change suggested by Rich
+WaitForConditions = (local.conditionSetChanged.begin_read -> local.conditionSetChanged.end_read[hasSetChanged:Boolean] 
+						-> local.dbChanged.begin_read -> local.dbChanged.end_read[hasDBChanged:Boolean] ->
+					 if (!(hasSetChanged || hasDBChanged)) then ML_Wait_CV('condDB, 'condList, 'condListCV);WaitForConditions
+					 else ResetFlags),
+ResetFlags = (local.conditionSetChanged.begin_assign -> local.conditionSetChanged.end_assign[False] ->
+				local.dbChanged.begin_assign -> local.dbChanged.end_assign[False] -> 
+				condDB.unlock -> FindMetConditions),
+FindMetConditions = Database_DBQuery(True, 'database);Continue,  // performing the query with true shows the deadlock, and with false the data race
+Continue = (condList.unlock -> ExecConditionChecker_ProcessCCStructs('local);RC_ExecConditionChecker_Internal)
 					+ {	Mutex_CV_Alpha, 
 						local.DbChangedAlpha, 
 						local.SavedWakeUpAlpha,
@@ -412,19 +384,10 @@ minimal
 								@ {internal, external}.
 
 /* You use the assumption that the environment accesses savedWakeupStruct protected by the exec lock ??? */
-External_VarUse_Assumption = (
-                                external.exec.lock -> 
-                                HasAccess
-                            ),
-                            HasAccess = (   external.savedWakeupStruct.read[CondListIndices] -> 
-                                            HasAccess 
-			                                | 
-                                            external.savedWakeupStruct.assign[CondListIndices] -> 
-                                            HasAccess 
-			                                 | 
-                                             external.exec.unlock -> 
-                                             External_VarUse_Assumption
-                            ).
+External_VarUse_Assumption = (external.exec.lock -> HasAccess),
+HasAccess = (external.savedWakeupStruct.read[CondListIndices] -> HasAccess 
+			| external.savedWakeupStruct.assign[CondListIndices] -> HasAccess 
+			| external.exec.unlock -> External_VarUse_Assumption).
 
 
 Error = ERROR.
@@ -443,13 +406,8 @@ Error = ERROR.
 || Checker_DBChanged = ({internal.local, dbMonitor.local}::(dbChanged:Variable(True, 2, False, False))). 
 
 // ... and a local mutex
-CondDB_Mutex = (        internal.condDB.lock -> 
-                        internal.condDB.unlock -> 
-                        CondDB_Mutex
-				    |   dbMonitor.condDB.lock -> 
-                        dbMonitor.condDB.unlock -> 
-                        CondDB_Mutex
-                ).
+CondDB_Mutex = (internal.condDB.lock -> internal.condDB.unlock -> CondDB_Mutex
+				| dbMonitor.condDB.lock -> dbMonitor.condDB.unlock -> CondDB_Mutex).
 
 
 // for this abstraction, all we are trying to achieve is synchronize the two threads
@@ -460,107 +418,56 @@ minimal
 								@ {internal, dbMonitor}.
 
 
-
+/*
 minimal
 || CondListCV_Abstraction = (CondListCV_CondVar)
 								/ {internal/execCondChecker.internal, dbMonitor/execCondChecker.dbMonitor}
 								@ {{internal, dbMonitor}.condListCV.{lock, unlock}}.
-
+*/
 
 
 /* Must make sure this is valid - making two assumptions in one - first about order of begins and ends,
   second about use of lock to access variables */
 
-RC_External_VarUse_Assumption1 = (
-                                        external.exec.lock -> 
-                                        HasAccess
-                                ),
-                                HasAccess = (
-                                     external.savedWakeupStruct.begin_read -> 
-							         external.savedWakeupStruct.end_read[CondListIndices] -> 
-                                     HasAccess 
-			                         | 
-                                    external.savedWakeupStruct.begin_assign -> 
-							         external.savedWakeupStruct.end_assign[CondListIndices] -> 
-                                     HasAccess 
-			                         | 
-                                    external.exec.unlock -> 
-                                    RC_External_VarUse_Assumption1
-                                ).
+RC_External_VarUse_Assumption1 = (external.exec.lock -> HasAccess),
+HasAccess = (external.savedWakeupStruct.begin_read -> 
+							external.savedWakeupStruct.end_read[CondListIndices] -> HasAccess 
+			| external.savedWakeupStruct.begin_assign -> 
+							external.savedWakeupStruct.end_assign[CondListIndices] -> HasAccess 
+			| external.exec.unlock -> RC_External_VarUse_Assumption1).
 
-NRC_External_VarUse_Assumption1 = (     external.exec.lock -> 
-                                        HasAccess
-                                  ),
-                                HasAccess = (
-                                        external.savedWakeupStruct.read[CondListIndices] -> 
-                                        HasAccess 
-			                             | 
-                                        external.savedWakeupStruct.assign[CondListIndices] -> 
-                                        HasAccess 
-			                             | 
-                                         external.exec.unlock -> 
-                                         NRC_External_VarUse_Assumption1
-                                ).
+NRC_External_VarUse_Assumption1 = (external.exec.lock -> HasAccess),
+HasAccess = (external.savedWakeupStruct.read[CondListIndices] -> HasAccess 
+			| external.savedWakeupStruct.assign[CondListIndices] -> HasAccess 
+			| external.exec.unlock -> NRC_External_VarUse_Assumption1).
 
-|| External_VarUse_Assumption1 =    if (Races == True) then 
-                                        RC_External_VarUse_Assumption1 
-									else 
-                                        NRC_External_VarUse_Assumption1.
+|| External_VarUse_Assumption1 = if (Races == True) then RC_External_VarUse_Assumption1 
+									else NRC_External_VarUse_Assumption1.
 
 
-RC_External_VarUse_Assumption2 = (     
-                                        external.condList.lock -> 
-                                        HasAccess
-                                ),
-                                HasAccess = (
-                                     external.conditionSetChanged.begin_read -> 
-							         external.conditionSetChanged.end_read[Boolean] -> 
-                                     HasAccess 
-			                         | 
-                                     external.conditionSetChanged.begin_assign -> 
-							         external.conditionSetChanged.end_assign[Boolean] -> 
-                                     HasAccess
-			                         | 
-                                     external.condList.unlock -> 
-                                     RC_External_VarUse_Assumption2
-                                ). 
+RC_External_VarUse_Assumption2 = (external.condList.lock -> HasAccess),
+HasAccess = (external.conditionSetChanged.begin_read -> 
+							external.conditionSetChanged.end_read[Boolean] -> HasAccess 
+			| external.conditionSetChanged.begin_assign -> 
+							external.conditionSetChanged.end_assign[Boolean] -> HasAccess
+			| external.condList.unlock -> RC_External_VarUse_Assumption2). 
 
-NRC_External_VarUse_Assumption2 = (     external.condList.lock -> 
-                                        HasAccess
-                                  ),
-                                  HasAccess = (
-                                        external.conditionSetChanged.read[Boolean] -> 
-                                        HasAccess 
-			                            | 
-                                        external.conditionSetChanged.assign[Boolean] -> 
-                                        HasAccess
-			                            | 
-                                        external.condList.unlock -> 
-                                        NRC_External_VarUse_Assumption2
-                                ). 
+NRC_External_VarUse_Assumption2 = (external.condList.lock -> HasAccess),
+HasAccess = (external.conditionSetChanged.read[Boolean] -> HasAccess 
+			| external.conditionSetChanged.assign[Boolean] -> HasAccess
+			| external.condList.unlock -> NRC_External_VarUse_Assumption2). 
+
+|| External_VarUse_Assumption2 = if (Races == True) then RC_External_VarUse_Assumption2 
+									else NRC_External_VarUse_Assumption2.
 
 
-|| External_VarUse_Assumption2 = if (Races == True) then 
-                                        RC_External_VarUse_Assumption2 
-									else 
-                                        NRC_External_VarUse_Assumption2.
-
-
-minimal
-|| ExecCondChecker_NoAbstractions = (
-						ExecConditionChecker_DBMonitor_Thread 
-						|| ExecConditionChecker_Internal_Thread 
-						//|| Checker_DBChanged 
-						//|| Checker_SavedWakeupStruct 
-						//|| Checker_ConditionSetChanged
-						|| CondDB_Mutex 
-						|| CondListMutex_Abstraction
-						|| DBMutex_Abstraction  
-						|| ExecMutex_Abstraction
-						//|| External_VarUse_Assumption1 || External_VarUse_Assumption2
-						)@ 	{external, {internal, dbMonitor}.Vis_Mutex_CV_Alpha, 
-							CVs, {internal, dbMonitor}.database}.
-
+compose
+|| ExecCondChecker_NoAbstractions = (ExecConditionChecker_DBMonitor_Thread || ExecConditionChecker_Internal_Thread 
+						|| Checker_DBChanged || Checker_SavedWakeupStruct || Checker_ConditionSetChanged
+						|| CondDB_Mutex || CondListMutex_Abstraction
+						|| DBMutex_Abstraction  || ExecMutex_Abstraction
+						|| External_VarUse_Assumption1 || External_VarUse_Assumption2
+						).
 
 
 fluent IS_LOCKED_By_INT = <internal.condDB.lock, internal.condDB.unlock>
@@ -579,7 +486,13 @@ compose
 						@ 	{external, {internal, dbMonitor}.Vis_Mutex_CV_Alpha, 
 							CVs, {internal, dbMonitor}.database}.
 
-                               
+minimal
+|| ExecCondChecker_Thread = (execCondChecker:ExecCondChecker)
+							/{	execCondChecker / execCondChecker.{dbMonitor, internal}, // environment cannot differentiate between the 2 threads
+								external.exec / execCondChecker.external.exec, // mutexes are assumed system-wide
+								external.condList / execCondChecker.external.condList,
+								external.execCondChecker/execCondChecker.external,
+							  	forall [cv:CVs] {[cv].broadcast/execCondChecker.[cv].broadcast}}.
 				
 
 
@@ -646,60 +559,26 @@ minimal
 /*************************************************************** */
 
 Executive = (exec.lock -> WaitForPlan),
-            WaitForPlan = (     local.pendingPlan.begin_read -> 
-                                local.pendingPlan.end_read[pendingPlanFile:Boolean] -> 
-					            if (pendingPlanFile==False) then 
-                                    Wait_CV('exec, 'execCV);
-                                    WaitForPlan
-					           else PrepareExecution
-                            ),
-            PrepareExecution = (    resetExecutionSignal -> 
-                                    local.pendingPlan.begin_assign -> 
-                                    local.pendingPlan.end_assign[False] -> 
-                                    ExecutePlan
-                                ),
-            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
-            ExecuteCurrentNode = (      process_waitFor_conditions -> 
-                                        processStartConditions ->  // all this local state needs to be completed
-						                setUpMaintenanceConditions -> 
-                                        setUpTimeoutConditions -> 
-                                        AssumedByDimitra
-                                ),  // confirm with Rich or code
-            AssumedByDimitra = (        condList.lock -> 
-                                        execCondChecker.conditionSetChanged.assign[True] -> 
-                                        condList.unlock -> 
-                                        ExecuteTaskAction
-                                ),
-            ExecuteTaskAction =	    ActExec_DoAction('actionExecution);
-                                    AddTerminatingCondition,
-            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
-                                            WaitForTermination
-                                     ),
-            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
-                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
-                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
-                                        randomPick[executionSignal:ExecSignalVal] ->  
-						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
-                                                Wait_CV('exec, 'execCV);
-                                                WaitForTermination
-						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
-                                ),
-            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
-				            if (expectedWakeUpEqualsSaved) then (
-                                savedWakeupStruct.begin_assign -> 
-                                savedWakeupStruct.end_assign[False] -> 
-                                CheckExecSignal )
-				            else 
-                                CheckExecSignal,
-            CheckExecSignal = (     checkSignal -> 
-                                    executionSignal.reset -> 
-                                    ClearConditions
-                              ),
-            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
-                                ExecTimer_RemoveAllTimes; 
-                                Done,
-            Done =  Signal_CV('execCV);
-                    WaitForPlan 
+WaitForPlan = (local.pendingPlan.begin_read -> local.pendingPlan.end_read[pendingPlanFile:Boolean] -> 
+					if (pendingPlanFile==False) then Wait_CV('exec, 'execCV);WaitForPlan
+					else PrepareExecution),
+PrepareExecution = (resetExecutionSignal -> local.pendingPlan.begin_assign -> local.pendingPlan.end_assign[False] -> ExecutePlan),
+ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
+ExecuteCurrentNode = (process_waitFor_conditions -> processStartConditions ->  // all this local state needs to be completed
+						setUpMaintenanceConditions -> setUpTimeoutConditions -> AssumedByDimitra),  // confirm with Rich or code
+AssumedByDimitra = (condList.lock -> execCondChecker.conditionSetChanged.assign[True] -> condList.unlock -> ExecuteTaskAction),
+ExecuteTaskAction =	ActExec_DoAction('actionExecution);AddTerminatingCondition,
+AddTerminatingCondition = (execCondChecker_addConditionCheck->WaitForTermination),
+WaitForTermination = (execCondChecker.savedWakeupStruct.begin_read -> execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices]
+						-> randomPick[expectedWakeUpEqualsSaved:Boolean] -> randomPick[executionSignal:ExecSignalVal] ->  
+						if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then Wait_CV('exec, 'execCV);WaitForTermination
+						else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]),
+CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
+				if (expectedWakeUpEqualsSaved) then (savedWakeupStruct.begin_assign -> savedWakeupStruct.end_assign[False] -> CheckExecSignal)
+				else CheckExecSignal,
+CheckExecSignal = (checkSignal -> executionSignal.reset -> ClearConditions),
+ClearConditions = ExecConditionChecker_RemoveAllConditionChecks;ExecTimer_RemoveAllTimes; Done,
+Done = Signal_CV('execCV);WaitForPlan 
 				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
 					execCondChecker.CondSetChangedAlpha}   
 				\ {randomPick}.
@@ -749,74 +628,37 @@ HasAccess = (external.conditionSetChanged.begin_read ->
 || Executive_With_Checker = (Executive_Thread || ExecCondChecker_Thread || ExecCV_CondVar || CondListCV_CondVar) 
 							/ { execCondChecker / execCondChecker.{dbMonitor, internal},
 								executive / external}.
-				
-                
-minimal || ExecCondChecker_Thread = (execCondChecker:ExecCondChecker)
-							/{	execCondChecker / execCondChecker.{dbMonitor, internal}, // environment cannot differentiate between the 2 threads
-								external.exec / execCondChecker.external.exec, // mutexes are assumed system-wide
-								external.condList / execCondChecker.external.condList,
-								external.execCondChecker/execCondChecker.external,
-							  	forall [cv:CVs] {[cv].broadcast/execCondChecker.[cv].broadcast}}
-								@{external.condList,external.exec,external.execCondChecker}.
+							   	 
 
-                                 
-
-minimal || Environment = (ExecCondChecker_Thread || ExecCV_CondVar || CondListCV_CondVar).  
 
 /********************************************************************** */
 /**************************** ACTION EXECUTION ************************ */
 /********************************************************************** */
+
 /* ACTION EXECUTION CLASS METHODS */
-ActExec_DoAction (Access = 'local) = (  action.lock -> 
-                                        [Access].status.begin_read -> 
-                                        [Access].status.end_read[status:STATUS] -> 
-						                 if (status == Running) then 
-								            ActExec_StopAction(Access);
-                                            ActExec_InstallAction('interrupt);
-                                            ActExec_InstallAction('new);
-                                            Unlock
-						                  else 
-                                            ActExec_InstallAction('new);
-                                            Unlock
-                                     ),
-                                    Unlock = ( action.unlock -> 
-                                             END
-                                    ).
 
-ActExec_StopAction (Access = 'local) = (    [Access].status.begin_read -> 
-                                            [Access].status.end_read[status:STATUS] -> 
-						                     if (status == Running) then 
-								            (   [Access].status.begin_assign -> 
-                                                [Access].status.end_assign[Halted] -> 
-                                                Signal_CV('actionCV);
-                                                WaitForAck
-                                            )
-						                    else 
-                                            END
-                                        ),
-                                        WaitForAck = (
-                                            [Access].status.begin_read -> 
-                                            [Access].status.end_read[status:STATUS] -> 
-						                    if (status != Idle) then 
-                                                Wait_CV('action, 'actionAckCV);
-                                                WaitForAck
-						                     else 
-                                             END
-                                        ).
+ActExec_DoAction (Access = 'local) = (action.lock -> [Access].status.begin_read -> [Access].status.end_read[status:STATUS] -> 
+						if (status == Running) then 
+								ActExec_StopAction(Access);ActExec_InstallAction('interrupt);ActExec_InstallAction('new);Unlock
+						else ActExec_InstallAction('new);Unlock),
+Unlock = (action.unlock -> END).
 
-ActExec_AbortAction (Access = 'local) = (   action.lock -> 
-                                            [Access].status.begin_read -> 
-                                            [Access].status.end_read[status:STATUS] -> 
-						                    if (status == Running) then 
-								                ActExec_StopAction(Access);
-                                                ActExec_InstallAction('interrupt)
-						                    else 
-                                                UnlockAction
-                                        ),
-                                        UnlockAction = (
-                                            action.unlock -> 
-                                            END
-                                        ).
+ActExec_StopAction (Access = 'local) = ([Access].status.begin_read -> [Access].status.end_read[status:STATUS] -> 
+						if (status == Running) then 
+								([Access].status.begin_assign -> [Access].status.end_assign[Halted] -> Signal_CV('actionCV);WaitForAck)
+						else END),
+WaitForAck = ([Access].status.begin_read -> [Access].status.end_read[status:STATUS] -> 
+						if (status != Idle) then Wait_CV('action, 'actionAckCV);WaitForAck
+						else END).
+
+ActExec_AbortAction (Access = 'local) = (action.lock -> [Access].status.begin_read -> [Access].status.end_read[status:STATUS] -> 
+						if (status == Running) then 
+								ActExec_StopAction(Access);ActExec_InstallAction('interrupt)
+						else UnlockAction),
+
+
+
+UnlockAction = (action.unlock -> END).
 
 ActExec_InstallAction(Action = Null) = ([Action].install -> END).
 
@@ -849,168 +691,4 @@ UnlockAction = (action.unlock -> END) . // \ {randomPick}.
 
 
 
-
-
-
-/************************************************************************************************/
-/* Properties 
-/************************************************************************************************/
-
-fluent COND_LIST_LOCKED=<{executive.condList.lock},{executive.condList.unlock}> initially False
-fluent EXEC_LOCKED=<{executive.exec.lock},{executive.exec.unlock}> initially False
-fluent READ_PLAN=<{database.dbChanged.begin_read},{database.dbChanged.end_read[True]}> initially False
-fluent ACTION_PERFORMED=<{actionExecution.install},{action.unlock}> initially False
-
-
-// property P1:
-// the Executive performs an action only after a new plan is read from the db
-assert P1=([](!ACTION_PERFORMED W (READ_PLAN && !ACTION_PERFORMED)))
-
-// property P2:
-// the Executive gets the lock on the condList variable only after getting the exec lock
-assert P2=([](COND_LIST_LOCKED -> EXEC_LOCKED))
-
-
-
-
-/*********************************************************************************************** */
-/* Partial Design 1
-/*********************************************************************************************** */
-
-
-set PlanBoxInterface = {local.pendingPlan.begin_read, 
-                        local.pendingPlan.end_read[pendingPlanFile:Boolean], 
-                        resetExecutionSignal,
-                        local.pendingPlan.begin_assign,
-                        local.pendingPlan.end_assign[False],
-                        exec.lock,  
-                        exec.unlock, 
-                        execCV.wait,
-                        execCV.unlock,
-                        execCV.broadcast,
-                        exec.lock
-                        } 
-
-D1 =        (exec.lock -> PlanBox),
-            box PlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
-            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
-            ExecuteCurrentNode = (      process_waitFor_conditions -> 
-                                        processStartConditions ->  // all this local state needs to be completed
-						                setUpMaintenanceConditions -> 
-                                        setUpTimeoutConditions -> 
-                                        AssumedByDimitra
-                                ),  // confirm with Rich or code
-            AssumedByDimitra = (        condList.lock -> 
-                                        execCondChecker.conditionSetChanged.assign[True] -> 
-                                        condList.unlock -> 
-                                        ExecuteTaskAction
-                                ),
-            ExecuteTaskAction =	    ActExec_DoAction('actionExecution);
-                                    AddTerminatingCondition,
-            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
-                                            WaitForTermination
-                                     ),
-            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
-                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
-                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
-                                        randomPick[executionSignal:ExecSignalVal] ->  
-						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
-                                                Wait_CV('exec, 'execCV);
-                                                WaitForTermination
-						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
-                                ),
-            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
-				            if (expectedWakeUpEqualsSaved) then (
-                                savedWakeupStruct.begin_assign -> 
-                                savedWakeupStruct.end_assign[False] -> 
-                                CheckExecSignal )
-				            else 
-                                CheckExecSignal,
-            CheckExecSignal = (     checkSignal -> 
-                                    executionSignal.reset -> 
-                                    ClearConditions
-                              ),
-            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
-                                ExecTimer_RemoveAllTimes; 
-                                Done,
-            Done =  Signal_CV('execCV);
-                    PlanBox 
-				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
-					execCondChecker.CondSetChangedAlpha}   
-				\ {randomPick}.
-
-|| D1_PROC=D1.
-
-// Dont read this - it's just a modelling trick - BEGIN
-minimal
-|| D1_Exec = (D1 || forall [cv:CVs] Complete(cv)).
-
-|| PD1 = (D1_Exec) 
-				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
-// Dont read this - it's just a modelling trick - END
-
-
-minimal
-|| D1_Component = (executive:PD1)
-						 / {forall [cv:CVs] {[cv].broadcast/executive.[cv].broadcast}}
-						@ {executive.{actionExecution, execCondChecker, Vis_Mutex_CV_Alpha}, CVs}.
-
-
-
-
-
-/*********************************************************************************************** */
-/* Partial Design 2
-/*********************************************************************************************** */
-
-
-D2 =        (exec.lock -> PlanBox),
-            box PlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
-            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
-            ExecuteCurrentNode = (      process_waitFor_conditions -> 
-                                        processStartConditions ->  // all this local state needs to be completed
-						                setUpMaintenanceConditions -> 
-                                        setUpTimeoutConditions -> 
-                                        AssumedByDimitra
-                                ),  // confirm with Rich or code
-            AssumedByDimitra = (        condList.lock -> 
-                                        execCondChecker.conditionSetChanged.assign[True] -> 
-                                        condList.unlock -> 
-                                        ExecuteTaskAction
-                                ),
-            ExecuteTaskAction =	    ActExec_DoAction('actionExecution);
-                                    AddTerminatingCondition,
-            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
-                                            WaitForTermination
-                                     ),
-            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
-                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
-                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
-                                        randomPick[executionSignal:ExecSignalVal] ->  
-						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
-                                                Wait_CV('exec, 'execCV);
-                                                WaitForTermination
-						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
-                                ),
-            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
-				            if (expectedWakeUpEqualsSaved) then (
-                                savedWakeupStruct.begin_assign -> 
-                                savedWakeupStruct.end_assign[False] -> 
-                                CheckExecSignal )
-				            else 
-                                CheckExecSignal,
-            CheckExecSignal = (     checkSignal -> 
-                                    executionSignal.reset -> 
-                                    ClearConditions
-                              ),
-            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
-                                ExecTimer_RemoveAllTimes; 
-                                Done,
-            Done =  Signal_CV('execCV);
-                    PlanBox 
-				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
-					execCondChecker.CondSetChangedAlpha}   
-				\ {randomPick}.
-
-|| D2_PROC=D2.
 

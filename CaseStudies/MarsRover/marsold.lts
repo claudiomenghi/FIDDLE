@@ -1,0 +1,183 @@
+/*** Module internal verification parameters ***/
+
+const CondChecker_Detailed_Access = False
+const CheckAccess_SavedWakeupStruct = False
+const CheckAccess_ConditionSetChanged = False
+
+/********************* GENERIC PROPERTIES **************************/
+
+property PROTECT_ACCESS(OfBoolVariable=Null, ByMutex=Null) = 
+				([ByMutex].lock -> Access),
+Access = ([OfBoolVariable].BooleanAlpha -> Access | [ByMutex].unlock -> PROTECT_ACCESS).
+
+property LOCK_UNLOCK (Mutex = Null) = ([Mutex].lock -> [Mutex].unlock -> LOCK_UNLOCK).
+
+
+// following should be checked on all threads, individually
+|| Protect_CC_SavedWakeupStruct(Access = Null) =  PROTECT_ACCESS('[Access].savedWakeupStruct, 'exec).
+|| Protect_CC_ConditionSetChanged(Access = Null) =  PROTECT_ACCESS('[Access].conditionSetChanged, 'condList).
+|| Protect_CC_Checker_DbChanged(Access = Null) =  PROTECT_ACCESS('[Access].dbChanged, 'condDB).
+|| Protect_DB_DbChanged(Access = Null) =  PROTECT_ACCESS('[Access].dbChanged, 'db).
+|| Protect_DB_Info(Access = Null) =  PROTECT_ACCESS('[Access].info, 'db).
+|| Protect_AE_Status(Access = Null) =  PROTECT_ACCESS('[Access].status, 'action).
+
+|| Check_DbMonitor_Protects = (ExecConditionChecker_DBMonitor_Thread 
+									|| dbMonitor:Protect_CC_Checker_DbChanged('local) 
+									|| dbMonitor:Protect_DB_DbChanged('database)).
+
+
+// &&&&&&&&&&&&&&&&&&&&&&&  Checking properties on internal  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+// - 1 - Locks protect variables as intended
+|| Check_Internal_Protects = (ExecConditionChecker_Internal_Thread 
+									|| internal:Protect_CC_SavedWakeupStruct('local) 
+									|| internal:Protect_CC_ConditionSetChanged('local) 
+									|| internal:Protect_CC_Checker_DbChanged('local) 
+									|| internal:Protect_DB_Info('database)).
+
+// - 2 - Just checking how internal accesses the savedWakeupStruct 
+fluent RW_SdwakeUp = <{/*local.savedWakeupStruct.begin_read,*/ internal.savedWakeupStruct.begin_assign},  
+							{/*local.savedWakeupStruct.end_read[CondListIndices],*/ internal.savedWakeupStruct.end_assign[CondListIndices]}>
+
+assert Local_Acc_SdWU = ([]<>RW_SdwakeUp)
+
+// - 3 - Consumer producer-related property - need locks for that...
+
+// now checking the consumer producer-related property - need locks for that...
+// check it after race conditions, so we can use the simple version of the variable definitions	
+// So if Races is true, we dont really care to check and make the 
+// composite process Check_Produce_Consume ERROR					
+
+property Produce_Consume = Unconsumed,
+							Unconsumed = (	external.savedWakeupStruct.read[CondListIndices] -> Consumed
+											| internal.local.savedWakeupStruct.{assign, read}.[CondListIndices] -> Unconsumed
+											| external.savedWakeupStruct.assign.[0] -> Unconsumed),
+							Consumed = 	(external.savedWakeupStruct.assign[0] -> Unconsumed
+											| internal.local.savedWakeupStruct.assign.[CondListIndices] -> Unconsumed
+											| external.savedWakeupStruct.read.[CondListIndices] -> Consumed) + {external.savedWakeupStruct.assign.[CondListIndices]}.
+
+
+// The following are used in order to try our assumption generation algorithms
+minimal
+|| ExecMutex_Abstraction = (Exec_Mutex) 
+								/ {internal/execCondChecker.internal,
+									external / {database, executive, actionExecution, dbMonitor}}
+								@ {internal, external}.
+
+minimal
+|| CondListMutex_Abstraction = (CondList_Mutex) 
+								/ {internal/execCondChecker.internal,
+								external / {database, executive, actionExecution, dbMonitor}}
+								@ {internal, external}.
+
+/* You use the assumption that the environment accesses savedWakeupStruct protected by the exec lock ??? */
+External_VarUse_Assumption = (external.exec.lock -> HasAccess),
+HasAccess = (external.savedWakeupStruct.read[CondListIndices] -> HasAccess 
+			| external.savedWakeupStruct.assign[CondListIndices] -> HasAccess 
+			| external.exec.unlock -> External_VarUse_Assumption).
+
+// used for generating assumption 
+|| Check_Produce_Consume = if (Races == False) then 
+							(ExecConditionChecker_Internal_Thread || Produce_Consume || ExecMutex_Abstraction 
+								|| CondListMutex_Abstraction ||  External_VarUse_Assumption)
+							else Error
+							@ {external.exec, /*external.condList,*/ external.savedWakeupStruct}. // , Mutex_CV_Alpha}.
+
+
+/*
+minimal
+|| CondListCV_Abstraction = (CondListCV_CondVar)
+								/ {internal/execCondChecker.internal, dbMonitor/execCondChecker.dbMonitor}
+								@ {{internal, dbMonitor}.condListCV.{lock, unlock}}.
+*/
+
+
+/* Must make sure this is valid - making two assumptions in one - first about order of begins and ends,
+  second about use of lock to access variables */
+
+RC_External_VarUse_Assumption1 = (external.exec.lock -> HasAccess),
+HasAccess = (external.savedWakeupStruct.begin_read -> 
+							external.savedWakeupStruct.end_read[CondListIndices] -> HasAccess 
+			| external.savedWakeupStruct.begin_assign -> 
+							external.savedWakeupStruct.end_assign[CondListIndices] -> HasAccess 
+			| external.exec.unlock -> RC_External_VarUse_Assumption1).
+
+NRC_External_VarUse_Assumption1 = (external.exec.lock -> HasAccess),
+HasAccess = (external.savedWakeupStruct.read[CondListIndices] -> HasAccess 
+			| external.savedWakeupStruct.assign[CondListIndices] -> HasAccess 
+			| external.exec.unlock -> NRC_External_VarUse_Assumption1).
+
+|| External_VarUse_Assumption1 = if (Races == True) then RC_External_VarUse_Assumption1 
+									else NRC_External_VarUse_Assumption1.
+
+
+RC_External_VarUse_Assumption2 = (external.condList.lock -> HasAccess),
+HasAccess = (external.conditionSetChanged.begin_read -> 
+							external.conditionSetChanged.end_read[Boolean] -> HasAccess 
+			| external.conditionSetChanged.begin_assign -> 
+							external.conditionSetChanged.end_assign[Boolean] -> HasAccess
+			| external.condList.unlock -> RC_External_VarUse_Assumption2). 
+
+NRC_External_VarUse_Assumption2 = (external.condList.lock -> HasAccess),
+HasAccess = (external.conditionSetChanged.read[Boolean] -> HasAccess 
+			| external.conditionSetChanged.assign[Boolean] -> HasAccess
+			| external.condList.unlock -> NRC_External_VarUse_Assumption2). 
+
+|| External_VarUse_Assumption2 = if (Races == True) then RC_External_VarUse_Assumption2 
+									else NRC_External_VarUse_Assumption2.
+
+
+compose
+|| ExecCondChecker_NoAbstractions = (ExecConditionChecker_DBMonitor_Thread || ExecConditionChecker_Internal_Thread 
+						|| Checker_DBChanged || Checker_SavedWakeupStruct || Checker_ConditionSetChanged
+						|| CondDB_Mutex || CondListMutex_Abstraction
+						|| DBMutex_Abstraction  || ExecMutex_Abstraction
+						|| External_VarUse_Assumption1 || External_VarUse_Assumption2
+						).
+
+// check what properties may be violated if updating thread is left unspecified, i.e. if no locks 
+// need to be acquired for access of database
+|| FindAssumptions = (Database_Thread || DB_Mutex) 
+				/ {external.db /{executive.db, actionExecution.db, execCondChecker.dbMonitor.db, execCondChecker.internal.db}} @ {external}.
+
+/*
+minimal 
+|| Test = FindAssumptions.
+*/
+
+
+fluent IS_LOCKED_By_INT = <internal.condDB.lock, internal.condDB.unlock>
+fluent IS_LOCKED_By_DBM = <dbMonitor.condDB.lock, dbMonitor.condDB.unlock>
+
+// First property was violated when internal would do a simple WAIT_CV because it would
+// hold the Cond_DB mutex. So had to implement ML_WAIT_CV, where both locks were
+// released and then reacquired. 
+assert Lock_Unlock_Int = ([] (IS_LOCKED_By_INT -> <> ! IS_LOCKED_By_INT))
+assert Lock_Unlock_DbM = ([] (IS_LOCKED_By_DBM -> <> ! IS_LOCKED_By_DBM))
+assert Never_DB = ( [] ! IS_LOCKED_By_DBM)
+
+// OK, assumptions discharged
+|| Check_Executive_Assumption = (Executive_Thread || Executive_VarUse_Assumption1 || Executive_VarUse_Assumption2).
+/* Not updated - END */
+
+
+/* Not updated - BEGIN */
+/*
+property Executive_VarUse_Assumption1 = (external.exec.lock -> HasAccess),
+                                        HasAccess = (        external.savedWakeupStruct.begin_read -> 
+							                                 external.savedWakeupStruct.end_read[CondListIndices] -> HasAccess 
+			                                             |   external.savedWakeupStruct.begin_assign -> 
+							                                 external.savedWakeupStruct.end_assign[CondListIndices] -> HasAccess 
+			                                             |   external.exec.unlock -> Executive_VarUse_Assumption1)
+			                                         / {executive.execCondChecker.savedWakeupStruct/external.savedWakeupStruct,executive.exec/external.exec}.
+
+property Executive_VarUse_Assumption2 = (external.condList.lock -> HasAccess),
+                                        HasAccess = (         external.conditionSetChanged.begin_read -> 
+							                                  external.conditionSetChanged.end_read[Boolean] -> HasAccess 
+			                                             |    external.conditionSetChanged.begin_assign -> 
+							                                  external.conditionSetChanged.end_assign[Boolean] -> HasAccess
+			                                             |    external.condList.unlock -> Executive_VarUse_Assumption2)
+			                                         / 	{executive.execCondChecker.conditionSetChanged/external.conditionSetChanged,executive.condList/external.condList}.
+
+property || Prop_Var (MaxValue=0, MaxThreads=1) = Assumed_Var(MaxValue, MaxThreads).
+*/

@@ -33,22 +33,22 @@ public class WellFormednessChecker {
 	private final Formula precondition;
 	private final String preconditionName;
 
-	public WellFormednessChecker(LTSOutput output, CompositeState environment, LabelledTransitionSystem controller,
+	public WellFormednessChecker(LTSOutput output, CompositeState environment, LabelledTransitionSystem partialComponent,
 			String boxName, Formula precondition, String preconditionName) {
 
-		Preconditions.checkNotNull(controller, "The controller cannot be null");
+		Preconditions.checkNotNull(partialComponent, "The controller cannot be null");
 		Preconditions.checkNotNull(environment, "The environment cannot be null");
 
-		Preconditions.checkArgument(controller.getBoxes().contains(boxName),
+		Preconditions.checkArgument(partialComponent.getBoxes().contains(boxName),
 				"The box " + boxName + " must be a box of the controller");
 		output.outln("*********************************************************");
 		output.outln("Running the well-formedness checker.\n ENVIRONMENT: " + environment.getName() + "\n CONTROLLER: "
-				+ controller.getName() + "\n PRECONDITION: " + preconditionName);
+				+ partialComponent.getName() + "\n PRECONDITION: " + preconditionName);
 
 		this.environment = environment;
 		this.boxName = boxName;
 		this.output = output;
-		this.controller = controller;
+		this.controller = partialComponent;
 		this.precondition = precondition;
 		this.preconditionName = preconditionName;
 	}
