@@ -584,9 +584,6 @@ public class LTSCompiler {
 		if (ce != null) {
 
 			return ce.compose(null);
-			// Is a composition expression.
-			// compileProcesses(processes, compiled, ltsOutput);
-			// return noCompositionExpression(compiled);
 
 		} else {
 
@@ -648,7 +645,6 @@ public class LTSCompiler {
 			logger.debug(one.toString());
 			compiled = one.makeCompactState();
 			output.outln("Compiled: " + compiled.getName());
-		
 
 		} else {
 			compiled = new AutCompactState(processSpec.getSymbol(), processSpec.importFile);
@@ -687,7 +683,6 @@ public class LTSCompiler {
 			machines.add(compiledProcess);
 			compiled.put(compiledProcess.getName(), compiledProcess);
 		}
-
 
 	}
 
@@ -754,8 +749,6 @@ public class LTSCompiler {
 			nextSymbol();
 			c.alphaHidden = labelSet();
 		}
-
-		
 
 		if (Symbol.BITWISE_OR == current.kind) {
 			nextSymbol();
@@ -961,12 +954,10 @@ public class LTSCompiler {
 			p.alphaHidden = labelSet();
 		}
 
-			p.getName();
+		p.getName();
 		currentIs(Symbol.DOT, "dot expected");
 		return p;
 	}
-
-	
 
 	private boolean isLabelSet() {
 		if (current.kind == Symbol.LCURLY)
@@ -1869,10 +1860,23 @@ public class LTSCompiler {
 	private void assertPrecondition() {
 		Hashtable<String, Value> initparams = new Hashtable<>();
 		Vector<String> params = new Vector<>();
+		
 		LabelSet ls = null;
-		currentIs(Symbol.UPPERIDENT, "process identifier expected");
-		Symbol process = current;
+		
+		Symbol process;
+		Symbol prefix=current;
 		nextSymbol();
+		if (current.kind == Symbol.COLON) {
+			nextSymbol();
+			Symbol proc=current;
+			nextSymbol();
+			process=new Symbol(prefix.getValue()+":"+proc.getValue(), Symbol.IDENTIFIER);
+
+		} else {
+			process = prefix;
+			
+		}
+		
 
 		currentIs(Symbol.UPPERIDENT, "black box state identifier expected");
 		Symbol box = current;
@@ -1911,9 +1915,19 @@ public class LTSCompiler {
 		Hashtable<String, Value> initparams = new Hashtable<>();
 		Vector<String> params = new Vector<>();
 		LabelSet ls = null;
-		currentIs(Symbol.UPPERIDENT, "process identifier expected");
-		Symbol process = current;
+		Symbol process;
+		Symbol prefix=current;
 		nextSymbol();
+		if (current.kind == Symbol.COLON) {
+			nextSymbol();
+			Symbol proc=current;
+			nextSymbol();
+			process=new Symbol(prefix.getValue()+":"+proc.getValue(), Symbol.IDENTIFIER);
+
+		} else {
+			process = prefix;
+			
+		}
 
 		currentIs(Symbol.UPPERIDENT, "black box state identifier expected");
 		Symbol box = current;

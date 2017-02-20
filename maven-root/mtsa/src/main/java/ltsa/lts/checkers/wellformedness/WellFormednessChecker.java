@@ -22,7 +22,7 @@ public class WellFormednessChecker {
 
 	private final LTSOutput output;
 
-	private final LabelledTransitionSystem controller;
+	private final LabelledTransitionSystem component;
 
 	private LabelledTransitionSystem updatedController;
 
@@ -48,7 +48,7 @@ public class WellFormednessChecker {
 		this.environment = environment;
 		this.boxName = boxName;
 		this.output = output;
-		this.controller = partialComponent;
+		this.component = partialComponent;
 		this.precondition = precondition;
 		this.preconditionName = preconditionName;
 	}
@@ -61,7 +61,7 @@ public class WellFormednessChecker {
 
 		// implements the step 1, 2, 3 of the well-formedness checking
 		// algorithm, i.e., it returns the modified controller
-		updatedController = new WellFormednessLTSModifier(output).modify(controller, boxName);
+		updatedController = new WellFormednessLTSModifier(output).modify(component, boxName);
 
 		logger.debug(updatedController);
 		logger.debug(updatedController.getName() + "\t " + updatedController.getEndOfSequenceIndex());
@@ -72,7 +72,7 @@ public class WellFormednessChecker {
 
 		Set<String> alphabet = new HashSet<>();
 		alphabet.addAll(environment.getAlphabetEvents());
-		alphabet.addAll(controller.getAlphabetEvents());
+		alphabet.addAll(component.getAlphabetEvents());
 
 		// modifies the property
 		CompositeState property = new LTLf2LTS().toPropertyWithNoInit(precondition, this.output, alphabet,
@@ -83,11 +83,10 @@ public class WellFormednessChecker {
 
 		environment.getMachines().stream().forEach(logger::debug);
 
-		environment.getMachines().stream()
-				.forEach(machine -> logger.debug(machine.getName() + "\t " + machine.getEndOfSequenceIndex()));
+
 		system.addMachine(updatedController);
 
-		output.outln("\t \t checking...");
+		output.outln("checking...");
 		boolean result = system.checkLTL(new EmptyLTSOuput(), property);
 
 		if (result) {

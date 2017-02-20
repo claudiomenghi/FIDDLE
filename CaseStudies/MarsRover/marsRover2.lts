@@ -69,10 +69,7 @@ set DbInfoAlpha = {info.{begin_read, begin_assign, {end_read, end_assign}.[Data]
 // Extending Basic Constructs on top of modelling language - BEGIN ***
 
 // Variables, Condition Variables and Mutexes
-Mutex (MutexName = Null) = (    [thread:Threads].[MutexName].lock -> 
-                                [thread].[MutexName].unlock -> 
-                                Mutex
-                            ).
+Mutex (MutexName = Null) = ([thread:Threads].[MutexName].lock -> [thread].[MutexName].unlock -> Mutex).
 
 
 /*** Here starts a definition for variables that, based on what we want to do, checks for 
@@ -118,14 +115,10 @@ CondVar (ConditionVariable = Null) =
 		([Threads].[ConditionVariable].signal -> [ConditionVariable].broadcast -> CondVar). 
 
 // Condition variable methods
-Wait_CV (Mutex = Null, ConditionVariable = Null) = (    [ConditionVariable].lock ->  
-														[Mutex].unlock -> 
-                                                        [ConditionVariable].wait ->
-											  		    [ConditionVariable].unlock  -> 
-													    [ConditionVariable].broadcast -> 
-                                                        [Mutex].lock -> 
-                                                        END
-                                                    ). 
+Wait_CV (Mutex = Null, ConditionVariable = Null) = ([ConditionVariable].lock ->  
+														[Mutex].unlock -> [ConditionVariable].wait ->
+											  		[ConditionVariable].unlock  -> 
+													[ConditionVariable].broadcast -> [Mutex].lock -> END). 
 
 ML_Wait_CV (Mutex1 = Null, Mutex2 = Null, ConditionVariable = Null) = 
 					([ConditionVariable].lock ->  
@@ -395,21 +388,14 @@ assert Local_Acc_SdWU = ([]<>RW_SdwakeUp)
 // So if Races is true, we dont really care to check and make the 
 // composite process Check_Produce_Consume ERROR					
 
-property  Produce_Consume = Unconsumed,
-                Unconsumed = (      external.savedWakeupStruct.read[CondListIndices] -> 
-                                    Consumed
-		                      |     internal.local.savedWakeupStruct.{assign, read}.[CondListIndices] -> 
-                                    Unconsumed
-		                      |     external.savedWakeupStruct.assign.[0] -> 
-                                    Unconsumed
-                             ),
-                Consumed = (        external.savedWakeupStruct.assign[0] -> 
-                                    Unconsumed
-                              |     internal.local.savedWakeupStruct.assign.[CondListIndices] -> 
-                                    Unconsumed
-		                      |     external.savedWakeupStruct.read.[CondListIndices] -> 
-                                    Consumed
-                            ) + {external.savedWakeupStruct.assign.[CondListIndices]}.
+property 
+Produce_Consume = Unconsumed,
+Unconsumed = (external.savedWakeupStruct.read[CondListIndices] -> Consumed
+		| internal.local.savedWakeupStruct.{assign, read}.[CondListIndices] -> Unconsumed
+		| external.savedWakeupStruct.assign.[0] -> Unconsumed),
+Consumed = (external.savedWakeupStruct.assign[0] -> Unconsumed
+		| internal.local.savedWakeupStruct.assign.[CondListIndices] -> Unconsumed
+		| external.savedWakeupStruct.read.[CondListIndices] -> Consumed) + {external.savedWakeupStruct.assign.[CondListIndices]}.
 
 
 // The following are used in order to try our assumption generation algorithms
@@ -564,15 +550,14 @@ minimal
 || ExecCondChecker_NoAbstractions = (
 						ExecConditionChecker_DBMonitor_Thread 
 						|| ExecConditionChecker_Internal_Thread 
-						|| Checker_DBChanged 
-						|| Checker_SavedWakeupStruct 
-						|| Checker_ConditionSetChanged
+						//|| Checker_DBChanged 
+						//|| Checker_SavedWakeupStruct 
+						//|| Checker_ConditionSetChanged
 						|| CondDB_Mutex 
 						|| CondListMutex_Abstraction
 						|| DBMutex_Abstraction  
 						|| ExecMutex_Abstraction
-						|| External_VarUse_Assumption1 
-						|| External_VarUse_Assumption2
+						//|| External_VarUse_Assumption1 || External_VarUse_Assumption2
 						)@ 	{external, {internal, dbMonitor}.Vis_Mutex_CV_Alpha, 
 							CVs, {internal, dbMonitor}.database}.
 
@@ -660,39 +645,98 @@ minimal
 /**************************** EXECUTIVE ************************ */
 /*************************************************************** */
 
+Executive = (exec.lock -> WaitForPlan),
+            WaitForPlan = (     local.pendingPlan.begin_read -> 
+                                local.pendingPlan.end_read[pendingPlanFile:Boolean] -> 
+					            if (pendingPlanFile==False) then 
+                                    Wait_CV('exec, 'execCV);
+                                    WaitForPlan
+					           else PrepareExecution
+                            ),
+            PrepareExecution = (    resetExecutionSignal -> 
+                                    local.pendingPlan.begin_assign -> 
+                                    local.pendingPlan.end_assign[False] -> 
+                                    ExecutePlan
+                                ),
+            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
+            ExecuteCurrentNode = (      process_waitFor_conditions -> 
+                                        processStartConditions ->  // all this local state needs to be completed
+						                setUpMaintenanceConditions -> 
+                                        setUpTimeoutConditions -> 
+                                        AssumedByDimitra
+                                ),  // confirm with Rich or code
+            AssumedByDimitra = (        condList.lock -> 
+                                        execCondChecker.conditionSetChanged.assign[True] -> 
+                                        condList.unlock -> 
+                                        ExecuteTaskAction
+                                ),
+            ExecuteTaskAction =	    ActExec_DoAction('actionExecution);
+                                    AddTerminatingCondition,
+            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
+                                            WaitForTermination
+                                     ),
+            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
+                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
+                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
+                                        randomPick[executionSignal:ExecSignalVal] ->  
+						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
+                                                Wait_CV('exec, 'execCV);
+                                                WaitForTermination
+						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
+                                ),
+            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
+				            if (expectedWakeUpEqualsSaved) then (
+                                savedWakeupStruct.begin_assign -> 
+                                savedWakeupStruct.end_assign[False] -> 
+                                CheckExecSignal )
+				            else 
+                                CheckExecSignal,
+            CheckExecSignal = (     checkSignal -> 
+                                    executionSignal.reset -> 
+                                    ClearConditions
+                              ),
+            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
+                                ExecTimer_RemoveAllTimes; 
+                                Done,
+            Done =  Signal_CV('execCV);
+                    WaitForPlan 
+				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
+					execCondChecker.CondSetChangedAlpha}   
+				\ {randomPick}.
+
+
+// Dont read this - it's just a modelling trick - BEGIN
+minimal
+|| Interm_Exec = (Executive || forall [cv:CVs] Complete(cv)).
+|| PExecutive = (Interm_Exec) 
+				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
+// Dont read this - it's just a modelling trick - END
+
+
+minimal
+|| Executive_Thread = (executive:PExecutive)
+						 / {forall [cv:CVs] {[cv].broadcast/executive.[cv].broadcast}}
+						@ {executive.{actionExecution, execCondChecker, Vis_Mutex_CV_Alpha}, CVs}.
+
 
 /* Not updated - BEGIN */
-property Executive_VarUse_Assumption1 = (   external.exec.lock -> 
-                                            HasAccess
-                                        ),
-                                        HasAccess = (
-                                            external.savedWakeupStruct.begin_read -> 
-							                external.savedWakeupStruct.end_read[CondListIndices] -> 
-                                            HasAccess 
-			                             | 
-                                             external.savedWakeupStruct.begin_assign -> 
-							                 external.savedWakeupStruct.end_assign[CondListIndices] -> 
-                                             HasAccess 
-                                         |   external.exec.unlock -> 
-                                             Executive_VarUse_Assumption1
-                                        )/ {executive.execCondChecker.savedWakeupStruct/external.savedWakeupStruct,
-				                            executive.exec/external.exec}.
+property Executive_VarUse_Assumption1 = (external.exec.lock -> HasAccess),
+HasAccess = (external.savedWakeupStruct.begin_read -> 
+							external.savedWakeupStruct.end_read[CondListIndices] -> HasAccess 
+			| external.savedWakeupStruct.begin_assign -> 
+							external.savedWakeupStruct.end_assign[CondListIndices] -> HasAccess 
+			| external.exec.unlock -> Executive_VarUse_Assumption1)
+			/ {executive.execCondChecker.savedWakeupStruct/external.savedWakeupStruct,
+				executive.exec/external.exec}.
 
-
-property Executive_VarUse_Assumption2 = (	external.condList.lock -> 
-											HasAccess
-										),
-										HasAccess = (
-											external.conditionSetChanged.begin_read -> 
-											external.conditionSetChanged.end_read[Boolean] -> 
-											HasAccess 
-										| 	external.conditionSetChanged.begin_assign -> 
-											external.conditionSetChanged.end_assign[Boolean] -> 
-											HasAccess
-										| 	external.condList.unlock -> 
-											Executive_VarUse_Assumption2
-										)/ 	{executive.execCondChecker.conditionSetChanged/external.conditionSetChanged,
-												executive.condList/external.condList}.
+property Executive_VarUse_Assumption2 = (external.condList.lock -> HasAccess),
+HasAccess = (external.conditionSetChanged.begin_read -> 
+							external.conditionSetChanged.end_read[Boolean] -> HasAccess 
+			| external.conditionSetChanged.begin_assign -> 
+							external.conditionSetChanged.end_assign[Boolean] -> HasAccess
+			| external.condList.unlock -> Executive_VarUse_Assumption2)
+			/ 	{executive.execCondChecker.conditionSetChanged/external.conditionSetChanged,
+				executive.condList/external.condList}.
 
 // OK, assumptions discharged
 || Check_Executive_Assumption = (Executive_Thread || Executive_VarUse_Assumption1 || Executive_VarUse_Assumption2).
@@ -774,9 +818,7 @@ ActExec_AbortAction (Access = 'local) = (   action.lock ->
                                             END
                                         ).
 
-ActExec_InstallAction(Action = Null) = (    [Action].install -> 
-                                            END
-                                        ).
+ActExec_InstallAction(Action = Null) = ([Action].install -> END).
 
 minimal
 ActExec_InternalDoAction (Access = 'local) = (randomPick[asynchronousExecution:True..True]  ->
@@ -816,13 +858,13 @@ UnlockAction = (action.unlock -> END) . // \ {randomPick}.
 
 fluent COND_LIST_LOCKED=<{executive.condList.lock},{executive.condList.unlock}> initially False
 fluent EXEC_LOCKED=<{executive.exec.lock},{executive.exec.unlock}> initially False
-fluent READ_PLAN=<{executive.local.pendingPlan.begin_read},{executive.local.pendingPlan.end_read.[1]}> initially False
-fluent ACTION_PERFORMED=<{executive.new.install},{executive.action.unlock}> initially False
+fluent READ_PLAN=<{database.dbChanged.begin_read},{database.dbChanged.end_read[True]}> initially False
+fluent ACTION_PERFORMED=<{actionExecution.install},{action.unlock}> initially False
 
 
 // property P1:
 // the Executive performs an action only after a new plan is read from the db
-assert P1=(!ACTION_PERFORMED W (READ_PLAN && !ACTION_PERFORMED))
+assert P1=([](!ACTION_PERFORMED W (READ_PLAN && !ACTION_PERFORMED)))
 
 // property P2:
 // the Executive gets the lock on the condList variable only after getting the exec lock
@@ -831,257 +873,3 @@ assert P2=([](COND_LIST_LOCKED -> EXEC_LOCKED))
 
 
 
-/*********************************************************************************************** */
-/* Partial Design 1
-/*********************************************************************************************** */
-
-
-set PlanBoxInterface = {executive.local.pendingPlan.begin_read, 
-                        executive.local.pendingPlan.end_read[pendingPlanFile:Boolean], 
-                        executive.resetExecutionSignal,
-                        executive.local.pendingPlan.begin_assign,
-                        executive.local.pendingPlan.end_assign[False],
-                        executive.exec.lock,  
-                        executive.exec.unlock, 
-                        executive.execCV.wait,
-                        executive.execCV.unlock,
-                        executive.execCV.broadcast,
-                        executive.exec.lock
-                        } 
-
-set ExecuteTaskActionInterface = {executive.action.lock,
-                        executive.actionExecution.status.begin_read,
-                        executive.actionExecution.status.end_read[0],
-                        executive.actionExecution.status.end_read[1],
-                        executive.actionExecution.status.end_read[2],
-                        executive.actionExecution.status.end_read[3],
-                        executive.action.unlock,
-                        executive.interrupt.install,
-                        executive.new.install,
-                        executive.actionExecution.status.begin_assign,
-                        executive.actionExecution.status.end_assign,
-                        executive.actionAckCV.lock,
-                        executive.actionAckCV.wait,
-                        executive.actionAckCV.unlock,
-                        executive.actionAckCV.broadcast,
-                        executive.actionCV.lock,
-                        executive.actionCV.unlock,
-                        executive.actionCV.signal
-                        } 
-
-/*D1Des =        (exec.lock -> D1DesPlanBox),
-            box D1DesPlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
-            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
-            ExecuteCurrentNode = (      process_waitFor_conditions -> 
-                                        processStartConditions ->  // all this local state needs to be completed
-						                setUpMaintenanceConditions -> 
-                                        setUpTimeoutConditions -> 
-                                        AssumedByDimitra
-                                ),  // confirm with Rich or code
-            AssumedByDimitra = (        condList.lock -> 
-                                        execCondChecker.conditionSetChanged.assign[True] -> 
-                                        condList.unlock -> 
-                                        ExecuteTaskAction
-                                ),
-            box D1DesExecuteTaskAction =	   ( actionend ->   AddTerminatingCondition)[ExecuteTaskActionInterface],
-                                    
-            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
-                                            WaitForTermination
-                                     ),
-            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
-                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
-                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
-                                        randomPick[executionSignal:ExecSignalVal] ->  
-						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
-                                                Wait_CV('exec, 'execCV);
-                                                WaitForTermination
-						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
-                                ),
-            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
-				            if (expectedWakeUpEqualsSaved) then (
-                                savedWakeupStruct.begin_assign -> 
-                                savedWakeupStruct.end_assign[False] -> 
-                                CheckExecSignal )
-				            else 
-                                CheckExecSignal,
-            CheckExecSignal = (     checkSignal -> 
-                                    executionSignal.reset -> 
-                                    ClearConditions
-                              ),
-            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
-                                ExecTimer_RemoveAllTimes; 
-                                Done,
-            Done =  Signal_CV('execCV);
-                    D1DesPlanBox 
-				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
-					execCondChecker.CondSetChangedAlpha}   
-				\ {randomPick}.
-
-|| D1 = (executive:D1Des)
-						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.
-
-
-
-
-
-
-ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=(<>(READ_PLAN))
-
-//ltl_postcondition executive:D1Des D1DesExecuteTaskAction D1_Executive_BOX_READS_PLAN=(<>[](!ACTION_PERFORMED))
-
-ltl_precondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
-*/
-
-/************************************************************************************************/
-/* Partial Design 2
-/************************************************************************************************/
-
-
-D2Des =        (exec.lock -> PlanBox),
-            box PlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
-            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
-            ExecuteCurrentNode = (      process_waitFor_conditions -> 
-                                        processStartConditions ->  // all this local state needs to be completed
-						                setUpMaintenanceConditions -> 
-                                        setUpTimeoutConditions -> 
-                                        AssumedByDimitra
-                                ),  // confirm with Rich or code
-            AssumedByDimitra = (        condList.lock -> 
-                                        execCondChecker.conditionSetChanged.assign[True] -> 
-                                        condList.unlock -> 
-                                        ExecuteTaskAction
-                                ),
-            ExecuteTaskAction =	    ActExec_DoAction('actionExecution);
-                                    AddTerminatingCondition,
-            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
-                                            WaitForTermination
-                                     ),
-            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
-                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
-                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
-                                        randomPick[executionSignal:ExecSignalVal] ->  
-						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
-                                                Wait_CV('exec, 'execCV);
-                                                WaitForTermination
-						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
-                                ),
-            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
-				            if (expectedWakeUpEqualsSaved) then (
-                                savedWakeupStruct.begin_assign -> 
-                                savedWakeupStruct.end_assign[False] -> 
-                                CheckExecSignal )
-				            else 
-                                CheckExecSignal,
-            CheckExecSignal = (     checkSignal -> 
-                                    executionSignal.reset -> 
-                                    ClearConditions
-                              ),
-            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
-                                ExecTimer_RemoveAllTimes; 
-                                Done,
-            Done =  Signal_CV('execCV);
-                    PlanBox 
-				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
-					execCondChecker.CondSetChangedAlpha}   
-				\ {randomPick}.
-
-
-//|| D2Executive = (D2) 
-//				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
-
-
-|| D2 = (executive:D2Des)
-						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.
-
-
-//ltl_postcondition executive:D2Des PlanBox PLAN_BOX_READS_PLAN=(<>(READ_PLAN))
-
-//ltl_precondition executive:D2Des PlanBox PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
-
-
-/************************************************************************************************/
-/* Design 3
-/************************************************************************************************/
-
-Executive = (exec.lock -> WaitForPlan),
-            WaitForPlan = (     local.pendingPlan.begin_read -> 
-                                local.pendingPlan.end_read[pendingPlanFile:Boolean] -> 
-					            if (pendingPlanFile==False) then 
-                                    Wait_CV('exec, 'execCV);
-                                    WaitForPlan
-					           else PrepareExecution
-                            ),
-            PrepareExecution = (    resetExecutionSignal -> 
-                                    local.pendingPlan.begin_assign -> 
-                                    local.pendingPlan.end_assign[False] -> 
-                                    ExecutePlan
-                                ),
-            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
-            ExecuteCurrentNode = (      process_waitFor_conditions -> 
-                                        processStartConditions ->  // all this local state needs to be completed
-						                setUpMaintenanceConditions -> 
-                                        setUpTimeoutConditions -> 
-                                        AssumedByDimitra
-                                ),  // confirm with Rich or code
-            AssumedByDimitra = (        condList.lock -> 
-                                        execCondChecker.conditionSetChanged.assign[True] -> 
-                                        condList.unlock -> 
-                                        ExecuteTaskAction
-                                ),
-            ExecuteTaskAction =	    ActExec_DoAction('actionExecution);
-                                    AddTerminatingCondition,
-            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
-                                            WaitForTermination
-                                     ),
-            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
-                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
-                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
-                                        randomPick[executionSignal:ExecSignalVal] ->  
-						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
-                                                Wait_CV('exec, 'execCV);
-                                                WaitForTermination
-						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
-                                ),
-            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
-				            if (expectedWakeUpEqualsSaved) then (
-                                savedWakeupStruct.begin_assign -> 
-                                savedWakeupStruct.end_assign[False] -> 
-                                CheckExecSignal )
-				            else 
-                                CheckExecSignal,
-            CheckExecSignal = (     checkSignal -> 
-                                    executionSignal.reset -> 
-                                    ClearConditions
-                              ),
-            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
-                                ExecTimer_RemoveAllTimes; 
-                                Done,
-            Done =  Signal_CV('execCV);
-                    WaitForPlan 
-				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
-					execCondChecker.CondSetChangedAlpha}   
-				\ {randomPick}.
-
-
-
-
-// Dont read this - it's just a modelling trick - BEGIN
-minimal
-|| Interm_Exec = (Executive || forall [cv:CVs] Complete(cv)
-				).
-|| PExecutive = (Interm_Exec) 
-				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
-// Dont read this - it's just a modelling trick - END
-
-
-minimal
-|| Executive_Thread = (executive:PExecutive)
-						// / {forall [cv:CVs] {[cv].broadcast/executive.[cv].broadcast}}
-						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha},  action.unlock, CVs}.
-
-
-|| D3Executive = (Executive) 
-				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
- 
-|| D3 = (executive:D3Executive)
-						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.

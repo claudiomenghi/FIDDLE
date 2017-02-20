@@ -49,12 +49,51 @@ Formulae `P1` and `P2` are defined over the following fluents which are initiall
 
 
 ## Design D1
+To analyze design D1, choose as an environment the process `Environment` and as a partial component the design `D1`.
 
-The first design assumes  the developer still has to specify a sub-component that reads plans. 
-Specifically, states `WaitingForPlan`, `PrepareExecution` and `ExecutePlan` are encapsulated in the box `PlanBox`.
+*realizability checker*: load the `Environment` and  the design `D1` as partial component.
+ * Property `P1`: to verify `P1` click on *Check > Realizability Checker > P1*. A refinement of `D1` that satisfies the property of interest is realizable.
+ * Property `P2`: to verify `P2` click on *Check > Realizability Checker > P2*. A refinement of `D1` that satisfies the property of interest is realizable.
+
+*model checker*: load the `Environment` and  the design `D2` as partial component (make sure that the `D1_PLAN_BOX_PLAN_READ` is commented).
+ * Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. A counterexample is returned.
+ * Property `P2`: to verify `P2` click on *Check > Model Checker > P2*. A counterexample is returned.
 
 
-The component `D1` can analyzed considering the component named as `D1_Component` in the file `.lts`
+###### Design D1 with post
+*model checker*: load the `Environment` and  the design `D1` as partial component (make sure that the `D1_PLAN_BOX_READS_PLAN` is uncommented).
+ * Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. The property of interest is satisfied.
+
+*well formedness checker*: load the `Environment` and  the design `D1` as partial component (make sure that the `D1_Executive_BOX_READS_PLAN` is uncommented).
+ * Property `P1`: to verify `P1` click on *Check > Well-formedness Checker > PLAN_BOX_NO_PLAN_EXECUTION*. The property of interest is not satisfied.
+ 
+Add the post-condition `D1_Executive_BOX_READS_PLAN`
+ * Property `P1`: to verify `P1` click on *Check > Well-formedness Checker > PLAN_BOX_NO_PLAN_EXECUTION*. The property of interest is not satisfied.
+
+
+## Design D2
+To analyze design D2, choose as an environment the process `Environment` and as a partial component the design `D2`.
+
+*realizability checker*: load the `Environment` and  the design `D2` as partial component.
+ * Property `P1`: to verify `P1` click on *Check > Realizability Checker > P1*. A refinement of `D2` that satisfies the property of interest is realizable.
+ * Property `P2`: to verify `P2` click on *Check > Realizability Checker > P2*. A refinement of `D2` that satisfies the property of interest is realizable.
+
+*model checker*: load the `Environment` and  the design `D2` as partial component (make sure that the `PLAN_READ_IN_PLAN_BOX` is commented).
+ * Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. A counterexample is returned.
+ * Property `P2`: to verify `P2` click on *Check > Model Checker > P2*. The property of interest is satisfied.
+
+###### Design D2 with post
+*model checker*: load the `Environment` and  the design `D2` as partial component (make sure that the `PLAN_READ_IN_PLAN_BOX` is uncommented).
+ * Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. The property of interest is satisfied.
+ * Property `P2`: to verify `P2` click on *Check > Model Checker > P2*. The property of interest is satisfied.
+
+## Design D3
+To analyze design D3, choose as an environment the process `Environment` and as a partial component the design `D3`.
+
+* Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. 
+  * The property of interest is satisfied
+* Property `P2`: to verify `P2` click on *Check > Model Checker > P2*. 
+ * The property of interest is satisfied
 
 
 

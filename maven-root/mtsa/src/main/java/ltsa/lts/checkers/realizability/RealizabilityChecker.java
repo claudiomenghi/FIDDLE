@@ -36,6 +36,8 @@ public class RealizabilityChecker {
 	 * The property to be considered
 	 */
 	private final CompositeState notProperty;
+	
+	private  CompositeState system;
 
 	/**
 	 * The output to be printed
@@ -110,13 +112,19 @@ public class RealizabilityChecker {
 		modifiedControllerLTSStep1.removeStates(modifiedControllerLTSStep1
 				.getBoxIndexes().values());
 
-		CompositeState system = new CompositeState("system");
+		system = new CompositeState("system");
 		environment.getMachines().forEach(system::addMachine);
 		system.addMachine(modifiedControllerLTSStep1);
 
 		logger.debug("STEP 1: Checking whether C^B || E |= phi");
-		boolean satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
-
+		
+		boolean satisfied;
+		if(!system.getAlphabetEvents().containsAll(ltlProperty.getAlphabetEvents())){
+			satisfied=true;
+		}
+		else{
+		 satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
+		}
 		if (!satisfied) {
 			this.output.outln("Counterexample found: ");
 			this.output.outln(system.getErrorTrace().toString());
@@ -165,5 +173,9 @@ public class RealizabilityChecker {
 			}
 		}
 		return modifiedControllerLTSStep2;
+	}
+	
+	public CompositeState getSystem(){
+		return this.system;
 	}
 }

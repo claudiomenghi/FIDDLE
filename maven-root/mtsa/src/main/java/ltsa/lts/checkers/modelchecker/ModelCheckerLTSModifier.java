@@ -141,8 +141,6 @@ public class ModelCheckerLTSModifier {
 		return postConditions;
 	}
 
-	
-
 	protected LabelledTransitionSystem step2(LabelledTransitionSystem controller,
 			Map<String, LabelledTransitionSystem> mapBoxPostCondition, Set<String> boxes) {
 		output.outln("APPLYING STEP2. Boxes: " + mapBoxPostCondition.keySet());
@@ -162,9 +160,11 @@ public class ModelCheckerLTSModifier {
 
 			LabelledTransitionSystem cscopy = new IntegratorEngine().apply(cs, boxPosition, box, postConditionLTS);
 
-			for (int eventIndex = 0; eventIndex < cs.getAlphabet().length; eventIndex++) {
-				for (int finalStateIndex : cscopy.getFinalStateIndexes()) {
-					cscopy.removeTransition(finalStateIndex, eventIndex, finalStateIndex);
+			if (LTSCompiler.postconditionDefinitionManager.hasPostCondition(controller.getName(), box)) {
+				for (int eventIndex = 0; eventIndex < cs.getAlphabet().length; eventIndex++) {
+					for (int finalStateIndex : cscopy.getFinalStateIndexes()) {
+						cscopy.removeTransition(finalStateIndex, eventIndex, finalStateIndex);
+					}
 				}
 			}
 			cs = cscopy;

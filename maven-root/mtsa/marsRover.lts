@@ -118,14 +118,10 @@ CondVar (ConditionVariable = Null) =
 		([Threads].[ConditionVariable].signal -> [ConditionVariable].broadcast -> CondVar). 
 
 // Condition variable methods
-Wait_CV (Mutex = Null, ConditionVariable = Null) = (    [ConditionVariable].lock ->  
-														[Mutex].unlock -> 
-                                                        [ConditionVariable].wait ->
-											  		    [ConditionVariable].unlock  -> 
-													    [ConditionVariable].broadcast -> 
-                                                        [Mutex].lock -> 
-                                                        END
-                                                    ). 
+Wait_CV (Mutex = Null, ConditionVariable = Null) = ([ConditionVariable].lock ->  
+														[Mutex].unlock -> [ConditionVariable].wait ->
+											  		[ConditionVariable].unlock  -> 
+													[ConditionVariable].broadcast -> [Mutex].lock -> END). 
 
 ML_Wait_CV (Mutex1 = Null, Mutex2 = Null, ConditionVariable = Null) = 
 					([ConditionVariable].lock ->  
@@ -836,108 +832,20 @@ assert P2=([](COND_LIST_LOCKED -> EXEC_LOCKED))
 /*********************************************************************************************** */
 
 
-set PlanBoxInterface = {executive.local.pendingPlan.begin_read, 
-                        executive.local.pendingPlan.end_read[pendingPlanFile:Boolean], 
-                        executive.resetExecutionSignal,
-                        executive.local.pendingPlan.begin_assign,
-                        executive.local.pendingPlan.end_assign[False],
-                        executive.exec.lock,  
-                        executive.exec.unlock, 
-                        executive.execCV.wait,
-                        executive.execCV.unlock,
-                        executive.execCV.broadcast,
-                        executive.exec.lock
+set PlanBoxInterface = {local.pendingPlan.begin_read, 
+                        local.pendingPlan.end_read[pendingPlanFile:Boolean], 
+                        resetExecutionSignal,
+                        local.pendingPlan.begin_assign,
+                        local.pendingPlan.end_assign[False],
+                        exec.lock,  
+                        exec.unlock, 
+                        execCV.wait,
+                        execCV.unlock,
+                        execCV.broadcast,
+                        exec.lock
                         } 
 
-set ExecuteTaskActionInterface = {executive.action.lock,
-                        executive.actionExecution.status.begin_read,
-                        executive.actionExecution.status.end_read[0],
-                        executive.actionExecution.status.end_read[1],
-                        executive.actionExecution.status.end_read[2],
-                        executive.actionExecution.status.end_read[3],
-                        executive.action.unlock,
-                        executive.interrupt.install,
-                        executive.new.install,
-                        executive.actionExecution.status.begin_assign,
-                        executive.actionExecution.status.end_assign,
-                        executive.actionAckCV.lock,
-                        executive.actionAckCV.wait,
-                        executive.actionAckCV.unlock,
-                        executive.actionAckCV.broadcast,
-                        executive.actionCV.lock,
-                        executive.actionCV.unlock,
-                        executive.actionCV.signal
-                        } 
-
-/*D1Des =        (exec.lock -> D1DesPlanBox),
-            box D1DesPlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
-            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
-            ExecuteCurrentNode = (      process_waitFor_conditions -> 
-                                        processStartConditions ->  // all this local state needs to be completed
-						                setUpMaintenanceConditions -> 
-                                        setUpTimeoutConditions -> 
-                                        AssumedByDimitra
-                                ),  // confirm with Rich or code
-            AssumedByDimitra = (        condList.lock -> 
-                                        execCondChecker.conditionSetChanged.assign[True] -> 
-                                        condList.unlock -> 
-                                        ExecuteTaskAction
-                                ),
-            box D1DesExecuteTaskAction =	   ( actionend ->   AddTerminatingCondition)[ExecuteTaskActionInterface],
-                                    
-            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
-                                            WaitForTermination
-                                     ),
-            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
-                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
-                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
-                                        randomPick[executionSignal:ExecSignalVal] ->  
-						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
-                                                Wait_CV('exec, 'execCV);
-                                                WaitForTermination
-						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
-                                ),
-            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
-				            if (expectedWakeUpEqualsSaved) then (
-                                savedWakeupStruct.begin_assign -> 
-                                savedWakeupStruct.end_assign[False] -> 
-                                CheckExecSignal )
-				            else 
-                                CheckExecSignal,
-            CheckExecSignal = (     checkSignal -> 
-                                    executionSignal.reset -> 
-                                    ClearConditions
-                              ),
-            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
-                                ExecTimer_RemoveAllTimes; 
-                                Done,
-            Done =  Signal_CV('execCV);
-                    D1DesPlanBox 
-				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
-					execCondChecker.CondSetChangedAlpha}   
-				\ {randomPick}.
-
-|| D1 = (executive:D1Des)
-						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.
-
-
-
-
-
-
-ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=(<>(READ_PLAN))
-
-//ltl_postcondition executive:D1Des D1DesExecuteTaskAction D1_Executive_BOX_READS_PLAN=(<>[](!ACTION_PERFORMED))
-
-ltl_precondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
-*/
-
-/************************************************************************************************/
-/* Partial Design 2
-/************************************************************************************************/
-
-
-D2Des =        (exec.lock -> PlanBox),
+D1 =        (exec.lock -> PlanBox),
             box PlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
             ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
             ExecuteCurrentNode = (      process_waitFor_conditions -> 
@@ -985,18 +893,82 @@ D2Des =        (exec.lock -> PlanBox),
 					execCondChecker.CondSetChangedAlpha}   
 				\ {randomPick}.
 
+|| D1_PROC=D1.
 
-//|| D2Executive = (D2) 
-//				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
+// Dont read this - it's just a modelling trick - BEGIN
+minimal
+|| D1_Exec = (D1 || forall [cv:CVs] Complete(cv)).
+
+|| PD1 = (D1_Exec) 
+				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
+// Dont read this - it's just a modelling trick - END
 
 
-|| D2 = (executive:D2Des)
-						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.
+minimal
+|| D1_Component = (executive:PD1)
+						 / {forall [cv:CVs] {[cv].broadcast/executive.[cv].broadcast}}
+						@ {executive.{actionExecution, execCondChecker, Vis_Mutex_CV_Alpha}, CVs}.
 
 
-//ltl_postcondition executive:D2Des PlanBox PLAN_BOX_READS_PLAN=(<>(READ_PLAN))
 
-//ltl_precondition executive:D2Des PlanBox PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
+
+
+/************************************************************************************************/
+/* Partial Design 2
+/************************************************************************************************/
+
+
+D2 =        (exec.lock -> PlanBox),
+            box PlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
+            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
+            ExecuteCurrentNode = (      process_waitFor_conditions -> 
+                                        processStartConditions ->  // all this local state needs to be completed
+						                setUpMaintenanceConditions -> 
+                                        setUpTimeoutConditions -> 
+                                        AssumedByDimitra
+                                ),  // confirm with Rich or code
+            AssumedByDimitra = (        condList.lock -> 
+                                        execCondChecker.conditionSetChanged.assign[True] -> 
+                                        condList.unlock -> 
+                                        ExecuteTaskAction
+                                ),
+            ExecuteTaskAction =	    ActExec_DoAction('actionExecution);
+                                    AddTerminatingCondition,
+            AddTerminatingCondition = (     execCondChecker_addConditionCheck->
+                                            WaitForTermination
+                                     ),
+            WaitForTermination = (      execCondChecker.savedWakeupStruct.begin_read -> 
+                                        execCondChecker.savedWakeupStruct.end_read[savedwp:CondListIndices] -> 
+                                        randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
+                                        randomPick[executionSignal:ExecSignalVal] ->  
+						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
+                                                Wait_CV('exec, 'execCV);
+                                                WaitForTermination
+						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
+                                ),
+            CheckSuccessfulCommand [expectedWakeUpEqualsSaved:Boolean][executionSignal:ExecSignalVal] = 
+				            if (expectedWakeUpEqualsSaved) then (
+                                savedWakeupStruct.begin_assign -> 
+                                savedWakeupStruct.end_assign[False] -> 
+                                CheckExecSignal )
+				            else 
+                                CheckExecSignal,
+            CheckExecSignal = (     checkSignal -> 
+                                    executionSignal.reset -> 
+                                    ClearConditions
+                              ),
+            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
+                                ExecTimer_RemoveAllTimes; 
+                                Done,
+            Done =  Signal_CV('execCV);
+                    PlanBox 
+				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
+					execCondChecker.CondSetChangedAlpha}   
+				\ {randomPick}.
+
+|| D2_PROC=D2.
+
+
 
 
 /************************************************************************************************/
@@ -1067,8 +1039,7 @@ Executive = (exec.lock -> WaitForPlan),
 
 // Dont read this - it's just a modelling trick - BEGIN
 minimal
-|| Interm_Exec = (Executive || forall [cv:CVs] Complete(cv)
-				).
+|| Interm_Exec = (Executive || forall [cv:CVs] Complete(cv)).
 || PExecutive = (Interm_Exec) 
 				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
 // Dont read this - it's just a modelling trick - END
@@ -1076,12 +1047,10 @@ minimal
 
 minimal
 || Executive_Thread = (executive:PExecutive)
-						// / {forall [cv:CVs] {[cv].broadcast/executive.[cv].broadcast}}
+						 / {forall [cv:CVs] {[cv].broadcast/executive.[cv].broadcast}}
 						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha},  action.unlock, CVs}.
 
 
-|| D3Executive = (Executive) 
-				/ {forall [cv:CVs] {[cv].broadcast/[cv].add_loop}}.
- 
-|| D3 = (executive:D3Executive)
+
+|| D3 = (executive:PExecutive)/ {forall [cv:CVs] {[cv].broadcast/executive.[cv].broadcast}}
 						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.

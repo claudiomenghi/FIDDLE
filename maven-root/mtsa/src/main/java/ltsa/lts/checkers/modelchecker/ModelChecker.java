@@ -98,6 +98,7 @@ public class ModelChecker {
 		environment.compose(new EmptyLTSOuput());
 		LabelledTransitionSystem controllerLTS = controller.getMachines().get(0);
 
+		
 		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(this.output).modify(controllerLTS);
 		
 		this.modifiedController = new CompositeState(modifiedController.getName());
@@ -107,6 +108,7 @@ public class ModelChecker {
 		environment.getMachines().stream().forEach(system::addMachine);
 		system.addMachine(modifiedController);
 
+		output.outln("Running the model checker");
 		boolean result = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
 
 		output.outln("*********************************************************");
