@@ -5,10 +5,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import ltsa.lts.ltl.AssertDefinition;
 import scalabilityAssessment.experiment1.Configuration;
@@ -48,15 +50,17 @@ public class EX1WellVSMc {
 
 					long testStart = System.currentTimeMillis();
 
+					Future<Void> futureResult = executor
+							.submit(new EX1Test(outputFile, testNumber, c, propertyOfInterest));
 					try {
-						executor.invokeAll(Arrays.asList(new EX1Test(outputFile, testNumber, c, propertyOfInterest)),
-								Configuration.timeoutMinutes, TimeUnit.MINUTES); 
-					} catch (InterruptedException e) {
+						futureResult.get(Configuration.timeoutMinutes, TimeUnit.MINUTES);
+					} catch (ExecutionException | TimeoutException | InterruptedException e) {
 						e.printStackTrace();
 						outputWriter = new FileWriter(outputFile, true);
 						outputWriter.write("timeout\n");
 						outputWriter.close();
 					}
+
 					executor.shutdown();
 
 					long testEnd = System.currentTimeMillis();

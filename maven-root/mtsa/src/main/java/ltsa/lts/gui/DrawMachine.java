@@ -20,7 +20,7 @@ import ltsa.lts.csp.Declaration;
 
 public class DrawMachine {
 
-	public static final int MAXDRAWSTATES = 100; // maximum drawable size
+	public static final int MAXDRAWSTATES = 150; // maximum drawable size
 	static final int STATESIZE = 30;
 
 	String[][] labels; // from -- to

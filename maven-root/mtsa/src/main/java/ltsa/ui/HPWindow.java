@@ -1890,26 +1890,26 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			CompositeState system = new CompositeState("System");
 			environment.getMachines().forEach(system::addMachine);
 			system.addMachine(realizabilityChecker.getModifiedControllerStep1());
-			system.compose(new EmptyLTSOuput());
-			LabelledTransitionSystem compositionStep1 = system.getComposition();
+			//system.compose(new EmptyLTSOuput());
+
 			// adding the property to the set of machine to be showed
 			machines.add(ltlProperty.getComposition());
-			compositionStep1.setName("COMPOSITION_STEP_1");
-			machines.add(compositionStep1);
+			//realizabilityChecker.getSystem().setName("COMPOSITION_STEP_1");
+			//machines.add(realizabilityChecker.getSystem().getComposition());
 
 			if (realizabilityChecker.getModifiedControllerStep2() != null) {
 
 				system = new CompositeState("System");
 				environment.getMachines().forEach(system::addMachine);
 				system.addMachine(realizabilityChecker.getModifiedControllerStep2());
-				system.compose(new EmptyLTSOuput());
-				LabelledTransitionSystem compositionStep2 = system.getComposition();
+//				system.compose(new EmptyLTSOuput());
+//				LabelledTransitionSystem compositionStep2 = system.getComposition();
 				// adding the negation of the property to the set of machine to
 				// be showed
 				machines.add(notLtlProperty.getComposition());
-				compositionStep2.setName("COMPOSITION_STEP_2");
+	//			compositionStep2.setName("COMPOSITION_STEP_2");
 
-				machines.add(compositionStep2);
+		//		machines.add(compositionStep2);
 
 			}
 
@@ -1920,7 +1920,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	private void wellFormednessChecker(String preconditionName) {
 		Preconditions.checkNotNull(preconditionName, "The name of the precondition cannot be null");
 		clearOutput();
-		compile();
+		compileIfChange();
 
 		String boxOfInterest = LTSCompiler.mapsEachPreconditionToTheCorrespondingBox.get(preconditionName);
 
@@ -1973,9 +1973,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		logger.debug(machinesInterfaceToString.toString());
 
 		
-		system.compose(new EmptyLTSOuput());
+		//system.compose(new EmptyLTSOuput());
 
-		machines.add(system.getComposition());
+	//	machines.add(system.getComposition());
 
 		this.newMachines(machines);
 	}
@@ -2025,9 +2025,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		logger.debug(machinesInterfaceToString.toString());
 
 		
-		system.compose(new EmptyLTSOuput());
+//		system.compose(new EmptyLTSOuput());
 
-		machines.add(system.getComposition());
+	//	machines.add(system.getComposition());
 
 		this.newMachines(machines);
 

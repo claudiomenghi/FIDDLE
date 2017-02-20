@@ -108,7 +108,7 @@ public class ProcessRef {
 		} else
 			cs = ce.compose(actuals);
 		// don't compose if not necessary, maintain as a list of machines
-		if (!this.forceCompilation) {
+		if (!this.forceCompilation  && cs.compositionNotRequired()) {
 			for (LabelledTransitionSystem m : cs.getMachines()) {
 				labeledTransitionSystem = m;
 				labeledTransitionSystem.setName( cs.getName() + "." + labeledTransitionSystem.getName());

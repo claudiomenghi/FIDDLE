@@ -190,7 +190,7 @@ public class CompositeState {
 		if (machines != null && !machines.isEmpty()) {
 
 			Analyser analyzer = new Analyser(this, output, null, ignoreAsterisk);
-			this.composition = analyzer.compose();
+			this.composition = analyzer.composeNoHide();
 			this.applyLTSOperations(output);
 		}
 	}
@@ -238,6 +238,7 @@ public class CompositeState {
 				applyHiding();
 			}
 		}
+		applyHiding();
 
 	}
 
@@ -270,6 +271,7 @@ public class CompositeState {
 			TransitionSystemDispatcher.makeAbstractModel(this, output);
 			applyHiding();
 		}
+		applyHiding();
 
 	}
 
@@ -353,43 +355,41 @@ public class CompositeState {
 			exposeNotHide = true;
 			machines.add(saved = ltlProperty);
 			Analyser analyzer = new Analyser(this, output, null);
-			
-			// If the property has an error state it is necessary to do 
+
+			// If the property has an error state it is necessary to do
 			// a progress check to verify whether the property is satisfied
 			if (!ltlProperty.hasERROR()) {
 
 				logger.debug("Composition has no error state");
 				// do full liveness check
-				
+
 				logger.debug("Checking");
 				ProgressCheck cc = new ProgressCheck(analyzer, output, cs.tracer);
 				boolean satisfied = cc.doLTLCheck();
 				if (!satisfied) {
-					this.satisfied=false;
+					this.satisfied = false;
 					logger.debug("Progress checker returns an error trace");
 					errorTrace = cc.getErrorTrace();
 					setErrorTrace(errorTrace);
-				}
-				else{
+				} else {
 					logger.debug("The progress checker does not return an error trace");
-					this.satisfied=true;
+					this.satisfied = true;
 				}
 			} else {
 
 				// do safety check
 				logger.debug("The property  contains an error state");
-				boolean satisfied=analyzer.analyse(cs.tracer, false, false);
-				if(satisfied){
-					this.satisfied=false;
+				boolean satisfied = analyzer.analyse(cs.tracer, false, false);
+				if (satisfied) {
+					this.satisfied = false;
 					logger.debug("Analyzer returned an error trace");
 					errorTrace = new Vector<String>(analyzer.getErrorTrace());
 					setErrorTrace(analyzer.getErrorTrace());
-				}
-				else{
+				} else {
 					logger.debug("The property is satisified");
-					this.satisfied=true;
+					this.satisfied = true;
 				}
-		 }
+			}
 			hidden = saveHidden;
 			exposeNotHide = saveExposeNotHide;
 		}
@@ -423,7 +423,7 @@ public class CompositeState {
 		return composition;
 	}
 
-		/*
+	/*
 	 * prefix all constituent machines
 	 */
 	public void prefixLabels(String prefix) {
@@ -557,7 +557,8 @@ public class CompositeState {
 		c.makeControlStack = makeControlStack;
 		c.makeOptimistic = makeOptimistic;
 		c.makePessimistic = makePessimistic;
-		
+		c.exposeNotHide=this.exposeNotHide;
+
 		c.setMakeComponent(isMakeComponent());
 		c.setComponentAlphabet(getComponentAlphabet());
 		c.controlStackEnvironments = controlStackEnvironments;
@@ -575,6 +576,11 @@ public class CompositeState {
 
 	public void addHiddenAction(String action) {
 		this.hidden.add(action);
+	}
+	
+	public boolean compositionNotRequired() {
+		return (hidden == null && priorityLabels == null && !makeDeterministic
+				&& !makeMinimal && !makeCompose && !makeSyncController);
 	}
 
 	public void setHidden(Vector<String> hidden) {

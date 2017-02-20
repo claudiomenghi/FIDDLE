@@ -800,6 +800,7 @@ public class LabelledTransitionSystem implements Automata {
 
 	}
 
+	
 	private LTSTransitionList offsetSeq(int offset, LTSTransitionList head) {
 		LTSTransitionList listIterator = head;
 		while (listIterator != null) {
@@ -1064,8 +1065,9 @@ public class LabelledTransitionSystem implements Automata {
 		Preconditions.checkArgument(this.boxIndexes.keySet().contains(boxName),
 				"The box " + boxName + " is not contained in the boxes of the LTS");
 
+		
 		Preconditions.checkArgument(new HashSet<String>(Arrays.asList(this.alphabet)).containsAll(boxInterface),
-				"The interface of the box includes some events that do not belong to the LTS");
+				"The interface of the box "+boxName+" includes some events that do not belong to the LTS");
 
 		this.mapBoxInterface.put(boxName, new HashSet<String>(boxInterface));
 	}
