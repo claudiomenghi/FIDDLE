@@ -103,7 +103,6 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 		newController.setName(controller.getName() + POST_CONDITION_SUFFIX);
 		newController.getFinalStateIndexes().clear();
 		newController.setEndOfSequence(LTSConstants.NO_SEQUENCE_FOUND);
-		newController.removeEvent("@any");
 		return newController;
 	}
 
@@ -141,7 +140,6 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 		newController.setName(controller.getName() + POST_CONDITION_SUFFIX);
 		newController.getFinalStateIndexes().clear();
 		newController.setEndOfSequence(LTSConstants.NO_SEQUENCE_FOUND);
-		newController.removeEvent("@any");
 		return newController;
 	}
 

@@ -415,29 +415,7 @@ public class LabelledTransitionSystem implements Automata {
 		return hasDuplicates;
 	}
 
-	public void removeEvent(String event) {
-		if (this.getAlphabetEvents().contains(event)) {
-			Set<String> events = new HashSet<>();
-			events.add(event);
-			this.removeTransitionsLabeledWithEvents(events);
-
-			String[] oldAlphabet = alphabet;
-			this.alphabet = new String[this.alphabet.length - 1];
-
-			boolean found = false;
-			for (int i = 0; i < oldAlphabet.length; i++) {
-				if (oldAlphabet[i].equals(event)) {
-					found = true;
-				} else {
-					if (found) {
-						this.alphabet[i - 1] = oldAlphabet[i];
-					} else {
-						this.alphabet[i] = oldAlphabet[i];
-					}
-				}
-			}
-		}
-	}
+	
 
 	public int getLabelIndex(String oldLabel) {
 		int oldLabelIndex = -1;
@@ -1066,9 +1044,17 @@ public class LabelledTransitionSystem implements Automata {
 				"The box " + boxName + " is not contained in the boxes of the LTS");
 
 		
-		Preconditions.checkArgument(new HashSet<String>(Arrays.asList(this.alphabet)).containsAll(boxInterface),
-				"The interface of the box "+boxName+" includes some events that do not belong to the LTS");
+		//Preconditions.checkArgument(new HashSet<String>(Arrays.asList(this.alphabet)).containsAll(boxInterface),
+			//	"The interface of the box "+boxName+" includes some events that do not belong to the LTS");
 
+		
+		List<String> alphabetEvents=this.getAlphabetEvents();
+		
+		for(String event: boxInterface){
+			if(!alphabetEvents.contains(event)){
+				this.addEvent(event);
+			}
+		}
 		this.mapBoxInterface.put(boxName, new HashSet<String>(boxInterface));
 	}
 

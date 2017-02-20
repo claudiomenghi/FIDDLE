@@ -574,7 +574,7 @@ public class CompositeState {
 		return hidden;
 	}
 
-	public void addHiddenAction(String action) {
+	private void addHiddenAction(String action) {
 		this.hidden.add(action);
 	}
 	
