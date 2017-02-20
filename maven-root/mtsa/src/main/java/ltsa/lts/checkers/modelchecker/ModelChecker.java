@@ -1,5 +1,7 @@
 package ltsa.lts.checkers.modelchecker;
 
+import java.util.Vector;
+
 import javax.annotation.Nonnull;
 
 import org.apache.commons.logging.Log;
@@ -7,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.lts.output.LTSOutput;
 import ltsa.ui.EmptyLTSOuput;
 
@@ -101,9 +104,11 @@ public class ModelChecker {
 		
 		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(this.output).modify(controllerLTS);
 		
+		
 		this.modifiedController = new CompositeState(modifiedController.getName());
 		this.modifiedController.addMachine(modifiedController);
-
+		this.modifiedController.compose(new EmptyLTSOuput());
+		
 		CompositeState system = new CompositeState("System");
 		environment.getMachines().stream().forEach(system::addMachine);
 		system.addMachine(modifiedController);

@@ -81,8 +81,9 @@ public class IntegratorEngine {
 
 		newMachine.setEndOfSequence(postConditionClone.getEndOfSequenceIndex() + offset);
 
+		int eventInit=newMachine.addEvent("init");
 		// merges the two machines
-		LTSTransitionList tauTransition = new LTSTransitionList(Declaration.TAU
+		LTSTransitionList tauTransition = new LTSTransitionList(eventInit
 				, offset);
 		newMachine.setState(boxIndex, tauTransition);
 

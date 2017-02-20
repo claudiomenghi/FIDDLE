@@ -867,9 +867,9 @@ set ExecuteTaskActionInterface = {executive.action.lock,
                         executive.actionCV.lock,
                         executive.actionCV.unlock,
                         executive.actionCV.signal
-                        } 
+						} 
 
-/*D1Des =        (exec.lock -> D1DesPlanBox),
+D1Des =        (exec.lock -> D1DesPlanBox),
             box D1DesPlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
             ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
             ExecuteCurrentNode = (      process_waitFor_conditions -> 
@@ -925,12 +925,26 @@ set ExecuteTaskActionInterface = {executive.action.lock,
 
 
 
-ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=(<>(READ_PLAN))
-
-//ltl_postcondition executive:D1Des D1DesExecuteTaskAction D1_Executive_BOX_READS_PLAN=(<>[](!ACTION_PERFORMED))
+ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=((<>(READ_PLAN))&&([](COND_LIST_LOCKED -> EXEC_LOCKED))&&(<>([]EXEC_LOCKED)))
+//&&<>[](EXEC_LOCKED)
+ltl_postcondition executive:D1Des D1DesExecuteTaskAction D1_EXECUTE_TASK_BOX_POST=((<>[](!ACTION_PERFORMED)))
 
 ltl_precondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
-*/
+
+ltl_precondition executive:D1Des D1DesExecuteTaskAction D1_EXECUTE_TASK_BOX_PRE=(<>(READ_PLAN))
+
+
+/************************************************************************************************/
+/* Sub-component SUB1
+/************************************************************************************************/
+
+
+subcomponent executive:D1Des D1DesExecuteTaskAction SubcomponentExecuteTaskAction=   START,
+																					START= ActExec_DoAction('actionExecution); ENDSTATE,
+                                                                                 	final ENDSTATE.@{ExecuteTaskActionInterface}.
+
+|| SubcomponentExecuteTaskActionProc=(SubcomponentExecuteTaskAction).
+
 
 /************************************************************************************************/
 /* Partial Design 2
@@ -994,9 +1008,33 @@ D2Des =        (exec.lock -> PlanBox),
 						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.
 
 
-//ltl_postcondition executive:D2Des PlanBox PLAN_BOX_READS_PLAN=(<>(READ_PLAN))
+ltl_postcondition executive:D2Des PlanBox D2_PLAN_BOX_READS_PLAN=((<>(READ_PLAN))&&([](COND_LIST_LOCKED -> EXEC_LOCKED))&&(<>([]EXEC_LOCKED)))
 
-//ltl_precondition executive:D2Des PlanBox PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
+ltl_precondition executive:D2Des PlanBox D2_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
+
+
+/************************************************************************************************/
+/* Sub-component SUB2
+/************************************************************************************************/
+
+
+subcomponent executive:D2Des PlanBox SubcomponentPlanBox=  WaitForPlan,  
+												WaitForPlan = (     local.pendingPlan.begin_read -> 
+                               										local.pendingPlan.end_read[pendingPlanFile:Boolean] -> 
+					            									if (pendingPlanFile==False) then 
+                                    									Wait_CV('exec, 'execCV);
+                                    									WaitForPlan
+					           										else PrepareExecution
+                            									),
+           				 						PrepareExecution = (    resetExecutionSignal -> 
+                                    									local.pendingPlan.begin_assign -> 
+                                   										local.pendingPlan.end_assign[False] -> 
+                                    									ExecutePlan
+                               										),
+           										ExecutePlan = ENDSTATE, 
+												final ENDSTATE.@{PlanBoxInterface}.
+
+|| SubcomponentPlanBox=(SubcomponentPlanBox).
 
 
 /************************************************************************************************/

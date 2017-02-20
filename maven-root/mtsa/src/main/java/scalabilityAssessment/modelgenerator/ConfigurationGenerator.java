@@ -58,13 +58,13 @@ public class ConfigurationGenerator implements Iterator<ModelConfiguration> {
 				* this.environmentTransitionRatio;
 		// int eventsEnvironment = (int) Math
 		// .round(110.0 * this.currentStatesEnvironment / 10000);
-		int eventsEnvironment = 10+this.statesController[2]*2;
+		int eventsEnvironment = this.statesController[2]*2;
 		int transitionsController = this.currentStatesController * this.controllerTransitionRatio;
-		int eventsController = eventsEnvironment;
+		int eventsComponent = eventsEnvironment;
 				
 
-		int eventsControllerInterface = (int) Math.round(eventsController/100*25);
+		int eventsComponentInterface = (int) Math.round(eventsComponent/100*25);
 		return new ModelConfiguration(this.currentStatesEnvironment, transitionsEnvironment, eventsEnvironment,
-				currentStatesController, transitionsController, eventsController, eventsControllerInterface);
+				currentStatesController, transitionsController, eventsComponent, eventsComponentInterface);
 	}
 }

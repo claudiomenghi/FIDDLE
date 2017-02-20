@@ -144,7 +144,7 @@ public class LTSCompiler {
 		nextSymbol();
 		while (current.kind != Symbol.EOFSYM) {
 			if (current.kind == Symbol.SUBCOMPONENT) {
-				nextSymbol();
+				
 				ProcessSpec p = compileSubcomponent();
 
 				nextSymbol();
@@ -701,14 +701,27 @@ public class LTSCompiler {
 	}
 
 	private ProcessSpec compileSubcomponent() {
-		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the process the subcomponent refers to.");
+		
 		nextSymbol();
+		Symbol process;
+		Symbol prefix=current;
+		nextSymbol();
+		if (current.kind == Symbol.COLON) {
+			nextSymbol();
+			Symbol proc=current;
+			nextSymbol();
+			process=new Symbol(prefix.getValue()+":"+proc.getValue(), Symbol.IDENTIFIER);
 
+		} else {
+			process = prefix;
+			
+		}
 		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the box the subcomponent refers to.");
 		Symbol box = current;
 
 		nextSymbol();
 		ProcessSpec subComponentSpec = stateDefns();
+		subComponentSpec.setName(process);
 
 		if (mapBoxSubComponentName.containsKey(box.getValue())) {
 			Diagnostics.fatal("duplicate subcomponent for the box: " + box);

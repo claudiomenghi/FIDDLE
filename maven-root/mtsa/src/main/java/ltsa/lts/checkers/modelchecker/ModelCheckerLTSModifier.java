@@ -172,7 +172,6 @@ public class ModelCheckerLTSModifier {
 		}
 		cs.setName(controller.getName() + POST_CONDITION_SUFFIX);
 
-		cs.removeEvent("@any");
 		return cs;
 
 	}

@@ -301,7 +301,7 @@ public class Analyser implements Animator, Automata {
 				while (p != null) {
 					LTSTransitionList tr = p;
 					tr.setMachine(i);
-					tr.setEvent((actionMap.get(stateMachines[i].getAlphabet()[tr.getEvent()])).intValue());
+						tr.setEvent((actionMap.get(stateMachines[i].getAlphabet()[tr.getEvent()])).intValue());
 					while (tr.getNondet() != null) {
 						tr.getNondet().setEvent(tr.getEvent());
 						tr.getNondet().setMachine(tr.getMachine());
