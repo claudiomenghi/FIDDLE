@@ -14,6 +14,7 @@ import java.util.concurrent.TimeoutException;
 
 import ltsa.lts.ltl.AssertDefinition;
 import scalabilityAssessment.experiment1.Configuration;
+import scalabilityAssessment.experiment1.wellformedness.EX1Test;
 import scalabilityAssessment.modelgenerator.ConfigurationGenerator;
 import scalabilityAssessment.modelgenerator.ModelConfiguration;
 import scalabilityAssessment.propertygenerator.PropertyGenerator;
@@ -53,24 +54,18 @@ public class EX2SubVSMc {
 
 					long testStart = System.currentTimeMillis();
 
-					Future<?> future = executor
-							.submit(new EX2test(outputFile,
-									experimentNumber, c, propertyOfInterest));
-
+					
+					Future<Void> futureResult = executor
+							.submit(new EX2test(outputFile, experimentNumber, c, propertyOfInterest));
 					try {
-						future.get(Configuration.timeoutMinutes,
-								TimeUnit.MINUTES);
-					} catch (InterruptedException e) {
+						futureResult.get(Configuration.timeoutMinutes, TimeUnit.MINUTES);
+					} catch (ExecutionException | TimeoutException | InterruptedException e) {
 						e.printStackTrace();
-					} catch (ExecutionException e) {
-						e.printStackTrace();
-					} catch (TimeoutException e) {
-						future.cancel(true); // <-- interrupt the job
 						outputWriter = new FileWriter(outputFile, true);
 						outputWriter.write("timeout\n");
 						outputWriter.close();
-						executor.shutdown();
 					}
+					
 
 					long testEnd = System.currentTimeMillis();
 					System.out
