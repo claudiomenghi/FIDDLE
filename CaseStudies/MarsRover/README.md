@@ -68,7 +68,7 @@ To analyze design D1, choose as an environment the process `Environment` and as 
  * Property `P1`: to verify `P1` click on *Check > Well-formedness Checker > PLAN_BOX_NO_PLAN_EXECUTION*. The property of interest is not satisfied.
  
 Add the post-condition `D1_Executive_BOX_READS_PLAN`
- * Property `P1`: to verify `P1` click on *Check > Well-formedness Checker > PLAN_BOX_NO_PLAN_EXECUTION*. The property of interest is not satisfied.
+ e* Property `P1`: to verify `P1` click on *Check > Well-formedness Checker > PLAN_BOX_NO_PLAN_EXECUTION*. The property of interest is not satisfied.
 
 
 ## Design D2

@@ -33,18 +33,20 @@ public class SubcontrollerGenerator {
 		// adding transitions between internal states
 		for (int stateIndex = 0; stateIndex < numberOfStates; stateIndex++) {
 			LTSTransitionList transitions = controller.getTransitions(stateIndex);
-			Enumeration<LTSTransitionList> transitionList = transitions.elements();
-			while (transitionList.hasMoreElements()) {
-				LTSTransitionList currentTransition = transitionList.nextElement();
-				if (currentTransition.getNext() < numberOfStates) {
+			if (transitions != null) {
+				Enumeration<LTSTransitionList> transitionList = transitions.elements();
+				while (transitionList.hasMoreElements()) {
+					LTSTransitionList currentTransition = transitionList.nextElement();
+					if (currentTransition.getNext() < numberOfStates) {
 
-					if (newIndex[currentTransition.getEvent()] == -1) {
-						newIndex[currentTransition.getEvent()] = currentFreeIndex;
-						currentFreeIndex++;
+						if (newIndex[currentTransition.getEvent()] == -1) {
+							newIndex[currentTransition.getEvent()] = currentFreeIndex;
+							currentFreeIndex++;
+						}
+						subcontroller.setState(stateIndex,
+								LTSTransitionList.addTransition(subcontroller.getTransitions(stateIndex),
+										newIndex[currentTransition.getEvent()], currentTransition.getNext()));
 					}
-					subcontroller.setState(stateIndex,
-							LTSTransitionList.addTransition(subcontroller.getTransitions(stateIndex),
-									newIndex[currentTransition.getEvent()], currentTransition.getNext()));
 				}
 			}
 		}
