@@ -4,7 +4,9 @@ import java.util.Iterator;
 
 public class ConfigurationGenerator implements Iterator<ModelConfiguration> {
 
-	private final int[] statesEnvironment = { 10, 100, 1000};
+//	private final int[] statesEnvironment = { 10, 100, 1000};
+	private final int[] statesEnvironment = { 10000};
+	
 	// private final int initStatesEnvironment = 10;
 	// private final int incrementStatesEnvironment = 10;
 	// private final int finalStatesEnvironment = 1000;
@@ -21,6 +23,7 @@ public class ConfigurationGenerator implements Iterator<ModelConfiguration> {
 	// private final int environmentTransitionRatio = 15;
 	// private final int controllerTransitionRatio = 22;
 
+	private final int eventsEnvironment=50;
 	private final int environmentTransitionRatio = 10;
 	private final int controllerTransitionRatio = 10;
 
@@ -66,7 +69,6 @@ public class ConfigurationGenerator implements Iterator<ModelConfiguration> {
 		int transitionsEnvironment = this.currentStatesEnvironment * this.environmentTransitionRatio;
 		// int eventsEnvironment = (int) Math
 		// .round(110.0 * this.currentStatesEnvironment / 10000);
-		int eventsEnvironment = this.statesController[1];
 		int transitionsController = this.currentStatesController * this.controllerTransitionRatio;
 		int eventsComponent = eventsEnvironment;
 
