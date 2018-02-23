@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+
+<animation width="600" height="400">
+
+
+
+     <!-- Parent node + commands and events -->
+	 
+	<define id="node0">
+		  <transform type="translate">
+			  <param name="translation" value="(100, 100)" />
+			  <include src="plexil-parent.xml" id="node.0" />
+		  </transform>
+	</define>
+
+    <forall var="com" values = "inactive.begin waiting.begin executing.begin finishing.begin finished.begin failing.begin">
+		<command name="node.0.${com}">
+		  <invoke object="node.0" command="${com}"/>
+		</command>
+     </forall>
+
+     <forall var="ev" values = "inactive.end waiting.end executing.end finishing.end finished.end failing.end">
+	   <event object="node.0" event="${ev}">
+	     <announce event="node.0.${ev}"/>
+	   </event>
+	   <event object="node.0" event="~${ev}">
+   		<announce event="~node.0.${ev}"/>
+	   </event>
+     </forall>
+
+
+
+
+<!-- Remaining nodes + commands and events -->
+
+     
+<forall var = "i" values ="1 2">
+	<define id="node${i}">
+		  <transform type="translate">
+			  <param name="translation" value="(((${i}-1)*170) + 100, 170)" />
+			  <include src="plexil-node.xml" id="node.${i}" />
+		  </transform>
+	</define>
+
+    <forall var="com" values = "inactive.begin waiting.begin executing.begin finishing.begin finished.begin failing.begin">
+		<command name="node.${i}.${com}">
+		  <invoke object="node.${i}" command="${com}"/>
+		</command>
+     </forall>
+
+     <forall var="ev" values = "inactive.end waiting.end executing.end finishing.end finished.end failing.end">
+	   <event object="node.${i}" event="${ev}">
+	     <announce event="node.${i}.${ev}"/>
+	   </event>
+	   <event object="node.${i}" event="~${ev}">
+   		<announce event="~node.${i}.${ev}"/>
+	   </event>
+     </forall>
+
+</forall>
+
+
+ <define id="back">
+    <primitive type = "sprite">
+ 	   <param name = "src" value ="image/background.gif"/>
+	   <param name = "hotspot" value ="(29,21)"/>
+	</primitive>
+</define>
+
+ <define id="title">
+    <transform type="translate">
+	  <param name="translation" value="(10,30)" />
+      <primitive type="text">
+        <param name="text" value = "Plexil Plan Execution"/>
+      </primitive>
+	</transform>
+</define>
+
+
+<draw>
+  <transform type="translate">
+      <param name="translation" value="(0,0)" />
+      	  <paste object="node2"/>
+      	  <paste object="node1"/>
+	  <paste object="node0"/>
+	  <paste object="back"/>
+  </transform>
+  <paste object="title"/>
+</draw>
+
+</animation>

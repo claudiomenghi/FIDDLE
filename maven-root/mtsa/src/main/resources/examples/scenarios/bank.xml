@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+  <hmsc>
+    <bmsc name="init" x="50" y="30" />
+    <bmsc name="Customer arrives" x="50" y="130" />
+    <bmsc name="Bad bank password" x="170" y="230" />
+    <transition>
+      <from>init</from>
+      <to>Customer arrives</to>
+    </transition>
+    <transition>
+      <from>Customer arrives</from>
+      <to>Bad bank password</to>
+    </transition>
+    <transition>
+      <from>Bad bank password</from>
+      <to>Bad bank password</to>
+    </transition>
+  </hmsc>
+  <bmsc name="init" />
+  <bmsc name="Customer arrives">
+    <instance name="User">
+      <input timeindex="2">
+        <name>Display screen</name>
+        <from>ATM</from>
+      </input>
+      <output timeindex="4">
+        <name>Insert card</name>
+        <to>ATM</to>
+      </output>
+      <input timeindex="6">
+        <name>Request pwd</name>
+        <from>ATM</from>
+      </input>
+    </instance>
+    <instance name="ATM">
+      <output timeindex="2">
+        <name>Display screen</name>
+        <to>User</to>
+      </output>
+      <input timeindex="4">
+        <name>Insert card</name>
+        <from>User</from>
+      </input>
+      <output timeindex="6">
+        <name>Request pwd</name>
+        <to>User</to>
+      </output>
+    </instance>
+    <instance name="Consortium" />
+    <instance name="Bank" />
+  </bmsc>
+  <bmsc name="Bad bank password">
+    <instance name="User">
+      <output timeindex="1">
+        <name>Enter pwd</name>
+        <to>ATM</to>
+      </output>
+      <input timeindex="7">
+        <name>Request pwd</name>
+        <from>ATM</from>
+      </input>
+    </instance>
+    <instance name="ATM">
+      <input timeindex="1">
+        <name>Enter pwd</name>
+        <from>User</from>
+      </input>
+      <output timeindex="2">
+        <name>Verify account</name>
+        <to>Consortium</to>
+      </output>
+      <input timeindex="6">
+        <name>Bad pwd</name>
+        <from>Consortium</from>
+      </input>
+      <output timeindex="7">
+        <name>Request pwd</name>
+        <to>User</to>
+      </output>
+    </instance>
+    <instance name="Consortium">
+      <input timeindex="2">
+        <name>Verify account</name>
+        <from>ATM</from>
+      </input>
+      <output timeindex="3">
+        <to>Bank</to>
+        <name>Verify w/ bank</name>
+      </output>
+      <input timeindex="5">
+        <name>Bad bank pwd</name>
+        <from>Bank</from>
+      </input>
+      <output timeindex="6">
+        <name>Bad pwd</name>
+        <to>ATM</to>
+      </output>
+    </instance>
+    <instance name="Bank">
+      <input timeindex="3">
+        <from>Consortium</from>
+        <name>Verify w/ bank</name>
+      </input>
+      <output timeindex="5">
+        <name>Bad bank pwd</name>
+        <to>Consortium</to>
+      </output>
+    </instance>
+  </bmsc>
+</specification>
+

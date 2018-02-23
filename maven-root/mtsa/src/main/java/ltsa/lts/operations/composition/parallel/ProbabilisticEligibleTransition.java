@@ -1,0 +1,10 @@
+package ltsa.lts.operations.composition.parallel;
+
+import java.math.BigDecimal;
+
+public class ProbabilisticEligibleTransition {
+	public int[] next;
+	public int[] sourceBundles;
+	public BigDecimal[] sourceProbs;
+	public int[] sourceStates;
+}

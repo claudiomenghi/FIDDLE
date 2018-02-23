@@ -1,0 +1,10 @@
+<actionset>
+
+  <!-- users can only do the following actions, all other actions are system actions -->
+
+  <role name="user">
+    <possibleaction>enterPassword</possibleaction>
+    <possibleaction>selectMsg</possibleaction>
+  </role>
+
+</actionset>

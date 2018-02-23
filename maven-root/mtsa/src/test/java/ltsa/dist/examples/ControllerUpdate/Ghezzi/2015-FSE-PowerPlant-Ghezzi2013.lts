@@ -1,0 +1,119 @@
+// -----------------------------COMMENTS-------------------------------
+
+// - To execute the solution for update controllers select in the dropdown menu 
+// the "UpdCont" label, and then press the compose button.
+// - In the section of UPDATING CONTROLLER SPEC, in this file, you can spec
+// different transition requeriments presented in the paper.
+// - You can animate the controller obtained pressing the blue A in the top bar
+// - After composing an "UpdCont" controller you can check the INVALID_BEHAVIOUR
+// property presented in the paper. To do so, after composing go to:
+// check menu > LTL property > INVALID_BEHAVIOUR
+
+// ---------------------------ENVIRONMENTS-----------------------------
+
+set UpdatingControllableActions = {stopPump, startPump, procedure, endProcedure, stopOldSpec, startNewSpec, reconfigure}
+set ControllableActions = {stopPump, startPump, procedure, endProcedure}
+set A = {UpdatingControllableActions, request, beginUpdate}
+
+
+    //OldEnvironment and NewEnvironment
+    MAINTENANCE = (request -> endProcedure -> MAINTENANCE).
+
+    ENV = STARTED,
+    STARTED = (stopPump -> STOPPED |
+                    procedure -> STARTED | 
+                    endProcedure -> STARTED),
+	STOPPED = (startPump -> STARTED |
+				procedure -> STOPPED |
+				endProcedure -> STOPPED).
+
+||OldEnvironment = (MAINTENANCE || ENV).
+||NewEnvironment = (MAINTENANCE || ENV).
+
+//Fluents declaration
+fluent PumpOff = <{stopPump},{startPump}>
+fluent PumpOn = <{startPump},{stopPump}> initially 1
+fluent RequestPending = <{request},{endProcedure}>
+fluent Procedure = <{procedure},{A\{procedure}}>
+fluent MainteinanceFinished = <{procedure}, {request}> 
+fluent PendingOk = <procedure, endProcedure>
+fluent Request = <{request},{A\{request}}>
+
+// ---------------------------OLD CONTROLLER SPEC-----------------------------
+
+assert PROCEDURE_WHILE_STOPPED = (procedure -> PumpOff)
+assert MAINTEINANCE_GUARANTEED = (endProcedure -> (MainteinanceFinished && PumpOn))
+assert PROCEDURE_IF_REQUEST = (procedure -> RequestPending)
+assert PUMP_OFF_ONLY_OK_NOT_PENDING = (stopPump->!PendingOk)
+assert DONT_DO_PROCEDURE_TWICE = (procedure -> X(!procedure W endProcedure))
+
+ltl_property P_PROCEDURE_WHILE_STOPPED = []PROCEDURE_WHILE_STOPPED
+ltl_property P_MAINTEINANCE_GUARANTEED = []MAINTEINANCE_GUARANTEED
+ltl_property P_PROCEDURE_IF_REQUEST = []PROCEDURE_IF_REQUEST
+ltl_property P_PUMP_OFF_ONLY_OK_NOT_PENDING = []PUMP_OFF_ONLY_OK_NOT_PENDING
+ltl_property P_DONT_DO_PROCEDURE_TWICE = []DONT_DO_PROCEDURE_TWICE
+
+
+controller ||OldController = OldEnvironment~{OldSpec}.
+||EnvironmentAndController = (OldEnvironment || OldController).
+
+controllerSpec OldSpec = {
+    safety = {P_PROCEDURE_WHILE_STOPPED, P_MAINTEINANCE_GUARANTEED, P_DONT_DO_PROCEDURE_TWICE,
+			  P_PROCEDURE_IF_REQUEST, P_PUMP_OFF_ONLY_OK_NOT_PENDING}
+    controllable = {ControllableActions}
+}
+
+// ---------------------------NEW CONTROLLER SPEC-----------------------------
+
+assert MAINTEINANCE_GUARANTEED_NEW = (endProcedure -> MainteinanceFinished)
+assert NEVER_STOP = (!stopPump)
+ltl_property P_MAINTEINANCE_GUARANTEED_NEW = []MAINTEINANCE_GUARANTEED_NEW 
+ltl_property P_NEVER_STOP = []NEVER_STOP
+
+
+controller ||NewController = NewEnvironment~{NewSpec}.
+controllerSpec NewSpec= {
+    safety = {P_NEVER_STOP, P_MAINTEINANCE_GUARANTEED_NEW, P_PROCEDURE_IF_REQUEST, P_DONT_DO_PROCEDURE_TWICE}
+    controllable = {ControllableActions}
+}
+
+
+// ---------------------------UPDATING CONTROLLER SPEC-----------------------------
+//Updating controller fluents
+fluent InTransition = <stopOldSpec, startNewSpec> 
+
+ltl_property T = []((InTransition && PumpOff) -> (!endProcedure W startPump))
+
+updatingController UpdCont = {
+    oldController = EnvironmentAndController,
+    oldEnvironment = OldEnvironment,
+    newEnvironment = NewEnvironment,
+    oldGoal = OldSpec, 
+    newGoal = NewSpec,
+    //transition = T,
+	nonblocking,
+    updateFluents = {{RequestPending,RequestPending}, {PumpOff,PumpOff}}
+
+}
+
+||Cu=(UpdCont).
+
+graphUpdate Graph = { 
+    initialState = UpdCont
+    transitions = { 
+        UpdCont
+    }
+}
+
+// ---------------------------TEST AND RESULTS-----------------------------
+assert S_OLD = (PROCEDURE_WHILE_STOPPED && MAINTEINANCE_GUARANTEED && DONT_DO_PROCEDURE_TWICE && PROCEDURE_IF_REQUEST && PUMP_OFF_ONLY_OK_NOT_PENDING)
+assert S_NEW = (NEVER_STOP && MAINTEINANCE_GUARANTEED_NEW && PROCEDURE_IF_REQUEST && DONT_DO_PROCEDURE_TWICE)
+
+assert TEST_FORMULA1 = (S_OLD W stopOldSpec)
+assert TEST_FORMULA2 = [](startNewSpec -> []S_NEW)
+assert TEST_FORMULA3 = [](stopOldSpec -> X (!stopOldSpec))
+assert TEST_FORMULA3b = [](startNewSpec -> X (!startNewSpec))
+assert TEST_FORMULA4 = [](beginUpdate -> (<>stopOldSpec && <>startNewSpec && <>reconfigure))
+assert TEST_FINAL_FORMULA = ((S_OLD W stopOldSpec) && [](startNewSpec -> []S_NEW) && [](stopOldSpec -> X(!stopOldSpec)))
+
+assert INVALID_BEHAVIOUR = !<>[]PumpOff

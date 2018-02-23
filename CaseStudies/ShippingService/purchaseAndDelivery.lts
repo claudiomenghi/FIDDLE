@@ -1,0 +1,209 @@
+// This model contains the shipping service with the CONTROLLER.
+// The controller interface is specified.
+// The pre and post conditions of the boxes are not described
+// As expected, without the specification of the pre and post conditions the requirements are not satisfied
+
+//***************************************************************************************************
+// ENVIRONMENT
+//***************************************************************************************************
+
+set User = {userReq, offerRcvd, usrAck, usrNack, respOk, reqCanc}
+set Producer = {prodInfoReq, infoRcvd, prodReq, prodCancel}
+set Shipper = {shipInfoReq, costAndTime, shipReq, shipCancel}
+set A = {User, Producer, Shipper}
+
+
+PRODUCER 	= 						(	prodInfoReq	->	REQUESTED		), 
+					REQUESTED 	  = (	infoRcvd	->	ORDER_PENDING	),
+					ORDER_PENDING = (	prodReq		->	PRODUCER 
+										| 
+										prodCancel	->	PRODUCER		).
+
+ 
+SHIPPER 	= 						   (	shipInfoReq	->	REQUESTED		), 
+					REQUESTED	 	 = (	costAndTime	->	SHIPPING_PENDING),
+					SHIPPING_PENDING = (	shipReq		->	SHIPPER 
+											| 
+											shipCancel	->	SHIPPER			).
+
+
+USER = 									(	userReq		->	REQUESTED		), 
+					REQUESTED 		  = (	offerRcvd	->	ACK_NACK		),
+					ACK_NACK 		  = (	usrAck		->	ACKD 
+											| 
+											usrNack		-> NAKD), 
+					ACKD 			  = (	respOk		->	USER			),
+					NAKD			  =( 	reqCanc		->	USER	).
+
+
+||Environment = (USER || SHIPPER || PRODUCER).
+
+
+ 
+//***************************************************************************************************
+// COMPONENTS
+//***************************************************************************************************
+
+
+set PreparingOfferInterface={prodInfoReq, infoRcvd, shipInfoReq, costAndTime}
+
+set ManageRequestInterface={prodReq, shipReq}
+set DeclineRequestInterface={prodCancel, shipCancel}
+
+COMPONENT1 =	INIT,
+				INIT 				= 	(	userReq 	-> 	PREPARINGOFFER 				),
+				box PREPARINGOFFER	= 	(	offerRcvd 	->	WAITINGFORUSERCHOICE 		
+										)[PreparingOfferInterface],	
+				WAITINGFORUSERCHOICE=	(	usrAck		->	MANAGEREQUEST
+										),
+				box	MANAGEREQUEST	=	(	respOk 		-> 	INIT
+											|
+											reqCanc		-> INIT
+										)[ManageRequestInterface].
+
+									
+
+
+COMPONENT2 =	INIT,
+				INIT 				= 	(	userReq 	-> 	PREPARINGOFFER 				),
+				box PREPARINGOFFER	= 	(	offerRcvd 	->	WAITINGFORUSERCHOICE 		
+										)[PreparingOfferInterface],	
+				WAITINGFORUSERCHOICE=	(	usrAck		->	MANAGEREQUEST
+											|
+											usrNack		-> 	DECLINEREQUEST
+										),
+				box	MANAGEREQUEST	=	(	respOk 		-> 	INIT	
+										)[ManageRequestInterface],
+				box DECLINEREQUEST	=	( 	reqCanc -> INIT	
+										)[DeclineRequestInterface].
+
+
+
+// experiment 1
+|| PartialComponent1=COMPONENT1.
+
+// experiment 2 (comment the post-conditions)
+// experiment 3 (uncomment the post-conditions)
+|| PartialComponent2=COMPONENT2.
+
+
+|| System = (Environment || CONTROLLER).
+
+//***************************************************************************************************
+// REQUIREMENTS
+//***************************************************************************************************
+assert P1 = (!((!F_UsrReq) U (F_ShipInfoReq || F_ProdInfoReq)))
+assert P2 = [](F_UsrReq->(!((!F_InfoRcvd) U F_OfferRcvd)))
+assert P3 = [](F_UsrReq->((!((!F_UserAck) W F_ShipReq))&&<>F_ShipReq))
+assert P4 = [](F_UsrReq && !F_ReqCanc -> (!F_UserAck W F_ReqCanc))
+assert P4a= []((<>F_ReqCanc)&&(F_UsrReq && !F_ReqCanc -> (!F_UserAck W F_ReqCanc)))
+
+
+
+
+//***************************************************************************************************
+// FLUENTS
+//***************************************************************************************************
+
+
+fluent F_RespOk = <respOk, A\{respOk}>	initially False
+
+fluent F_ShipInfoReq = <shipInfoReq, A\{shipInfoReq}> initially False
+fluent F_ProdInfoReq = <prodInfoReq, A\{prodInfoReq}> initially False
+fluent F_UsrReq = <userReq, A\{userReq}> initially False
+fluent F_OfferRcvd = <offerRcvd, A\{offerRcvd}> initially False
+
+fluent F_CostAndTime = <costAndTime, A\{costAndTime}> initially False
+fluent F_InfoRcvd = <infoRcvd, A\{infoRcvd}> initially False
+
+fluent F_UserNack = <usrNack, A\{usrNack}> initially False
+fluent F_UserAck = <usrAck, A\{usrAck}> initially False
+fluent F_ProdCancel = <prodCancel, A\{prodCancel}>  initially False
+
+fluent F_ShipCancelled = <shipCancel, A\{shipCancel}> initially False
+
+fluent F_ShipReq = <shipReq, A\{shipReq}> initially False
+fluent F_ProdReq = <prodReq, A\{prodReq}> initially False
+fluent F_UserReq=<userReq, A\{userReq}>
+
+fluent F_ProdCancelled = <prodCancel, A\{prodCancel}>  initially False
+fluent F_ReqCanc = <reqCanc, A\{reqCanc}> initially False
+fluent F_ReqNacked = <usrNack,  A\{usrNack}> initially False
+fluent F_ProdRequested = <prodReq, A\{prodReq}> initially False
+fluent F_OfferAck = <offerRcvd, A\{offerRcvd}> initially False
+fluent F_End = <end, A> initially False
+
+
+
+/*
+uncomment the following code to run experiment 3
+*/
+
+ltl_postcondition COMPONENT2 PREPARINGOFFER PREPARINGOFFER_POST=(<>(F_InfoRcvd) && <>(F_CostAndTime))
+
+ 																				
+ltl_postcondition COMPONENT2 MANAGEREQUEST CORRECTLY_MANAGE_REQUEST=
+																	(
+																		// necessary to make P3 satisfied
+																		(<>F_ShipReq)
+																		
+																		&&
+																		(<>F_ProdReq)
+																	)
+
+ltl_postcondition COMPONENT2 DECLINEREQUEST CORRECTLY_DECLINE_REQUEST=(
+																		// necessary to make P4 satisfied
+																		((!F_UserAck) U F_ReqCanc)
+																		&&
+																		(<>F_ProdCancelled)
+																		// necessary to make P5b satisfied
+																		&&
+																		(<>F_ShipCancelled)
+																	 )
+
+
+
+ltl_precondition COMPONENT2 PREPARINGOFFER PREPARINGOFFER_PRE=<>(F_UserReq && !(<>F_RespOk||<>F_ReqCanc))
+
+ltl_precondition COMPONENT2 MANAGEREQUEST CORRECTLY_MANAGE_REQUEST_PRE= [](F_UserReq -> <>F_InfoRcvd)
+
+
+ltl_precondition COMPONENT2 DECLINEREQUEST CORRECTLY_DECLINE_REQUEST_PRE=[](F_UserReq -> <>F_InfoRcvd)
+
+
+/*
+uncomment the following code to run experiment 5
+*/
+
+/*
+subcomponent COMPONENT2 PREPARINGOFFER SubcomponentPrepOffer1=   START,
+																					START= 			(	shipInfoReq 	-> 		SHIPINFOREQ),
+																					SHIPINFOREQ= 	(	costAndTime		->		COSTANDTIMEREC),
+																					COSTANDTIMEREC=	(	prodInfoReq 	->  	ENDSTATE	),
+																					final ENDSTATE.@{PreparingOfferInterface}.
+
+|| SubcomponentPrepOfferProc1=(SubcomponentPrepOffer1).
+*/
+
+
+
+/*
+uncomment the following code to run experiment 6
+*/
+subcomponent COMPONENT2 PREPARINGOFFER SubcomponentPrepOffer2=   START,
+																					START= 			(	shipInfoReq 	-> 		SHIPINFOREQ),
+																					SHIPINFOREQ= 	(	costAndTime		->		COSTANDTIMEREC),
+																					COSTANDTIMEREC=	(	prodInfoReq 	->  	INFORECVD	),
+																					INFORECVD=		( 	infoRcvd		-> 		ENDSTATE),
+																					final ENDSTATE.@{PreparingOfferInterface}.
+
+|| SubcomponentPrepOfferProc2=(SubcomponentPrepOffer2).
+
+
+
+
+//***************************************************************************************************
+// ADDITIONAL CONSTANTS
+//***************************************************************************************************
+const False = 0
+const True = 1

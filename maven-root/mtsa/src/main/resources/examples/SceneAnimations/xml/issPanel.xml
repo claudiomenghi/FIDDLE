@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+
+<animation width="253" height="512">
+
+
+<define id="panel">
+
+   <transform type="scale">
+     <param name="x" value="1.0" />
+     <param name="y" value="0.8" />
+   <primitive type = "sprite">
+ 	  <param name = "src" value ="image/panel.jpg"/>
+ 	  <param name = "hotspot" value = "(0,10)"/>
+	</primitive>
+   	</transform>
+</define>
+
+
+ <define id="PanelBackground">
+  <transform type="translate">
+  <param name="translation" value = "(0,0)" />
+  <primitive type = "sprite">
+  <param name = "src" value ="image/PanelBackground.jpg"/>
+  </primitive>
+  </transform>
+</define>
+
+<forall var = "i" values ="0 1 2 3">
+
+	<define id="button${i}">
+	<transform type="translate">
+	<param name="translation" value="((${i}*70)+60, 230)" />
+	<include src="button.xml" id="button.${i}" />
+	</transform>
+	</define>
+
+    <forall var="com" values = "enabled.begin disabled.begin failed.begin">
+		<command name="button.${i}.${com}">
+		<invoke object="button.${i}" command="${com}"/>
+		</command>
+    </forall>
+
+
+</forall>
+
+<forall var = "i" values ="4 5 6 7 8 9 10 11 ">
+
+	<define id="button${i}">
+	<transform type="translate">
+	<param name="translation" value="( 60,(${i}*32)+170)" />
+	<include src="button.xml" id="button.${i}" />
+	</transform>
+	</define>
+
+    <forall var="com" values = "enabled.begin disabled.begin failed.begin">
+		<command name="button.${i}.${com}">
+		<invoke object="button.${i}" command="${com}"/>
+		</command>
+    </forall>
+
+<!--
+     <forall var="ev" values = "enabled.end disabled.end enabled.end">
+	   <event object="button.${i}" event="${ev}">
+	   <announce event="button.${i}.${ev}"/>
+	   </event>
+	   <event object="button.${i}" event="~${ev}">
+   	   <announce event="~button.${i}.${ev}"/>
+	   </event>
+     </forall>
+ -->
+
+</forall>
+
+ <define id="GPS">
+       <transform type="translate">
+	   <param name="translation" value="(8,220)" />
+       <primitive type="text">
+       <param name="text" value = "GPS"/>
+       </primitive>
+	   </transform>
+</define>
+
+ <define id="SPT">
+       <transform type="translate">
+	   <param name="translation" value="(78,220)" />
+       <primitive type="text">
+       <param name="text" value = "SPT"/>
+       </primitive>
+	   </transform>
+</define>
+
+ <define id="IN">
+       <transform type="translate">
+	   <param name="translation" value="(150,220)" />
+       <primitive type="text">
+       <param name="text" value = "IN"/>
+       </primitive>
+	   </transform>
+</define>
+
+ <define id="DS">
+       <transform type="translate">
+	   <param name="translation" value="(220,220)" />
+       <primitive type="text">
+       <param name="text" value = "DS"/>
+       </primitive>
+	   </transform>
+</define>
+
+<define id="ApproachOrbit">
+		<transform type="translate">
+		<param name="translation" value="(50,262)"/>
+		<primitive type="text">
+		<param name="text" value="ApproachOrbit"/>
+		</primitive>
+		</transform>
+</define>
+
+<define id="ProximityOperations">
+		<transform type="translate">
+		<param name="translation" value="(50,295)"/>
+		<primitive type="text">
+		<param name="text" value="ProximityOperations"/>
+		</primitive>
+		</transform>
+</define>
+<define id="FarApproach">
+		<transform type="translate">
+		<param name="translation" value="(50,327)"/>
+		<primitive type="text">
+		<param name="text" value="FarApproach"/>
+		</primitive>
+		</transform>
+</define>
+<define id="CaptureApproach">
+		<transform type="translate">
+		<param name="translation" value="(50,360)"/>
+		<primitive type="text">
+		<param name="text" value="CaptureApproach"/>
+		</primitive>
+		</transform>
+</define>
+<define id="DockingApproach">
+		<transform type="translate">
+		<param name="translation" value="(50,392)"/>
+		<primitive type="text">
+		<param name="text" value="DockingApproach"/>
+		</primitive>
+		</transform>
+</define>
+<define id="LatchCapture">
+		<transform type="translate">
+		<param name="translation" value="(50,424)"/>
+		<primitive type="text">
+		<param name="text" value="LatchCapture"/>
+		</primitive>
+		</transform>
+</define>
+<define id="JointStabilize">
+		<transform type="translate">
+		<param name="translation" value="(50,457)"/>
+		<primitive type="text">
+		<param name="text" value="JointStabilize"/>
+		</primitive>
+		</transform>
+</define>
+<define id="CollisionAvoidance">
+		<transform type="translate">
+		<param name="translation" value="(50,489)"/>
+		<primitive type="text">
+		<param name="text" value="CollisionAvoidance"/>
+		</primitive>
+		</transform>
+</define>
+
+
+
+
+
+<draw>
+
+<paste object="GPS"/>
+<paste object="SPT"/>
+<paste object="IN"/>
+<paste object="DS"/>
+<paste object="ApproachOrbit"/>
+<paste object="ProximityOperations"/>
+<paste object="FarApproach"/>
+<paste object="CaptureApproach"/>
+<paste object="DockingApproach"/>
+<paste object="LatchCapture"/>
+<paste object="CollisionAvoidance"/>
+<paste object="JointStabilize"/>
+<paste object="panel"/>
+<paste object="button0"/>
+<paste object="button1"/>
+<paste object="button2"/>
+<paste object="button3"/>
+<paste object="button4"/>
+<paste object="button5"/>
+<paste object="button6"/>
+<paste object="button7"/>
+<paste object="button8"/>
+<paste object="button9"/>
+<paste object="button10"/>
+<paste object="button11"/>
+<paste object="PanelBackground"/>
+
+</draw>
+
+</animation>

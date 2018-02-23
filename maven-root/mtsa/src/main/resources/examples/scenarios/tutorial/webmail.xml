@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+  <hmsc>
+    <bmsc name="init" x="50" y="30" />
+    <bmsc name="Login" x="50" y="130" />
+    <bmsc name="FailedLogin" x="170" y="130" />
+    <transition>
+      <from>init</from>
+      <to>Login</to>
+    </transition>
+    <transition>
+      <from>init</from>
+      <to>FailedLogin</to>
+    </transition>
+    <transition>
+      <from>FailedLogin</from>
+      <to>Login</to>
+    </transition>
+    <transition>
+      <from>FailedLogin</from>
+      <to>FailedLogin</to>
+    </transition>
+    <bmsc name="ReadMsg" x="50" y="230" />
+    <transition>
+      <from>Login</from>
+      <to>ReadMsg</to>
+    </transition>
+  </hmsc>
+  <bmsc name="init" />
+  <bmsc name="Login">
+    <instance name="User">
+      <output timeindex="1">
+        <name>enterPassword</name>
+        <to>Browser</to>
+      </output>
+      <input timeindex="4">
+        <name>displayPage</name>
+        <from>Browser</from>
+      </input>
+    </instance>
+    <instance name="Browser">
+      <input timeindex="1">
+        <name>enterPassword</name>
+        <from>User</from>
+      </input>
+      <output timeindex="2">
+        <name>sendPassword</name>
+        <to>Server</to>
+      </output>
+      <input timeindex="3">
+        <name>personalPage</name>
+        <from>Server</from>
+      </input>
+      <output timeindex="4">
+        <name>displayPage</name>
+        <to>User</to>
+      </output>
+    </instance>
+    <instance name="Server">
+      <input timeindex="2">
+        <name>sendPassword</name>
+        <from>Browser</from>
+      </input>
+      <output timeindex="3">
+        <name>personalPage</name>
+        <to>Browser</to>
+      </output>
+    </instance>
+  </bmsc>
+  <bmsc name="FailedLogin">
+    <instance name="User">
+      <output timeindex="1">
+        <name>enterPassword</name>
+        <to>Browser</to>
+      </output>
+      <input timeindex="4">
+        <name>displayPage</name>
+        <from>Browser</from>
+      </input>
+    </instance>
+    <instance name="Browser">
+      <input timeindex="1">
+        <name>enterPassword</name>
+        <from>User</from>
+      </input>
+      <output timeindex="2">
+        <name>sendPassword</name>
+        <to>Server</to>
+      </output>
+      <input timeindex="3">
+        <name>invalidPassword</name>
+        <from>Server</from>
+      </input>
+      <output timeindex="4">
+        <name>displayPage</name>
+        <to>User</to>
+      </output>
+    </instance>
+    <instance name="Server">
+      <input timeindex="2">
+        <name>sendPassword</name>
+        <from>Browser</from>
+      </input>
+      <output timeindex="3">
+        <name>invalidPassword</name>
+        <to>Browser</to>
+      </output>
+    </instance>
+  </bmsc>
+  <bmsc name="ReadMsg">
+    <instance name="User">
+      <output timeindex="1">
+        <name>selectMsg</name>
+        <to>Browser</to>
+      </output>
+      <input timeindex="4">
+        <name>displayPage</name>
+        <from>Browser</from>
+      </input>
+    </instance>
+    <instance name="Browser">
+      <input timeindex="1">
+        <name>selectMsg</name>
+        <from>User</from>
+      </input>
+      <output timeindex="2">
+        <name>requestBody</name>
+        <to>Server</to>
+      </output>
+      <input timeindex="3">
+        <name>sendBody</name>
+        <from>Server</from>
+      </input>
+      <output timeindex="4">
+        <name>displayPage</name>
+        <to>User</to>
+      </output>
+    </instance>
+    <instance name="Server">
+      <input timeindex="2">
+        <name>requestBody</name>
+        <from>Browser</from>
+      </input>
+      <output timeindex="3">
+        <name>sendBody</name>
+        <to>Browser</to>
+      </output>
+    </instance>
+  </bmsc>
+</specification>
+

@@ -1,0 +1,10 @@
+.metadata*
+**/bin/*
+**/.recomenders*
+*/target/*
+*/log.out/*
+*.atxa
+*.out
+.recommenders/
+.sonarlint/*
+out.pdf

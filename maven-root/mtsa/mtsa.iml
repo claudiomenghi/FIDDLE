@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: net.sourceforge.collections:collections-generic:4.01" level="project" />
+    <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2" level="project" />
+    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.2" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-graph-impl:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-api:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
+    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.org.apache:jaxp-ri:1.4" level="project" />
+    <orderEntry type="library" name="Maven: javax.xml.parsers:jaxp-api:1.4" level="project" />
+    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
+    <orderEntry type="library" name="Maven: com.google.zxing:javase:2.2" level="project" />
+    <orderEntry type="library" name="Maven: com.google.zxing:core:2.2" level="project" />
+    <orderEntry type="library" name="Maven: com.illposed.osc:javaosc-core:0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.scream3r:jssc:2.8.0" level="project" />
+    <orderEntry type="library" name="Maven: jfree:jcommon:1.0.16" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:12.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:1.3.9" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-algorithms:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: colt:colt:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: concurrent:concurrent:1.3.4" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jung:jung-visualization:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-beans:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-aop:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: aopalliance:aopalliance:1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-core:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-expression:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: com.jgoodies:forms:1.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphics2d:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsbase:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-io:2.2.2" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-pdf:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-tests:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-ps:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.freehep:freehep-graphicsio-svg:2.4" level="project" />
+    <orderEntry type="library" name="Maven: jfree:jfreechart:1.0.13" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacv:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:3.0.0-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:opencv:linux-x86_64:3.0.0-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:2.8.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:ffmpeg:linux-x86_64:2.8.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:2.8.3.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flycapture:linux-x86_64:2.8.3.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:2.2.3-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libdc1394:linux-x86_64:2.2.3-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:0.5.3-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:libfreenect:linux-x86_64:0.5.3-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:videoinput:0.200-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:videoinput:linux-x86_64:0.200-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:2.3.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:artoolkitplus:linux-x86_64:2.3.1-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:1.07-1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:flandmark:linux-x86_64:1.07-1.1" level="project" />
+    <orderEntry type="library" name="Maven: net.java.dev.swing-layout:swing-layout:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.googlecode.javacpp:javacpp:0.7" level="project" />
+    <orderEntry type="library" name="Maven: org.testng:testng:6.9.10" level="project" />
+    <orderEntry type="library" name="Maven: com.beust:jcommander:1.48" level="project" />
+    <orderEntry type="library" name="Maven: org.beanshell:bsh:2.0b4" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: jadrone:jadrone:0.32">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jadrone/jadrone/0.32/jadrone-0.32.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: pccomm:pccomm:0.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/pccomm/pccomm/0.1/pccomm-0.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: jgraphx:jgraphx:0.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jgraphx/jgraphx/0.1/jgraphx-0.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: com.microsoft:z3:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/com/microsoft/z3/1.0/z3-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: synoptic:synoptic:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/synoptic/synoptic/1.0/synoptic-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: jargs:jargs:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jargs/jargs/1.0/jargs-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: javacv:javacv:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/javacv/javacv/1.0/javacv-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: scenebeans:scenebeans:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/scenebeans/scenebeans/1.0/scenebeans-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: lejos:nxt:1.0">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lejos/nxt/1.0/nxt-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="ev3classes-0.1" level="project" />
+  </component>
+</module>
