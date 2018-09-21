@@ -1,9 +1,13 @@
 package ltsa.lts.checkers.wellformedness;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import java.util.HashMap;
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+import java.util.HashMap;
+>>>>>>> dev
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -12,18 +16,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import com.google.common.base.Preconditions;
 
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+import com.google.common.base.Preconditions;
+
+>>>>>>> dev
 import MTSTools.ac.ic.doc.mtstools.model.MTSConstants;
 import ltsa.lts.automata.lts.LTSConstants;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.IntegratorEngine;
 import ltsa.lts.checkers.modelchecker.ModelCheckerLTSModifier;
-import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.output.LTSOutput;
-import ltsa.lts.parser.LTSCompiler;
 
 /**
  * 
@@ -100,6 +107,7 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 		boxesToBeConsideredInStep2.remove(boxOfInterest);
 		logger.debug("APPLYING STEP2. Boxes: " + boxesToBeConsideredInStep2);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		LabelledTransitionSystem newController = this.step2(controller, mapBoxPostCondition, boxesToBeConsideredInStep2);
 
 		// STEP 3
@@ -153,31 +161,84 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 		mapBoxPostCondition.put(boxOfInterest, postcondition);
 
 		// STEP 3
+=======
+		LabelledTransitionSystem newController = this.step2(controller, mapBoxPostCondition,
+				boxesToBeConsideredInStep2);
+
+		// STEP 3
 		logger.debug("APPLYING STEP3. Box of interest: " + boxOfInterest);
 		newController = this.step3(newController, mapBoxPostCondition, boxOfInterest);
 
 		newController.setName(controller.getName() + POST_CONDITION_SUFFIX);
 		newController.getFinalStateIndexes().clear();
 		newController.setEndOfSequence(LTSConstants.NO_SEQUENCE_FOUND);
+		return newController;
+	}
+
+	/**
+	 * This method is used for verifying the scalability
+	 * 
+	 * For each box that is not the box of interest, it injects the LTS
+	 * associated with the post condition of the box <br/>
+	 * 
+	 * @param controller
+	 *            is the LTS whose well-formedness must be verified
+	 * @param boxOfInterest
+	 *            the box of interest
+	 * @return the LTS modified with post conditions
+	 */
+	public LabelledTransitionSystem modify(LabelledTransitionSystem controller, String boxOfInterest,
+			LabelledTransitionSystem postcondition) {
+
+		Preconditions.checkNotNull(controller, "The partial component cannot be null");
+		Preconditions.checkNotNull(boxOfInterest, "The box cannot be null");
+		Preconditions.checkNotNull(postcondition, "The postcondition cannot be null");
+
+		output.outln("\t APPLYING STEP1. Boxes: " + controller.getBoxes());
+		logger.debug("APPLYING STEP1. Boxes: " + controller.getBoxes());
+
+		LabelledTransitionSystem newController = controller;
+
+		Map<String, LabelledTransitionSystem> mapBoxPostCondition = new HashMap<>();
+		mapBoxPostCondition.put(boxOfInterest, postcondition);
+
+		// STEP 3
+>>>>>>> dev
+		logger.debug("APPLYING STEP3. Box of interest: " + boxOfInterest);
+		newController = this.step3(newController, mapBoxPostCondition, boxOfInterest);
+
+		newController.setName(controller.getName() + POST_CONDITION_SUFFIX);
+		newController.getFinalStateIndexes().clear();
+		newController.setEndOfSequence(LTSConstants.NO_SEQUENCE_FOUND);
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 		return newController;
 	}
 
 	protected LabelledTransitionSystem step3(LabelledTransitionSystem controller,
 <<<<<<< HEAD
+<<<<<<< HEAD
 			Map<String, LabelledTransitionSystem> mapBoxPostCondition, Set<String> boxes, String boxOfInterest) {
 =======
+=======
+>>>>>>> dev
 			Map<String, LabelledTransitionSystem> mapBoxPostCondition, String boxOfInterest) {
 
 		Preconditions.checkNotNull(controller, "The partial component cannot be null");
 		Preconditions.checkArgument(mapBoxPostCondition.containsKey(boxOfInterest));
 
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 		output.outln("APPLYING STEP3. Box: " + boxOfInterest);
 		controller.setName(controller.getName());
 
 		int boxPosition = controller.getBoxIndexes().get(boxOfInterest);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 		logger.debug(controller);
 		LabelledTransitionSystem postConditionLTS = mapBoxPostCondition.get(boxOfInterest);
@@ -192,12 +253,21 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 		postConditionLTS.relabelAndKeepOldLabel("end", MTSConstants.TAU);
 	
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		// logger.debug(controller);
+		LabelledTransitionSystem postConditionLTS = mapBoxPostCondition.get(boxOfInterest);
+
+		if (postConditionLTS.getAlphabetEvents().contains("end")) {
+			postConditionLTS.relabelAndKeepOldLabel("end", MTSConstants.TAU);
+		}
+>>>>>>> dev
 		int newInitiatilState = postConditionLTS.addInitialState();
 
 		int tauIndex = postConditionLTS.addEvent(MTSConstants.TAU);
 		postConditionLTS.addTransition(newInitiatilState, tauIndex, 1);
 
 		int endStateIndex = postConditionLTS.addNewState();
+<<<<<<< HEAD
 <<<<<<< HEAD
 		
 		int endeventIndex = postConditionLTS.getEvent("end");
@@ -207,10 +277,18 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 
 		int endeventIndex = postConditionLTS.getEvent("end");
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+
+		if(!postConditionLTS.getAlphabetEvents().contains("end")){
+			postConditionLTS.addEvent("end");
+		}
+		int endeventIndex = postConditionLTS.getEvent("end");
+>>>>>>> dev
 
 		postConditionLTS.addTransition(newInitiatilState, endeventIndex, endStateIndex);
 		postConditionLTS.addTransition(endStateIndex, endeventIndex, endStateIndex);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 		logger.debug(postConditionLTS);
 		LabelledTransitionSystem cscopy = new IntegratorEngine().apply(controller, boxPosition, boxOfInterest,
@@ -223,6 +301,10 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 				postConditionLTS);
 
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		LabelledTransitionSystem cscopy = new IntegratorEngine().apply(controller, boxPosition, boxOfInterest,
+				postConditionLTS);
+>>>>>>> dev
 
 		for (int eventIndex = 0; eventIndex < cscopy.getAlphabet().length; eventIndex++) {
 			for (int finalStateIndex : cscopy.getFinalStateIndexes()) {
@@ -233,6 +315,7 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 		return controller;
 
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 	/*
@@ -266,4 +349,6 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 
 =======
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 }

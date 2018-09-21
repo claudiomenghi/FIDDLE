@@ -123,6 +123,7 @@ import ltsa.lts.ltl.PostconditionDefinition;
 import ltsa.lts.ltl.PreconditionDefinition;
 import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.ltl.formula.factory.FormulaFactory;
+import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.lts.output.LTSOutput;
 import ltsa.lts.parser.LTSCompiler;
 import ltsa.lts.parser.PostconditionDefinitionManager;
@@ -147,6 +148,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	private static final long serialVersionUID = 8073353695841782352L;
 
 	private static final String DEFAULT = "DEFAULT";
+	
+	private String preconditiontarget;
 
 	// ------------------------------------------------------------------------
 
@@ -155,7 +158,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	private static final int DOEXECUTE = 3;
 	private static final int DOCOMPILE = 5;
 	private static final int DOCOMPOSITION = 6;
+	
+
+	
 	private static final int DOMINIMISECOMPOSITION = 7;
+	private static final int DOREMOVETAU=51;
 	private static final int DOMODELCHECK = 9;
 	private static final int DOPARSE = 10;
 
@@ -179,10 +186,15 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	private static final int DOSAFERYMULTICE = 20;
 	private static final int DOPRECONDITION = 26;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	
 	private static final int DOSUBSTITUTABILITY = 50;
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+	
+	private static final int DOSUBSTITUTABILITY = 50;
+>>>>>>> dev
 
 	private static final int DOREALIZABILITY = 27;
 
@@ -304,7 +316,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	// tool bar buttons - that need to be enabled and disabled
 	JButton // stopTool,
 	parseTool, progressTool, cutTool, pasteTool, newFileTool, openFileTool, saveFileTool, compileTool, composeTool,
-			minimizeTool, undoTool, redoTool;
+			minimizeTool, undoTool, redoTool, removeTauTool;
 	// used to implement muCSPInput
 	int fPos = -1;
 	String fSrc = "\n";
@@ -444,10 +456,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		edit_find.addActionListener(new EditFindAction());
 		edit.add(edit_find);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		
 =======
 
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+
+>>>>>>> dev
 		// check menu
 		check = new JMenu("Check");
 		mb.add(check);
@@ -630,6 +646,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 				new DoAction(DOCOMPOSITION)));
 		tools.add(minimizeTool = createTool("src/main/java/ltsa/ui/icon/minimize.gif", "Minimize",
 				new DoAction(DOMINIMISECOMPOSITION)));
+		tools.add(removeTauTool = createTool("src/main/java/ltsa/ui/icon/minimize.gif", "Remove tau",
+				new DoAction(DOREMOVETAU)));
 		// status field used to name the composition we are wrking on
 		this.environmentTargetChoice = new JComboBox<>();
 		this.environmentTargetChoice.setEditable(false);
@@ -768,16 +786,22 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		try {
 			switch (theAction) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> dev
 			
 			case DOSUBSTITUTABILITY:
 				showOutput();
 				checkSubcomponent(HPWindow.postCondition, HPWindow.process, HPWindow.box);
 				break;
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 			case DOPRECONDITION:
 				showOutput();
-				precondition();
+				wellFormednessChecker(preconditiontarget);
 				break;
 			case DOSAFETYNODEADLOCK:
 				showOutput();
@@ -801,6 +825,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			case DOMINIMISECOMPOSITION:
 				showOutput();
 				minimiseComposition();
+				break;
+				
+			case DOREMOVETAU	:
+				showOutput();
+				doRemoveTau();
 				break;
 			case DOMODELCHECK:
 				showOutput();
@@ -1509,11 +1538,16 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+	static String box;
+	static String process;
+	static String postCondition;
+>>>>>>> dev
 	class SubcomponentCheckerAction implements ActionListener {
-		String box;
-		String process;
-		String postCondition;
+		
 
+<<<<<<< HEAD
 =======
 	static String box;
 	static String process;
@@ -1525,6 +1559,11 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		private String process;
 		private String postCondition;
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		private String box;
+		private String process;
+		private String postCondition;
+>>>>>>> dev
 		SubcomponentCheckerAction(String box, String process, String postCondition) {
 			this.box = box;
 			this.process = process;
@@ -1536,18 +1575,23 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			showOutput();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 			checkSubcomponent(this.postCondition, this.process, this.box);
 =======
+=======
+>>>>>>> dev
 			HPWindow.box = box;
 			HPWindow.process = process;
 			HPWindow.postCondition = postCondition;
 			doAction(DOSUBSTITUTABILITY);
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 		}
 	}
 
 	class WellFormednessCheckerAction implements ActionListener {
-		String preconditiontarget;
 
 		WellFormednessCheckerAction(String s) {
 			preconditiontarget = s;
@@ -1556,7 +1600,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			showOutput();
-			wellFormednessChecker(preconditiontarget);
+			doAction(DOPRECONDITION);
 		}
 	}
 
@@ -1887,9 +1931,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 	private void realizability() {
 
 		this.logger.debug("Running the realizability checker");
@@ -1905,7 +1952,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		this.logger.debug("Conntroller of interest: " + controllerName);
 
 		CompositeState environment = compile(environmentName);
-		CompositeState controller = compile(controllerName);
+		CompositeState component = compile(controllerName);
 
 		// Silent compilation for negated formula
 		CompositeState notLtlProperty = AssertDefinition.compile(new EmptyLTSOuput(),
@@ -1913,13 +1960,13 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		current.compose(new EmptyLTSOuput());
 
 		if (ltlProperty != null) {
-			RealizabilityChecker realizabilityChecker = new RealizabilityChecker(this, environment, controller,
+			RealizabilityChecker realizabilityChecker = new RealizabilityChecker(this, environment, component,
 					ltlProperty, notLtlProperty);
 			realizabilityChecker.check();
 
 			final Vector<LabelledTransitionSystem> machines = new Vector<>();
 			environment.getMachines().forEach(machines::add);
-			machines.add(controller.getMachines().get(0));
+			machines.add(component.getMachines().get(0));
 
 			machines.add(realizabilityChecker.getModifiedControllerStep1());
 			if (realizabilityChecker.getModifiedControllerStep2() != null) {
@@ -1928,6 +1975,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			CompositeState system = new CompositeState("System");
 			environment.getMachines().forEach(system::addMachine);
 			system.addMachine(realizabilityChecker.getModifiedControllerStep1());
+<<<<<<< HEAD
 <<<<<<< HEAD
 			system.compose(new EmptyLTSOuput());
 			LabelledTransitionSystem compositionStep1 = system.getComposition();
@@ -1943,6 +1991,14 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			// realizabilityChecker.getSystem().setName("COMPOSITION_STEP_1");
 			// machines.add(realizabilityChecker.getSystem().getComposition());
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+			// system.compose(new EmptyLTSOuput());
+
+			// adding the property to the set of machine to be showed
+			machines.add(ltlProperty.getComposition());
+			// realizabilityChecker.getSystem().setName("COMPOSITION_STEP_1");
+			// machines.add(realizabilityChecker.getSystem().getComposition());
+>>>>>>> dev
 
 			if (realizabilityChecker.getModifiedControllerStep2() != null) {
 
@@ -1950,13 +2006,20 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 				environment.getMachines().forEach(system::addMachine);
 				system.addMachine(realizabilityChecker.getModifiedControllerStep2());
 <<<<<<< HEAD
+<<<<<<< HEAD
 				system.compose(new EmptyLTSOuput());
 				LabelledTransitionSystem compositionStep2 = system.getComposition();
+=======
+				// system.compose(new EmptyLTSOuput());
+				// LabelledTransitionSystem compositionStep2 =
+				// system.getComposition();
+>>>>>>> dev
 				// adding the negation of the property to the set of machine to
 				// be showed
 				machines.add(notLtlProperty.getComposition());
-				compositionStep2.setName("COMPOSITION_STEP_2");
+				// compositionStep2.setName("COMPOSITION_STEP_2");
 
+<<<<<<< HEAD
 				machines.add(compositionStep2);
 =======
 				// system.compose(new EmptyLTSOuput());
@@ -1969,6 +2032,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 
 				// machines.add(compositionStep2);
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+				// machines.add(compositionStep2);
+>>>>>>> dev
 
 			}
 
@@ -1980,29 +2046,37 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		Preconditions.checkNotNull(preconditionName, "The name of the precondition cannot be null");
 		clearOutput();
 <<<<<<< HEAD
+<<<<<<< HEAD
 		compile();
 =======
 		compileIfChange();
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		compileIfChange();
+>>>>>>> dev
 
 		String boxOfInterest = LTSCompiler.mapsEachPreconditionToTheCorrespondingBox.get(preconditionName);
 
 		CompositeState environment = compile((String) environmentTargetChoice.getSelectedItem());
 		logger.debug("Environment name: " + environment.getName());
 
-		CompositeState controller = compile((String) controllerTargetChoice.getSelectedItem());
+		CompositeState component = compile((String) controllerTargetChoice.getSelectedItem());
 
-		Log.info("Analysing the controller process: " + controller.getName());
+		Log.info("Analysing the component process: " + component.getName());
 
-		LabelledTransitionSystem controllerLTS = controller.getMachines().iterator().next();
+		LabelledTransitionSystem controllerLTS = component.getMachines().iterator().next();
 
 		final Vector<LabelledTransitionSystem> machines = new Vector<>();
 		machines.add(controllerLTS);
+<<<<<<< HEAD
 <<<<<<< HEAD
 		
 =======
 
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+
+>>>>>>> dev
 		controllerLTS.getBoxes().stream().filter(
 				box -> LTSCompiler.postconditionDefinitionManager.hasPostCondition(controllerLTS.getName(), box))
 				.forEach(box -> {
@@ -2016,33 +2090,39 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 
 		Formula preconditionFormula = LTSCompiler.preconditionDefinitionManager.getPrecondition(preconditionName);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		logger.debug("Initial precondition: "+preconditionFormula);
+=======
+		logger.debug("Initial precondition: " + preconditionFormula);
+		
+>>>>>>> dev
 		WellFormednessChecker checker = new WellFormednessChecker(this, environment, controllerLTS, boxOfInterest,
 				preconditionFormula, preconditionName);
 
-		CompositeState checkedMachines =checker.check();
+		CompositeState checkedMachines = checker.check();
 
 		machines.addAll(checkedMachines.getMachines());
-		
+
 		CompositeState system = new CompositeState("System");
-		
-		logger.debug("precondition name: "+preconditionName);
-		checkedMachines.getMachines().stream().filter(machine -> !machine.getName().equals(preconditionName)).forEach(machine ->system.addMachine(machine));
-		
-		
-		StringBuilder machinesToString=new StringBuilder();
+
+		logger.debug("precondition name: " + preconditionName);
+		checkedMachines.getMachines().stream().filter(machine -> !machine.getName().equals(preconditionName))
+				.forEach(machine -> system.addMachine(machine));
+
+		StringBuilder machinesToString = new StringBuilder();
 		machinesToString.append("Machines: ");
-		checkedMachines.getMachines().forEach(machine -> machinesToString.append(machine.getName()+"\t"));
-		logger.debug(machinesToString.toString());		
-		
-		StringBuilder machinesInterfaceToString=new StringBuilder();
+		checkedMachines.getMachines().forEach(machine -> machinesToString.append(machine.getName() + "\t"));
+		logger.debug(machinesToString.toString());
+
+		StringBuilder machinesInterfaceToString = new StringBuilder();
 		machinesInterfaceToString.append("Machines: ");
-		checkedMachines.getMachines().forEach(machine -> machinesInterfaceToString.append(machine.getName()+"["+machine.getAlphabetEvents()+"]"+machine.isProperty()+"\n"));
+		checkedMachines.getMachines().forEach(machine -> machinesInterfaceToString
+				.append(machine.getName() + "[" + machine.getAlphabetEvents() + "]" + machine.isProperty() + "\n"));
 		logger.debug(machinesInterfaceToString.toString());
 
-		
-		system.compose(new EmptyLTSOuput());
+		// system.compose(new EmptyLTSOuput());
 
+<<<<<<< HEAD
 		machines.add(system.getComposition());
 =======
 		logger.debug("Initial precondition: " + preconditionFormula);
@@ -2075,6 +2155,9 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 
 		// machines.add(system.getComposition());
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		// machines.add(system.getComposition());
+>>>>>>> dev
 
 		this.newMachines(machines);
 	}
@@ -2087,12 +2170,12 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		final Vector<LabelledTransitionSystem> machines = new Vector<>();
 		CompositeState environment = compile((String) environmentTargetChoice.getSelectedItem());
 		logger.debug("Environment name: " + environment.getName());
-		CompositeState controller = compile((String) controllerTargetChoice.getSelectedItem());
-		logger.debug("Controller name: " + controller.getName());
+		CompositeState component = compile((String) controllerTargetChoice.getSelectedItem());
+		logger.debug("Component name: " + component.getName());
 
-		final LabelledTransitionSystem controllerLTS = controller.getMachines().get(0);
+		final LabelledTransitionSystem controllerLTS = component.getMachines().get(0);
 
-		machines.add(controller.getMachines().get(0));
+		machines.add(component.getMachines().get(0));
 		// adds the post-conditions to the GUI
 		controllerLTS.getBoxes().stream().filter(
 				box -> LTSCompiler.postconditionDefinitionManager.hasPostCondition(controllerLTS.getName(), box))
@@ -2105,28 +2188,36 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 					machines.add(post);
 				});
 
-		ModelChecker modelChecker = new ModelChecker(this, environment, controller, ltlProperty);
+		ModelChecker modelChecker = new ModelChecker(this, environment, component, ltlProperty);
 		CompositeState checkedMachines = modelChecker.check();
 
 		machines.addAll(checkedMachines.getMachines());
 
 		CompositeState system = new CompositeState("System");
 <<<<<<< HEAD
+<<<<<<< HEAD
 		checkedMachines.getMachines().stream().filter(machine -> !machine.getName().equals(ltlProperty.getName())).forEach(machine ->system.addMachine(machine));
 		
 		StringBuilder machinesToString=new StringBuilder();
+=======
+		checkedMachines.getMachines().stream().filter(machine -> !machine.getName().equals(ltlProperty.getName()))
+				.forEach(machine -> system.addMachine(machine));
+
+		StringBuilder machinesToString = new StringBuilder();
+>>>>>>> dev
 		machinesToString.append("Machines: ");
-		system.getMachines().forEach(machine -> machinesToString.append(machine.getName()+"\t"));
-		logger.debug(machinesToString.toString());		
-		
-		StringBuilder machinesInterfaceToString=new StringBuilder();
+		system.getMachines().forEach(machine -> machinesToString.append(machine.getName() + "\t"));
+		logger.debug(machinesToString.toString());
+
+		StringBuilder machinesInterfaceToString = new StringBuilder();
 		machinesInterfaceToString.append("Machines: ");
-		system.getMachines().forEach(machine -> machinesInterfaceToString.append(machine.getName()+"["+machine.getAlphabetEvents()+"]"+machine.isProperty()+"\n"));
+		system.getMachines().forEach(machine -> machinesInterfaceToString
+				.append(machine.getName() + "[" + machine.getAlphabetEvents() + "]" + machine.isProperty() + "\n"));
 		logger.debug(machinesInterfaceToString.toString());
 
-		
-		system.compose(new EmptyLTSOuput());
+		// system.compose(new EmptyLTSOuput());
 
+<<<<<<< HEAD
 		machines.add(system.getComposition());
 =======
 		checkedMachines.getMachines().stream().filter(machine -> !machine.getName().equals(ltlProperty.getName()))
@@ -2147,12 +2238,16 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 
 		// machines.add(system.getComposition());
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		// machines.add(system.getComposition());
+>>>>>>> dev
 
 		this.newMachines(machines);
 
 	}
 
 	private void checkSubcomponent(String postconditionName, String process, String box) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 		Preconditions.checkNotNull(postconditionName, "The precondition cannot be null");
 
@@ -2164,13 +2259,20 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		Preconditions.checkNotNull(postconditionName, "The precondition cannot be null");
 
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		clearOutput();
+		compileIfChange();
+
+		Preconditions.checkNotNull(postconditionName, "The precondition cannot be null");
+
+>>>>>>> dev
 		logger.debug("Postcondition name: " + postconditionName);
-		logger.debug("Controller name: " + process);
+		logger.debug("Component name: " + process);
 		logger.debug("Box name: " + box);
 
 		String subControllerName = (String) controllerTargetChoice.getSelectedItem();
 
-		logger.debug("Sub-controller name: " + subControllerName);
+		logger.debug("Sub-component name: " + subControllerName);
 		CompositeState subcomponent = compile(subControllerName);
 		CompositeState environment = compile((String) environmentTargetChoice.getSelectedItem());
 		logger.debug("Environment name: " + environment.getName());
@@ -2187,43 +2289,49 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		PostconditionDefinition postCondition = postDefMan.getpostConditions().get(postconditionName);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		// getting the precondition
 		PreconditionDefinition precondition = LTSCompiler.preconditionDefinitionManager.getPrecondition(process, box);
 
 		this.logger.info("Precondition: " + precondition.getName() + " found for the box: " + box + " of the process: "
 				+ process);
+=======
+		
+		if (LTSCompiler.preconditionDefinitionManager.containsPrecondition(process, box)) {
+			// getting the precondition
+			PreconditionDefinition precondition = LTSCompiler.preconditionDefinitionManager.getPrecondition(process,
+					box);
+>>>>>>> dev
 
-		this.logger.info("Postcondition: " + postconditionName + " considered for the box: " + box + " of the process: "
-				+ process);
+			this.logger.info("Precondition: " + precondition.getName() + " found for the box: " + box
+					+ " of the process: " + process);
 
-		if (!LTSCompiler.mapBoxSubComponentName.containsKey(box)) {
-			this.displayError(new LTSException("No sub-design found for the component: " + box));
-		} else {
-			String subcomponentProcessName = LTSCompiler.mapBoxSubComponentName.get(box);
+			this.logger.info("Postcondition: " + postconditionName + " considered for the box: " + box
+					+ " of the process: " + process);
 
-			if (!LTSCompiler.processes.containsKey(subcomponentProcessName)) {
-				this.displayError(new LTSException("No compiled process with name: " + subcomponentProcessName));
+			if (!LTSCompiler.mapBoxSubComponentName.containsKey(box)) {
+				this.displayError(new LTSException("No sub-design found for the component: " + box));
 			} else {
+				String subcomponentProcessName = LTSCompiler.mapBoxSubComponentName.get(box);
 
-				final Vector<LabelledTransitionSystem> machines = new Vector<>();
+				if (!LTSCompiler.processes.containsKey(subcomponentProcessName)) {
+					this.displayError(new LTSException("No compiled process with name: " + subcomponentProcessName));
+				} else {
 
-				LabelledTransitionSystem subComponentLTS = comp.getProcessCompactStateByName(subcomponentProcessName);
-				subComponentLTS.setName(subcomponentProcessName);
-				machines.addAll(environment.getMachines());
-				machines.add(subComponentLTS);
+					final Vector<LabelledTransitionSystem> machines = new Vector<>();
 
-				SubstitutabilityChecker ck = new SubstitutabilityChecker(this, environment, subComponentLTS,
-						precondition.getFormula(true), precondition.getName(), postCondition.getFormula(false),
-						postCondition.getName());
-				ck.check();
+					LabelledTransitionSystem subComponentLTS = comp
+							.getProcessCompactStateByName(subcomponentProcessName);
+					subComponentLTS.setName(subcomponentProcessName);
+					machines.addAll(environment.getMachines());
+					machines.add(subComponentLTS);
 
-				machines.add(ck.getPreconditionLTS());
-				machines.add(ck.getPreconditionPlusSubcomponentLTS());
-				machines.add(ck.getPostConditionLTS());
-				machines.add(ck.getEnvironmentParallelPrePlusSubcomponent());
-				this.newMachines(machines);
-			}
+					SubstitutabilityChecker ck = new SubstitutabilityChecker(this, environment, subComponentLTS,
+							precondition.getFormula(true), precondition.getName(), postCondition.getFormula(false),
+							postCondition.getName());
+					ck.check();
 
+<<<<<<< HEAD
 =======
 		
 		if (LTSCompiler.preconditionDefinitionManager.containsPrecondition(process, box)) {
@@ -2259,6 +2367,8 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 							postCondition.getName());
 					ck.check();
 
+=======
+>>>>>>> dev
 					machines.add(ck.getPreconditionLTS());
 					machines.add(ck.getPreconditionPlusSubcomponentLTS());
 					machines.add(ck.getPostConditionLTS());
@@ -2268,7 +2378,10 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		}
 		else{
 			this.displayError(new LTSException("No pre-condition for the box: " + box+" of the process "+process+" provided"));
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 		}
 	}
 
@@ -2277,17 +2390,42 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 		compileIfChange();
 	}
 
+	
+	private void doRemoveTau() {
+		clearOutput();
+		compileIfChange();
+		
+		Minimiser m= new Minimiser(current.getComposition(), this);
+		
+		Vector<LabelledTransitionSystem> s=new Vector<>();
+		s.add(m.removeTau(current.getComposition()));
+		current=
+				new CompositeState("m", s);
+
+			postState(current);
+		
+		
+		
+	}
 	// ------------------------------------------------------------------------
 
 	private void minimiseComposition() {
 		clearOutput();
 		compileIfChange();
+		
+		
+		System.out.println("PASSO 1");
 		if (compileIfChange() && current != null) {
+			
 			if (current.getComposition() == null)
 				TransitionSystemDispatcher.applyComposition(current, this);
+			System.out.println("PASSO 3");
+			
 			TransitionSystemDispatcher.minimise(current, this);
 			postState(current);
+			
 		}
+		
 	}
 
 	// ------------------------------------------------------------------------
@@ -2299,18 +2437,24 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			TransitionSystemDispatcher.applyComposition(current, this);
 			postState(current);
 <<<<<<< HEAD
+<<<<<<< HEAD
 			System.out.println("%GRAPH DENSITY: " + current.getComposition().getGraphDensity());
 			System.out.println("%COMPOSITION STATES: " + current.getComposition().getStates().length);
 			System.out.println("%COMPOSITION TRANSITIONS: " + current.getComposition().getTransitionNumber());
 			System.out.println("%COMPOSITION SIZE: " + current.getComposition().size());
 			System.out.println("%COMPOSITION Alphabet:" + current.getComposition().getAlphabet().length);
 =======
+=======
+>>>>>>> dev
 			logger.info("%GRAPH DENSITY: " + current.getComposition().getGraphDensity());
 			logger.info("%COMPOSITION STATES: " + current.getComposition().getStates().length);
 			logger.info("%COMPOSITION TRANSITIONS: " + current.getComposition().getTransitionNumber());
 			logger.info("%COMPOSITION SIZE: " + current.getComposition().size());
 			logger.info("%COMPOSITION Alphabet:" + current.getComposition().getAlphabet().length);
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 		}
 	}
 

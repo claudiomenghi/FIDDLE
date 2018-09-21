@@ -18,25 +18,29 @@ import ltsa.lts.util.Counter;
 import com.google.common.base.Preconditions;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /**
  * minimizes an automaton
  *
  */
+=======
+import java.util.BitSet;
+import java.util.Hashtable;
+import java.util.Map;
+
+>>>>>>> dev
 public class Minimiser {
 
 	final static int TAU = 0;
 
 	BitSet[] E; // array of |states| x |states| bits
 	BitSet[] A; // array of |states| x |actions| bits
-	LTSTransitionList[] T; // tau adjacency lists - stores reflexive transitive
-							// closure
+	LTSTransitionList[] T; // tau adjacency lists - stores reflexive transitive closure
 	LabelledTransitionSystem machine;
 	LTSOutput output;
 
-	public Minimiser(LabelledTransitionSystem machine, LTSOutput output) {
-		Preconditions.checkNotNull(machine, "The machine cannot be null");
-		Preconditions.checkNotNull(output, "The output cannot be null");
-		this.machine = machine;
+	public Minimiser(LabelledTransitionSystem c, LTSOutput output) {
+		machine = c;
 		this.output = output;
 	}
 
@@ -58,27 +62,23 @@ public class Minimiser {
 		for (int i = 0; i < m.getStates().length; i++) {
 			// agrega los estados alcanzables como vecinos del estado
 			m.getStates()[i] = EventStateUtils.union(m.getStates()[i], T[i]);
-			m.getStates()[i] = LTSTransitionList.actionAdd(m.getStates()[i],
-					m.getStates());
+			m.getStates()[i] = LTSTransitionList.actionAdd(m.getStates()[i], m.getStates());
 		}
 		for (int i = 0; i < m.getStates().length; i++)
-			m.getStates()[i] = EventStateUtils.add(m.getStates()[i],
-					new LTSTransitionList(Declaration.TAU, i));
+			m.getStates()[i] = EventStateUtils.add(m.getStates()[i], new LTSTransitionList(Declaration.TAU, i));
 		output.out(".");
 		return m;
 	}
 
-	private LabelledTransitionSystem removeTau(LabelledTransitionSystem m) {
+	public LabelledTransitionSystem removeTau(LabelledTransitionSystem m) {
 		for (int i = 0; i < m.getStates().length; i++)
 			m.getStates()[i] = LTSTransitionList.removeTau(m.getStates()[i]);
 		return m;
 	}
 
-	/**
-	 * first step in initialization is set up E
-	 */
+	// first step in initialisation is set up E
 	private void initialise() {
-		// initialize A such that A[i,a] is true if transition a from state i
+		// initialise A such that A[i,a] is true if transition a from state i
 		A = new BitSet[machine.getMaxStates()];
 		for (int i = 0; i < A.length; i++) {
 			A[i] = new BitSet(machine.getAlphabet().length);
@@ -101,7 +101,7 @@ public class Minimiser {
 
 	private void dominimise() {
 		boolean more = true;
-
+		;
 		while (more) {
 			output.out(".");
 			more = false;
@@ -130,8 +130,10 @@ public class Minimiser {
 	 * minimise using observational equivalence
 	 */
 	public LabelledTransitionSystem minimise() {
-		// // Added to make minimisation of CompositeState and CompactState be
-		// consistent.
+		
+		System.out.println("DDDDD 1");
+		//// Added to make minimisation of CompositeState and LabelledTransitionSystem
+		//// be consistent.
 		if (CompositeState.reduceFlag) {
 			output.outln("Tau reduction ON");
 			machine.removeNonDetTau();
@@ -139,15 +141,11 @@ public class Minimiser {
 		output.out(machine.getName() + " minimising");
 		long start = System.currentTimeMillis();
 		LabelledTransitionSystem saved = machine.myclone();
-		/*
-		 * distinguish end state from STOP with self transition using special
-		 * label
-		 */
-		if (machine.getEndOfSequenceIndex() != LTSConstants.NO_SEQUENCE_FOUND) {
+		/* distinguish end state from STOP with self transition using special label */
+		if (machine.getEndOfSequenceIndex() >= 0) {
 			int es = machine.getEndOfSequenceIndex();
-			machine.getStates()[es] = EventStateUtils
-					.add(this.machine.getStates()[es], new LTSTransitionList(
-							this.machine.getAlphabet().length, es));
+			machine.getStates()[es] = EventStateUtils.add(machine.getStates()[es],
+					new LTSTransitionList(machine.getAlphabet().length, es));
 		}
 		if (machine.hasTau()) {
 			initTau();
@@ -157,16 +155,15 @@ public class Minimiser {
 		initialise();
 		dominimise();
 		/*
-		 * makeNewMachine() uses machine. If first overwrite machine with saved
-		 * you loose minimization machine = saved; CompactState c =
+		 * makeNewMachine() uses machine. If first overwrite machine with saved you
+		 * loose minimization machine = saved; LabelledTransitionSystem c =
 		 * makeNewMachine();
 		 */
-		LabelledTransitionSystem c = this.makeNewMachine();
+		LabelledTransitionSystem c = makeNewMachine();
 		machine = saved;
 		long finish = System.currentTimeMillis();
 		output.outln("");
-		output.outln("Minimised States: " + c.getMaxStates() + " in "
-				+ (finish - start) + "ms");
+		output.outln("Minimised getStates(): " + c.getMaxStates() + " in " + (finish - start) + "ms");
 		return c;
 	}
 
@@ -190,7 +187,7 @@ public class Minimiser {
 			Determinizer d = new Determinizer(machine, output);
 			machine = d.determine();
 		}
-		// now minimize
+		// now minimise
 		if (must_minimize)
 			return minimise();
 		else
@@ -217,13 +214,11 @@ public class Minimiser {
 			p = p.getList();
 		while (p != null) {
 			if (tr.getNext() < 0) {
-				if (p.getNext() < 0) {
+				if (p.getNext() < 0)
 					return true;
-				}
 			} else {
 				if (p.getNext() >= 0) {
-					// pregunto en la matriz de las maybes si tiene transiciones
-					// al reves
+					// pregunto en la matriz de las maybes si tiene transiciones al reves
 					if (E[tr.getNext()].get(p.getNext()))
 						return true;
 				}
@@ -234,12 +229,12 @@ public class Minimiser {
 	}
 
 	private LabelledTransitionSystem makeNewMachine() {
-		Hashtable<Integer, Integer> oldtonew = new Hashtable<>();
-		Hashtable<Integer, Integer> newtoold = new Hashtable<>();
+		Hashtable oldtonew = new Hashtable();
+		Hashtable newtoold = new Hashtable();
 		Counter newSt = new Counter(0);
 		for (int i = 0; i < E.length; i++) {
 			Integer oldIndex = new Integer(i);
-			Integer newIndex = oldtonew.get(oldIndex);
+			Integer newIndex = (Integer) oldtonew.get(oldIndex);
 			if (newIndex == null) {
 				oldtonew.put(oldIndex, newIndex = newSt.label());
 				newtoold.put(newIndex, oldIndex);
@@ -249,46 +244,37 @@ public class Minimiser {
 					oldtonew.put(new Integer(j), newIndex);
 			}
 		}
-		LabelledTransitionSystem m = new LabelledTransitionSystem(machine.getName(), newtoold.size());
+		LabelledTransitionSystem m = new LabelledTransitionSystem(machine.getName());
+		int maxStates = newtoold.size();
 		m.setAlphabet(machine.getAlphabet());
-		m.setStates(new LTSTransitionList[m.getMaxStates()]);
-		
+		m.setStates(new LTSTransitionList[maxStates]);
+		if (machine.getEndOfSequenceIndex() < 0)
+			m.setEndOfSequence(machine.getEndOfSequenceIndex());
+		else {
+			m.setEndOfSequence(((Integer) oldtonew.get(new Integer(machine.getEndOfSequenceIndex()))).intValue());
+			/* remove marking transition */
+			m.getStates()[m.getEndOfSequenceIndex()] = LTSTransitionList.remove(
+					m.getStates()[m.getEndOfSequenceIndex()],
+					new LTSTransitionList(m.getAlphabet().length, m.getEndOfSequenceIndex()));
+		}
 
 		for (int i = 0; i < machine.getMaxStates(); i++) {
-			int newi = (oldtonew.get(new Integer(i))).intValue();
-			LTSTransitionList tmp = EventStateUtils.renumberStates(
-					machine.getStates()[i], oldtonew);
-			m.getStates()[newi] = EventStateUtils.union(m.getStates()[newi],
-					tmp);
+			int newi = ((Integer) oldtonew.get(new Integer(i))).intValue();
+			LTSTransitionList tmp = EventStateUtils.renumberStates(machine.getStates()[i], oldtonew);
+			m.getStates()[newi] = EventStateUtils.union(m.getStates()[newi], tmp);
 		}
 
-		for (int i = 0; i < m.getMaxStates(); i++)
-			// remove reflexive tau
-			m.getStates()[i] = LTSTransitionList.remove(m.getStates()[i],
-					new LTSTransitionList(Declaration.TAU, i));
-
-		if (machine.getEndOfSequenceIndex() == LTSConstants.NO_SEQUENCE_FOUND){
-			m.setEndOfSequence(machine.getEndOfSequenceIndex());
-		}
-		else {
-			// AAAA
-			m.setEndOfSequence(oldtonew.get(machine.getEndOfSequenceIndex()));
-			/* remove marking transition */
-				m.getStates()[m.getEndOfSequenceIndex()] = LTSTransitionList
-						.remove(m.getStates()[m.getEndOfSequenceIndex()],
-								new LTSTransitionList(m.getAlphabet().length, m
-										.getEndOfSequenceIndex()));
-			
-
-		}
-		
-		return handleMarkedCompactState(m, machine, oldtonew);
+		for (int i = 0; i < m.getMaxStates(); i++) // remove reflexive tau
+			m.getStates()[i] = LTSTransitionList.remove(m.getStates()[i], new LTSTransitionList(Declaration.TAU, i));
+		LabelledTransitionSystem response = handleMarkedCompactState(m, machine, oldtonew);
+		return response;
 	}
 
 	private LabelledTransitionSystem handleMarkedCompactState(LabelledTransitionSystem m,
 			LabelledTransitionSystem machine, Map<Integer, Integer> oldToNew) {
 		LabelledTransitionSystem response = m;
 		if (machine instanceof MarkedCompactState) {
+<<<<<<< HEAD
 			int[] markedStates = ((MarkedCompactState) machine)
 					.getMarkedStates();
 =======
@@ -532,6 +518,9 @@ public class Minimiser {
 		if (machine instanceof MarkedCompactState) {
 			int[] markedStates = ((MarkedCompactState) machine).getMarkedStates();
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+			int[] markedStates = ((MarkedCompactState) machine).getMarkedStates();
+>>>>>>> dev
 			for (int i = 0; i < markedStates.length; ++i) {
 				markedStates[i] = oldToNew.get(markedStates[i]);
 			}
@@ -539,6 +528,7 @@ public class Minimiser {
 		}
 		return response;
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 	
@@ -563,4 +553,33 @@ public class Minimiser {
     }
 
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+
+	public void print(LTSOutput output) {
+		privPrint(output, E);
+	}
+
+	private void privPrint(LTSOutput output, BitSet[] E) {
+		if (E.length > 20)
+			return;
+		char[] buf = new char[E.length * 2];
+		for (int i = 0; i < E.length * 2; i++)
+			buf[i] = ' ';
+		output.outln("E:");
+		output.out("       ");
+		for (int i = 0; i < E.length; i++)
+			output.out(" " + i);
+		output.outln("");
+		for (int i = 0; i < E.length; i++) {
+			output.out("State " + i + " ");
+			for (int j = 0; j < E.length; j++)
+				if (E[i].get(j))
+					buf[j * 2] = '1';
+				else
+					buf[j * 2] = ' ';
+			output.outln(new String(buf));
+		}
+	}
+
+>>>>>>> dev
 }

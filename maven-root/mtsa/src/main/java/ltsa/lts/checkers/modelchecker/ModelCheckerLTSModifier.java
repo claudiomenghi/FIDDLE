@@ -69,9 +69,12 @@ public class ModelCheckerLTSModifier {
 	public LabelledTransitionSystem modify(@Nonnull LabelledTransitionSystem controller) {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		
 =======
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 		// STEP 1
 		Map<String, LabelledTransitionSystem> mapBoxPostCondition = this.step1(controller);
 
@@ -165,16 +168,22 @@ public class ModelCheckerLTSModifier {
 			LabelledTransitionSystem cscopy = new IntegratorEngine().apply(cs, boxPosition, box, postConditionLTS);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 			for (int eventIndex = 0; eventIndex < cs.getAlphabet().length; eventIndex++) {
 				for (int finalStateIndex : cscopy.getFinalStateIndexes()) {
 					cscopy.removeTransition(finalStateIndex, eventIndex, finalStateIndex);
 =======
+=======
+>>>>>>> dev
 			if (LTSCompiler.postconditionDefinitionManager.hasPostCondition(controller.getName(), box)) {
 				for (int eventIndex = 0; eventIndex < cs.getAlphabet().length; eventIndex++) {
 					for (int finalStateIndex : cscopy.getFinalStateIndexes()) {
 						cscopy.removeTransition(finalStateIndex, eventIndex, finalStateIndex);
 					}
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 				}
 			}
 			cs = cscopy;
@@ -183,9 +192,12 @@ public class ModelCheckerLTSModifier {
 		cs.setName(controller.getName() + POST_CONDITION_SUFFIX);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		cs.removeEvent("@any");
 =======
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 		return cs;
 
 	}

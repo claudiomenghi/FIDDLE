@@ -100,20 +100,29 @@ public class Expression {
 	public static BigDecimal evaluate(Stack<Symbol> s, Hashtable<String, Value> locals,
 			Hashtable<String, Value> globals) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		Stack<Symbol> mine = (Stack) s.clone();
 =======
 		@SuppressWarnings("unchecked")
 		Stack<Symbol> mine = (Stack<Symbol>) s.clone();
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		@SuppressWarnings("unchecked")
+		Stack<Symbol> mine = (Stack<Symbol>) s.clone();
+>>>>>>> dev
 		return eval(mine, locals, globals);
 	}
 
 	public static Value getValue(Stack<Symbol> s, Hashtable<String, Value> locals,
 			Hashtable<String, Value> globals) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		@SuppressWarnings("unchecked")
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		@SuppressWarnings("unchecked")
+>>>>>>> dev
 		Stack<Symbol> mine = (Stack<Symbol>) s.clone();
 		return getVal(mine, locals, globals);
 	}

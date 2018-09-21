@@ -21,6 +21,7 @@ import ltsa.lts.csp.Relation;
 import ltsa.lts.ltl.FluentTrace;
 import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.lts.output.LTSOutput;
+import ltsa.ui.StandardOutput;
 
 /**
  * a composite state contains a vector of state machines that must be performed
@@ -191,10 +192,14 @@ public class CompositeState {
 
 			Analyser analyzer = new Analyser(this, output, null, ignoreAsterisk);
 <<<<<<< HEAD
+<<<<<<< HEAD
 			this.composition = analyzer.compose();
 =======
 			this.composition = analyzer.composeNoHide();
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+			this.composition = analyzer.composeNoHide();
+>>>>>>> dev
 			this.applyLTSOperations(output);
 		}
 	}
@@ -243,9 +248,13 @@ public class CompositeState {
 			}
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		applyHiding();
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		applyHiding();
+>>>>>>> dev
 
 	}
 
@@ -279,9 +288,13 @@ public class CompositeState {
 			applyHiding();
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		applyHiding();
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		applyHiding();
+>>>>>>> dev
 
 	}
 
@@ -344,6 +357,7 @@ public class CompositeState {
 	 */
 	public boolean checkLTL(LTSOutput output, CompositeState cs) {
 
+		long initialTime = System.currentTimeMillis();
 		Preconditions.checkNotNull(output, "The output cannot be null");
 		Preconditions.checkNotNull(cs, "The composite state cannot be null");
 		Preconditions.checkNotNull(cs.tracer, "The tracer of the property cannot be null");
@@ -366,28 +380,39 @@ public class CompositeState {
 			machines.add(saved = ltlProperty);
 			Analyser analyzer = new Analyser(this, output, null);
 <<<<<<< HEAD
+<<<<<<< HEAD
 			
 			// If the property has an error state it is necessary to do 
 =======
 
 			// If the property has an error state it is necessary to do
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+
+			// If the property has an error state it is necessary to do
+>>>>>>> dev
 			// a progress check to verify whether the property is satisfied
 			if (!ltlProperty.hasERROR()) {
 
 				logger.debug("Composition has no error state");
 				// do full liveness check
 <<<<<<< HEAD
+<<<<<<< HEAD
 				ProgressCheck cc = new ProgressCheck(analyzer, output, cs.tracer);
+=======
+
+				logger.debug("Checking");
+				ProgressCheck cc = new ProgressCheck(analyzer, new StandardOutput(), cs.tracer);
+>>>>>>> dev
 				boolean satisfied = cc.doLTLCheck();
 				if (!satisfied) {
-					this.satisfied=false;
+					this.satisfied = false;
 					logger.debug("Progress checker returns an error trace");
 					errorTrace = cc.getErrorTrace();
 					setErrorTrace(errorTrace);
-				}
-				else{
+				} else {
 					logger.debug("The progress checker does not return an error trace");
+<<<<<<< HEAD
 					this.satisfied=true;
 =======
 
@@ -403,23 +428,32 @@ public class CompositeState {
 					logger.debug("The progress checker does not return an error trace");
 					this.satisfied = true;
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+					this.satisfied = true;
+>>>>>>> dev
 				}
 			} else {
 
 				// do safety check
 				logger.debug("The property  contains an error state");
 <<<<<<< HEAD
+<<<<<<< HEAD
 				boolean satisfied=analyzer.analyse(cs.tracer, false, false);
 				if(satisfied){
 					this.satisfied=false;
+=======
+				boolean satisfied = analyzer.analyse(cs.tracer, false, false);
+				if (satisfied) {
+					this.satisfied = false;
+>>>>>>> dev
 					logger.debug("Analyzer returned an error trace");
 					errorTrace = new Vector<String>(analyzer.getErrorTrace());
 					setErrorTrace(analyzer.getErrorTrace());
-				}
-				else{
+				} else {
 					logger.debug("The property is satisified");
-					this.satisfied=true;
+					this.satisfied = true;
 				}
+<<<<<<< HEAD
 		 }
 =======
 				boolean satisfied = analyzer.analyse(cs.tracer, false, false);
@@ -434,9 +468,14 @@ public class CompositeState {
 				}
 			}
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+			}
+>>>>>>> dev
 			hidden = saveHidden;
 			exposeNotHide = saveExposeNotHide;
 		}
+		long finalTime = System.currentTimeMillis();
+		output.outln("Time (s) "+((finalTime-initialTime)/1000));
 		return this.satisfied;
 	}
 
@@ -468,10 +507,14 @@ public class CompositeState {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		/*
 =======
 	/*
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+	/*
+>>>>>>> dev
 	 * prefix all constituent machines
 	 */
 	public void prefixLabels(String prefix) {
@@ -606,11 +649,16 @@ public class CompositeState {
 		c.makeOptimistic = makeOptimistic;
 		c.makePessimistic = makePessimistic;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		
 =======
 		c.exposeNotHide=this.exposeNotHide;
 
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		c.exposeNotHide=this.exposeNotHide;
+
+>>>>>>> dev
 		c.setMakeComponent(isMakeComponent());
 		c.setComponentAlphabet(getComponentAlphabet());
 		c.controlStackEnvironments = controlStackEnvironments;
@@ -627,6 +675,7 @@ public class CompositeState {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public void addHiddenAction(String action) {
 		this.hidden.add(action);
 	}
@@ -634,12 +683,20 @@ public class CompositeState {
 	private void addHiddenAction(String action) {
 		this.hidden.add(action);
 	}
+=======
+	private void addHiddenAction(String action) {
+		this.hidden.add(action);
+	}
+>>>>>>> dev
 	
 	public boolean compositionNotRequired() {
 		return (hidden == null && priorityLabels == null && !makeDeterministic
 				&& !makeMinimal && !makeCompose && !makeSyncController);
 	}
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 
 	public void setHidden(Vector<String> hidden) {
 		this.hidden = hidden;

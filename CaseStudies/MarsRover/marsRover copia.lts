@@ -118,14 +118,7 @@ CondVar (ConditionVariable = Null) =
 		([Threads].[ConditionVariable].signal -> [ConditionVariable].broadcast -> CondVar). 
 
 // Condition variable methods
-Wait_CV (Mutex = Null, ConditionVariable = Null) = (    [ConditionVariable].lock ->  
-														[Mutex].unlock -> 
-                                                        [ConditionVariable].wait ->
-											  		    [ConditionVariable].unlock  -> 
-													    [ConditionVariable].broadcast -> 
-                                                        [Mutex].lock -> 
-                                                        END
-                                                    ). 
+
 
 ML_Wait_CV (Mutex1 = Null, Mutex2 = Null, ConditionVariable = Null) = 
 					([ConditionVariable].lock ->  
@@ -134,9 +127,6 @@ ML_Wait_CV (Mutex1 = Null, Mutex2 = Null, ConditionVariable = Null) =
 							[ConditionVariable].broadcast -> [Mutex1].lock -> [Mutex2].lock -> END). 
 
 
-Signal_CV (ConditionVariable = Null) = ([ConditionVariable].lock -> 
-												[ConditionVariable].signal ->
-										[ConditionVariable].unlock -> END). 
 
 Timed_Wait_CV (Mutex = Null, ConditionVariable = Null, Timeout = Null) = 
 											([ConditionVariable].lock ->  // is it correct? - RICH -
@@ -202,11 +192,7 @@ property LOCK_UNLOCK (Mutex = Null) = ([Mutex].lock -> [Mutex].unlock -> LOCK_UN
 /* Made up of two threads, Internal and DBMonitor */
 /* Here are methods */
 
-ExecConditionChecker_RemoveAllConditionChecks (Access = 'local) = 
-			if (Races == True) then 
-				(condList.lock -> [Access].conditionSetChanged.assign[False] -> condList.unlock -> END)
-			else 
-				(condList.lock -> [Access].conditionSetChanged.begin_assign -> [Access].conditionSetChanged.end_assign[False] -> condList.unlock -> END).
+
 ExecTimer_RemoveAllTimes = (removeTimes -> END).
 
 RC_ExecConditionChecker_ProcessCCStructs (Access = 'local) = (exec.lock -> condList.lock -> 
@@ -814,37 +800,19 @@ UnlockAction = (action.unlock -> END) . // \ {randomPick}.
 /* Properties 
 /************************************************************************************************/
 
-fluent COND_LIST_LOCKED=<{executive.condList.lock},{executive.condList.unlock}> initially False
+fluent COND_LIST_LOCKED=<{external.condList.lock},{external.condList.unlock}> initially False
 fluent EXEC_LOCKED=<{executive.exec.lock},{executive.exec.unlock}> initially False
 fluent READ_PLAN=<{executive.local.pendingPlan.begin_read},{executive.local.pendingPlan.end_read.[1]}> initially False
 fluent ACTION_PERFORMED=<{executive.new.install},{executive.action.unlock}> initially False
-<<<<<<< HEAD
-=======
-fluent EXEC_START=<{executive.exec.lock},{executive.exec.unlock}> initially True
-
->>>>>>> dev
 
 
 // property P1:
 // the Executive performs an action only after a new plan is read from the db
-<<<<<<< HEAD
 assert P1=(!ACTION_PERFORMED W (READ_PLAN && !ACTION_PERFORMED))
 
 // property P2:
 // the Executive gets the lock on the condList variable only after getting the exec lock
 assert P2=([](COND_LIST_LOCKED -> EXEC_LOCKED))
-=======
-assert P1=(	(!ACTION_PERFORMED W (READ_PLAN && !ACTION_PERFORMED)) && 
-			(
-				(ACTION_PERFORMED && X (!ACTION_PERFORMED))->
-				X (!ACTION_PERFORMED W (READ_PLAN && !ACTION_PERFORMED))
-			)
-		)
-
-// property P2:
-// the Executive gets the lock on the condList variable only after getting the exec lock
-assert P2=([]((ACTION_PERFORMED || COND_LIST_LOCKED) -> EXEC_LOCKED))
->>>>>>> dev
 
 
 
@@ -862,18 +830,9 @@ set PlanBoxInterface = {executive.local.pendingPlan.begin_read,
                         executive.exec.lock,  
                         executive.exec.unlock, 
                         executive.execCV.wait,
-<<<<<<< HEAD
                         executive.execCV.unlock,
                         executive.execCV.broadcast,
                         executive.exec.lock
-=======
-						executive.condList.lock,
-						executive.condList.unlock,
-                        executive.execCV.unlock,
-                        executive.execCV.broadcast,
-						executive.local.pendingPlan.begin_read,
-						executive.local.pendingPlan.end_read.[1]
->>>>>>> dev
                         } 
 
 set ExecuteTaskActionInterface = {executive.action.lock,
@@ -893,20 +852,12 @@ set ExecuteTaskActionInterface = {executive.action.lock,
                         executive.actionAckCV.broadcast,
                         executive.actionCV.lock,
                         executive.actionCV.unlock,
-<<<<<<< HEAD
                         executive.actionCV.signal
-=======
-                        executive.actionCV.signal,
-                        executive.exec.lock,  
-                        executive.exec.unlock,
-						executive.local.pendingPlan.begin_read,
-						executive.local.pendingPlan.end_read.[1]
->>>>>>> dev
 						} 
 
 D1Des =        (exec.lock -> D1DesPlanBox),
             box D1DesPlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
-            ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
+            ExecutePlan = ExecuteCurrentNode, 
             ExecuteCurrentNode = (      process_waitFor_conditions -> 
                                         processStartConditions ->  // all this local state needs to be completed
 						                setUpMaintenanceConditions -> 
@@ -916,11 +867,7 @@ D1Des =        (exec.lock -> D1DesPlanBox),
             AssumedByDimitra = (        condList.lock -> 
                                         execCondChecker.conditionSetChanged.assign[True] -> 
                                         condList.unlock -> 
-<<<<<<< HEAD
-                                        ExecuteTaskAction
-=======
                                         D1DesExecuteTaskAction
->>>>>>> dev
                                 ),
             box D1DesExecuteTaskAction =	   ( actionend ->   AddTerminatingCondition)[ExecuteTaskActionInterface],
                                     
@@ -932,7 +879,7 @@ D1Des =        (exec.lock -> D1DesPlanBox),
                                         randomPick[expectedWakeUpEqualsSaved:Boolean] -> 
                                         randomPick[executionSignal:ExecSignalVal] ->  
 						                if (!(expectedWakeUpEqualsSaved || (executionSignal != 'clear))) then 
-                                                Wait_CV('exec, 'execCV);
+                                                
                                                 WaitForTermination
 						                else  CheckSuccessfulCommand[expectedWakeUpEqualsSaved][executionSignal]
                                 ),
@@ -947,24 +894,14 @@ D1Des =        (exec.lock -> D1DesPlanBox),
                                     executionSignal.reset -> 
                                     ClearConditions
                               ),
-            ClearConditions =   ExecConditionChecker_RemoveAllConditionChecks;
-                                ExecTimer_RemoveAllTimes; 
-                                Done,
-            Done =  Signal_CV('execCV);
-<<<<<<< HEAD
-                    D1DesPlanBox 
-=======
-                    D1Des 
->>>>>>> dev
+            ClearConditions =   Done,
+            Done =  D1Des 
 				+ {Mutex_CV_Alpha, actionExecution.StatusAlpha, execCondChecker.SavedWakeUpAlpha, 
 					execCondChecker.CondSetChangedAlpha}   
 				\ {randomPick}.
 
-<<<<<<< HEAD
-=======
 || D1DesProc = (D1Des).
 
->>>>>>> dev
 || D1 = (executive:D1Des)
 						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.
 
@@ -972,7 +909,6 @@ D1Des =        (exec.lock -> D1DesPlanBox),
 
 
 
-<<<<<<< HEAD
 
 ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=((<>(READ_PLAN))&&([](COND_LIST_LOCKED -> EXEC_LOCKED))&&(<>([]EXEC_LOCKED)))
 //&&<>[](EXEC_LOCKED)
@@ -981,41 +917,6 @@ ltl_postcondition executive:D1Des D1DesExecuteTaskAction D1_EXECUTE_TASK_BOX_POS
 ltl_precondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
 
 ltl_precondition executive:D1Des D1DesExecuteTaskAction D1_EXECUTE_TASK_BOX_PRE=(<>(READ_PLAN))
-=======
-//first trial
-//ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=(<>(READ_PLAN))
-
-//ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=(<>(READ_PLAN))
-
-//&&([](COND_LIST_LOCKED -> EXEC_LOCKED)))
-//&&(<>([]EXEC_LOCKED)))
-//&&<>[](EXEC_LOCKED)
-
-//ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=(([](COND_LIST_LOCKED -> EXEC_LOCKED))&&(<>([]EXEC_LOCKED)))
-
-
-//*****
-//FINAL POSTS
-ltl_postcondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_READS_PLAN=((<>(READ_PLAN)) && (([](COND_LIST_LOCKED -> EXEC_LOCKED))&&(<>([]EXEC_LOCKED))))
-
-ltl_postcondition executive:D1Des D1DesExecuteTaskAction D1_EXECUTE_TASK_BOX_POST=(
-																						([](ACTION_PERFORMED -> EXEC_LOCKED))
-																						&&
-																						//(<>([](EXEC_LOCKED)))
-																						(<>([](EXEC_LOCKED && !ACTION_PERFORMED)))
-																				)
-
-//*****
-
-//ltl_postcondition executive:D1Des D1DesExecuteTaskAction D1_EXECUTE_TASK_BOX_POST=((<>[](!ACTION_PERFORMED)))
-
-//ltl_precondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
-
-ltl_precondition executive:D1Des D1DesExecuteTaskAction D1_EXECUTE_TASK_BOX_PRE=(<>[](!ACTION_PERFORMED && EXEC_LOCKED))
-
-ltl_precondition executive:D1Des D1DesPlanBox D1_PLAN_BOX_EXEC_LOCKED=((<>[](EXEC_LOCKED && !COND_LIST_LOCKED))  && ([](COND_LIST_LOCKED -> EXEC_LOCKED)))
-//ltl_precondition executive:D1Des D1DesExecuteTaskAction D1_EXECUTE_TASK_BOX_PRE=(<>(READ_PLAN))
->>>>>>> dev
 
 
 /************************************************************************************************/
@@ -1035,13 +936,8 @@ subcomponent executive:D1Des D1DesExecuteTaskAction SubcomponentExecuteTaskActio
 /************************************************************************************************/
 
 
-<<<<<<< HEAD
 D2Des =        (exec.lock -> PlanBox),
             box PlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
-=======
-D2Des =        (exec.lock -> D2DesPlanBox),
-            box D2DesPlanBox = (    local.pendingPlan.end_assign[False]  -> ExecutePlan)[PlanBoxInterface],
->>>>>>> dev
             ExecutePlan = ExecuteCurrentNode, // assuming no hierarchy in this model
             ExecuteCurrentNode = (      process_waitFor_conditions -> 
                                         processStartConditions ->  // all this local state needs to be completed
@@ -1095,23 +991,11 @@ D2Des =        (exec.lock -> D2DesPlanBox),
 
 || D2 = (executive:D2Des)
 						@ {executive.{actionExecution, actionExecution.install, execCondChecker, Vis_Mutex_CV_Alpha}, action.unlock, CVs}.
-<<<<<<< HEAD
 
 
 ltl_postcondition executive:D2Des PlanBox D2_PLAN_BOX_READS_PLAN=((<>(READ_PLAN))&&([](COND_LIST_LOCKED -> EXEC_LOCKED))&&(<>([]EXEC_LOCKED)))
 
 ltl_precondition executive:D2Des PlanBox D2_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
-=======
-//*****
-//FINAL POSTS
-//ltl_precondition executive:D2Des D2DesPlanBox D2_PLAN_BOX_EXEC_LOCKED=((<>[](EXEC_LOCKED && !COND_LIST_LOCKED))  && ([](COND_LIST_LOCKED -> EXEC_LOCKED)))
-//ltl_postcondition executive:D2Des D2DesPlanBox D2_PLAN_BOX_READS_PLAN=((<>(READ_PLAN)) && (([](COND_LIST_LOCKED -> EXEC_LOCKED))&&(<>([]EXEC_LOCKED))))
-//*****
-
-//ltl_postcondition executive:D2Des PlanBox D2_PLAN_BOX_READS_PLAN=((<>(READ_PLAN))&&([](COND_LIST_LOCKED -> EXEC_LOCKED))&&(<>([]EXEC_LOCKED)))
-
-//ltl_precondition executive:D2Des PlanBox D2_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!ACTION_PERFORMED))
->>>>>>> dev
 
 
 /************************************************************************************************/
@@ -1119,7 +1003,6 @@ ltl_precondition executive:D2Des PlanBox D2_PLAN_BOX_NO_PLAN_EXECUTION=(<>[](!AC
 /************************************************************************************************/
 
 
-<<<<<<< HEAD
 subcomponent executive:D2Des PlanBox SubcomponentPlanBox=  WaitForPlan,  
 												WaitForPlan = (     local.pendingPlan.begin_read -> 
                                										local.pendingPlan.end_read[pendingPlanFile:Boolean] -> 
@@ -1131,19 +1014,6 @@ subcomponent executive:D2Des PlanBox SubcomponentPlanBox=  WaitForPlan,
            				 						PrepareExecution = (    resetExecutionSignal -> 
                                     									local.pendingPlan.begin_assign -> 
                                    										local.pendingPlan.end_assign[False] -> 
-=======
-subcomponent executive:D2Des D2DesPlanBox SubcomponentPlanBox=  WaitForPlan,  
-												WaitForPlan = (     executive.local.pendingPlan.begin_read -> 
-                               										executive.local.pendingPlan.end_read[pendingPlanFile:Boolean] -> 
-					            									if (pendingPlanFile==False) then 
-                                    									Wait_CV('executive.exec, 'executive.execCV);
-                                    									WaitForPlan
-					           										else PrepareExecution
-                            									),
-           				 						PrepareExecution = (    executive.resetExecutionSignal -> 
-                                    									executive.local.pendingPlan.begin_assign -> 
-                                   										executive.local.pendingPlan.end_assign[False] -> 
->>>>>>> dev
                                     									ExecutePlan
                                										),
            										ExecutePlan = ENDSTATE, 

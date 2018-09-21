@@ -37,10 +37,15 @@ public class RealizabilityChecker {
 	 */
 	private final CompositeState notProperty;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	
 	private  CompositeState system;
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+	
+	private  CompositeState system;
+>>>>>>> dev
 
 	/**
 	 * The output to be printed
@@ -116,27 +121,39 @@ public class RealizabilityChecker {
 				.getBoxIndexes().values());
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		CompositeState system = new CompositeState("system");
 =======
 		system = new CompositeState("system");
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		system = new CompositeState("system");
+>>>>>>> dev
 		environment.getMachines().forEach(system::addMachine);
 		system.addMachine(modifiedControllerLTSStep1);
 
 		logger.debug("STEP 1: Checking whether C^B || E |= phi");
 <<<<<<< HEAD
+<<<<<<< HEAD
 		boolean satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
 
 =======
+=======
+>>>>>>> dev
 		
 		boolean satisfied;
 		if(!system.getAlphabetEvents().containsAll(ltlProperty.getAlphabetEvents())){
 			satisfied=true;
 		}
 		else{
+<<<<<<< HEAD
 		 satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
 		}
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		 satisfied = system.checkLTL(this.output, ltlProperty);
+		}
+>>>>>>> dev
 		if (!satisfied) {
 			this.output.outln("Counterexample found: ");
 			this.output.outln(system.getErrorTrace().toString());
@@ -154,7 +171,7 @@ public class RealizabilityChecker {
 			environment.getMachines().forEach(system::addMachine);
 			system.addMachine(modifiedControllerLTSStep2);
 
-			boolean secondCheckSatisfied = system.checkLTL(new EmptyLTSOuput(), notProperty);
+			boolean secondCheckSatisfied = system.checkLTL(this.output, notProperty);
 			if (secondCheckSatisfied) {
 				this.output.outln("No counterexample found. ");
 				this.output
@@ -187,10 +204,16 @@ public class RealizabilityChecker {
 		return modifiedControllerLTSStep2;
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> dev
 	
 	public CompositeState getSystem(){
 		return this.system;
 	}
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 }

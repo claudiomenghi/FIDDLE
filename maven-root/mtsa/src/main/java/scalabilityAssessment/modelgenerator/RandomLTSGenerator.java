@@ -7,10 +7,15 @@ import java.util.List;
 import java.util.Random;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import com.google.common.base.Preconditions;
 
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+import com.google.common.base.Preconditions;
+
+>>>>>>> dev
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 
@@ -18,7 +23,7 @@ import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
  * creates a Random LTS. The LTS is connected, i.e., all the states are
  * reachable from the initial state.
  * 
- * @author Claudio
+ * @author XXXXXX
  *
  */
 public class RandomLTSGenerator {
@@ -30,10 +35,15 @@ public class RandomLTSGenerator {
 	public RandomLTSGenerator(int numberOfStates, int numberOfEvents,
 			int transitionsPerStates) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		Preconditions.checkArgument(numberOfStates>0, "The number of states"+numberOfStates+" must be positive");
 		Preconditions.checkArgument(numberOfEvents>0, "The number of events"+numberOfEvents+" must be positive");
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		Preconditions.checkArgument(numberOfStates>0, "The number of states"+numberOfStates+" must be positive");
+		Preconditions.checkArgument(numberOfEvents>0, "The number of events"+numberOfEvents+" must be positive");
+>>>>>>> dev
 		this.numberOfStates = numberOfStates;
 		this.numberOfEvents = numberOfEvents;
 		this.transitionPerstates = transitionsPerStates;

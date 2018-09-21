@@ -21,10 +21,14 @@ import ltsa.lts.csp.Declaration;
 public class DrawMachine {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public static final int MAXDRAWSTATES = 100; // maximum drawable size
 =======
 	public static final int MAXDRAWSTATES = 150; // maximum drawable size
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+	public static final int MAXDRAWSTATES = 150; // maximum drawable size
+>>>>>>> dev
 	static final int STATESIZE = 30;
 
 	String[][] labels; // from -- to
@@ -33,9 +37,13 @@ public class DrawMachine {
 	Font nameFont; // used for displaying names
 	Font stateFont = new Font("SansSerif", Font.BOLD, 18);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	Font stateFontWhite = new Font("SansSerif", Font.BOLD, 18);
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+	Font stateFontWhite = new Font("SansSerif", Font.BOLD, 18);
+>>>>>>> dev
 
 	protected boolean displayName = false; // draw machine name
 	protected boolean newLabelFormat = true; // draw new label format
@@ -390,6 +398,7 @@ public class DrawMachine {
 			g.setColor(Color.red);
 		} else {
 <<<<<<< HEAD
+<<<<<<< HEAD
 			g.setColor(Color.cyan);
 		}
 
@@ -403,6 +412,14 @@ public class DrawMachine {
 				g.setColor(Color.cyan);
 			}
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+			if (this.mach.getBoxIndexes().values().contains(id)) {
+				g.setColor(Color.black);
+
+			} else {
+				g.setColor(Color.cyan);
+			}
+>>>>>>> dev
 		}
 
 		if (id >= 0 && accepting.get(id)) {
@@ -412,9 +429,12 @@ public class DrawMachine {
 		}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		g.setColor(Color.black);
 		g.setFont(stateFont);
 =======
+=======
+>>>>>>> dev
 		if (!highlight && this.mach.getBoxIndexes().values().contains(id)) {
 			g.setColor(Color.white);
 			g.setFont(stateFont);
@@ -422,7 +442,10 @@ public class DrawMachine {
 			g.setColor(Color.black);
 			g.setFont(stateFont);
 		}
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 		if (id >= 0 && accepting.get(id)) {
 			g.drawArc(x - 3, y - 3, STATESIZE + 6, STATESIZE + 6, 0, 360);
 		}

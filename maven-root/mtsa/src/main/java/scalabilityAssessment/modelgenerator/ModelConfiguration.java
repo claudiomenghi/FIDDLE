@@ -62,10 +62,14 @@ public class ModelConfiguration {
 	}
 	
 <<<<<<< HEAD
+<<<<<<< HEAD
 	public String getHeader(){
 =======
 	public static String getHeader(){
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+	public static String getHeader(){
+>>>>>>> dev
 		return "#StatesEnvironment \t #TransitionsEnvironment \t #eventsEnvironment \t #statesController \t #transitionsController \t #eventsController \t #eventsInterface";
 	}
 	public String toString() {

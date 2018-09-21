@@ -14,18 +14,26 @@ import ltsa.ui.EmptyLTSOuput;
 public class PropertyGenerator {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	public static int numFormulae=3;
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+	public static int numFormulae=3;
+>>>>>>> dev
 	private final List<Formula> returnFormulae;
 
 	private final String event1;
 	private final String event2;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+	
+>>>>>>> dev
 	public PropertyGenerator(List<String> alphabet, String event1, String event2) {
 		this.event1 = event1;
 		this.event2 = event2;
@@ -38,6 +46,7 @@ public class PropertyGenerator {
 		alphabetNew.remove(event2);
 		this.makePredicate(event2, alphabetNew);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 		// EXPERIMENT 1
 		// Formula p1 = generateP1(alphabet);
@@ -57,6 +66,11 @@ public class PropertyGenerator {
 		returnFormulae.add(generateP2(alphabet));
 		returnFormulae.add(generateP3(alphabet));
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		returnFormulae.add(generateP1(alphabet));
+		returnFormulae.add(generateP2(alphabet));
+		returnFormulae.add(generateP3(alphabet));
+>>>>>>> dev
 
 	}
 
@@ -72,25 +86,28 @@ public class PropertyGenerator {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	// [](!Q) | <>(Q & <>P))
+=======
+>>>>>>> dev
 	private Formula generateP1(List<String> alphabet) {
 		FormulaFactory formulaFactory = new FormulaFactory();
-		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
-				Symbol.UPPERIDENT));
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1, Symbol.UPPERIDENT));
 
-		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
-				Symbol.UPPERIDENT));
-		return formulaFactory.makeOr(formulaFactory.makeAlways(formulaFactory
-				.makeNot(ap1)), formulaFactory.makeEventually(formulaFactory
-				.makeAnd(ap1, formulaFactory.makeEventually(ap2))));
-
-		// formulaFactory.makeEventually(ap1);
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2, Symbol.UPPERIDENT));
+		return formulaFactory.makeAlways(formulaFactory.makeImplies(ap1, ap2));
 
 	}
 
-	// p is false before r <>R -> (!P U R)
+	/**
+	 * p is false before r <>R -> (!P U R)
+	 * 
+	 * @param alphabet
+	 * @return
+	 */
 	private Formula generateP2(List<String> alphabet) {
 		FormulaFactory formulaFactory = new FormulaFactory();
+<<<<<<< HEAD
 		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1,
 				Symbol.UPPERIDENT));
 		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2,
@@ -116,11 +133,16 @@ public class PropertyGenerator {
 		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1, Symbol.UPPERIDENT));
 		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2, Symbol.UPPERIDENT));
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1, Symbol.UPPERIDENT));
+		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2, Symbol.UPPERIDENT));
+>>>>>>> dev
 		return formulaFactory.makeImplies(formulaFactory.makeEventually(ap1),
 				formulaFactory.makeUntil(formulaFactory.makeNot(ap2), ap1));
 
 	}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	private Formula generateP3(List<String> alphabet) {
 		FormulaFactory formulaFactory = new FormulaFactory();
@@ -149,17 +171,31 @@ public class PropertyGenerator {
 	 */
 	private Formula generateP3(List<String> alphabet) {
 		FormulaFactory formulaFactory = new FormulaFactory();
+=======
+	/**
+	 * [](Q -> [](!P))
+	 * 
+	 * @param alphabet
+	 * @return
+	 */
+	private Formula generateP3(List<String> alphabet) {
+		FormulaFactory formulaFactory = new FormulaFactory();
+>>>>>>> dev
 		Formula ap1 = formulaFactory.make(new Symbol("F_" + event1, Symbol.UPPERIDENT));
 		Formula ap2 = formulaFactory.make(new Symbol("F_" + event2, Symbol.UPPERIDENT));
 		return formulaFactory
 				.makeAlways(formulaFactory.makeImplies(ap1, formulaFactory.makeAlways(formulaFactory.makeNot(ap2))));
+<<<<<<< HEAD
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+>>>>>>> dev
 
 	}
 
 	private void makePredicate(String end, List<String> alphabet) {
 
 		Symbol eventSymbol = new Symbol(end, Symbol.UPPERIDENT);
+<<<<<<< HEAD
 <<<<<<< HEAD
 		Symbol fluentEventSymbol = new Symbol("F_" + eventSymbol.getValue(),
 				Symbol.UPPERIDENT);
@@ -175,6 +211,13 @@ public class PropertyGenerator {
 		PredicateDefinition.makePredicate(new EmptyLTSOuput(), fluentEventSymbol, eventSymbol,
 				new HashSet<>(alphabet2));
 >>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
+=======
+		Symbol fluentEventSymbol = new Symbol("F_" + eventSymbol.getValue(), Symbol.UPPERIDENT);
+		List<String> alphabet2 = new ArrayList<>();
+		alphabet2.add(alphabet.get(0));
+		PredicateDefinition.makePredicate(new EmptyLTSOuput(), fluentEventSymbol, eventSymbol,
+				new HashSet<>(alphabet2));
+>>>>>>> dev
 	}
 
 }
