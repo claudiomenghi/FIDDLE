@@ -191,6 +191,7 @@ public class TransitionSystemDispatcher {
 	 *            used for process output
 	 */
 	public static void applyComposition(CompositeState toCompose, LTSOutput ltsOutput) {
+		System.out.println("PASSO 2");
 		compose(toCompose, ltsOutput);
 		toCompose.applyOperations(ltsOutput);
 
@@ -601,11 +602,13 @@ public class TransitionSystemDispatcher {
 			}
 
 		} else {
+			System.out.println("PASSO XXXZZZ");
 			compositeState.minimise(ltsOutput);
 		}
 	}
 
 	private static MTS<Long, String> mtsMinimise(LabelledTransitionSystem compactState, LTSOutput ltsOutput) {
+		System.out.println("PASSO AAA");
 		long initialTime = System.currentTimeMillis();
 		ltsOutput.outln("Converting CompactState " + compactState.getName() + " to MTS...");
 		MTS<Long, String> mts = AutomataToMTSConverter.getInstance().convert(compactState);
@@ -641,10 +644,12 @@ public class TransitionSystemDispatcher {
 	 */
 	public static LabelledTransitionSystem minimise(LabelledTransitionSystem compactState, LTSOutput ltsOutput) {
 		if (MTSUtils.isMTSRepresentation(compactState)) {
+			System.out.println("QUIIIIIIIIIIIIIIII 2");
 			MTS<Long, String> mts = mtsMinimise(compactState, ltsOutput);
 			return MTSToAutomataConverter.getInstance().convert(mts, compactState.getName());
 
 		} else {
+			System.out.println("QUIIIIIIIIIIIIIIII");
 			Minimiser me = new Minimiser(compactState, ltsOutput);
 			return me.minimise();
 		}

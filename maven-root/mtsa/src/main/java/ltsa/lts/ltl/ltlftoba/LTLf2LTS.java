@@ -170,36 +170,43 @@ public class LTLf2LTS {
 
 		alphabet.add(LTLf2LTS.initSymbol.getValue());
 		PredicateDefinition.remove(endFluent);
-		PredicateDefinition.makePredicate(output, endFluent, LTLf2LTS.endSymbol, alphabet);
+		PredicateDefinition.makePredicate(output, endFluent, LTLf2LTS.endSymbol, new HashSet<>());
 
 		Set<String> initAlphabet = new HashSet<>(alphabet);
 		initAlphabet.add(LTLf2LTS.endSymbol.getValue());
 		initAlphabet.remove(LTLf2LTS.initSymbol.getValue());
 		PredicateDefinition.remove(initFluent);
-		PredicateDefinition.makePredicate(output, initFluent, LTLf2LTS.initSymbol, initAlphabet);
+		PredicateDefinition.makePredicate(output, initFluent, LTLf2LTS.initSymbol, alphabet);
 
 		factory.setFormula(formula);
 
 		Formula end = factory.make(endFluent);
 		Formula init = factory.make(initFluent);
 
-		Formula negatedImplication = factory.makeNot(formula);
-		logger.debug("Negated formula: " + negatedImplication);
+		Formula finiteformula = formula.accept(new FiniteFormulaGeneratorVisitor(factory, end));
 
-		Formula initImpliesNegatedImplication = factory.makeImplies(init, negatedImplication);
-		logger.debug("Implication: " + initImpliesNegatedImplication);
+		factory.setFormula(finiteformula);
 
-		factory.setFormula(initImpliesNegatedImplication);
 
-		Formula negatedImplicationUpdated = negatedImplication.accept(new FiniteFormulaGeneratorVisitor(factory, end));
+		//Formula negatedImplication = factory.makeNot(formula);
+		//ogger.debug("Negated formula: " + negatedImplication);
 
-		factory.setFormula(negatedImplicationUpdated);
+		Formula implication = factory.makeImplies(init, finiteformula);
+		logger.debug("Implication: " + implication);
+
+		factory.setFormula(implication);
+
+
 
 		Formula epsilon = this.getEpsilon(output, factory, end);
 		Formula finalFormula;
 		// finalFormula =negatedImplication;
-		finalFormula = factory.makeAnd(epsilon, negatedImplicationUpdated);
+		finalFormula = factory.makeNot(factory.makeImplies(
+				factory.makeEventually(end)
+				, 
+				factory.makeAlways(implication)));
 		// Formula finalFormula=negatedImplication;
+		
 		factory.setFormula(finalFormula);
 
 		output.outln("Modified post-condition: " + finalFormula + " considered");

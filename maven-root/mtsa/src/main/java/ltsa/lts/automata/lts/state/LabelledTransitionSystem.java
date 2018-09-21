@@ -59,8 +59,8 @@ public class LabelledTransitionSystem implements Automata {
 	private Map<String, Integer> boxIndexes = new HashMap<>();
 
 	/**
-	 * maps each box to the corresponding set of String, i.e., the interface of
-	 * the automaton
+	 * maps each box to the corresponding set of String, i.e., the interface of the
+	 * automaton
 	 */
 	private Map<String, Set<String>> mapBoxInterface = new HashMap<>();
 
@@ -70,8 +70,8 @@ public class LabelledTransitionSystem implements Automata {
 	private String[] alphabet;
 
 	/**
-	 * contains for each state (integer position) the list of transitions that
-	 * exit that state contained in the LTSTransitionList
+	 * contains for each state (integer position) the list of transitions that exit
+	 * that state contained in the LTSTransitionList
 	 */
 	private LTSTransitionList[] states;
 
@@ -87,8 +87,8 @@ public class LabelledTransitionSystem implements Automata {
 
 	/**
 	 * make every state have transitions to ERROR state for actions not already
-	 * declared from that state properties can terminate in any state,however,
-	 * we set no end state
+	 * declared from that state properties can terminate in any state,however, we
+	 * set no end state
 	 */
 	private boolean prop = false;
 
@@ -176,11 +176,11 @@ public class LabelledTransitionSystem implements Automata {
 	/**
 	 * 
 	 * @param stateIndex
-	 *            the index of one of the states of the automaton or a
-	 *            NO_END_STATE value
+	 *            the index of one of the states of the automaton or a NO_END_STATE
+	 *            value
 	 * @throws IllegalArgumentException
-	 *             if the value passed as parameter is neither one of the states
-	 *             of the automaton nor a NO_END_STATE value
+	 *             if the value passed as parameter is neither one of the states of
+	 *             the automaton nor a NO_END_STATE value
 	 */
 	public void setEndOfSequence(int stateIndex) {
 		Preconditions.checkArgument(states.length > stateIndex || stateIndex == LTSConstants.NO_SEQUENCE_FOUND,
@@ -202,8 +202,8 @@ public class LabelledTransitionSystem implements Automata {
 	 * 
 	 * @param event
 	 *            the event to be added
-	 * @return the index where the event is added the index of the event if it
-	 *         is already present
+	 * @return the index where the event is added the index of the event if it is
+	 *         already present
 	 */
 	public int addEvent(String event) {
 		if (alphabet == null) {
@@ -354,14 +354,13 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	/**
-	 * removes the state and all the transitions with source/destination that
-	 * state
+	 * removes the state and all the transitions with source/destination that state
 	 * 
 	 * @param stateIndex
 	 *            the index of the state to be removed
 	 * @throws IllegalArgumentException
-	 *             if the index does not correspond to an index of the state of
-	 *             the LTS
+	 *             if the index does not correspond to an index of the state of the
+	 *             LTS
 	 */
 	public void removeStates(Collection<Integer> stateIndexes) {
 		// removing the transitions that reach the states to be removed
@@ -414,8 +413,6 @@ public class LabelledTransitionSystem implements Automata {
 	public boolean relabelDuplicates() {
 		return hasDuplicates;
 	}
-
-	
 
 	public int getLabelIndex(String oldLabel) {
 		int oldLabelIndex = -1;
@@ -643,9 +640,9 @@ public class LabelledTransitionSystem implements Automata {
 	/* --------------------------------------------------------------- */
 
 	/*
-	 * addAcess extends the alphabet by creating a new copy of the alphabet for
-	 * each prefix string in pset. Each transition is replicated acording to the
-	 * number of prefixes and renumbered with the new action number.
+	 * addAcess extends the alphabet by creating a new copy of the alphabet for each
+	 * prefix string in pset. Each transition is replicated acording to the number
+	 * of prefixes and renumbered with the new action number.
 	 */
 
 	public void addAccess(Vector<?> pset) {
@@ -778,7 +775,6 @@ public class LabelledTransitionSystem implements Automata {
 
 	}
 
-	
 	private LTSTransitionList offsetSeq(int offset, LTSTransitionList head) {
 		LTSTransitionList listIterator = head;
 		while (listIterator != null) {
@@ -976,10 +972,10 @@ public class LabelledTransitionSystem implements Automata {
 
 	/**
 	 * Simulates a run of this nondeterministic automaton on the given word. If
-	 * stopOnError is set, and the error state is encountered during simulation,
-	 * the ErrorStateReachedException is thrown; otherwise the exception is
-	 * never thrown. The set of possible current states as a result of
-	 * simulation is returned.
+	 * stopOnError is set, and the error state is encountered during simulation, the
+	 * ErrorStateReachedException is thrown; otherwise the exception is never
+	 * thrown. The set of possible current states as a result of simulation is
+	 * returned.
 	 * 
 	 * @param word
 	 *            The sequence of events to simulate
@@ -1043,15 +1039,15 @@ public class LabelledTransitionSystem implements Automata {
 		Preconditions.checkArgument(this.boxIndexes.keySet().contains(boxName),
 				"The box " + boxName + " is not contained in the boxes of the LTS");
 
-		
-		//Preconditions.checkArgument(new HashSet<String>(Arrays.asList(this.alphabet)).containsAll(boxInterface),
-			//	"The interface of the box "+boxName+" includes some events that do not belong to the LTS");
+		// Preconditions.checkArgument(new
+		// HashSet<String>(Arrays.asList(this.alphabet)).containsAll(boxInterface),
+		// "The interface of the box "+boxName+" includes some events that do not belong
+		// to the LTS");
 
-		
-		List<String> alphabetEvents=this.getAlphabetEvents();
-		
-		for(String event: boxInterface){
-			if(!alphabetEvents.contains(event)){
+		List<String> alphabetEvents = this.getAlphabetEvents();
+
+		for (String event : boxInterface) {
+			if (!alphabetEvents.contains(event)) {
 				this.addEvent(event);
 			}
 		}
@@ -1068,8 +1064,7 @@ public class LabelledTransitionSystem implements Automata {
 	 * @throws NullPointerException
 	 *             if the name of the box is null
 	 * @throws IllegalArgumentException
-	 *             if the box is not contained into the set of the box of the
-	 *             LTS
+	 *             if the box is not contained into the set of the box of the LTS
 	 */
 	public Set<String> getBoxInterface(String boxName) {
 
@@ -1081,10 +1076,9 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	/**
-	 * Computes the possible set of states that could result from the given
-	 * sequence of events occurring from the given set of states. If stopOnError
-	 * is set, then the ErrorStateReachedException is thrown upon encountering
-	 * the error state.
+	 * Computes the possible set of states that could result from the given sequence
+	 * of events occurring from the given set of states. If stopOnError is set, then
+	 * the ErrorStateReachedException is thrown upon encountering the error state.
 	 * 
 	 * @param word
 	 *            The sequence of events to simulate
@@ -1151,10 +1145,9 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	/**
-	 * Computes the possible set of states that could result from the given
-	 * event occurring once at the given set of states. If stopOnError is set,
-	 * then the ErrorStateReachedException is thrown upon encountering the error
-	 * state.
+	 * Computes the possible set of states that could result from the given event
+	 * occurring once at the given set of states. If stopOnError is set, then the
+	 * ErrorStateReachedException is thrown upon encountering the error state.
 	 * 
 	 * @param state
 	 *            The initial set of states
@@ -1187,10 +1180,9 @@ public class LabelledTransitionSystem implements Automata {
 	}
 
 	/**
-	 * Computes the set of states reachable from the given set under zero or
-	 * more repeated occurrences of the given events. If stopOnError is set,
-	 * then the ErrorStateReachedException is thrown upon encountering the error
-	 * state.
+	 * Computes the set of states reachable from the given set under zero or more
+	 * repeated occurrences of the given events. If stopOnError is set, then the
+	 * ErrorStateReachedException is thrown upon encountering the error state.
 	 * 
 	 * @param state
 	 *            The initial set of states

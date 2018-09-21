@@ -5,7 +5,7 @@ The users purchese books online which must be delivered.
 The purchase and delivering component must use a furniture-sale and a shipping service to provide the desired functionality to the user.
 
 We consider two partial designs for the purchase and delivering component. 
-These designs are contained in the file *purchaseAndDelivery.lts*, where the two purchase and delivering components are indicated as `PartialComponent1` and `PartialComponent2`, respectively.
+These designs are contained in the file *purchaseAndDelivery.lts*, where the two purchase and delivering components are indicated as `COMPONENT1` and `COMPONENT2` associated with processes `PartialComponent1` and `PartialComponent2`, respectively.
 
 Before discussing the two designs, we describe the environment in which they operate and the properties the components aim to ensure.
 
@@ -32,7 +32,7 @@ The purchase and delivering component must synchronize the *furniture sale*, the
 * the shipping service is activated only if the user has decided to purchase. Specifically, after a user requests information about a product (i.e., the event `usrReq` occurs) a `userAck` always precedes a `shipReq`:
   * `P3=[](F_UsrReq->((!((!F_UserAck) W F_ShipReq))&&<>F_ShipReq))`;
 *  after a user request is received, no user ack precedes the canceling of the request:
-  * `P4=[](F_UsrReq & !F_ReqCanc -> (!F_UserAck W F_ReqCanc))`
+  * `P4=[](((F_UsrReq &&X((!F_UsrReq)U(F_ReqCanc)))-> (!F_UserAck W F_ReqCanc)))` 
   
 
 ## Partial design 1
@@ -87,11 +87,10 @@ This trace ensures that after a `userReq` event occurs, the offer is provided to
 * `P3`: it is possible to realize a component that ensures the system satisfies `P3`. Specifically, the realizability checker returned the following trace:<br/>
 `userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `costAndTime`, `shipReq`, `prodInfoReq`, `infoRcvd`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `costAndTime`, `shipReq`, `respOk`, `userReq`, `offerRcvd`, `usrAck`, `shipInfoReq`, `costAndTime`, `shipReq`, `respOk`.<br/>
 This trace satisfies `P3` since the event `shipReq` is always preceeded by a `userAck`.
-* `P4= [](F_UsrReq->((!F_UserAck) U F_ReqCanc))`<br/> 
-A component that satisfies `P4` is  realizable. Specifically, the realizability checker returned the following trace:<br/> 
+* `P4`: a component that satisfies `P4` is  realizable. Specifically, the realizability checker returned the following trace:<br/> 
 `userReq`, `shipInfoReq`, `costAndTime`, `shipCancel`, `shipInfoReq`, `costAndTime`, `shipCancel`, `shipInfoReq`, `costAndTime`
 In this trace the event `reqCanc` never occurred for this reason the developer checks the requirement `P4a` made as follows
-* `P4a=[]((<>F_ReqCanc)&&(F_UsrReq && !F_ReqCanc -> (!F_UserAck W F_ReqCanc)))`<br/> 
+* `P4a=[](((F_UsrReq &&X((!F_UsrReq)U(F_ReqCanc)))-> (!F_UserAck W F_ReqCanc))&&<>F_ReqCanc)`<br/> 
 A component that satisfies `P4` is not realizable. Indeed, a component in which a `reqCanc` event is not preceeded by a `usrAck` is not realizable.
 
 ## Partial design 2
@@ -211,7 +210,7 @@ The following Table contains the results obtained by adding post-conditions to t
 
 * `P1`: the property was already satisfied also without post-conditions;
 * `P2`: the post-condition `<>(F_InfoRcvd)&&<>(F_CostAndTime)` on box `2` ensures the satisfaction of `P2`.
-* `P3`:  the post-condition `<>(F_ShipReq)` on box `4` ensures the satisfaction of `P3`. 
+* `P3`:  the post-condition `(<>(F_ProdReq)&&<>(F_ShipReq))` on box `4` ensures the satisfaction of `P3`. 
 * `P4`: the post-condition `((!F_UserAck) U F_ReqCanc)` on box `5` ensures the satisfaction of `P4`
 
 

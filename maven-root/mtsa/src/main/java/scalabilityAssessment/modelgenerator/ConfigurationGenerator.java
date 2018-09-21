@@ -4,8 +4,8 @@ import java.util.Iterator;
 
 public class ConfigurationGenerator implements Iterator<ModelConfiguration> {
 
-//	private final int[] statesEnvironment = { 10, 100, 1000};
-	private final int[] statesEnvironment = { 10000};
+	private final int[] statesEnvironment = { 10, 100, 1000};
+//	private final int[] statesEnvironment = { 10000};
 	
 	// private final int initStatesEnvironment = 10;
 	// private final int incrementStatesEnvironment = 10;

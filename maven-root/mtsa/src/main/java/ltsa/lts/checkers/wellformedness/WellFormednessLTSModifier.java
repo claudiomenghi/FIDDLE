@@ -15,9 +15,7 @@ import ltsa.lts.automata.lts.LTSConstants;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.checkers.IntegratorEngine;
 import ltsa.lts.checkers.modelchecker.ModelCheckerLTSModifier;
-import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.output.LTSOutput;
-import ltsa.lts.parser.LTSCompiler;
 
 /**
  * 
@@ -107,7 +105,7 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 	}
 
 	/**
-	 * This method is used for verifying the scalability 
+	 * This method is used for verifying the scalability
 	 * 
 	 * For each box that is not the box of interest, it injects the LTS
 	 * associated with the post condition of the box <br/>
@@ -154,11 +152,12 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 
 		int boxPosition = controller.getBoxIndexes().get(boxOfInterest);
 
-		//logger.debug(controller);
+		// logger.debug(controller);
 		LabelledTransitionSystem postConditionLTS = mapBoxPostCondition.get(boxOfInterest);
 
-		postConditionLTS.relabelAndKeepOldLabel("end", MTSConstants.TAU);
-	
+		if (postConditionLTS.getAlphabetEvents().contains("end")) {
+			postConditionLTS.relabelAndKeepOldLabel("end", MTSConstants.TAU);
+		}
 		int newInitiatilState = postConditionLTS.addInitialState();
 
 		int tauIndex = postConditionLTS.addEvent(MTSConstants.TAU);
@@ -166,15 +165,16 @@ public class WellFormednessLTSModifier extends ModelCheckerLTSModifier {
 
 		int endStateIndex = postConditionLTS.addNewState();
 
+		if(!postConditionLTS.getAlphabetEvents().contains("end")){
+			postConditionLTS.addEvent("end");
+		}
 		int endeventIndex = postConditionLTS.getEvent("end");
 
 		postConditionLTS.addTransition(newInitiatilState, endeventIndex, endStateIndex);
 		postConditionLTS.addTransition(endStateIndex, endeventIndex, endStateIndex);
 
-
 		LabelledTransitionSystem cscopy = new IntegratorEngine().apply(controller, boxPosition, boxOfInterest,
 				postConditionLTS);
-
 
 		for (int eventIndex = 0; eventIndex < cscopy.getAlphabet().length; eventIndex++) {
 			for (int finalStateIndex : cscopy.getFinalStateIndexes()) {

@@ -19,7 +19,7 @@ import ltsa.lts.parser.Symbol;
 import com.google.common.base.Preconditions;
 
 /**
- * @author Claudio Menghi
+ * @author XXXXXX
  *
  */
 public class FiniteFormulaGeneratorVisitor implements FormulaVisitor {

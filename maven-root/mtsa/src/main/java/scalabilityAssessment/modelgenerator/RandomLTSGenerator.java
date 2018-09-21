@@ -15,7 +15,7 @@ import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
  * creates a Random LTS. The LTS is connected, i.e., all the states are
  * reachable from the initial state.
  * 
- * @author Claudio
+ * @author XXXXXX
  *
  */
 public class RandomLTSGenerator {
