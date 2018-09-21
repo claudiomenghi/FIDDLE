@@ -150,6 +150,13 @@ public class ProcessSpec extends Declaration {
 			constants.put(f.nextElement(), a.nextElement());
 	}
 
+<<<<<<< HEAD
+=======
+	public void setName(Symbol name){
+		this.name=name;
+	}
+	
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	public ProcessSpec myclone() {
 		ProcessSpec p = new ProcessSpec(name);
 		p.constants = (Hashtable) constants.clone();

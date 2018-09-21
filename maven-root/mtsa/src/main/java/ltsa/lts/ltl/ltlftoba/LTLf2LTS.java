@@ -94,15 +94,21 @@ public class LTLf2LTS {
 		FormulaFactory formulaFactory = new FormulaFactory();
 		formulaFactory.setFormula(formula);
 
+<<<<<<< HEAD
 		output.outln("Alphabet: " + alphabet);
+=======
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		PredicateDefinition.makePredicate(output, endFluent, LTLf2LTS.endSymbol, alphabet);
 
 		PredicateDefinition predicate = PredicateDefinition.get(endFluent.getValue());
 		PredicateDefinition.compile(predicate);
 
+<<<<<<< HEAD
 		output.outln("Init: " + predicate.getInitiatingActions());
 		output.outln("Final: " + predicate.getTerminatingActions());
 
+=======
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		output.outln("Initial formula: " + formula);
 		Formula end = formulaFactory.make(endFluent);
 

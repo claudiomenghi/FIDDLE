@@ -31,7 +31,11 @@ The purchase and delivering component must synchronize the *furniture sale*, the
   * `P2=[](F_UsrReq->(!((!F_InfoRcvd) U F_OfferRcvd))) `;
 * the shipping service is activated only if the user has decided to purchase. Specifically, after a user requests information about a product (i.e., the event `usrReq` occurs) a `userAck` always precedes a `shipReq`:
   * `P3=[](F_UsrReq->((!((!F_UserAck) W F_ShipReq))&&<>F_ShipReq))`;
+<<<<<<< HEAD
 * after the user cancels a request, he/she can start a new session with the purchase and delivery system by performing a new request:
+=======
+*  after a user request is received, no user ack precedes the canceling of the request:
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
   * `P4=[](F_UsrReq & !F_ReqCanc -> (!F_UserAck W F_ReqCanc))`
   
 

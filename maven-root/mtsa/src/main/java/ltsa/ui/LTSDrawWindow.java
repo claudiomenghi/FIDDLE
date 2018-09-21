@@ -290,9 +290,15 @@ public class LTSDrawWindow extends JSplitPane implements EventClient {
 																			// machines
 
 			sm = new LabelledTransitionSystem[cs.getMachines().size() + hasC];
+<<<<<<< HEAD
 			Enumeration e = cs.getMachines().elements();
 			for (int i = 0; e.hasMoreElements(); i++)
 				sm[i] = (LabelledTransitionSystem) e.nextElement();
+=======
+			Enumeration<LabelledTransitionSystem> e = cs.getMachines().elements();
+			for (int i = 0; e.hasMoreElements(); i++)
+				sm[i] = e.nextElement();
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 			Nmach = sm.length;
 			if (hasC == 1) {
 				sm[Nmach - 1] = cs.getComposition();

@@ -2,7 +2,11 @@
 
 The `Executive` module of Mars Rover is a multi-threaded system with the following
 * `Executive`: a component that synchronizes the other components of the system;
+<<<<<<< HEAD
 * `ExecCondChecker`: a component for monitoring the state conditions, and
+=======
+* `ExecCondChecker`: a component for monitoring the state conditions. The `ExecCondChecker` verifies whether specific conditions occur by accessing the `condList` variable and signals these condition to the `Executive` by acting over the `exec` variable.
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 * `ActionExecution`: a component for sending commands to the Rover.
 
 The `ExecCondChecker` is further decomposed into `db-monitor` and `internal`. 
@@ -34,6 +38,7 @@ The environment where the `Executive` component is deployed is represented by th
 
 
 #### Properties of interest
+<<<<<<< HEAD
 
 * the `Executive` forces an action to be executed only after the controller gets the  `exec` lock:
  * `P1=[](ACTIONEXECUTION->EXEC_LOCKED)` where the fluents `ACTIONEXECUTION` and `EXEC_LOCKED` are defined as
@@ -224,3 +229,68 @@ By running the *model checker* it is possible to conclude that the partial desig
 
 
 TODO: show a refinement (without boxes) that satisfies the properties of interest 
+=======
+We considered two properties the Mars Rover must ensure:
+* the Executive performs an action only after a new plan is read from the db
+  * `P1=[](!ACTION_PERFORMED W (READ_PLAN & !ACTION_PERFORMED))`
+* the Executive gets the lock on the condList variable only after getting the exec lock
+  * `P2=[](COND_LIST_LOCKED -> EXEC_LOCKED)`
+
+Formulae `P1` and `P2` are defined over the following fluents which are initially false
+* `COND_LIST_LOCKED=<{executive.condList.lock},{executive.condList.unlock}>`
+* `EXEC_LOCKED=<{executive.exec.lock},{executive.exec.unlock}>`
+* `READ_PLAN=<{database.dbChanged.begin_read},{database.dbChanged.end_read[True]}>`
+* `ACTION_PERFORMED=<{actionExecution.install},{action.unlock}>`
+
+
+
+## Design D1
+To analyze design D1, choose as an environment the process `Environment` and as a partial component the design `D1`.
+
+*realizability checker*: load the `Environment` and  the design `D1` as partial component.
+ * Property `P1`: to verify `P1` click on *Check > Realizability Checker > P1*. A refinement of `D1` that satisfies the property of interest is realizable.
+ * Property `P2`: to verify `P2` click on *Check > Realizability Checker > P2*. A refinement of `D1` that satisfies the property of interest is realizable.
+
+*model checker*: load the `Environment` and  the design `D2` as partial component (make sure that the `D1_PLAN_BOX_PLAN_READ` is commented).
+ * Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. A counterexample is returned.
+ * Property `P2`: to verify `P2` click on *Check > Model Checker > P2*. A counterexample is returned.
+
+
+###### Design D1 with post
+*model checker*: load the `Environment` and  the design `D1` as partial component (make sure that the `D1_PLAN_BOX_READS_PLAN` is uncommented).
+ * Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. The property of interest is satisfied.
+
+*well formedness checker*: load the `Environment` and  the design `D1` as partial component (make sure that the `D1_Executive_BOX_READS_PLAN` is uncommented).
+ * Property `P1`: to verify `P1` click on *Check > Well-formedness Checker > PLAN_BOX_NO_PLAN_EXECUTION*. The property of interest is not satisfied.
+ 
+Add the post-condition `D1_Executive_BOX_READS_PLAN`
+ e* Property `P1`: to verify `P1` click on *Check > Well-formedness Checker > PLAN_BOX_NO_PLAN_EXECUTION*. The property of interest is not satisfied.
+
+
+## Design D2
+To analyze design D2, choose as an environment the process `Environment` and as a partial component the design `D2`.
+
+*realizability checker*: load the `Environment` and  the design `D2` as partial component.
+ * Property `P1`: to verify `P1` click on *Check > Realizability Checker > P1*. A refinement of `D2` that satisfies the property of interest is realizable.
+ * Property `P2`: to verify `P2` click on *Check > Realizability Checker > P2*. A refinement of `D2` that satisfies the property of interest is realizable.
+
+*model checker*: load the `Environment` and  the design `D2` as partial component (make sure that the `PLAN_READ_IN_PLAN_BOX` is commented).
+ * Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. A counterexample is returned.
+ * Property `P2`: to verify `P2` click on *Check > Model Checker > P2*. The property of interest is satisfied.
+
+###### Design D2 with post
+*model checker*: load the `Environment` and  the design `D2` as partial component (make sure that the `PLAN_READ_IN_PLAN_BOX` is uncommented).
+ * Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. The property of interest is satisfied.
+ * Property `P2`: to verify `P2` click on *Check > Model Checker > P2*. The property of interest is satisfied.
+
+## Design D3
+To analyze design D3, choose as an environment the process `Environment` and as a partial component the design `D3`.
+
+* Property `P1`: to verify `P1` click on *Check > Model Checker > P1*. 
+  * The property of interest is satisfied
+* Property `P2`: to verify `P2` click on *Check > Model Checker > P2*. 
+ * The property of interest is satisfied
+
+
+
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8

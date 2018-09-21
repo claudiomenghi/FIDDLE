@@ -144,7 +144,11 @@ public class LTSCompiler {
 		nextSymbol();
 		while (current.kind != Symbol.EOFSYM) {
 			if (current.kind == Symbol.SUBCOMPONENT) {
+<<<<<<< HEAD
 				nextSymbol();
+=======
+				
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 				ProcessSpec p = compileSubcomponent();
 
 				nextSymbol();
@@ -584,9 +588,12 @@ public class LTSCompiler {
 		if (ce != null) {
 
 			return ce.compose(null);
+<<<<<<< HEAD
 			// Is a composition expression.
 			// compileProcesses(processes, compiled, ltsOutput);
 			// return noCompositionExpression(compiled);
+=======
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 		} else {
 
@@ -648,7 +655,10 @@ public class LTSCompiler {
 			logger.debug(one.toString());
 			compiled = one.makeCompactState();
 			output.outln("Compiled: " + compiled.getName());
+<<<<<<< HEAD
 		
+=======
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 		} else {
 			compiled = new AutCompactState(processSpec.getSymbol(), processSpec.importFile);
@@ -688,7 +698,10 @@ public class LTSCompiler {
 			compiled.put(compiledProcess.getName(), compiledProcess);
 		}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	}
 
 	private LabelledTransitionSystem compileSingleProcess(ProcessSpec processSpec) {
@@ -706,14 +719,36 @@ public class LTSCompiler {
 	}
 
 	private ProcessSpec compileSubcomponent() {
+<<<<<<< HEAD
 		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the process the subcomponent refers to.");
 		nextSymbol();
 
+=======
+		
+		nextSymbol();
+		Symbol process;
+		Symbol prefix=current;
+		nextSymbol();
+		if (current.kind == Symbol.COLON) {
+			nextSymbol();
+			Symbol proc=current;
+			nextSymbol();
+			process=new Symbol(prefix.getValue()+":"+proc.getValue(), Symbol.IDENTIFIER);
+
+		} else {
+			process = prefix;
+			
+		}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		currentIs(Symbol.UPPERIDENT, "You have to specify the name of the box the subcomponent refers to.");
 		Symbol box = current;
 
 		nextSymbol();
 		ProcessSpec subComponentSpec = stateDefns();
+<<<<<<< HEAD
+=======
+		subComponentSpec.setName(process);
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 		if (mapBoxSubComponentName.containsKey(box.getValue())) {
 			Diagnostics.fatal("duplicate subcomponent for the box: " + box);
@@ -755,8 +790,11 @@ public class LTSCompiler {
 			c.alphaHidden = labelSet();
 		}
 
+<<<<<<< HEAD
 		
 
+=======
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		if (Symbol.BITWISE_OR == current.kind) {
 			nextSymbol();
 			this.parseComponentAlphabet(c);
@@ -961,13 +999,20 @@ public class LTSCompiler {
 			p.alphaHidden = labelSet();
 		}
 
+<<<<<<< HEAD
 			p.getName();
+=======
+		p.getName();
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		currentIs(Symbol.DOT, "dot expected");
 		return p;
 	}
 
+<<<<<<< HEAD
 	
 
+=======
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	private boolean isLabelSet() {
 		if (current.kind == Symbol.LCURLY)
 			return true;
@@ -1869,10 +1914,30 @@ public class LTSCompiler {
 	private void assertPrecondition() {
 		Hashtable<String, Value> initparams = new Hashtable<>();
 		Vector<String> params = new Vector<>();
+<<<<<<< HEAD
 		LabelSet ls = null;
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		Symbol process = current;
 		nextSymbol();
+=======
+		
+		LabelSet ls = null;
+		
+		Symbol process;
+		Symbol prefix=current;
+		nextSymbol();
+		if (current.kind == Symbol.COLON) {
+			nextSymbol();
+			Symbol proc=current;
+			nextSymbol();
+			process=new Symbol(prefix.getValue()+":"+proc.getValue(), Symbol.IDENTIFIER);
+
+		} else {
+			process = prefix;
+			
+		}
+		
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 		currentIs(Symbol.UPPERIDENT, "black box state identifier expected");
 		Symbol box = current;
@@ -1911,9 +1976,25 @@ public class LTSCompiler {
 		Hashtable<String, Value> initparams = new Hashtable<>();
 		Vector<String> params = new Vector<>();
 		LabelSet ls = null;
+<<<<<<< HEAD
 		currentIs(Symbol.UPPERIDENT, "process identifier expected");
 		Symbol process = current;
 		nextSymbol();
+=======
+		Symbol process;
+		Symbol prefix=current;
+		nextSymbol();
+		if (current.kind == Symbol.COLON) {
+			nextSymbol();
+			Symbol proc=current;
+			nextSymbol();
+			process=new Symbol(prefix.getValue()+":"+proc.getValue(), Symbol.IDENTIFIER);
+
+		} else {
+			process = prefix;
+			
+		}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 		currentIs(Symbol.UPPERIDENT, "black box state identifier expected");
 		Symbol box = current;

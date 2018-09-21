@@ -415,6 +415,7 @@ public class LabelledTransitionSystem implements Automata {
 		return hasDuplicates;
 	}
 
+<<<<<<< HEAD
 	public void removeEvent(String event) {
 		if (this.getAlphabetEvents().contains(event)) {
 			Set<String> events = new HashSet<>();
@@ -438,6 +439,9 @@ public class LabelledTransitionSystem implements Automata {
 			}
 		}
 	}
+=======
+	
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	public int getLabelIndex(String oldLabel) {
 		int oldLabelIndex = -1;
@@ -800,6 +804,10 @@ public class LabelledTransitionSystem implements Automata {
 
 	}
 
+<<<<<<< HEAD
+=======
+	
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	private LTSTransitionList offsetSeq(int offset, LTSTransitionList head) {
 		LTSTransitionList listIterator = head;
 		while (listIterator != null) {
@@ -1064,9 +1072,24 @@ public class LabelledTransitionSystem implements Automata {
 		Preconditions.checkArgument(this.boxIndexes.keySet().contains(boxName),
 				"The box " + boxName + " is not contained in the boxes of the LTS");
 
+<<<<<<< HEAD
 		Preconditions.checkArgument(new HashSet<String>(Arrays.asList(this.alphabet)).containsAll(boxInterface),
 				"The interface of the box includes some events that do not belong to the LTS");
 
+=======
+		
+		//Preconditions.checkArgument(new HashSet<String>(Arrays.asList(this.alphabet)).containsAll(boxInterface),
+			//	"The interface of the box "+boxName+" includes some events that do not belong to the LTS");
+
+		
+		List<String> alphabetEvents=this.getAlphabetEvents();
+		
+		for(String event: boxInterface){
+			if(!alphabetEvents.contains(event)){
+				this.addEvent(event);
+			}
+		}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		this.mapBoxInterface.put(boxName, new HashSet<String>(boxInterface));
 	}
 

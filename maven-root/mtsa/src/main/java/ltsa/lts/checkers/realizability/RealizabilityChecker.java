@@ -36,6 +36,11 @@ public class RealizabilityChecker {
 	 * The property to be considered
 	 */
 	private final CompositeState notProperty;
+<<<<<<< HEAD
+=======
+	
+	private  CompositeState system;
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	/**
 	 * The output to be printed
@@ -110,13 +115,28 @@ public class RealizabilityChecker {
 		modifiedControllerLTSStep1.removeStates(modifiedControllerLTSStep1
 				.getBoxIndexes().values());
 
+<<<<<<< HEAD
 		CompositeState system = new CompositeState("system");
+=======
+		system = new CompositeState("system");
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		environment.getMachines().forEach(system::addMachine);
 		system.addMachine(modifiedControllerLTSStep1);
 
 		logger.debug("STEP 1: Checking whether C^B || E |= phi");
+<<<<<<< HEAD
 		boolean satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
 
+=======
+		
+		boolean satisfied;
+		if(!system.getAlphabetEvents().containsAll(ltlProperty.getAlphabetEvents())){
+			satisfied=true;
+		}
+		else{
+		 satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
+		}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		if (!satisfied) {
 			this.output.outln("Counterexample found: ");
 			this.output.outln(system.getErrorTrace().toString());
@@ -166,4 +186,11 @@ public class RealizabilityChecker {
 		}
 		return modifiedControllerLTSStep2;
 	}
+<<<<<<< HEAD
+=======
+	
+	public CompositeState getSystem(){
+		return this.system;
+	}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 }

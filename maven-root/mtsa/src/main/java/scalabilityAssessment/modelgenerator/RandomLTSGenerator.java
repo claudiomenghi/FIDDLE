@@ -6,6 +6,11 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Random;
 
+<<<<<<< HEAD
+=======
+import com.google.common.base.Preconditions;
+
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 import ltsa.lts.automata.lts.state.LTSTransitionList;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 
@@ -24,6 +29,11 @@ public class RandomLTSGenerator {
 
 	public RandomLTSGenerator(int numberOfStates, int numberOfEvents,
 			int transitionsPerStates) {
+<<<<<<< HEAD
+=======
+		Preconditions.checkArgument(numberOfStates>0, "The number of states"+numberOfStates+" must be positive");
+		Preconditions.checkArgument(numberOfEvents>0, "The number of events"+numberOfEvents+" must be positive");
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		this.numberOfStates = numberOfStates;
 		this.numberOfEvents = numberOfEvents;
 		this.transitionPerstates = transitionsPerStates;

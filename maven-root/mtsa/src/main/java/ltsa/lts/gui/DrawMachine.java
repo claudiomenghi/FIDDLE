@@ -20,7 +20,11 @@ import ltsa.lts.csp.Declaration;
 
 public class DrawMachine {
 
+<<<<<<< HEAD
 	public static final int MAXDRAWSTATES = 100; // maximum drawable size
+=======
+	public static final int MAXDRAWSTATES = 150; // maximum drawable size
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	static final int STATESIZE = 30;
 
 	String[][] labels; // from -- to
@@ -28,6 +32,10 @@ public class DrawMachine {
 	Font labelFont; // used for drawing labels
 	Font nameFont; // used for displaying names
 	Font stateFont = new Font("SansSerif", Font.BOLD, 18);
+<<<<<<< HEAD
+=======
+	Font stateFontWhite = new Font("SansSerif", Font.BOLD, 18);
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	protected boolean displayName = false; // draw machine name
 	protected boolean newLabelFormat = true; // draw new label format
@@ -381,11 +389,20 @@ public class DrawMachine {
 		if (highlight) {
 			g.setColor(Color.red);
 		} else {
+<<<<<<< HEAD
 			g.setColor(Color.cyan);
 		}
 
 		if (this.mach.getBoxes().contains(id)) {
 			g.setColor(Color.black);
+=======
+			if (this.mach.getBoxIndexes().values().contains(id)) {
+				g.setColor(Color.black);
+
+			} else {
+				g.setColor(Color.cyan);
+			}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		}
 
 		if (id >= 0 && accepting.get(id)) {
@@ -394,8 +411,18 @@ public class DrawMachine {
 			g.fillArc(x, y, STATESIZE, STATESIZE, 0, 360);
 		}
 
+<<<<<<< HEAD
 		g.setColor(Color.black);
 		g.setFont(stateFont);
+=======
+		if (!highlight && this.mach.getBoxIndexes().values().contains(id)) {
+			g.setColor(Color.white);
+			g.setFont(stateFont);
+		} else {
+			g.setColor(Color.black);
+			g.setFont(stateFont);
+		}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		if (id >= 0 && accepting.get(id)) {
 			g.drawArc(x - 3, y - 3, STATESIZE + 6, STATESIZE + 6, 0, 360);
 		}

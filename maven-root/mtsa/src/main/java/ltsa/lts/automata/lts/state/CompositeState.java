@@ -190,7 +190,11 @@ public class CompositeState {
 		if (machines != null && !machines.isEmpty()) {
 
 			Analyser analyzer = new Analyser(this, output, null, ignoreAsterisk);
+<<<<<<< HEAD
 			this.composition = analyzer.compose();
+=======
+			this.composition = analyzer.composeNoHide();
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 			this.applyLTSOperations(output);
 		}
 	}
@@ -238,6 +242,10 @@ public class CompositeState {
 				applyHiding();
 			}
 		}
+<<<<<<< HEAD
+=======
+		applyHiding();
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	}
 
@@ -270,6 +278,10 @@ public class CompositeState {
 			TransitionSystemDispatcher.makeAbstractModel(this, output);
 			applyHiding();
 		}
+<<<<<<< HEAD
+=======
+		applyHiding();
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	}
 
@@ -353,13 +365,19 @@ public class CompositeState {
 			exposeNotHide = true;
 			machines.add(saved = ltlProperty);
 			Analyser analyzer = new Analyser(this, output, null);
+<<<<<<< HEAD
 			
 			// If the property has an error state it is necessary to do 
+=======
+
+			// If the property has an error state it is necessary to do
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 			// a progress check to verify whether the property is satisfied
 			if (!ltlProperty.hasERROR()) {
 
 				logger.debug("Composition has no error state");
 				// do full liveness check
+<<<<<<< HEAD
 				ProgressCheck cc = new ProgressCheck(analyzer, output, cs.tracer);
 				boolean satisfied = cc.doLTLCheck();
 				if (!satisfied) {
@@ -371,11 +389,26 @@ public class CompositeState {
 				else{
 					logger.debug("The progress checker does not return an error trace");
 					this.satisfied=true;
+=======
+
+				logger.debug("Checking");
+				ProgressCheck cc = new ProgressCheck(analyzer, output, cs.tracer);
+				boolean satisfied = cc.doLTLCheck();
+				if (!satisfied) {
+					this.satisfied = false;
+					logger.debug("Progress checker returns an error trace");
+					errorTrace = cc.getErrorTrace();
+					setErrorTrace(errorTrace);
+				} else {
+					logger.debug("The progress checker does not return an error trace");
+					this.satisfied = true;
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 				}
 			} else {
 
 				// do safety check
 				logger.debug("The property  contains an error state");
+<<<<<<< HEAD
 				boolean satisfied=analyzer.analyse(cs.tracer, false, false);
 				if(satisfied){
 					this.satisfied=false;
@@ -388,6 +421,19 @@ public class CompositeState {
 					this.satisfied=true;
 				}
 		 }
+=======
+				boolean satisfied = analyzer.analyse(cs.tracer, false, false);
+				if (satisfied) {
+					this.satisfied = false;
+					logger.debug("Analyzer returned an error trace");
+					errorTrace = new Vector<String>(analyzer.getErrorTrace());
+					setErrorTrace(analyzer.getErrorTrace());
+				} else {
+					logger.debug("The property is satisified");
+					this.satisfied = true;
+				}
+			}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 			hidden = saveHidden;
 			exposeNotHide = saveExposeNotHide;
 		}
@@ -421,7 +467,11 @@ public class CompositeState {
 		return composition;
 	}
 
+<<<<<<< HEAD
 		/*
+=======
+	/*
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	 * prefix all constituent machines
 	 */
 	public void prefixLabels(String prefix) {
@@ -555,7 +605,12 @@ public class CompositeState {
 		c.makeControlStack = makeControlStack;
 		c.makeOptimistic = makeOptimistic;
 		c.makePessimistic = makePessimistic;
+<<<<<<< HEAD
 		
+=======
+		c.exposeNotHide=this.exposeNotHide;
+
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		c.setMakeComponent(isMakeComponent());
 		c.setComponentAlphabet(getComponentAlphabet());
 		c.controlStackEnvironments = controlStackEnvironments;
@@ -571,9 +626,20 @@ public class CompositeState {
 		return hidden;
 	}
 
+<<<<<<< HEAD
 	public void addHiddenAction(String action) {
 		this.hidden.add(action);
 	}
+=======
+	private void addHiddenAction(String action) {
+		this.hidden.add(action);
+	}
+	
+	public boolean compositionNotRequired() {
+		return (hidden == null && priorityLabels == null && !makeDeterministic
+				&& !makeMinimal && !makeCompose && !makeSyncController);
+	}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	public void setHidden(Vector<String> hidden) {
 		this.hidden = hidden;

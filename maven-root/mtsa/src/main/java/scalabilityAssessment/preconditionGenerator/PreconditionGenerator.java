@@ -9,17 +9,26 @@ public class PreconditionGenerator {
 
 	private final PropertyGenerator propertyGenerator;
 
+<<<<<<< HEAD
 	private final List<String> alphabet;
 
 	public PreconditionGenerator(List<String> alphabet, String event1,
 			String event2) {
 		this.propertyGenerator = new PropertyGenerator(alphabet, event1, event2);
 		this.alphabet = alphabet;
+=======
+	public PreconditionGenerator(List<String> alphabet, String event1, String event2) {
+		this.propertyGenerator = new PropertyGenerator(alphabet, event1, event2);
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	}
 
 	public List<Formula> getFormulae() {
+<<<<<<< HEAD
 		
+=======
+
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		return propertyGenerator.getFormulae();
 	}
 }

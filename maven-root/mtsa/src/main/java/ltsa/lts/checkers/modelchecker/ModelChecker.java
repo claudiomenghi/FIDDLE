@@ -1,5 +1,10 @@
 package ltsa.lts.checkers.modelchecker;
 
+<<<<<<< HEAD
+=======
+import java.util.Vector;
+
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 import javax.annotation.Nonnull;
 
 import org.apache.commons.logging.Log;
@@ -7,6 +12,10 @@ import org.apache.commons.logging.LogFactory;
 
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
+<<<<<<< HEAD
+=======
+import ltsa.lts.operations.minimization.Minimiser;
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 import ltsa.lts.output.LTSOutput;
 import ltsa.ui.EmptyLTSOuput;
 
@@ -38,6 +47,10 @@ public class ModelChecker {
 	 */
 	private final CompositeState ltlProperty;
 
+<<<<<<< HEAD
+=======
+	private boolean result;
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	/**
 	 * The output to be printed
 	 */
@@ -89,6 +102,10 @@ public class ModelChecker {
 		return modifiedController;
 	}
 
+<<<<<<< HEAD
+=======
+	
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	/**
 	 * runs the realizability checker
 	 */
@@ -96,16 +113,31 @@ public class ModelChecker {
 		environment.compose(new EmptyLTSOuput());
 		LabelledTransitionSystem controllerLTS = controller.getMachines().get(0);
 
+<<<<<<< HEAD
 		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(this.output).modify(controllerLTS);
 		
 		logger.debug("The controller works on the alphabet: "+modifiedController.getAlphabetEvents());
 		this.modifiedController = new CompositeState(modifiedController.getName());
 		this.modifiedController.addMachine(modifiedController);
 
+=======
+		
+		LabelledTransitionSystem modifiedController = new ModelCheckerLTSModifier(this.output).modify(controllerLTS);
+		
+		
+		this.modifiedController = new CompositeState(modifiedController.getName());
+		this.modifiedController.addMachine(modifiedController);
+		this.modifiedController.compose(new EmptyLTSOuput());
+		
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		CompositeState system = new CompositeState("System");
 		environment.getMachines().stream().forEach(system::addMachine);
 		system.addMachine(modifiedController);
 
+<<<<<<< HEAD
+=======
+		output.outln("Running the model checker");
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		boolean result = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
 
 		output.outln("*********************************************************");
@@ -122,7 +154,22 @@ public class ModelChecker {
 		}
 		output.outln("*********************************************************");
 
+<<<<<<< HEAD
 		return system;
 
 	}
+=======
+		this.result=result;
+		return system;
+
+	}
+
+	public boolean getResult() {
+		return result;
+	}
+
+	
+	
+	
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 }

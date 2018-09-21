@@ -4,17 +4,28 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
+<<<<<<< HEAD
+=======
+import org.apache.commons.logging.LogFactory;
+
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 import ltsa.lts.automata.lts.state.CompositeState;
 import ltsa.lts.automata.lts.state.LabelledTransitionSystem;
 import ltsa.lts.ltl.formula.Formula;
 import ltsa.lts.ltl.ltlftoba.LTLf2LTS;
 import ltsa.lts.operations.composition.sequential.SequentialCompositionEngine;
+<<<<<<< HEAD
 import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.lts.output.LTSOutput;
 import ltsa.ui.EmptyLTSOuput;
 
 import org.apache.commons.logging.LogFactory;
 
+=======
+import ltsa.lts.output.LTSOutput;
+import ltsa.ui.EmptyLTSOuput;
+
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 public class SubstitutabilityChecker {
 
 	/** Logger available to subclasses */
@@ -37,9 +48,35 @@ public class SubstitutabilityChecker {
 
 	private LabelledTransitionSystem preConditionLTS;
 	private CompositeState postConditionState;
+<<<<<<< HEAD
 	private LabelledTransitionSystem environmentParallelPrePlusSubcomponentLTS;
 
 	private LabelledTransitionSystem preconditionPlusSubcomponent;
+=======
+
+
+	private LabelledTransitionSystem preconditionPlusSubcomponent;
+	
+	private boolean result;
+	private int resultingcomponentsize;
+	private long effectiveCheckingtime;
+	
+	public int getResultComponentSize(){
+		return this.resultingcomponentsize;
+	}
+	
+	public boolean getResult(){
+		return this.result;
+	}
+	
+	public CompositeState getPostCondition(){
+		return postConditionState;
+	}
+	
+	public long getEffectiveCheckingTime(){
+		return effectiveCheckingtime;
+	}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	/**
 	 * Creates the model checker
@@ -77,9 +114,13 @@ public class SubstitutabilityChecker {
 		ltsOutput.outln("*********************************************************");
 	}
 
+<<<<<<< HEAD
 	public LabelledTransitionSystem getEnvironmentParallelPrePlusSubcomponent() {
 		return this.environmentParallelPrePlusSubcomponentLTS;
 	}
+=======
+	
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	public LabelledTransitionSystem getPostConditionLTS() {
 		return this.postConditionState.getComposition();
@@ -107,9 +148,18 @@ public class SubstitutabilityChecker {
 
 		this.ltsOutput.outln("STEP 2: changing the post-condition");
 		CompositeState environmentParallelPrePlusReplacement = step2();
+<<<<<<< HEAD
 
 		this.ltsOutput.outln("STEP 3: model checking");
 		step3(environmentParallelPrePlusReplacement);
+=======
+		logger.debug("End of Step 2");
+		
+		this.ltsOutput.outln("STEP 3: model checking");
+		this.step3(environmentParallelPrePlusReplacement);
+		logger.debug("End of Step 3");
+		
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 	}
 
@@ -134,9 +184,15 @@ public class SubstitutabilityChecker {
 	}
 
 	private void step3(CompositeState environmentParallelPrePlusReplacement) {
+<<<<<<< HEAD
 		Vector<LabelledTransitionSystem> postCondition = new Vector<>();
 		postCondition.add(this.postConditionState.getComposition());
 		environmentParallelPrePlusReplacement.compose(new EmptyLTSOuput());
+=======
+		//Vector<LabelledTransitionSystem> postCondition = new Vector<>();
+	//	postCondition.add(this.postConditionState.getComposition());
+		//environmentParallelPrePlusReplacement.compose(new EmptyLTSOuput());
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 
 		final StringBuilder machineList = new StringBuilder();
 		environmentParallelPrePlusReplacement.getMachines().forEach(
@@ -148,6 +204,7 @@ public class SubstitutabilityChecker {
 				.forEach(machine -> events.addAll(machine.getAlphabetEvents()));
 		this.logger.debug("SYSTEM MACHINES Alphabet: " + events.toString());
 
+<<<<<<< HEAD
 		Minimiser min = new Minimiser(environmentParallelPrePlusReplacement.getComposition(), new EmptyLTSOuput());
 
 		CompositeState newEnvironmentParallelPrePlusReplacement = new CompositeState(
@@ -155,6 +212,15 @@ public class SubstitutabilityChecker {
 		newEnvironmentParallelPrePlusReplacement.addMachine(min.minimise());
 		newEnvironmentParallelPrePlusReplacement.compose(new EmptyLTSOuput());
 		boolean result = environmentParallelPrePlusReplacement.checkLTL(ltsOutput, postConditionState);
+=======
+
+		long subinit = System.currentTimeMillis();
+		boolean result = environmentParallelPrePlusReplacement.checkLTL(ltsOutput, postConditionState);
+		long  subend = System.currentTimeMillis();
+
+		this.effectiveCheckingtime=subend-subinit;
+		this.result=result;
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 		if (result) {
 			this.ltsOutput.outln("The post-condition is satisfied");
 		} else {
@@ -166,11 +232,15 @@ public class SubstitutabilityChecker {
 			} catch (Exception e) {
 
 			}
+<<<<<<< HEAD
 
 		}
 
 		environmentParallelPrePlusSubcomponentLTS = environmentParallelPrePlusReplacement.getComposition();
 		environmentParallelPrePlusSubcomponentLTS.setName("PARALLEL_COMPOSITION");
+=======
+		}
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	}
 
 	private void step1() {
@@ -211,9 +281,17 @@ public class SubstitutabilityChecker {
 		preconditionPlusSubcomponent.getFinalStateIndexes()
 				.forEach(index -> preconditionPlusSubcomponent.addTransition(index, endEventIndex, index));
 
+<<<<<<< HEAD
 		logger.debug("Size of the obtained sub-controller: " + preconditionPlusSubcomponent.size());
 
 		this.ltsOutput.outln("Computing the sequential composition between the precondition and the sub-controller");
+=======
+		logger.debug("Size of the obtained sub-component: " + preconditionPlusSubcomponent.size());
+
+		resultingcomponentsize=preconditionPlusSubcomponent.size();
+		this.ltsOutput.outln("Computing the sequential composition between the precondition and the sub-controller");
+		
+>>>>>>> c0c727445a15ab11c8e5c067e8f5e17b13e3dfa8
 	}
 
 	private LabelledTransitionSystem transformPreconditioninLTS(Set<String> environmentEvents, Formula precondition,
