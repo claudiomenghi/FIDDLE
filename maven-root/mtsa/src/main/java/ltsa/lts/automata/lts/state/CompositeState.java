@@ -21,6 +21,7 @@ import ltsa.lts.csp.Relation;
 import ltsa.lts.ltl.FluentTrace;
 import ltsa.lts.operations.minimization.Minimiser;
 import ltsa.lts.output.LTSOutput;
+import ltsa.ui.StandardOutput;
 
 /**
  * a composite state contains a vector of state machines that must be performed
@@ -334,6 +335,7 @@ public class CompositeState {
 	 */
 	public boolean checkLTL(LTSOutput output, CompositeState cs) {
 
+		long initialTime = System.currentTimeMillis();
 		Preconditions.checkNotNull(output, "The output cannot be null");
 		Preconditions.checkNotNull(cs, "The composite state cannot be null");
 		Preconditions.checkNotNull(cs.tracer, "The tracer of the property cannot be null");
@@ -364,7 +366,7 @@ public class CompositeState {
 				// do full liveness check
 
 				logger.debug("Checking");
-				ProgressCheck cc = new ProgressCheck(analyzer, output, cs.tracer);
+				ProgressCheck cc = new ProgressCheck(analyzer, new StandardOutput(), cs.tracer);
 				boolean satisfied = cc.doLTLCheck();
 				if (!satisfied) {
 					this.satisfied = false;
@@ -393,6 +395,8 @@ public class CompositeState {
 			hidden = saveHidden;
 			exposeNotHide = saveExposeNotHide;
 		}
+		long finalTime = System.currentTimeMillis();
+		output.outln("Time (s) "+((finalTime-initialTime)/1000));
 		return this.satisfied;
 	}
 

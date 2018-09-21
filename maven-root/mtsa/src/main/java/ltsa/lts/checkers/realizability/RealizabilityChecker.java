@@ -123,7 +123,7 @@ public class RealizabilityChecker {
 			satisfied=true;
 		}
 		else{
-		 satisfied = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
+		 satisfied = system.checkLTL(this.output, ltlProperty);
 		}
 		if (!satisfied) {
 			this.output.outln("Counterexample found: ");
@@ -142,7 +142,7 @@ public class RealizabilityChecker {
 			environment.getMachines().forEach(system::addMachine);
 			system.addMachine(modifiedControllerLTSStep2);
 
-			boolean secondCheckSatisfied = system.checkLTL(new EmptyLTSOuput(), notProperty);
+			boolean secondCheckSatisfied = system.checkLTL(this.output, notProperty);
 			if (secondCheckSatisfied) {
 				this.output.outln("No counterexample found. ");
 				this.output

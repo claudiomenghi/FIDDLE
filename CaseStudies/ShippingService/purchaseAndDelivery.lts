@@ -95,9 +95,23 @@ COMPONENT2 =	INIT,
 assert P1 = (!((!F_UsrReq) U (F_ShipInfoReq || F_ProdInfoReq)))
 assert P2 = [](F_UsrReq->(!((!F_InfoRcvd) U F_OfferRcvd)))
 assert P3 = [](F_UsrReq->((!((!F_UserAck) W F_ShipReq))&&<>F_ShipReq))
-assert P4 = [](F_UsrReq && !F_ReqCanc -> (!F_UserAck W F_ReqCanc))
-assert P4a= []((<>F_ReqCanc)&&(F_UsrReq && !F_ReqCanc -> (!F_UserAck W F_ReqCanc)))
-
+assert P4 = [](	(	(F_UsrReq && 
+							X(
+								(!F_UsrReq)U(F_ReqCanc)
+							)
+					)
+					-> (!F_UserAck W F_ReqCanc)
+				)
+			  )
+assert P4a=[](	(	(F_UsrReq && 
+							X(
+								(!F_UsrReq)U(F_ReqCanc)
+							)
+					)
+					-> (!F_UserAck W F_ReqCanc)
+				)
+				&&<>F_ReqCanc
+			)
 
 
 
@@ -141,16 +155,16 @@ uncomment the following code to run experiment 3
 
 ltl_postcondition COMPONENT2 PREPARINGOFFER PREPARINGOFFER_POST=(<>(F_InfoRcvd) && <>(F_CostAndTime))
 
- 																				
+// comment this post to check the subcomponent 																				
 ltl_postcondition COMPONENT2 MANAGEREQUEST CORRECTLY_MANAGE_REQUEST=
 																	(
 																		// necessary to make P3 satisfied
-																		(<>F_ShipReq)
-																		
+																		(<>F_ShipReq)																
 																		&&
 																		(<>F_ProdReq)
 																	)
 
+// comment this post to check the subcomponent 																				
 ltl_postcondition COMPONENT2 DECLINEREQUEST CORRECTLY_DECLINE_REQUEST=(
 																		// necessary to make P4 satisfied
 																		((!F_UserAck) U F_ReqCanc)
@@ -175,15 +189,15 @@ ltl_precondition COMPONENT2 DECLINEREQUEST CORRECTLY_DECLINE_REQUEST_PRE=[](F_Us
 uncomment the following code to run experiment 5
 */
 
-/*
-subcomponent COMPONENT2 PREPARINGOFFER SubcomponentPrepOffer1=   START,
-																					START= 			(	shipInfoReq 	-> 		SHIPINFOREQ),
-																					SHIPINFOREQ= 	(	costAndTime		->		COSTANDTIMEREC),
-																					COSTANDTIMEREC=	(	prodInfoReq 	->  	ENDSTATE	),
-																					final ENDSTATE.@{PreparingOfferInterface}.
 
-|| SubcomponentPrepOfferProc1=(SubcomponentPrepOffer1).
-*/
+//subcomponent COMPONENT2 PREPARINGOFFER SubcomponentPrepOffer1=   START,
+//																					START= 			(	shipInfoReq 	-> 		SHIPINFOREQ),
+//																					SHIPINFOREQ= 	(	costAndTime		->		COSTANDTIMEREC),
+//																					COSTANDTIMEREC=	(	prodInfoReq 	->  	ENDSTATE	),
+//																					final ENDSTATE.@{PreparingOfferInterface}.
+
+//|| SubcomponentPrepOfferProc1=(SubcomponentPrepOffer1).
+
 
 
 

@@ -107,14 +107,14 @@ public class ModelChecker {
 		
 		this.modifiedController = new CompositeState(modifiedController.getName());
 		this.modifiedController.addMachine(modifiedController);
-		this.modifiedController.compose(new EmptyLTSOuput());
+		this.modifiedController.compose(output);
 		
 		CompositeState system = new CompositeState("System");
 		environment.getMachines().stream().forEach(system::addMachine);
 		system.addMachine(modifiedController);
 
 		output.outln("Running the model checker");
-		boolean result = system.checkLTL(new EmptyLTSOuput(), ltlProperty);
+		boolean result = system.checkLTL(output, ltlProperty);
 
 		output.outln("*********************************************************");
 		if (result) {

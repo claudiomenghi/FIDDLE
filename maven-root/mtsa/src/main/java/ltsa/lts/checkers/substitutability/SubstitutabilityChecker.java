@@ -1,5 +1,6 @@
 package ltsa.lts.checkers.substitutability;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -181,6 +182,7 @@ public class SubstitutabilityChecker {
 			this.ltsOutput.outln("The post-condition is violated");
 			try {
 				this.ltsOutput.outln(environmentParallelPrePlusReplacement.getErrorTrace().toString());
+				
 				postConditionState.getFluentTracer().print(this.ltsOutput,
 						environmentParallelPrePlusReplacement.getErrorTrace(), true);
 			} catch (Exception e) {
@@ -191,7 +193,9 @@ public class SubstitutabilityChecker {
 
 	private void step1() {
 		// transform pre-condition in LTS
-		preConditionLTS = this.transformPreconditioninLTS(environment.getAlphabetEvents(), precondition,
+		preConditionLTS = this.transformPreconditioninLTS(
+				new HashSet<>(
+				this.subComponent.getAlphabetEvents()), precondition,
 				"PRE_" + this.preconditionName);
 
 		logger.debug("Precondition states: " + preConditionLTS.getStates().length + " transitions: "
@@ -204,7 +208,7 @@ public class SubstitutabilityChecker {
 		environment.getMachines().forEach(machine -> environmentAlphabet.addAll(machine.getAlphabetEvents()));
 
 		logger.debug("Subcomponent end state index: "+subComponent.getEndOfSequenceIndex() );
-		environmentAlphabet.forEach(event -> {
+		/*environmentAlphabet.forEach(event -> {
 			if (event != null && !subComponent.getAlphabetEvents().contains(event)) {
 				int eventIndex = subComponent.addEvent(event);
 				for (int i = 0; i < subComponent.getStates().length; i++) {
@@ -213,7 +217,7 @@ public class SubstitutabilityChecker {
 					}
 				}
 			}
-		});
+		});*/
 
 		// integrating the post-condition and the replacement
 		preconditionPlusSubcomponent = new SequentialCompositionEngine().apply(LTLf2LTS.initSymbol.getValue(),
@@ -247,4 +251,5 @@ public class SubstitutabilityChecker {
 
 		return new LTLf2LTS().toPropertyWithInit(output, this.postCondition, alphabetCharacters, postconditionName);
 	}
+	
 }
