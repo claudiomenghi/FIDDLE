@@ -69,6 +69,7 @@ public class PostConditionGenerator {
 	 *         alphabet 1,2
 	 */
 	public List<Formula> getFormulae() {
+		Collections.shuffle(returnFormulae);
 		return Collections.unmodifiableList(returnFormulae);
 	}
 

@@ -1586,6 +1586,15 @@ public class LabelledTransitionSystem implements Automata {
 
 		return transitionNumber / (stateNumber * (stateNumber - 1));
 	}
+	
+	public double getGraphDensity2() {
+		double transitionNumber =
+
+				this.getTransitionNumber();
+		double stateNumber = this.getStates().length;
+
+		return transitionNumber / (stateNumber);
+	}
 
 	public int size() {
 		return this.getStates().length + this.getTransitionNumber();

@@ -2187,6 +2187,7 @@ public class HPWindow extends JFrame implements LTSManager, LTSInput, LTSOutput,
 			TransitionSystemDispatcher.applyComposition(current, this);
 			postState(current);
 			logger.info("%GRAPH DENSITY: " + current.getComposition().getGraphDensity());
+			logger.info("%GRAPH DENSITY: " + current.getComposition().getGraphDensity2());
 			logger.info("%COMPOSITION STATES: " + current.getComposition().getStates().length);
 			logger.info("%COMPOSITION TRANSITIONS: " + current.getComposition().getTransitionNumber());
 			logger.info("%COMPOSITION SIZE: " + current.getComposition().size());
