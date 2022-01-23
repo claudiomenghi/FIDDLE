@@ -48,6 +48,4 @@ The model checker is implemented in the [Substitutability](maven-root/mtsa/src/m
 
 ### Case study
 
-The shipping and Mars Rover case studies are contained into the [CaseStudies](CaseStudies) folder. Further details are provided by the README of the CaseStudies folder.
-
 The scalability results are contained in the [Results](Results) folder. Further details are provided by the README of the Results folder.
